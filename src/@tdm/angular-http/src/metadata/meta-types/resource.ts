@@ -1,4 +1,4 @@
-import { ResourceMetadataArgs, Deserializer } from '@tdm/core';
+import { ResourceMetadataArgs, Deserializer, ResourceMetadata } from '@tdm/core';
 import { Response } from '@angular/http';
 
 import { Params } from '../../utils/match-pattern';
@@ -13,7 +13,7 @@ export interface HttpResourceMetadataArgs extends ResourceMetadataArgs, BaseHttp
   deserializer?: () => Deserializer<Response>;
 }
 
-export class HttpResourceMetadata {
+export class HttpResourceMetadata implements ResourceMetadata {
   /**
    * The url for this resource.
    * This property does not extend from a base type.
@@ -24,7 +24,7 @@ export class HttpResourceMetadata {
   headers?: { [key: string]: any };
   withCredentials?: boolean;
   trailingSlashes?: TrailingSlashesStrategy;
-
+  noBuild: boolean;
   deserializer?: () => Deserializer<Response>;
 
   constructor(obj: HttpResourceMetadataArgs) {

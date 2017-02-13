@@ -30,7 +30,8 @@ export function RestMixin<Model, TypeofModel, TMIXIN, CMIXIN>(model?: TypeofMode
    */
   externalMetadataStore.markMixins(model, HttpAdapter, BaseRestResource, ...mixins);
 
-  const result = Tixin(model, BaseRestResource);
+  // we can't send ...mixin to Tixin since the type limits the ..mixins amount
+  const result = (Tixin as any)(model, BaseRestResource, ...mixins);
 
   externalMetadataStore.buildIfReady(result, HttpAdapter);
 
