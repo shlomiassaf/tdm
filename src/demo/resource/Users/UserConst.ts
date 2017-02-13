@@ -29,6 +29,7 @@ import { RestMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpA
   urlParams: {
     limit: '5'
   },
+  noBuild: true
 })
 @Injectable()
 class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,

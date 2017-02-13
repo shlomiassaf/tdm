@@ -15,7 +15,8 @@ describe('CORE', () => {
       @MockResource({
         endpoint: '/api/users/:id?',
         identity: 'id',
-        deserializer: () => localMockDeserializer
+        deserializer: () => localMockDeserializer,
+        noBuild: true
       })
       class User_ {
         name: string;

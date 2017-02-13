@@ -12,6 +12,7 @@ import { AdapterMetadataStore } from './adapter-metadata-store';
 export class InternalMetadataStore {
   private adapters = new Map<AdapterStatic<any, any>, AdapterMetadataStore>();
   private targets = new Map<any, TargetMetadataStore>();
+  private readyToBuild = new Set<any>();
 
   constructor() {
     // TODO: InternalMetadataStore is singleton, enforce?
@@ -28,6 +29,24 @@ export class InternalMetadataStore {
     } else {
       return this.targets.set(target, new TargetMetadataStore(target)).get(target);
     }
+  }
+
+  setReadyToBuild(target: any): void {
+    if (!this.readyToBuild.has(target)) {
+      this.readyToBuild.add(target);
+    }
+  }
+
+  buildIfReady(target: any, adapterClass: AdapterStatic<any, any>): boolean {
+    if (this.readyToBuild.has(target)) {
+      const adapterStore = this.getTargetAdapterStore(target, adapterClass, false);
+      if (adapterStore) {
+        this.readyToBuild.delete(target);
+        adapterStore.build();
+        return true;
+      }
+    }
+    return false;
   }
 
   getTargetStore(target: any, createIfMissing: boolean = true): TargetMetadataStore | undefined {

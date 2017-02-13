@@ -31,13 +31,7 @@ export function MockMixin<Model, TypeofModel, TMIXIN, CMIXIN>(model?: TypeofMode
 
   const result = Tixin(model, BaseMockResource) as any;
 
-  // communicate with the resource decorator (core/decorator-factories)
-  // the flags are required to support non-extending mixin.
-  if (externalMetadataStore.isReady(model, MockAdapter)) {
-    externalMetadataStore.build(result, MockAdapter);
-  } else {
-    externalMetadataStore.toggleReady(result, MockAdapter);
-  }
+  externalMetadataStore.buildIfReady(result, MockAdapter);
 
   return result as any;
 }

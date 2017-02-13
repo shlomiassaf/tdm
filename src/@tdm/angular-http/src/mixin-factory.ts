@@ -32,13 +32,7 @@ export function RestMixin<Model, TypeofModel, TMIXIN, CMIXIN>(model?: TypeofMode
 
   const result = Tixin(model, BaseRestResource);
 
-  // communicate with the resource decorator (core/decorator-factories)
-  // the flags are required to support non-extending mixin.
-  if (externalMetadataStore.isReady(model, HttpAdapter)) {
-    externalMetadataStore.build(result, HttpAdapter);
-  } else {
-    externalMetadataStore.toggleReady(result, HttpAdapter);
-  }
+  externalMetadataStore.buildIfReady(result, HttpAdapter);
 
   return result as any;
 }

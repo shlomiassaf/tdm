@@ -1,7 +1,7 @@
 import { AdapterStatic, AdapterError } from '../core';
 import { ActionMetadataArgs, ResourceMetadataArgs, decoratorInfo } from './meta-types';
-import { ensureTargetIsType, getProtoChain } from '../utils';
-import { internalMetadataStore, externalMetadataStore } from './reflection';
+import { ensureTargetIsType } from '../utils';
+import { internalMetadataStore } from './reflection';
 import { activeRecordClassFactory } from '../active-record';
 
 export type StoreForValueFactory<T> = (def: T, propertyKey: PropertyKey) => any;
@@ -68,19 +68,10 @@ export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterSt
 
       adapterStore.registerResource(def);
 
-      // communicate with the mixin factories
-      // the flags are required to support non-extending mixin.
-      const protoChain = getProtoChain(target);
-      const ready = protoChain.findIndex( p => externalMetadataStore.isReady(p, adapterClass) );
-
-      if (ready > -1) { // ready means we're decorating a class that extends a mixin, the mixin set readiness
+      if (def.noBuild !== true) {
         adapterStore.build();
-
-        // if the ready was set on sub class we must "unready" it, so re-use of that subclass will work.
-        ready > 0 && externalMetadataStore.toggleReady(protoChain[ready], adapterClass);
-
-      } else { // not extending, using const & type.
-        externalMetadataStore.toggleReady(TDModel, adapterClass);
+      } else {
+        internalMetadataStore.setReadyToBuild(TDModel);
       }
 
       return TDModel;

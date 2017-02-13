@@ -21,6 +21,13 @@ export interface ResourceMetadataArgs {
    * @link DefaultConfig#transformNameStrategy
    */
   transformNameStrategy?: NamingStrategyConfig | undefined;
+
+  /**
+   * If true will not build the decorated class into a resource.
+   * @optional
+   * @default false
+   */
+  noBuild?: boolean;
 }
 
 export interface ResourceMetadata {
@@ -42,5 +49,7 @@ export interface ResourceMetadata {
    * @link DefaultConfig#transformNameStrategy
    */
   transformNameStrategy?: NamingStrategyConfig | undefined;
+
+  noBuild: boolean;
 }
 

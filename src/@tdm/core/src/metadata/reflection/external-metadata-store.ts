@@ -25,14 +25,9 @@ function getAdapterStore(target: any, adapterClass: AdapterStatic<any, any>): Ta
 export class ExternalMetadataStore {
   constructor() { /* TODO: ExternalMetadataStore is singleton, enforce? */ }
 
-  isReady(target: any, adapterClass: AdapterStatic<any, any>): boolean {
-    return getAdapterStore(target, adapterClass).ready;
+  buildIfReady(target: any, adapterClass: AdapterStatic<any, any>): boolean {
+    return store.buildIfReady(target, adapterClass);
   }
-
-  toggleReady(target: any, adapterClass: AdapterStatic<any, any>): void {
-    getAdapterStore(target, adapterClass).toggleReady();
-  }
-
 
   /**
    * Marks mixins as part of the functionality of a target, in a specific adapter.
@@ -44,15 +39,6 @@ export class ExternalMetadataStore {
   markMixins(target: any, adapterClass: AdapterStatic<any, any>, ...mixins: any[]): void {
     const adapterStore = getAdapterStore(target, adapterClass);
     mixins.forEach( m => adapterStore.mixins.add(m) );
-  }
-
-  build(target: any, adapterClass: AdapterStatic<any, any>): void {
-    if (this.isReady(target, adapterClass)) {
-      getAdapterStore(target, adapterClass).build();
-    } else {
-      // TODO: proper error
-      throw new Error('Not ready');
-    }
   }
 }
 
