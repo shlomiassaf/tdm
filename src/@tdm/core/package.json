@@ -1,0 +1,15 @@
+{
+  "name": "@tdm/core",
+  "version": "1.0.0-alpha.4",
+  "description": "Typed data models (@tdm) core library",
+  "main": "bundle/tdm.core.umd.js",
+  "module": "index.js",
+  "typings": "index.d.ts",
+  "keywords": [
+    "@tdm",
+    "core"
+  ],
+  "peerDependencies": {
+    "typescript": "~2.1.0"
+  }
+}

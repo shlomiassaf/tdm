@@ -1,0 +1,18 @@
+{
+  "name": "@tdm/angular-http",
+  "version": "1.0.0-alpha.3",
+  "description": "Angular http adapter for typed data models.",
+  "main": "bundle/tdm.angular-http.umd.js",
+  "module": "index.js",
+  "typings": "index.d.ts",
+  "keywords": [
+    "@tdm",
+    "adapter"
+  ],
+  "dependencies": {
+    "path-to-regexp": "^1.7.0"
+  },
+  "peerDependencies": {
+    "typescript": "~2.1.0"
+  }
+}
