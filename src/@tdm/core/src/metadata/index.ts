@@ -18,7 +18,9 @@ export {
   ValidationSchedule
 } from './meta-types';
 
-export { externalMetadataStore, TargetAdapterMetadataStore } from './reflection';
+export { TargetAdapterMetadataStore } from './reflection';
+
+export { targetStore } from './target-store';
 
 export * from './decorators';
 export const decoratorFactories = _decoratorFactories;

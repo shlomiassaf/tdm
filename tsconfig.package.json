@@ -36,8 +36,7 @@
   },
   "angularCompilerOptions": {
     "genDir": "./compiled",
-    "debug": false,
-    "skipMetadataEmit": false
+    "debug": false
   },
   "compileOnSave": false,
   "buildOnSave": false,

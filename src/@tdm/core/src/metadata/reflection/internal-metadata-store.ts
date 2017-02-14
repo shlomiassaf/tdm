@@ -2,6 +2,8 @@ import { AdapterStatic } from '../../core/interfaces';
 import { TargetMetadataStore } from './target-metadata-store';
 import { TargetAdapterMetadataStore } from './target-adapter-metadata-store';
 import { AdapterMetadataStore } from './adapter-metadata-store';
+import { ResourceMetadataArgs } from '../meta-types/resource';
+
 
 /**
  * Metadata store for internal metadata.
@@ -13,6 +15,7 @@ export class InternalMetadataStore {
   private adapters = new Map<AdapterStatic<any, any>, AdapterMetadataStore>();
   private targets = new Map<any, TargetMetadataStore>();
   private readyToBuild = new Set<any>();
+  private targetNames = new Map<string, TargetAdapterMetadataStore>();
 
   constructor() {
     // TODO: InternalMetadataStore is singleton, enforce?
@@ -28,6 +31,25 @@ export class InternalMetadataStore {
       throw new Error('Target class already exists');
     } else {
       return this.targets.set(target, new TargetMetadataStore(target)).get(target);
+    }
+  }
+
+  setTargetAndAdapter(target: any, adapterClass: AdapterStatic<any, any>, def: ResourceMetadataArgs): TargetAdapterMetadataStore {
+    const adapterStore = this.setTarget(target).getAdapterStore(adapterClass, true);
+    adapterStore.registerResource(def);
+    this.targetNames.set(def.name, adapterStore);
+    return adapterStore;
+  }
+
+  /**
+   * Search for a target registered in the repository by it's name.
+   * @see ResourceMetadataArgs#name
+   * @param name
+   */
+  findTarget(name: string): any {
+    const adapterStore = this.targetNames.get(name);
+    if (adapterStore) {
+      return adapterStore.target;
     }
   }
 

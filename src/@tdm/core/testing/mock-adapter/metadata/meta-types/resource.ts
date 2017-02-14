@@ -1,13 +1,15 @@
-import { ResourceMetadataArgs, Deserializer } from '@tdm/core';
+import { ResourceMetadataArgs, ResourceMetadata, Deserializer } from '@tdm/core';
 
 export interface MockResourceMetadataArgs extends ResourceMetadataArgs {
   deserializer?: () => Deserializer<any>;
 }
 
-export class MockResourceMetadata {
+export class MockResourceMetadata implements ResourceMetadata {
+  name: string;
   endpoint: string;
   identity: string;
   deserializer?: () => Deserializer<any>;
+  noBuild: boolean;
 
   constructor(obj: MockResourceMetadataArgs) {
     Object.assign(this, obj);

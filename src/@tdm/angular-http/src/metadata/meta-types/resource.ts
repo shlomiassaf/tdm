@@ -14,6 +14,8 @@ export interface HttpResourceMetadataArgs extends ResourceMetadataArgs, BaseHttp
 }
 
 export class HttpResourceMetadata implements ResourceMetadata {
+  name: string;
+
   /**
    * The url for this resource.
    * This property does not extend from a base type.

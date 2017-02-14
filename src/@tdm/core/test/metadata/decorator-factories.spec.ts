@@ -1,5 +1,6 @@
-import { MockMixin, MockResource, MockDeserializer, MockActionOptions } from '@tdm/core/testing';
+import { MockMixin, MockResource, MockDeserializer, MockActionOptions, MockAdapter } from '@tdm/core/testing';
 import { ActiveRecord, Constructor, Prop } from '@tdm/core';
+import { internalMetadataStore } from '../../src/metadata/reflection/internal-metadata-store';
 
 const localMockDeserializer = new MockDeserializer();
 
@@ -29,6 +30,7 @@ describe('CORE', () => {
       const user = new User();
       user.$refresh({returnValue}).$ar.next()
         .then( data => {
+          expect(internalMetadataStore.getTargetAdapterStore(User, MockAdapter).resource.name).toBe('User_');
           expect(user.name).toBe('test');
           expect(user.value).toBe('value1');
           done();
@@ -62,6 +64,7 @@ describe('CORE', () => {
       const user = new User();
       user.$refresh({returnValue}).$ar.next()
         .then( data => {
+          expect(internalMetadataStore.getTargetAdapterStore(User, MockAdapter).resource.name).toBe('User');
           expect(user.name).toBe('test');
           expect(user.value).toBe('value1');
           done();
@@ -88,6 +91,7 @@ describe('CORE', () => {
       const user = new User();
       user.$refresh({returnValue}).$ar.next()
         .then( data => {
+          expect(internalMetadataStore.getTargetAdapterStore(User, MockAdapter).resource.name).toBe('User');
           expect(user.name).toBe('test');
           expect(user.value).toBe('value1');
           done();
@@ -96,6 +100,21 @@ describe('CORE', () => {
           done.fail(err);
         });
     });
+
+    it('should override resource name, if set', () => {
+      class User_ { }
+
+      @MockResource({
+        name: 'TestUser',
+        endpoint: '/api/users/:id?',
+        identity: 'id',
+        deserializer: () => localMockDeserializer
+      })
+      class User extends MockMixin(User_) { }
+
+      expect(internalMetadataStore.getTargetAdapterStore(User, MockAdapter).resource.name).toBe('TestUser');
+    });
+
 
     xit('should register lifecycle hooks', () => {
       // static \ instance level

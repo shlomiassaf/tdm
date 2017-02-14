@@ -1,6 +1,6 @@
 import { AdapterStatic, AdapterError } from '../core';
 import { ActionMetadataArgs, ResourceMetadataArgs, decoratorInfo } from './meta-types';
-import { ensureTargetIsType } from '../utils';
+import { ensureTargetIsType, stringify } from '../utils';
 import { internalMetadataStore } from './reflection';
 import { activeRecordClassFactory } from '../active-record';
 
@@ -57,16 +57,17 @@ export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterSt
     return (target: any) => {
       const TDModel = activeRecordClassFactory(target as any);
 
+      if (!def.name) {
+        def.name = stringify(target);
+      }
+
       // TODO: this needs to move outside of core
       // add a hook to `resource` so dev can do stuff before returning.
       // this is temp here to support angular CD
       const paramTypes = (Reflect as any).getOwnMetadata('design:paramtypes', target);
       (Reflect as any).defineMetadata('design:paramtypes', paramTypes, TDModel);
 
-      const targetStore = internalMetadataStore.setTarget(TDModel);
-      const adapterStore = targetStore.getAdapterStore(adapterClass);
-
-      adapterStore.registerResource(def);
+      const adapterStore = internalMetadataStore.setTargetAndAdapter(TDModel, adapterClass, def);
 
       if (def.noBuild !== true) {
         adapterStore.build();

@@ -1,8 +1,8 @@
-import { AdapterStatic } from '../../core/interfaces';
-import { AdapterError } from '../../core/errors';
+import { AdapterStatic } from '../core/interfaces';
+import { AdapterError } from '../core/errors';
 
-import { internalMetadataStore as store } from './internal-metadata-store';
-import { TargetAdapterMetadataStore } from './target-adapter-metadata-store';
+import { internalMetadataStore as store } from './reflection/internal-metadata-store';
+import { TargetAdapterMetadataStore } from './reflection/target-adapter-metadata-store';
 
 /**
  * Returns the adapter store for a target class & Adapter class.
@@ -22,8 +22,17 @@ function getAdapterStore(target: any, adapterClass: AdapterStatic<any, any>): Ta
  *
  * @public
  */
-export class ExternalMetadataStore {
+export class TargetStore {
   constructor() { /* TODO: ExternalMetadataStore is singleton, enforce? */ }
+
+  /**
+   * Search for a target registered in the repository by it's name.
+   * @see ResourceMetadataArgs#name
+   * @param name
+   */
+  findTarget(name: string): any {
+    return store.findTarget(name);
+  }
 
   buildIfReady(target: any, adapterClass: AdapterStatic<any, any>): boolean {
     return store.buildIfReady(target, adapterClass);
@@ -46,4 +55,4 @@ export class ExternalMetadataStore {
  *
  * @public
  */
-export const externalMetadataStore = new ExternalMetadataStore();
+export const targetStore = new TargetStore();

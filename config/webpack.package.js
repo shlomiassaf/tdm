@@ -45,7 +45,7 @@ module.exports = function(metadata) {
       rules: [
         {
           test: /\.ts$/,
-          loader: `awesome-typescript-loader?{configFileName: "tsconfig.package.json"}`,
+          loader: `awesome-typescript-loader?{configFileName: ".tsconfig.tmp.json", declaration: false}`,
           exclude: [/\.e2e\.ts$/]
         }
       ]
