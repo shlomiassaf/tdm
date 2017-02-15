@@ -1,7 +1,7 @@
 import 'rxjs';
 import * as voca from 'voca';
 
-import { MockMixin, MockResource, MockDeserializer } from '@tdm/core/testing';
+import { MockMixin, MockResource, MockDeserializer, bucketFactory } from '@tdm/core/testing';
 import { Prop } from '@tdm/core';
 
 
@@ -9,6 +9,9 @@ const localMockDeserializer = new MockDeserializer();
 
 describe('CORE', () => {
   describe('Target Transformer', () => {
+    const bucket = bucketFactory();
+
+    afterEach(() => bucket.clear() );
 
     it('should apply transform function for incoming & outgoing', (done) => {
       class User_ {
@@ -49,7 +52,7 @@ describe('CORE', () => {
         }
       };
 
-      const user = new User();
+      const user = bucket.create(User);
 
       const payloadInspect = payload => {
         expect(payload['transformed1']).toBe(expected.outgoing.transformed1);
@@ -78,7 +81,7 @@ describe('CORE', () => {
       })
       class User extends MockMixin(class {}) { }
 
-      const user = new User();
+      const user = bucket.create(User);
       const returnValue = {
         my_property1: 1,
         MyProperty2: 2,

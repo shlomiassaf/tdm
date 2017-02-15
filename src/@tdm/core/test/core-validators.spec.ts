@@ -1,4 +1,4 @@
-import { MockMixin, MockResource, MockDeserializer } from '@tdm/core/testing';
+import { MockMixin, MockResource, MockDeserializer, bucketFactory } from '@tdm/core/testing';
 import { Prop, validators } from '@tdm/core';
 
 
@@ -6,6 +6,8 @@ const localMockDeserializer = new MockDeserializer();
 
 describe('CORE', () => {
   describe('Core Validators', () => {
+    const bucket = bucketFactory();
+    afterEach(() => bucket.clear() );
 
     it('Should emit core validation errors', (done) => {
       class User_ {
@@ -55,7 +57,7 @@ describe('CORE', () => {
         between: 1
       };
 
-      const user = new User();
+      const user = bucket.create(User);
 
       user.$refresh({returnValue}).$ar.next()
         .then( data => done.fail(new Error('Validation not triggered')) )
@@ -110,7 +112,7 @@ describe('CORE', () => {
         instanceOfString: 4
       };
 
-      let user = new User();
+      let user = bucket.create(User);
 
       const unique = {};
       user.$refresh({returnValue: returnValuePass}).$ar.next()
@@ -120,7 +122,7 @@ describe('CORE', () => {
         })
         .then( hasError => {
           if (hasError !== unique) {
-            user = new User();
+            user = bucket.create(User);
             user.$refresh({returnValue: returnValueFail}).$ar.next()
               .then( data => done.fail(new Error('Validation not triggered')) )
               .catch( err => {

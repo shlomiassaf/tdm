@@ -3,8 +3,8 @@ import { Component } from '@angular/core';
 
 import { UserBaseClass, UserConst, UsersInterface } from '../../resource';
 
-const User = UserBaseClass;
-type User = UserBaseClass;
+const User = UserConst;
+type User = UserConst;
 
 @Component({
   selector: 'home',
@@ -22,20 +22,21 @@ export class HomeComponent {
     //   .then( () => this.user.raw({withCredentials: true}).$ar.next() )
     //   .then( () => this.gogo());
 
-    // this.user.id = 5;
-    // this.user.$refresh().$ar.next()
-    //   .then(() => {
-    //
-    //   })
-    //   .catch((err) => {
-    //   });
+    this.user.id = 5;
+    this.user.$refresh().$ar.next()
+      .then(() => {
+
+      })
+      .catch((err) => {
+      console.error(err);
+      });
 
 
     // this.gogo();
 
-    UserConst.query().$ar.next()
-      .then( coll => {
-      })
+    // UserConst.query().$ar.next()
+    //   .then( coll => {
+    //   })
   }
 
   gogo() {

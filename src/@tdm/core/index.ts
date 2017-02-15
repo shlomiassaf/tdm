@@ -17,6 +17,16 @@ export {
 } from './src/active-record';
 
 export {
+  MapperFactory,
+  DeserializeMapper,
+  SerializeMapper,
+  PropertyContainer,
+  PoClassPropertyMap,
+  transformValueIn,
+  transformValueOut,
+} from './src/mapping';
+
+export {
   findProp,
   isUndefined, isFunction, isNumber, isString, isSymbol, isPropertyKey, stringify, promiser, Constructor
 } from './src/utils';

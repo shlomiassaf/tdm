@@ -23,7 +23,7 @@ export class MockAdapter implements Adapter<MockActionMetadata, MockActionOption
     const endpoint = findProp('endpoint', resource, action);
 
     if (options.payloadInspect) {
-      options.payloadInspect(ctx.adapterStore.targetController.toPlain(ctx.data));
+      options.payloadInspect(ctx.adapterStore.targetController.serialize(ctx.data));
     }
 
     return new Observable(o => {

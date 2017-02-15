@@ -63,7 +63,7 @@ export class BaseMockResource {
     method: ActionMethodType.CREATE,
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<MockActionMetadata>, data: any, options: MockActionOptions) => {
-      ctx.adapterStore.targetController.fromPlain(ctx.data, data);
+      ctx.adapterStore.targetController.deserialize(ctx.data, data, ctx.action.isCollection);
       return options;
     }
   })
@@ -73,7 +73,7 @@ export class BaseMockResource {
     method: ActionMethodType.UPDATE,
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<MockActionMetadata>, data: any, options: MockActionOptions) => {
-      ctx.adapterStore.targetController.fromPlain(ctx.data, data);
+      ctx.adapterStore.targetController.deserialize(ctx.data, data, ctx.action.isCollection);
       return options;
     }
   })

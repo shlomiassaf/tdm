@@ -8,27 +8,29 @@ import {
   ResponseOptions
 } from '@angular/http';
 import { MockBackend, MockConnection } from '@angular/http/testing';
-import { URLSearchParams } from '@angular/http';
 
+import { URLSearchParams } from '@angular/http';
 import { RestMixin, HttpResource, HttpAction, UrlParam, HttpResourceModule, HttpActionMethodType } from '@tdm/angular-http';
+import { bucketFactory } from '@tdm/core/testing';
 
 describe('NG-HTTP', () => {
   describe('HTTP Resource Action Handler', () => {
-    it('should throw if Http service not set (or action invoked before ng bootstrapped)', () => {
+    const bucket = bucketFactory();
+    afterEach(() => bucket.clear() );
+
+    it('should throw if Http service not set (or action invoked before ng bootstrapped)', (done) => {
       @HttpResource({
         endpoint: '/api/users/:id?',
         identity: 'id'
       })
       class User extends RestMixin(class { id: number; }) { }
 
-      const user = new User();
-      user.id = 20;
-
       let event;
       new User().$refresh().$ar.events$.first().subscribe( e => event = e, null, () => {
         expect(event).toBeTruthy;
         expect(event.type).toEqual('ActionError');
         expect(event['error'].toString()).toEqual('Error: Http service not preset. Make sure you registered the provider and you are not invoking actions before angular bootstrapped.');
+        done();
       });
     });
 
@@ -54,6 +56,9 @@ describe('NG-HTTP', () => {
       let mockBackend: MockBackend;
       beforeEach(inject([MockBackend], m => mockBackend = m));
 
+      const bucket = bucketFactory();
+      afterEach(() => bucket.clear() );
+
       it('should strip trailing slashes', fakeAsync(() => {
         @HttpResource({
           endpoint: '/api/users/',
@@ -66,7 +71,8 @@ describe('NG-HTTP', () => {
           expect(conn.request.url).toBe('/api/users');
         });
 
-        User.query();
+        bucket.bucket.push(User.query());
+        tick();
       }));
 
       it('should force trailing slashes',  fakeAsync(() => {
@@ -81,7 +87,8 @@ describe('NG-HTTP', () => {
           expect(conn.request.url).toBe('/api/users/');
         });
 
-        User.query();
+        bucket.bucket.push(User.query());
+        tick();
       }));
 
       it('should build resource with default param ',  fakeAsync(() => {
@@ -96,7 +103,8 @@ describe('NG-HTTP', () => {
           expect(conn.request.url).toBe('/api/users/15/99');
         });
 
-        User.find(15);
+        bucket.bucket.push(User.find(15));
+        tick();
       }));
 
 
@@ -111,26 +119,33 @@ describe('NG-HTTP', () => {
           expect(conn.request.url).toBe('/api/users');
         });
 
-        User.query();
+        bucket.bucket.push(User.query());
+        tick();
       }));
 
 
-      it('should throw if id not supplied and not optional',  fakeAsync(() => {
+      it('should throw if id not supplied and not optional', fakeAsync(() => {
         @HttpResource({
           endpoint: '/api/users/:id',
           identity: 'id'
         })
         class User extends RestMixin(class { id: number; }) { }
 
+        const EVENTS = ['ActionStart', 'ActionError'];
+
         let event;
         new User().$refresh().$ar.events$.first().subscribe( e => event = e, null, () => {
           expect(event).toBeTruthy;
-          expect(event.type).toEqual('ActionError');
-          expect(event['error'].toString()).toEqual('Error: URL Parameter Error in HttpAdapter: Expected "id" to be defined');
+
+          expect(event.type).toEqual(EVENTS.shift());
+          if (event.type === 'ActionError') {
+            expect(event['error'].toString()).toEqual('Error: URL Parameter Error in HttpAdapter: Expected "id" to be defined');
+          }
         });
+        tick();
       }));
 
-      it('should build resource with bound param',  fakeAsync(() => {
+      it('should build resource with bound param', fakeAsync(() => {
         class User_ {
           id: number;
           @UrlParam() param: number = 99;
@@ -147,7 +162,8 @@ describe('NG-HTTP', () => {
           expect(conn.request.url).toBe('/api/users/15/99');
         });
 
-        User.find(15);
+        bucket.bucket.push(User.find(15));
+        tick();
       }));
 
       it('should use urlTemplateParamName, if defined',  fakeAsync(() => {
@@ -183,7 +199,8 @@ describe('NG-HTTP', () => {
           expect(search.get('onQS2')).toEqual('8');
         });
 
-        User.find(15);
+        bucket.bucket.push(User.find(15));
+        tick();
       }));
 
       it('should apply method filter, if set.',  fakeAsync(() => {
@@ -243,7 +260,8 @@ describe('NG-HTTP', () => {
 
         });
 
-        User.find(15);
+        bucket.bucket.push(User.find(15));
+        tick();
       }));
 
       it('should set non path param as query string',  fakeAsync(() => {
@@ -267,7 +285,8 @@ describe('NG-HTTP', () => {
 
         });
 
-        User.find(15, { urlParams: { qs2: '2'} });
+        bucket.bucket.push(User.find(15, { urlParams: { qs2: '2'} }));
+        tick();
       }));
 
       it('should override ', fakeAsync(() => {
@@ -296,7 +315,8 @@ describe('NG-HTTP', () => {
 
         });
 
-        User.find(15, { urlParams: { qs2: 'param2-adhoc'} });
+        bucket.bucket.push(User.find(15, { urlParams: { qs2: 'param2-adhoc'} }));
+        tick();
       }));
     });
   });

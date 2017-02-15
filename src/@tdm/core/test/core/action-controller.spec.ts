@@ -1,5 +1,5 @@
 import 'rxjs';
-import { MockMixin, MockResource, MockDeserializer } from '@tdm/core/testing';
+import { MockMixin, MockResource, MockDeserializer, bucketFactory } from '@tdm/core/testing';
 import { Hook, ActiveRecordCollection, ExecuteResponse } from '@tdm/core';
 
 import { MockActionOptions } from "../../testing/mock-adapter/core/interfaces";
@@ -61,6 +61,8 @@ describe('CORE', () => {
 
 
   describe('Action Controller', () => {
+    const bucket = bucketFactory();
+
     beforeEach(() => {
       spyOn(PUser, 'beforeRefresh');
       spyOn(PUser, 'afterRefresh');
@@ -71,6 +73,7 @@ describe('CORE', () => {
     });
 
     afterEach(() => {
+      bucket.clear();
       PUser.beforeRefresh.calls.reset();
       PUser.afterRefresh.calls.reset();
       PUser.rawHandler.calls.reset();
@@ -81,7 +84,7 @@ describe('CORE', () => {
 
 
     it('should call instance level hooks', (done) => {
-      const user = new User();
+      const user = bucket.create(User);
       user.$refresh().$ar.next()
         .then( data => {
           expect(PUser.beforeRefresh).toHaveBeenCalledTimes(1);
@@ -96,6 +99,7 @@ describe('CORE', () => {
     it('should call static level hooks', (done) => {
       User.query({ returnValue: [ { username: '1' }, { username: '2' }, { username: '3' } ] }).$ar.next()
         .then( data => {
+          bucket.bucket.push(data)
           expect(SUser.beforeQuery).toHaveBeenCalledTimes(1);
           expect(SUser.afterQuery).toHaveBeenCalledTimes(1);
           expect(SUser.beforeQuery.calls.mostRecent().object instanceof ActiveRecordCollection).toBe(true);

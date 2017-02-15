@@ -31,7 +31,8 @@ export interface IUserInterfaceStatic extends Constructor<IUserInterface> {
 
 export interface IUserInterface extends ActiveRecord<IUserInterface, HttpActionOptions> {
   id: number;
-  username: string;
+  username__: string;
+  _motto_: string;
 
   rawDeserialized: (options?: HttpActionOptions) => RestMixin<IUserInterface>;
   raw: (options?: HttpActionOptions) => RestMixin<IUserInterface>;
@@ -48,7 +49,8 @@ export interface IUserInterface extends ActiveRecord<IUserInterface, HttpActionO
 })
 @Injectable()
 export class UsersInterface extends RestMixin<IUserInterface, IUserInterfaceStatic>()
-                            implements  BeforeHook<'bfRef', HttpActionOptions>,
+                            implements  IUserInterface,
+                                        BeforeHook<'bfRef', HttpActionOptions>,
                                         AfterHook<'afRef', HttpActionOptions> {
 
   @UrlParam() id: number = 2; // this will go into the "endpoint" from the instance!
@@ -113,12 +115,12 @@ export class UsersInterface extends RestMixin<IUserInterface, IUserInterfaceStat
   }
 }
 
-// UsersInterface.find(2).username;                                     // OK
+// UsersInterface.find(2).username__;                                   // OK
 // UsersInterface.find(2).usernam23e;                                   // SHOULD ERROR
 // UsersInterface.num;                                                  // OK
-// new UsersInterface().$refresh().username;                            // OK
+// new UsersInterface().$refresh().username__;                          // OK
 // const user: UsersInterface = new UsersInterface();                   // OK
-// user.$refresh().username;                                            // OK
+// user.$refresh().username__;                                          // OK
 // user.$refresh().abcd;                                                // SHOULD ERROR
 // user.$ar.next().then( u => u.id );                                   // OK
 // user.$ar.next().then( u => u.f34 );                                  // SHOULD ERROR

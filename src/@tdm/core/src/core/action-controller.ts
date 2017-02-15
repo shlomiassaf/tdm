@@ -1,4 +1,6 @@
 import { Observable } from 'rxjs/Observable';
+import { asap } from 'rxjs/scheduler/asap';
+
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/switchMap';
@@ -61,19 +63,24 @@ export class ActionController {
             ? ctx.adapterStore.targetController.createCollection()
             : ctx.adapterStore.targetController.create()
           ;
-          return self.execute(instance, ctx, ...args);
+          self.execute(instance, ctx, true, ...args);
+          return instance;
         }
       } else {
         this.target.prototype[action.name] = function(this: BaseActiveRecord<any>, ...args: any[]) {
-          return self.execute(this, ctx, ...args);
+          self.execute(this, ctx, true, ...args);
+          return this;
         }
       }
     }
   }
 
-  createExecFactory(action: ActionMetadata): (self: BaseActiveRecord<any>, ...args: any[]) => any {
+  createExecFactory<T extends BaseActiveRecord<any>>(action: ActionMetadata): (self: T, async: boolean, ...args: any[]) => T {
     const ctx = this.createContext(action);
-    return (self: BaseActiveRecord<any>, ...args: any[]) => this.execute(self, ctx, ...args) ;
+    return (self: T, async: boolean, ...args: any[]) => {
+      this.execute(self, ctx, async, ...args);
+      return self;
+    };
   }
 
   hasMethod(name: PropertyKey): boolean {
@@ -81,85 +88,78 @@ export class ActionController {
   }
 
   private createContext(action: ActionMetadata): ExtendedContext {
-
     return new ExtendedContext(this.adapterStore, action, findProp('deserializer', this, this.adapterStore.resource, action));
   }
 
-  private execute(self: BaseActiveRecord<any> | ActiveRecordCollection<any>, ctx: ExtendedContext, ...args: any[]): any {
+
+  private execute(self: BaseActiveRecord<any> | ActiveRecordCollection<any>, ctx: ExtendedContext, async: boolean, ...args: any[]): void {
     if (self.$ar.busy) { // TODO: Should throw or error?
-      emitEvent(self, eventFactory.error(new Error('An action is already running')));
-    } else {
-      emitEvent(self, eventFactory.actionStart());
+      emitEvent(eventFactory.error(self, new Error('An action is already running')));
+      return;
+    }
 
-      const targetController = this.adapterStore.targetController;
-      const action = ctx.action;
-      const pubCtx = ctx.pubCtx(self);
+    emitEvent(eventFactory.actionStart(self));
 
-      const options = isFunction(action.pre) ? action.pre(pubCtx, ...args) : args[0];
+    const targetController = this.adapterStore.targetController;
+    const action = ctx.action;
+    const pubCtx = ctx.pubCtx(self);
 
-      const validator = action.validation === 'skip'
+    const options = isFunction(action.pre) ? action.pre(pubCtx, ...args) : args[0];
+
+    const validator = action.validation === 'skip'
         ? undefined
         : () => targetController.validate(self).then( validationErrors => {
-            if (validationErrors.length > 0) {
-              throw new ResourceValidationError(self, validationErrors);
-            }
-          })
-        ;
+          if (validationErrors.length > 0) {
+            throw new ResourceValidationError(self, validationErrors);
+          }
+        })
+      ;
 
-      // TODO:  fireEvent uses member name as Hook matcher, this requires member name to be one of
-      //        "ARHookableMethods", let user set the action method in ActionMetadata or something
-      //        - Also applied to fireEvent "after" below.
-      const startingPromise = this.fireHook(action.name as any, 'before', self, options)
-        .then(validateOutgoing(action.validation) ? validator : noopPromise);
+    // TODO:  fireEvent uses member name as Hook matcher, this requires member name to be one of
+    //        "ARHookableMethods", let user set the action method in ActionMetadata or something
+    //        - Also applied to fireEvent "after" below.
+    const startingPromise = this.fireHook(action.name as any, 'before', self, options)
+      .then(validateOutgoing(action.validation) ? validator : noopPromise);
 
-      let obs$: Observable<any | void> = Observable.fromPromise(startingPromise)
-        .switchMap( () => this.adapter.execute(pubCtx, options) )
-        .switchMap( resp => {
-          let p = !action.raw || action.raw.deserialize
+    let obs$: Observable<any | void> = Observable.fromPromise(startingPromise)
+      .switchMap( () => this.adapter.execute(pubCtx, options) )
+      .switchMap( resp => {
+        let p = !action.raw || action.raw.deserialize
             ? ctx.deserialize(resp.response).then( data => { resp.deserialized = data; return resp; } )
             : Promise.resolve(resp)
           ;
 
-          return Observable.fromPromise(p);
-        });
+        return Observable.fromPromise(p);
+      });
 
-      if (!action.raw) {
-        const endingPromise = (resp: ExecuteResponse) => (!action.isCollection && validateIncoming(action.validation) ? validator() : noopPromise())
-          .then( () => this.fireHook(action.name as any, 'after', self, options, resp) );
+    if (!action.raw) {
+      const endingPromise = (resp: ExecuteResponse) => (!action.isCollection && validateIncoming(action.validation) ? validator() : noopPromise())
+        .then( () => this.fireHook(action.name as any, 'after', self, options, resp) );
 
-        obs$ = obs$.do( ({deserialized}) => {
-          if (action.isCollection === true) {
-            (self as ActiveRecordCollection<any>).collection = deserialized.map( data => targetController.create({ data }) );
-          } else {
-            targetController.fromPlain(self, deserialized);
-          }
-        })
-          .switchMap( resp => Observable.fromPromise<void>(endingPromise(resp)) );
-      } else {
-        obs$ = obs$.do( resp => setTimeout( () => {
-          action.raw.handler.apply(self, [resp, options]);
-          }, 0));
-      }
-
-      const subs = obs$.subscribe(
-          _ => emitEvent(self, eventFactory.success()),
-          err => emitEvent(self, eventFactory.error(err)),
-          () => emitEvent(self, eventFactory.actionEnd('success'))
-          // TODO: protect from never ending observables in this chain?
-          // maybe first()? take()? are there handlers that emit multiple values?
-        );
-
-      const subscription = Object.create(subs);
-      subscription.unsubscribe = () => {
-        subs.unsubscribe();
-        emitEvent(self, eventFactory.cancel());
-        emitEvent(self, eventFactory.actionEnd('cancel'));
-      };
-
-      emitEvent(self, new CancellationTokenResourceEvent(subscription));
+      obs$ = obs$
+        .do( ({deserialized}) => targetController.deserialize(deserialized, self, action.isCollection) )
+        .switchMap( resp => Observable.fromPromise<void>(endingPromise(resp)) );
+    } else {
+      async = true;
+      obs$ = obs$.do( resp => action.raw.handler.apply(self, [resp, options]) );
     }
 
-    return self;
+    const subs = obs$.subscribeOn(async ? asap : null).subscribe(
+      _ => emitEvent(eventFactory.success(self)),
+      err => emitEvent(eventFactory.error(self, err)),
+      () => emitEvent(eventFactory.actionEnd(self, 'success'))
+      // TODO: protect from never ending observables in this chain?
+      // maybe first()? take()? are there handlers that emit multiple values?
+    );
+
+    const subscription = Object.create(subs);
+    subscription.unsubscribe = () => {
+      subs.unsubscribe();
+      emitEvent(eventFactory.cancel(self));
+      emitEvent(eventFactory.actionEnd(self, 'cancel'));
+    };
+
+    emitEvent(new CancellationTokenResourceEvent(self, subscription));
   }
 
   private fireHook(action: ARHookableMethods, event: 'before' | 'after', self: any, options: ActionOptions, ...args: any[]): Promise<void> {

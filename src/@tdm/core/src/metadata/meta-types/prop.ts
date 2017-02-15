@@ -14,12 +14,16 @@ export interface PropMetadataArgs {
   transform?: TransformFn | Partial<PropTransformConfig>;
 
   validation?: Validator | Validator[];
+
+  rel?: 'belongsTo' | 'hasMany' | 'hasOne';
 }
 
 export class PropMetadata {
   alias: PropAliasConfig;
   validation: Validator[];
   transform?: Partial<PropTransformConfig>;
+  rel: 'belongsTo' | 'hasMany' | 'hasOne';
+
 
   constructor(obj: PropMetadataArgs, public type: any, public name: string) {
     // TODO: throw if name is not a string (can be symbol)

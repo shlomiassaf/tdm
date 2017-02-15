@@ -4,6 +4,8 @@ import { activeRecordClassFactory, ActiveRecordState } from '../../src/active-re
 
 describe('CORE', () => {
   describe('Active Record', () => {
+
+
     it('should return the original name when calling toString()', () => {
       const User = activeRecordClassFactory(class User { });
       expect(new User().toString()).toEqual('User');

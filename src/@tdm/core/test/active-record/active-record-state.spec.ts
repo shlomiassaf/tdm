@@ -1,5 +1,5 @@
 import 'rxjs';
-import { MockMixin, MockResource, MockDeserializer } from '@tdm/core/testing';
+import { MockMixin, MockResource, MockDeserializer, bucketFactory } from '@tdm/core/testing';
 import { ActiveRecord, ActionEndResourceEvent, ResourceEvent, ResourceEventType } from "@tdm/core";
 import { ARMethods } from '../../../core/src/active-record';
 import { MockActionOptions } from "../../testing/mock-adapter/core/interfaces";
@@ -111,6 +111,10 @@ function getEvents(spied: jasmine.Spy | any): ResourceEvent[] {
 
 describe('CORE', () => {
   describe('Active Record State', () => {
+    const bucket = bucketFactory();
+
+    afterEach( () => bucket.clear() );
+
     it('should emit events', (done) => {
       const spies = {
         streamCb: () => {},
@@ -120,7 +124,7 @@ describe('CORE', () => {
       spyOn(spies, 'streamCb').and.callThrough();
       spyOn(spies, 'errCb');
 
-      collectEvents(new User(), '$refresh', { eventCount: 3, timeout: 100 })
+      collectEvents(bucket.create(User), '$refresh', { eventCount: 3, timeout: 100 })
         .then( spies.streamCb )
         .catch( spies.errCb )
         .then( () => {
@@ -141,7 +145,7 @@ describe('CORE', () => {
       spyOn(spies, 'streamCb').and.callThrough();
       spyOn(spies, 'errCb');
 
-      collectEvents(new User(), '$refresh', { cmdData: { throwError: new Error('testError') }, eventCount: 3, timeout: 100 })
+      collectEvents(bucket.create(User), '$refresh', { cmdData: { throwError: new Error('testError') }, eventCount: 3, timeout: 100 })
         .then( spies.streamCb )
         .catch( spies.errCb )
         .then( () => {
@@ -177,7 +181,7 @@ describe('CORE', () => {
 
       };
 
-      consumeEvents(events, new User(), myDone, { loose: true } )
+      consumeEvents(events, bucket.create(User), myDone, { loose: true } )
         .$refresh({ returnValue: {username: 'test'} })
         .$ar.next().then(spies.streamCb);
 
@@ -201,7 +205,7 @@ describe('CORE', () => {
         }, 0);
       };
 
-      new User().$ar.next()
+      bucket.create(User).$ar.next()
         .then(spies.streamCb)
         .catch(spies.errCb)
         .then(myDone);
@@ -242,7 +246,7 @@ describe('CORE', () => {
         done();
       };
 
-      const user = new User();
+      const user = bucket.create(User);
       user.$ar.events$.subscribe(spies.streamCb, spies.errCb);
 
       consumeEvents(events, user, myDone1, {loose: true})
@@ -261,7 +265,7 @@ describe('CORE', () => {
       ];
 
       let hits = 0;
-      const user = consumeEvents(events, new User(), done, {loose: true});
+      const user = consumeEvents(events, bucket.create(User), done, {loose: true});
 
       user.$ar.events$.subscribe( event => {
         switch(event.type) {
@@ -296,11 +300,36 @@ describe('CORE', () => {
       user.$refresh();
     });
 
+
+    it('should emit busy$', (done) => {
+      @MockResource({
+        endpoint: '/api/users/:id?',
+        identity: 'id',
+        deserializer: () => localMockDeserializer,
+      })
+      class User extends MockMixin(class {}) { }
+      const user = bucket.create(User);
+      const busyStates = [true, false];
+
+
+      user.$refresh().$ar.busy$.subscribe(
+        busy => {
+          expect(typeof busy).toBe('boolean');
+          expect(busy).toBe(busyStates.shift());
+          if (busyStates.length === 0) {
+            done();
+          }
+        },
+        err => done.fail(err)
+      );
+
+    });
+
     it('should reflect result in action end event', (done) => {
       let events = [];
 
       let hits = 0;
-      const user = new User();
+      const user = bucket.create(User);
       user.$ar.events$.subscribe( event => {
         events.push(event.type);
 
@@ -348,7 +377,7 @@ describe('CORE', () => {
     });
 
     it('busy status should update even if events not subscribed.', () => {
-      const user = new User();
+      const user = bucket.create(User);
       expect(user.$ar.busy).toBe(false);
       expect(user.$refresh().$ar.busy).toBe(true);
     });
@@ -365,7 +394,7 @@ describe('CORE', () => {
         done();
       };
 
-      const user = consumeEvents(events, new User(), myDone, {loose: true}).$refresh({
+      const user = consumeEvents(events, bucket.create(User), myDone, {loose: true}).$refresh({
         returnValue: { username: 'test' }
       });
 
@@ -384,7 +413,7 @@ describe('CORE', () => {
         done();
       };
 
-      const user = consumeEvents(events, new User(), myDone).$refresh({
+      const user = consumeEvents(events, bucket.create(User), myDone).$refresh({
         returnValue: { username: 'test' }
       });
 
@@ -402,11 +431,67 @@ describe('CORE', () => {
         done();
       };
 
-      const user = consumeEvents(events, new User(), myDone).$refresh({
+      const user = consumeEvents(events, bucket.create(User), myDone).$refresh({
         returnValue: { username: 'test' }
       });
 
       user.$ar.disconnect();
+    });
+
+    it('should disconnect', (done) => {
+      @MockResource({
+        endpoint: '/api/users/:id?',
+        identity: 'id',
+        deserializer: () => localMockDeserializer,
+      })
+      class User extends MockMixin(class {}) { }
+      const user = bucket.create(User);
+
+      const busyStates = [true, false];
+      user.$refresh().$ar.busy$.subscribe(
+        busy => {
+          expect(typeof busy).toBe('boolean');
+          expect(busy).toBe(busyStates.shift());
+          if (busyStates.length === 0) {
+            user.$ar.disconnect();
+          }
+        },
+        err => done.fail(err),
+        () => done()
+      );
+
+    });
+
+    it('should allow reconnect to busy$ after disconnect', (done) => {
+      @MockResource({
+        endpoint: '/api/users/:id?',
+        identity: 'id',
+        deserializer: () => localMockDeserializer,
+      })
+      class User extends MockMixin(class {}) { }
+      const user = bucket.create(User);
+
+      const run = (onDone: (err?: any) => void) => {
+        const busyStates = [true, false];
+        user.$refresh().$ar.busy$.subscribe(
+          busy => {
+            expect(typeof busy).toBe('boolean');
+            expect(busy).toBe(busyStates.shift());
+            if (busyStates.length === 0) {
+              onDone();
+            }
+          },
+          err => onDone(err)
+        );
+      };
+
+      run((err) => {
+        if (err) {
+          return done.fail(err);
+        }
+        user.$ar.disconnect();
+        run((err1) => err1 ? done.fail(err1) : done() );
+      });
     });
   });
 });

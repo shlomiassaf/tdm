@@ -1,6 +1,6 @@
 import 'rxjs';
 
-import { MockMixin, MockResource, MockDeserializer } from '@tdm/core/testing';
+import { MockMixin, MockResource, MockDeserializer, bucketFactory } from '@tdm/core/testing';
 import { Prop, ValidationContext } from '@tdm/core';
 
 
@@ -8,6 +8,8 @@ const localMockDeserializer = new MockDeserializer();
 
 describe('CORE', () => {
   describe('Target Validation', () => {
+    const bucket = bucketFactory();
+    afterEach(() => bucket.clear() );
 
     it('should apply transform function for incoming & outgoing', (done) => {
       class User_ {
@@ -36,7 +38,7 @@ describe('CORE', () => {
         validatable: 'validatable'
       };
 
-      const user = new User();
+      const user = bucket.create(User);
 
       user.$refresh({returnValue}).$ar.next()
         .then( data => done.fail(new Error('Validation not triggered')) )

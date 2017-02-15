@@ -1,88 +1,59 @@
 import { Observable } from 'rxjs/Observable'
+import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import { Subscription } from 'rxjs/Subscription'
 import { Subject } from 'rxjs/Subject'
 import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/do';
 
-import { DefineProperties, promiser } from '../utils';
+import { promiser } from '../utils';
 import { ResourceEvent, CancellationTokenResourceEvent, ActionErrorResourceEvent } from './active-record-events';
 import { BaseActiveRecord } from './active-record-interfaces';
 import { ResourceError } from '../core/errors';
-
-/**
- * Make active record props future proof for refactoring.
- * TODO: remove when stable.
- */
-const defineProperties: DefineProperties<ActiveRecordState<any>> = Object.defineProperties;
+import { LazyInit } from '../utils/decorators';
 
 // Weak map for private emitter
 // TODO: check perf, maybe symbols are "less" private but more performant
 const privateDict = new WeakMap<BaseActiveRecord<any>, {
   emitter: Subject<ResourceEvent>,
   actionCancel: Subscription,
-  init?: boolean
 }>();
+
+const ENDING_EVENTS = [
+  'ActionError',
+  'ActionEnd',
+  'ActionCancel'
+];
+
+const BUSY_CHANGED = Symbol('BUSY CHANGED');
 
 /**
  * Emits an `ResourceEvent` in the `ActiveRecordState#.$events` of a `BaseResource`
  * @internal
- * @param tdModel
  * @param event
  */
-export function emitEvent(tdModel: BaseActiveRecord<any>, event: ResourceEvent): void {
-  const pData = privateDict.get(tdModel);
+export function emitEvent(event: ResourceEvent): void {
+  const pData = privateDict.get(event.resource);
+  const ar = event.resource.$ar;
 
   // emitter might face race issues with micro tasks, make sure busy state is sync at all times.
-  if (event.type === 'ActionStart' || event.type === 'ActionEnd') {
-    tdModel.$ar.busy = event.type === 'ActionStart';
+  if (ar.busy === false && event.type === 'ActionStart') {
+    ar.busy = true;
+    Object.defineProperty(event, BUSY_CHANGED, { value: ar.busy });
+  } else if (ar.busy === true && ENDING_EVENTS.indexOf(event.type) !== -1) {
+    ar.busy = false;
+    pData.actionCancel = undefined;
+    Object.defineProperty(event, BUSY_CHANGED, { value: ar.busy });
   }
 
   if (event.internal === true) {
     if (event instanceof CancellationTokenResourceEvent) {
-      privateDict.get(tdModel).actionCancel = event.token;
+      privateDict.get(event.resource).actionCancel = event.token;
     }
   } else {
-    if (!pData.init) {
-      // handle some of the primitive state logic
-    } else {
-      pData.emitter.next(event);
-    }
+    pData.emitter.next(event);
   }
 }
-
-
-function lazyEvents(this: ActiveRecordState<any>) {
-  const pData = privateDict.get(this.parent);
-
-  pData.init = true;
-  const shared$ = pData.emitter.share()
-    .do( event => {
-      switch(event.type) {
-        case 'ActionStart':
-          this.busy = true;
-          break;
-        case 'ActionEnd':
-          this.busy = false;
-          privateDict.get(this.parent).actionCancel = undefined;
-          break;
-        default:
-          break;
-      }
-    });
-
-  defineProperties(this, {
-    events$: { value: shared$ },
-    busy$: {
-      value: shared$
-        .filter( event => event.type === 'ActionStart' || event.type === 'ActionEnd')
-        .map( e => this.busy )
-    }
-  });
-
-  return this.events$;
-}
-
 
 /**
  * An notification interface to get notified about events and state changes of an active record.
@@ -108,17 +79,33 @@ export class ActiveRecordState<T> {
   /**
    * A stream of `ResourceEvent` see `ResourceEventType` for possible events.
    */
+  @LazyInit(function(this: ActiveRecordState<any>) {
+    return privateDict.get(this.parent).emitter.share();
+  })
   events$: Observable<ResourceEvent>;
 
   /**
    * An observable that emits a value every time the busy state changes.
    */
-  busy$: Observable<boolean>;
+  get busy$(): Observable<boolean> {
+    if (!this._busy$) { // recover from disconnection.
+      const subject = new BehaviorSubject(this.busy);
+
+      this.events$
+        .filter( event => event.hasOwnProperty(BUSY_CHANGED) )
+        .map( event => event[BUSY_CHANGED]).subscribe(subject);
+
+      this._busy$ = new Observable( o => subject.subscribe(o) );
+    }
+    return this._busy$;
+  }
 
   /**
    * Indicates if the active record is busy performing an action.
    */
   busy: boolean;
+
+  private _busy$: Observable<boolean>;
 
   constructor(public parent: BaseActiveRecord<T>) {
 
@@ -165,6 +152,7 @@ export class ActiveRecordState<T> {
     if (pData.emitter.observers) {
       pData.emitter.observers.slice().forEach(o => !o.closed && o.complete());
     }
+    this._busy$ = undefined;
   }
 
   /**
@@ -180,7 +168,3 @@ export class ActiveRecordState<T> {
     }
   }
 }
-defineProperties(ActiveRecordState.prototype, {
-  events$: { get: lazyEvents },
-  busy$: { get: lazyEvents as any } // lazyEvents returns $events but sets busy$ once...
-});

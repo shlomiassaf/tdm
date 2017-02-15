@@ -1,6 +1,6 @@
 import 'rxjs';
 
-import { MockMixin, MockResource, MockDeserializer } from '@tdm/core/testing';
+import { MockMixin, MockResource, MockDeserializer, bucketFactory } from '@tdm/core/testing';
 import { Prop, Exclude } from '@tdm/core';
 
 
@@ -77,10 +77,13 @@ const returnValue = {
 describe('CORE', () => {
   describe('Target Transformer', () => {
 
+    const bucket = bucketFactory();
+    afterEach(() => bucket.clear() );
+
     //TODO: simplify tests, makes small tests for each feature (alias, exclude etc);
 
     it('should include all properties when strategy === "inclusive" except explicitly excluded properties', (done) => {
-      const user = new UserInc();
+      const user = bucket.create(UserInc);
 
       const payloadInspect = payload => {
         expect(payload['age']).toBe(returnValue.age);
@@ -123,7 +126,7 @@ describe('CORE', () => {
     });
 
     it('should include only marked properties when strategy === "exclusive" except explicitly excluded properties', (done) => {
-      const user = new UserExc();
+      const user = bucket.create(UserExc);
 
       user.$refresh({returnValue}).$ar.next()
         .then( data => {
@@ -154,6 +157,8 @@ describe('CORE', () => {
       ];
 
       const users = UserInc.query({ returnValue: data });
+      bucket.bucket.push(users);
+
       users.$ar.next()
         .then( data => {
           expect(users.collection.length).toBe(3);

@@ -1,4 +1,4 @@
-import { MockMixin, MockResource, MockDeserializer, MockActionOptions, MockAdapter } from '@tdm/core/testing';
+import { MockMixin, MockResource, MockDeserializer, MockActionOptions, MockAdapter, bucketFactory } from '@tdm/core/testing';
 import { ActiveRecord, Constructor, Prop } from '@tdm/core';
 import { internalMetadataStore } from '../../src/metadata/reflection/internal-metadata-store';
 
@@ -6,6 +6,9 @@ const localMockDeserializer = new MockDeserializer();
 
 describe('CORE', () => {
   describe('Decorator Factories', () => {
+    const bucket = bucketFactory();
+    afterEach(() => bucket.clear() );
+
     const returnValue = {
       name: 'test',
       value: 'value'
@@ -27,7 +30,7 @@ describe('CORE', () => {
       const User = MockMixin(User_);
       type User = MockMixin<User_>;
 
-      const user = new User();
+      const user: User = bucket.create<any>(User);
       user.$refresh({returnValue}).$ar.next()
         .then( data => {
           expect(internalMetadataStore.getTargetAdapterStore(User, MockAdapter).resource.name).toBe('User_');
@@ -61,7 +64,7 @@ describe('CORE', () => {
       }
 
 
-      const user = new User();
+      const user = bucket.create(User);
       user.$refresh({returnValue}).$ar.next()
         .then( data => {
           expect(internalMetadataStore.getTargetAdapterStore(User, MockAdapter).resource.name).toBe('User');
@@ -88,7 +91,7 @@ describe('CORE', () => {
       })
       class User extends MockMixin(User_) { }
 
-      const user = new User();
+      const user = bucket.create(User);
       user.$refresh({returnValue}).$ar.next()
         .then( data => {
           expect(internalMetadataStore.getTargetAdapterStore(User, MockAdapter).resource.name).toBe('User');

@@ -12,6 +12,7 @@ export {
   ActionMethodType,
   AdapterMetadata,
   AdapterMetadataArgs,
+  PropMetadata,
   ValidationContext,
   Validator,
   ValidationError,

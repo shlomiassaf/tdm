@@ -102,12 +102,12 @@ export class User_ implements   BeforeHook<'bfRef', HttpActionOptions>,
 export class UserBaseClass extends RestMixin(User_) { }
 
 
-// UserBaseClass.find(2).username;                                      // OK
+// UserBaseClass.find(2).username__;                                    // OK
 // UserBaseClass.find(2).usernam23e;                                    // SHOULD ERROR
 // UserBaseClass.num;                                                   // OK
-// new UserBaseClass().$refresh().username;                             // OK
+// new UserBaseClass().$refresh().username__;                           // OK
 // const user: UserBaseClass = new UserBaseClass();                     // OK
-// user.$refresh().username;                                            // OK
+// user.$refresh().username__;                                          // OK
 // user.$refresh().abcd;                                                // SHOULD ERROR
 // user.$ar.next().then( u => u.id );                                   // OK
 // user.$ar.next().then( u => u.f34 );                                  // SHOULD ERROR

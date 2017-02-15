@@ -62,7 +62,7 @@ export class BaseRestResource {
     method: HttpActionMethodType.Post,
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<HttpActionMetadata>, data: any, options: HttpActionOptions) => {
-      ctx.adapterStore.targetController.fromPlain(ctx.data, data);
+      ctx.adapterStore.targetController.deserialize(ctx.data, data, ctx.action.isCollection);
       return options;
     }
   })
@@ -72,7 +72,7 @@ export class BaseRestResource {
     method: HttpActionMethodType.Put,
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<HttpActionMetadata>, data: any, options: HttpActionOptions) => {
-      ctx.adapterStore.targetController.fromPlain(ctx.data, data);
+      ctx.adapterStore.targetController.deserialize(ctx.data, data, ctx.action.isCollection);
       return options;
     }
   })
