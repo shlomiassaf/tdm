@@ -1,10 +1,11 @@
 import { Observable } from 'rxjs/Observable';
+import { subscribeOn } from 'rxjs/operator/subscribeOn';
 import { asap } from 'rxjs/scheduler/asap';
+import { fromPromise } from 'rxjs/observable/fromPromise';
 
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/observable/fromPromise';
 
 import { findProp, noop, isFunction } from '../utils';
 import { ActionMetadata, ValidationSchedule } from '../metadata';
@@ -121,7 +122,7 @@ export class ActionController {
     const startingPromise = this.fireHook(action.name as any, 'before', self, options)
       .then(validateOutgoing(action.validation) ? validator : noopPromise);
 
-    let obs$: Observable<any | void> = Observable.fromPromise(startingPromise)
+    let obs$: Observable<any | void> = fromPromise(startingPromise)
       .switchMap( () => this.adapter.execute(pubCtx, options) )
       .switchMap( resp => {
         let p = !action.raw || action.raw.deserialize
@@ -129,7 +130,7 @@ export class ActionController {
             : Promise.resolve(resp)
           ;
 
-        return Observable.fromPromise(p);
+        return fromPromise(p);
       });
 
     if (!action.raw) {
@@ -138,13 +139,13 @@ export class ActionController {
 
       obs$ = obs$
         .do( ({deserialized}) => targetController.deserialize(deserialized, self, action.isCollection) )
-        .switchMap( resp => Observable.fromPromise<void>(endingPromise(resp)) );
+        .switchMap( resp => fromPromise<void>(endingPromise(resp)) );
     } else {
       async = true;
       obs$ = obs$.do( resp => action.raw.handler.apply(self, [resp, options]) );
     }
 
-    const subs = obs$.subscribeOn(async ? asap : null).subscribe(
+    const subs = subscribeOn.call(obs$, async ? asap : null).subscribe(
       _ => emitEvent(eventFactory.success(self)),
       err => emitEvent(eventFactory.error(self, err)),
       () => emitEvent(eventFactory.actionEnd(self, 'success'))
