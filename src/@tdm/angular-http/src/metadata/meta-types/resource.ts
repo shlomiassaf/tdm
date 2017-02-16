@@ -1,4 +1,4 @@
-import { ResourceMetadataArgs, Deserializer, ResourceMetadata } from '@tdm/core';
+import { ResourceMetadataArgs, Deserializer, ResourceMetadata, MapperFactory } from '@tdm/core';
 import { Response } from '@angular/http';
 
 import { Params } from '../../utils/match-pattern';
@@ -28,6 +28,7 @@ export class HttpResourceMetadata implements ResourceMetadata {
   trailingSlashes?: TrailingSlashesStrategy;
   noBuild: boolean;
   deserializer?: () => Deserializer<Response>;
+  mapper: MapperFactory;
 
   constructor(obj: HttpResourceMetadataArgs) {
     Object.assign(this, obj);

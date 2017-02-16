@@ -8,7 +8,7 @@ import { findProp } from "../utils";
 import { TransformStrategy, ValidationError } from '../metadata/meta-types/schema/interfaces';
 import { TargetAdapterMetadataStore } from '../metadata/reflection/target-adapter-metadata-store';
 import { BaseActiveRecord } from '../active-record/active-record-interfaces';
-import { directMapper } from '../mapping';
+import { MapperFactory } from '../mapping';
 
 export class TargetController<T /* extends ActiveRecord<any, any> */> {
 
@@ -35,7 +35,10 @@ export class TargetController<T /* extends ActiveRecord<any, any> */> {
   })
   private validator: TargetValidator;
 
+  private mapper: MapperFactory;
+
   constructor(private adapterStore: TargetAdapterMetadataStore) {
+    this.mapper = findProp('mapper', defaultConfig, this.adapterStore.resource);
   }
 
   createCollection(): ActiveRecordCollection<T> {
@@ -61,15 +64,15 @@ export class TargetController<T /* extends ActiveRecord<any, any> */> {
 
   serialize(instance: BaseActiveRecord<any> | ActiveRecordCollection<any>): any {
     const mapper = instance instanceof ActiveRecordCollection
-      ? directMapper.serializer(instance.collection)
-      : directMapper.serializer(instance)
+      ? this.mapper.serializer(instance.collection)
+      : this.mapper.serializer(instance)
     ;
 
     return this.transformer.serialize(mapper);
   }
 
   deserialize(source: any, target: BaseActiveRecord<any> | ActiveRecordCollection<any>, isCollection: boolean): void {
-    const mapper = directMapper.deserializer(source);
+    const mapper = this.mapper.deserializer(source);
     if (mapper.isCollection !== !!isCollection) {
       throw new Error(`Expected ${isCollection ? 'Collection' : 'Object'} but got ${isCollection ? 'Object' : 'Collection'}`);
     }

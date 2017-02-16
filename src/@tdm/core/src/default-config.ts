@@ -1,7 +1,9 @@
 import { TransformStrategy } from './metadata/meta-types/schema/interfaces';
 import { NamingStrategyConfig } from './core/interfaces';
+import { MapperFactory, directMapper } from './mapping';
 
 export interface DefaultConfig {
+  mapper: MapperFactory;
 
   /**
    * How to treat an object when transforming it.
@@ -50,6 +52,7 @@ export interface DefaultConfig {
 }
 
 export const defaultConfig: DefaultConfig = {
+  mapper: directMapper,
   transformStrategy: 'inclusive',
   transformNameStrategy: undefined
 };

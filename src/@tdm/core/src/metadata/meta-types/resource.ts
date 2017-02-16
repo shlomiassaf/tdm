@@ -1,6 +1,7 @@
 import { DeserializerFactory } from '../../core';
 import { TransformStrategy } from './schema/interfaces';
 import { NamingStrategyConfig } from '../../core/interfaces';
+import { MapperFactory } from '../../mapping';
 
 export interface ResourceMetadataArgs {
   endpoint: string;
@@ -36,6 +37,8 @@ export interface ResourceMetadataArgs {
    * @default false
    */
   noBuild?: boolean;
+
+  mapper?: MapperFactory;
 }
 
 export interface ResourceMetadata {
@@ -61,5 +64,7 @@ export interface ResourceMetadata {
   transformNameStrategy?: NamingStrategyConfig | undefined;
 
   noBuild: boolean;
+
+  mapper: MapperFactory;
 }
 
