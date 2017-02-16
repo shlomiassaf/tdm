@@ -26,7 +26,7 @@ export class AdapterMetadata<T extends ResourceMetadata, Z extends ActionMetadat
   deserializerFactory: DeserializerFactory;
   commit?: (adapterStore: TargetAdapterMetadataStore) => void;
 
-  private actions: Map<any, ActionMetadata[]> = new Map<any, ActionMetadata[]>();
+  private actions = new Map<any, ActionMetadata[]>();
 
   constructor(obj: AdapterMetadataArgs<T, Z>) {
     Object.assign(this, obj);

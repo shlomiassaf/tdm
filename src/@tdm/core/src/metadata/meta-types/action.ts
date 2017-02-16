@@ -1,6 +1,7 @@
 import { DeserializerFactory, ExecuteContext, ExecuteResponse, ActionOptions } from "../../core";
 import { ValidationSchedule } from './schema';
 import { MemberDecoratorMetadata } from './core';
+import { DecoratorInfo } from '../meta-types';
 
 export enum ActionMethodType {
   /**
@@ -56,4 +57,8 @@ export class ActionMetadata extends MemberDecoratorMetadata {
   pre?: (ctx: ExecuteContext<any>, ...args: any[] )=> any;
   validation: ValidationSchedule;
   sendBody: boolean;
+
+  constructor(public readonly metaArgs: ActionMetadataArgs<any>, info: DecoratorInfo) {
+    super(info);
+  }
 }

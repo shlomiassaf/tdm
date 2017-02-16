@@ -3,12 +3,12 @@ import { AdapterError, TargetError } from '../../core/errors';
 import { TargetController } from '../../core/target-controller';
 import { ActionController } from '../../core/action-controller';
 
-import { metadataFactory, AdapterMetadata, ResourceMetadata, ResourceMetadataArgs, ActionMetadata, HookMetadata } from '../meta-types';
+import { metadataFactory, AdapterMetadata, ResourceMetadata, ResourceMetadataArgs, ActionMetadata, HookMetadata, decoratorInfo } from '../meta-types';
 import { ARHookableMethods } from '../../active-record/active-record-interfaces';
 
 import { TargetMetadataStore } from './target-metadata-store';
 import { internalMetadataStore } from './internal-metadata-store';
-import { isFunction, getProtoChain, Constructor, SetExt, MapExt } from '../../utils';
+import { isFunction, getProtoChain, Constructor, SetExt, MapExt,  } from '../../utils';
 import { LazyInit } from '../../utils/decorators';
 
 /**
@@ -44,15 +44,9 @@ export class TargetAdapterMetadataStore {
     return !this.resource;
   }
 
-  get ready(): boolean {
-    return this._ready;
-  }
-
   get target(): any {
     return this.parent.target;
   }
-  private _ready: boolean = false;
-
 
   constructor(private readonly parent: TargetMetadataStore, public readonly adapterClass: AdapterStatic<any, any>) {
     this.adapterMeta = internalMetadataStore.getAdapterStore(adapterClass).meta;
@@ -61,17 +55,12 @@ export class TargetAdapterMetadataStore {
     }
   }
 
-
   registerResource(def: ResourceMetadataArgs): void {
     this.resource = metadataFactory(this.adapterMeta.resourceMetaClass, def) as any;
   }
 
   findHookEvent(action: ARHookableMethods, timeline: 'before' | 'after'): HookMetadata | undefined {
     return this.parent.findHookEvent(action, timeline);
-  }
-
-  toggleReady(): void {
-    this._ready = !this.ready;
   }
 
   build(): void {
@@ -89,18 +78,26 @@ export class TargetAdapterMetadataStore {
 
     const store = internalMetadataStore.getTargetStore(target);
 
-    // TODO: refactor for performance on getActions and getProtoChainWithMixins (+ Caching)
-    this.getActions(target, this.adapterClass)
-      .forEach( action => this.registerAction(action) );
-
     const customStoredData: Map<any, Set<any>>[] = [];
     const thisHooks = store.getHooks();
     this.getProtoChainWithMixins(target, this.adapterClass)
       .forEach( proto => {
-        if (target !== proto) {
 
+        if (target !== proto) {
           const protoStore = internalMetadataStore.getTargetStore(proto, false);
+
           if (protoStore) {
+
+            // extend all ExtendedActions from child classes to parent.
+            MapExt.asValArray(protoStore.getExtendingActions())
+              .forEach( extActions => {
+                extActions.forEach( v => {
+                  if (!store.getExtendingAction(v.info)) {
+                    store.addExtendingAction(v.info, v.def);
+                  }
+                });
+              });
+
             // Aggregating global lifecycle hooks
             MapExt.asKeyValArray(protoStore.getHooks())
               .forEach( ([action, hook]) => {
@@ -134,6 +131,10 @@ export class TargetAdapterMetadataStore {
         }
       });
 
+    // TODO: refactor for performance on getActions and getProtoChainWithMixins (+ Caching)
+    this.getActions(target, this.adapterClass)
+      .forEach( action => this.registerAction(action) );
+
     customStoredData.forEach( m => {
       MapExt.asKeyArray(m).forEach( key => {
         const customSet = this.custom.get(key) || new Set<any>();
@@ -165,23 +166,36 @@ export class TargetAdapterMetadataStore {
   /**
    * Returns all of the actions registered for a target going through the proto chain and all
    * mixins associated with each proto.
+   *
+   * Returns a unique list of actioned, uniqueness is set by the `name` of each action.
+   * If 2 actions with the same 'name' exists, the top level actions wins, i.e. the first in the chain.
+   *
    * @param target
    * @param adapterClass
    * @returns {ActionMetadata[]}
    */
   private getActions(target: Constructor<any>, adapterClass: AdapterStatic<any, any>): ActionMetadata[] {
-    return getProtoChain(target).reduce( (actions, proto) => {
-      const protoAdapterStore = internalMetadataStore.getTargetAdapterStore(proto, adapterClass);
+    const chain = getProtoChain(target);
+    const actions = new Map<PropertyKey, ActionMetadata>();
+
+    for (let i=0, len=chain.length; i<len; i++) {
+      const protoAdapterStore = internalMetadataStore.getTargetAdapterStore(chain[i], adapterClass);
       if (protoAdapterStore) {
-        const protoActions = protoAdapterStore.adapterMeta.getActions(proto, ...Array.from(protoAdapterStore.mixins));
-        actions.splice(actions.length, 0, ...protoActions);
+        const protoActions = protoAdapterStore.adapterMeta.getActions(chain[i], ...Array.from(protoAdapterStore.mixins));
+        MapExt.fromArray(protoActions, (v) => v.name, actions, true);
       }
-      return actions;
-    }, [] as ActionMetadata[]);
+    }
+
+    return MapExt.asValArray(actions);
   }
 
   private registerAction(action: ActionMetadata): void {
     // TODO check action instance of ActionMetadata + in ActionMetadata verify using DecoratorInfo
+    const extAction = internalMetadataStore.getTargetStore(this.target).getExtendingAction(action.decoratorInfo);
+    if (extAction) {
+      const desc = Object.assign({}, action.metaArgs, extAction.def);
+      action = metadataFactory(this.adapterMeta.actionMetaClass, desc, extAction.info)
+    }
     this.actionController.registerAction(action, true);
   }
 }

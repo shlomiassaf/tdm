@@ -1,6 +1,6 @@
 import { AdapterStatic } from '../../core/interfaces';
 import { AdapterError } from '../../core/errors';
-import { PropMetadata, ExcludeMetadata, HookMetadata } from '../meta-types';
+import { PropMetadata, ExcludeMetadata, HookMetadata, ActionMetadataArgs, DecoratorInfo } from '../meta-types';
 import { TargetAdapterMetadataStore } from './target-adapter-metadata-store';
 import { internalMetadataStore } from './internal-metadata-store';
 import { stringify, SetExt } from '../../utils';
@@ -10,10 +10,18 @@ export class TargetMetadataStore {
 
   private adapters = new Map<AdapterStatic<any, any>, TargetAdapterMetadataStore>();
   private props = new Set<PropMetadata>();
+  private extendingActions = new Map<PropertyKey, {def: Partial<ActionMetadataArgs<any>>, info: DecoratorInfo}[]>();
+
   private excludes = new Set<ExcludeMetadata>();
   private hooks = new Map<ARHookableMethods, {before: HookMetadata, after: HookMetadata}>();
 
   constructor(public readonly target: any) { }
+
+  addExtendingAction(info: DecoratorInfo, def: Partial<ActionMetadataArgs<any>>): void {
+    const arr = this.extendingActions.get(info.name) || [];
+    arr.push({def, info});
+    this.extendingActions.set(info.name, arr);
+  }
 
   addProp(meta: PropMetadata): void {
     this.props.add(meta);
@@ -35,6 +43,17 @@ export class TargetMetadataStore {
 
   getAdapterStore<T extends AdapterStatic<any, any>>(adapterClass: T, create: boolean = true): TargetAdapterMetadataStore | undefined {
     return this.adapters.get(adapterClass) || (create ? this.registerAdapter(adapterClass) : undefined);
+  }
+
+  getExtendingAction(info: DecoratorInfo): {def: Partial<ActionMetadataArgs<any>>, info: DecoratorInfo} | undefined {
+    const arr = this.extendingActions.get(info.name);
+    if (arr) {
+      return arr.find( a => a.info.name === info.name && a.info.isStatic === info.isStatic);
+    }
+  }
+
+  getExtendingActions(): Map<PropertyKey, {def: Partial<ActionMetadataArgs<any>>, info: DecoratorInfo}[]> {
+    return this.extendingActions;
   }
 
   getProps(): PropMetadata[] {

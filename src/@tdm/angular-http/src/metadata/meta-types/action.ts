@@ -25,7 +25,7 @@ export class HttpActionMetadata extends ActionMetadata {
 
 
   constructor(obj: HttpActionMetadataArgs, info: DecoratorInfo) {
-    super(info);
+    super(obj, info);
 
     Object.assign(this, obj);
     this.methodInfo = mapMethod(obj.method);

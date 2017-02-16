@@ -20,7 +20,7 @@
 
 
 import { Injectable } from '@angular/core';
-import { Hook, BeforeHook, AfterHook, ActiveRecordCollection, Prop, Exclude, ExecuteResponse } from '@tdm/core';
+import { Hook, BeforeHook, AfterHook, ActiveRecordCollection, Prop, Exclude, ExecuteResponse, ExtendAction, ExecuteContext, Identity } from '@tdm/core';
 import { RestMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/angular-http';
 
 @HttpResource({
@@ -106,6 +106,13 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
     console.log(`AfterQuery: got ${this.collection.length}`)
   }
 
+  @ExtendAction({
+    pre: (ctx: ExecuteContext<any>, id: Identity, a:number, b: number, options: HttpActionOptions) => {
+      ctx.data[ctx.adapterStore.resource.identity] = id;
+      return options;
+    }
+  })
+  static find: (id: Identity, a:number, b: number, options?: HttpActionOptions) => RestMixin<User_>;
 }
 
 export const UserConst = RestMixin(User_);

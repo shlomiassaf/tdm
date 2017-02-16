@@ -1,6 +1,6 @@
 {
   "name": "@tdm/angular-http",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "description": "Angular http adapter for typed data models.",
   "main": "bundle/tdm.angular-http.umd.js",
   "module": "index.js",

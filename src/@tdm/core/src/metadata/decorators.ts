@@ -1,4 +1,4 @@
-import { AdapterMetadata, AdapterMetadataArgs, metadataFactory, decoratorInfo, ResourceMetadata, ActionMetadata, PropMetadata, PropMetadataArgs, ExcludeMetadata, ExcludeMetadataArgs, HookMetadata, HookMetadataArgs } from './meta-types';
+import { AdapterMetadata, AdapterMetadataArgs, metadataFactory, decoratorInfo, ResourceMetadata, ActionMetadata, ActionMetadataArgs, PropMetadata, PropMetadataArgs, ExcludeMetadata, ExcludeMetadataArgs, HookMetadata, HookMetadataArgs } from './meta-types';
 import { ARHooks, ARHookableMethods } from '../active-record';
 import { internalMetadataStore } from './reflection';
 import { ExecuteResponse } from '../core/interfaces';
@@ -11,6 +11,13 @@ export function ResourceAdapter<T extends ResourceMetadata, Z extends ActionMeta
     internalMetadataStore.getAdapterStore(ensureTargetIsType(target))
       .setMetadata(metadataFactory(AdapterMetadata, def));
     return target;
+  };
+}
+
+export function ExtendAction(def: Partial<ActionMetadataArgs<any>>): any {
+  return (target: Object, propertyKey: string | symbol, desc: any) => {
+    const info = decoratorInfo(target, propertyKey, desc);
+    internalMetadataStore.getTargetStore(ensureTargetIsType(target)).addExtendingAction(info, def);
   };
 }
 

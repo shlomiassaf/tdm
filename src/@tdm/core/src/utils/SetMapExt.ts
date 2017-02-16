@@ -170,6 +170,39 @@ export class SetExt<T> extends Set<T> {
 }
 
 export class MapExt {
+  static mergeInto<K, V>(target: Map<K, V>, source: Map<K, V>, diffOnly?: boolean): void {
+    const arr = MapExt.asKeyArray(source);
+    for (let i=0, len=arr.length; i<len; i++) {
+      if (!diffOnly ||!target.has(arr[i])) {
+        target.set(arr[i], source.get(arr[i]));
+      }
+    }
+  }
+
+  /**
+   * Set the values of an array into a map
+   * @param arr
+   * @param keySelector A function returning the key to be used in the map
+   * @param map The map to set on, optional. If not set a new map is created.
+   * @param diffOnly Set only new values, optional. Valid only if a map is supplied.
+   * @returns {Map<K, V>}
+   */
+  static fromArray<K, V>(arr: Array<V>, keySelector: (value: V) => K, map?: Map<K, V>, diffOnly?: boolean): Map<K, V> {
+    if (!(map instanceof Map)) {
+      map = new Map<K, V>();
+      diffOnly = false;
+    }
+
+    for (let i=0, len=arr.length; i<len; i++) {
+      const key = keySelector(arr[i]);
+      if (!diffOnly || !map.has(key)) {
+        map.set(key, arr[i]);
+      }
+    }
+
+    return map;
+  }
+
   static asKeyValArray<K, V> (map: Map<K, V>): Array<[K, V]> {
     return Array.from(map.entries());
   }
