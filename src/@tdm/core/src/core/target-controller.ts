@@ -12,11 +12,6 @@ import { MapperFactory } from '../mapping';
 
 export class TargetController<T /* extends ActiveRecord<any, any> */> {
 
-  @LazyInit(function (this: TargetController<any>): string | undefined {
-    return this.adapterStore.resource.identity;
-  })
-  identity: string | undefined;
-
   @LazyInit(function (this: TargetController<any>): TargetTransformer {
     const resource = this.adapterStore.resource;
     const transformNameStrategy = findProp('transformNameStrategy', defaultConfig, resource);
@@ -52,7 +47,7 @@ export class TargetController<T /* extends ActiveRecord<any, any> */> {
       ;
 
     if (params.hasOwnProperty('identity')) {
-      instance[this.identity] = params.identity;
+      instance[this.adapterStore.identity] = params.identity;
     }
 
     if (params.data) {

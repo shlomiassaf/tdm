@@ -25,6 +25,13 @@ function getAdapterStore(target: any, adapterClass: AdapterStatic<any, any>): Ta
 export class TargetStore {
   constructor() { /* TODO: ExternalMetadataStore is singleton, enforce? */ }
 
+  getIdentityKey(target): string | undefined {
+    const targetStore = store.getTargetStore(target, false);
+    if (targetStore) {
+      return targetStore.getIdentity();
+    }
+  }
+
   /**
    * Search for a target registered in the repository by it's name.
    * @see ResourceMetadataArgs#name

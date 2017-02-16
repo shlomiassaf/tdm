@@ -14,7 +14,6 @@ class User_ {
 
 @MockResource({
   endpoint: '/api/users/:id?',
-  identity: 'id',
   deserializer: () => localMockDeserializer
 })
 class User extends MockMixin(User_) { }
@@ -304,7 +303,6 @@ describe('CORE', () => {
     it('should emit busy$', (done) => {
       @MockResource({
         endpoint: '/api/users/:id?',
-        identity: 'id',
         deserializer: () => localMockDeserializer,
       })
       class User extends MockMixin(class {}) { }
@@ -441,7 +439,6 @@ describe('CORE', () => {
     it('should disconnect', (done) => {
       @MockResource({
         endpoint: '/api/users/:id?',
-        identity: 'id',
         deserializer: () => localMockDeserializer,
       })
       class User extends MockMixin(class {}) { }
@@ -465,7 +462,6 @@ describe('CORE', () => {
     it('should allow reconnect to busy$ after disconnect', (done) => {
       @MockResource({
         endpoint: '/api/users/:id?',
-        identity: 'id',
         deserializer: () => localMockDeserializer,
       })
       class User extends MockMixin(class {}) { }

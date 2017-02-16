@@ -3,7 +3,7 @@ import { AdapterError, TargetError } from '../../core/errors';
 import { TargetController } from '../../core/target-controller';
 import { ActionController } from '../../core/action-controller';
 
-import { metadataFactory, AdapterMetadata, ResourceMetadata, ResourceMetadataArgs, ActionMetadata, HookMetadata, decoratorInfo } from '../meta-types';
+import { metadataFactory, AdapterMetadata, ResourceMetadata, ResourceMetadataArgs, ActionMetadata, HookMetadata } from '../meta-types';
 import { ARHookableMethods } from '../../active-record/active-record-interfaces';
 
 import { TargetMetadataStore } from './target-metadata-store';
@@ -46,6 +46,10 @@ export class TargetAdapterMetadataStore {
 
   get target(): any {
     return this.parent.target;
+  }
+
+  get identity(): string {
+    return this.parent.getIdentity();
   }
 
   constructor(private readonly parent: TargetMetadataStore, public readonly adapterClass: AdapterStatic<any, any>) {

@@ -31,7 +31,6 @@ describe('CORE', () => {
 
       @MockResource({
         endpoint: '/api/users/:id?',
-        identity: 'id',
         deserializer: () => localMockDeserializer
       })
       class User extends MockMixin(User_) { }
@@ -72,7 +71,6 @@ describe('CORE', () => {
     it('should apply NamingStrategyConfig', (done) => {
       @MockResource({
         endpoint: '/api/users/:id?',
-        identity: 'id',
         deserializer: () => localMockDeserializer,
         transformNameStrategy: {
           incoming: name => voca.camelCase(name),

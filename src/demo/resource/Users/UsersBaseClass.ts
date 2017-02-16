@@ -20,12 +20,13 @@
 
 
 import { Injectable } from '@angular/core';
-import { Hook, BeforeHook, AfterHook, ActiveRecordCollection, Prop, Exclude, ExecuteResponse } from '@tdm/core';
+import { Hook, BeforeHook, AfterHook, ActiveRecordCollection, Prop, Exclude, ExecuteResponse, Identity } from '@tdm/core';
 import { RestMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/angular-http';
 
 export class User_ implements   BeforeHook<'bfRef', HttpActionOptions>,
                                 AfterHook<'afRef', HttpActionOptions> {
 
+  @Identity()
   @UrlParam() id: number = 2; // this will go into the "endpoint" from the instance!
 
   @Prop({
@@ -92,7 +93,6 @@ export class User_ implements   BeforeHook<'bfRef', HttpActionOptions>,
 
 @HttpResource({
   endpoint: '/api/users/:id?',
-  identity: 'id',
   transformStrategy: 'inclusive',
   urlParams: { // there are hard coded params
     limit: '5' // not in path so will go to query string (?param=15)

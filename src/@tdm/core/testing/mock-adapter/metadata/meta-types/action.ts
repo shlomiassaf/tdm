@@ -13,7 +13,7 @@ export class MockActionMetadata extends ActionMetadata {
   validation: ValidationSchedule;
 
   constructor(obj: MockActionMetadataArgs, public info: DecoratorInfo) {
-    super(info);
+    super(obj, info);
     Object.assign(this, obj);
   }
 

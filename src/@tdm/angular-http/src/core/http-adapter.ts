@@ -93,7 +93,7 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
         }
       }
 
-      const identityKey = ctx.adapterStore.resource.identity;
+      const identityKey = ctx.adapterStore.identity;
       if (identityKey) {
         params[identityKey] = ctx.data[identityKey];
       }

@@ -7,8 +7,7 @@ class User_ {
 }
 
 @HttpResource({
-  endpoint: '/api/users/:id?',
-  identity: 'id'
+  endpoint: '/api/users/:id?'
 })
 class User extends RestMixin(User_) { }
 

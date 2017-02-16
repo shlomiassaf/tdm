@@ -1,5 +1,5 @@
 import { Tixin } from '@tdm/tixin';
-import { ActiveRecordCollection, ActionMethodType, BaseActiveRecord, Identity, ExecuteContext } from '@tdm/core';
+import { ActiveRecordCollection, ActionMethodType, BaseActiveRecord, IdentityValueType, ExecuteContext } from '@tdm/core';
 
 import { MockActionOptions } from './core/interfaces';
 import { MockAction } from './metadata/decorators';
@@ -42,22 +42,22 @@ export class BaseMockResource {
   @MockAction({
     method: ActionMethodType.READ,
     validation: 'incoming' as 'incoming',
-    pre: (ctx: ExecuteContext<MockActionMetadata>, id: Identity, options: MockActionOptions) => {
-      ctx.data[ctx.adapterStore.resource.identity] = id;
+    pre: (ctx: ExecuteContext<MockActionMetadata>, id: IdentityValueType, options: MockActionOptions) => {
+      ctx.data[ctx.adapterStore.identity] = id;
       return options;
     }
   })
-  static find: (id: Identity, options?: MockActionOptions) => any;
+  static find: (id: IdentityValueType, options?: MockActionOptions) => any;
 
   @MockAction({
     method: ActionMethodType.DELETE,
     validation: 'skip' as 'skip',
-    pre: (ctx: ExecuteContext<MockActionMetadata>, id: Identity, options: MockActionOptions) => {
-      ctx.data[ctx.adapterStore.resource.identity] = id;
+    pre: (ctx: ExecuteContext<MockActionMetadata>, id: IdentityValueType, options: MockActionOptions) => {
+      ctx.data[ctx.adapterStore.identity] = id;
       return options;
     }
   })
-  static remove: (id: Identity, options?: MockActionOptions) => any;
+  static remove: (id: IdentityValueType, options?: MockActionOptions) => any;
 
   @MockAction({
     method: ActionMethodType.CREATE,
@@ -81,9 +81,9 @@ export class BaseMockResource {
 }
 
 export interface BaseMockResourceStatic<T> {
-  find(id: Identity, options?: MockActionOptions): Tixin<T, BaseActiveRecord<T> & BaseMockResource>;
+  find(id: IdentityValueType, options?: MockActionOptions): Tixin<T, BaseActiveRecord<T> & BaseMockResource>;
   query(options?: MockActionOptions): ActiveRecordCollection<Tixin<T, BaseActiveRecord<T> & BaseMockResource>>;
   create(data: Partial<T>, options?: MockActionOptions): Tixin<T, BaseActiveRecord<T> & BaseMockResource>;
   update(data: Partial<T>, options?: MockActionOptions): Tixin<T, BaseActiveRecord<T> & BaseMockResource>;
-  remove(id: Identity, options?: MockActionOptions): Tixin<T, BaseActiveRecord<T> & BaseMockResource>;
+  remove(id: IdentityValueType, options?: MockActionOptions): Tixin<T, BaseActiveRecord<T> & BaseMockResource>;
 }

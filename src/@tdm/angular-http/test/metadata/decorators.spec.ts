@@ -5,8 +5,7 @@ describe('NG-HTTP', () => {
     it('should throw when endpoint is missing in HttpResource', () => {
       expect(() => {
         @HttpResource({
-          endpoint: undefined,
-          identity: ''
+          endpoint: undefined
         })
         class User_ {}
       }).toThrowError('Resource endpoint is mandatory.');

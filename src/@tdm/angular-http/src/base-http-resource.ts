@@ -1,5 +1,5 @@
 import { Tixin } from '@tdm/tixin';
-import { ActiveRecordCollection, BaseActiveRecord, Identity, ExecuteContext } from '@tdm/core';
+import { ActiveRecordCollection, BaseActiveRecord, IdentityValueType, ExecuteContext } from '@tdm/core';
 
 import { HttpActionOptions } from './core/interfaces';
 import { HttpActionMetadata, HttpAction, HttpActionMethodType } from './metadata';
@@ -41,22 +41,22 @@ export class BaseRestResource {
   @HttpAction({
     method: HttpActionMethodType.Get,
     validation: 'incoming' as 'incoming',
-    pre: (ctx: ExecuteContext<HttpActionMetadata>, id: Identity, options: HttpActionOptions) => {
-      ctx.data[ctx.adapterStore.resource.identity] = id;
+    pre: (ctx: ExecuteContext<HttpActionMetadata>, id: IdentityValueType, options: HttpActionOptions) => {
+      ctx.data[ctx.adapterStore.identity] = id;
       return options;
     }
   })
-  static find: (id: Identity, options?: HttpActionOptions) => any;
+  static find: (id: IdentityValueType, options?: HttpActionOptions) => any;
 
   @HttpAction({
     method: HttpActionMethodType.Delete,
     validation: 'skip' as 'skip',
-    pre: (ctx: ExecuteContext<HttpActionMetadata>, id: Identity, options: HttpActionOptions) => {
-      ctx.data[ctx.adapterStore.resource.identity] = id;
+    pre: (ctx: ExecuteContext<HttpActionMetadata>, id: IdentityValueType, options: HttpActionOptions) => {
+      ctx.data[ctx.adapterStore.identity] = id;
       return options;
     }
   })
-  static remove: (id: Identity, options?: HttpActionOptions) => any;
+  static remove: (id: IdentityValueType, options?: HttpActionOptions) => any;
 
   @HttpAction({
     method: HttpActionMethodType.Post,
@@ -80,11 +80,11 @@ export class BaseRestResource {
 }
 
 export interface BaseRestResourceStatic<T> {
-  find(id: Identity, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & BaseRestResource>;
+  find(id: IdentityValueType, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & BaseRestResource>;
   query(options?: HttpActionOptions): ActiveRecordCollection<Tixin<T, BaseActiveRecord<T> & BaseRestResource>[]>;
   create(data: Partial<T>, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & BaseRestResource>;
   update(data: Partial<T>, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & BaseRestResource>;
-  remove(id: Identity, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & BaseRestResource>;
+  remove(id: IdentityValueType, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & BaseRestResource>;
 }
 
 

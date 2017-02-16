@@ -21,7 +21,6 @@ export class HttpResourceMetadata implements ResourceMetadata {
    * This property does not extend from a base type.
    */
   endpoint: string;
-  identity: string;
   urlParams?: Params;
   headers?: { [key: string]: any };
   withCredentials?: boolean;
@@ -35,8 +34,7 @@ export class HttpResourceMetadata implements ResourceMetadata {
   }
 
   static DEFAULTS: HttpResourceMetadataArgs = {
-    endpoint: undefined,
-    identity: undefined
+    endpoint: undefined
   };
 
   static VALIDATE(obj: HttpResourceMetadataArgs): void {

@@ -5,10 +5,11 @@ import {
   PropertyContainer,
   PoClassPropertyMap,
   transformValueOut,
-  PropMetadata
+  PropMetadata,
+  targetStore
 } from '@tdm/core';
 
-import { TopLevel } from './json-api';
+import { TopLevel, ResourceObject, ResourceIdentifierObject } from './json-api';
 import * as japiUtils from './json-api-utils';
 
 /**
@@ -17,45 +18,43 @@ import * as japiUtils from './json-api-utils';
  *
  */
 export class JSONAPIDeserializeMapper extends DeserializeMapper {
+  readonly isCollection: boolean;
+
+  private idx: number = -1;
+  private current: ResourceObject;
   private keys: { att: string[], rel: string[] };
 
   constructor(public source: TopLevel) {
     super(source);
 
-    this.keys = japiUtils.getDocumentKeys(this.source);
+    this.isCollection = Array.isArray(source.data);
+    if (!this.isCollection) {
+      this.current = this.source.data as any;
+      this.keys = japiUtils.getResourceKeys(this.current);
+    }
   }
 
+  next(): boolean {
+    if (this.isCollection) {
+      this.current = this.source.data[++this.idx];
+      if (this.current) {
+        this.keys = japiUtils.getResourceKeys(this.current);
+        return true;
+      }
+    }
+    return false;
+  }
 
   getKeys(): string[] {
     return this.keys.att.concat(this.keys.rel);
   }
 
-  getValue(key: string, prop?: PropMetadata): any {
-    let inAtt: boolean;
-
-    if (!prop) {
-      inAtt = this.source.attributes.hasOwnProperty(key);
-      if (!inAtt) {
-        inAtt = this.source.relationships.hasOwnProperty(key);
-      }
-      if (!inAtt) {
-        inAtt = undefined;
-      }
-    } else if (prop.rel) {
-      inAtt = this.source.relationships.hasOwnProperty(key);
-      if (!inAtt) {
-        inAtt = undefined;
-      }
-    } else {
-      inAtt = this.source.attributes.hasOwnProperty(key);
-      if (!inAtt) {
-        inAtt = undefined;
-      }
+  getValue(key: string, prop?: PropMetadata): any | undefined {
+    if (this.keys.att.indexOf(key) > -1) {
+      return this.getAttrValue(key, prop);
+    } else if (this.keys.rel.indexOf(key) > -1) {
+      return this.getRelatedValue(key, prop);
     }
-
-    if (inAtt) {
-      return this.source.attributes[key];
-    } else if (inAtt === false) {
       // relationship
       // search included, if found return serialized.
       // if not in included, serialize only with id (need to set based on identity)
@@ -65,7 +64,33 @@ export class JSONAPIDeserializeMapper extends DeserializeMapper {
       // this requires a refactor, the TargetStore should allow serializing/deserializing based on Target
       // this must happen within the deserializer since JSONAPI detailed implementation is not known
       // to the invoker. (i.e.: { type: 'Person', id: 5 } is JSONAPI specific schema)
+  }
+
+  private getAttrValue(key: string, prop?: PropMetadata): any {
+    return this.current.attributes[key];
+  }
+
+  private getRelatedValue(key: string, prop?: PropMetadata): any | undefined {
+    const relObject = this.current.relationships[key];
+
+    if (relObject && relObject.data) {
+      if (Array.isArray(relObject.data)) {
+        return relObject.data.map( rel => this.getIncluded(rel, prop) );
+      } else {
+        return this.getIncluded(relObject.data, prop);
+      }
     }
+  }
+
+  private getIncluded(rel: ResourceIdentifierObject, prop?: PropMetadata): any {
+    const included = japiUtils.findIncluded(this.source.included, rel) || {};
+
+    let target: any = (prop && prop.type) || targetStore.findTarget(rel.type);
+    const ident = (target && targetStore.getIdentityKey(target)) || 'id';
+
+    included[ident] = rel.id;
+
+    return japiUtils.findIncluded(this.source.included, rel) || rel;
   }
 }
 

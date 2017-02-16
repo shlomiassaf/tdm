@@ -20,12 +20,11 @@
 
 
 import { Injectable } from '@angular/core';
-import { Hook, BeforeHook, AfterHook, ActiveRecordCollection, Prop, Exclude, ExecuteResponse, ExtendAction, ExecuteContext, Identity } from '@tdm/core';
+import { Hook, BeforeHook, AfterHook, ActiveRecordCollection, Prop, Exclude, ExecuteResponse, ExtendAction, ExecuteContext, IdentityValueType, Identity } from '@tdm/core';
 import { RestMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/angular-http';
 
 @HttpResource({
   endpoint: '/api/users/:id?',
-  identity: 'id',
   urlParams: {
     limit: '5'
   },
@@ -35,6 +34,7 @@ import { RestMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpA
 class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
                         AfterHook<'afRef', HttpActionOptions> {
 
+  @Identity()
   @UrlParam() id: number = 2; // this will go into the "endpoint" from the instance!
 
   @Prop({
@@ -107,12 +107,12 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
   }
 
   @ExtendAction({
-    pre: (ctx: ExecuteContext<any>, id: Identity, a:number, b: number, options: HttpActionOptions) => {
-      ctx.data[ctx.adapterStore.resource.identity] = id;
+    pre: (ctx: ExecuteContext<any>, id: IdentityValueType, a:number, b: number, options: HttpActionOptions) => {
+      ctx.data[ctx.adapterStore.identity] = id;
       return options;
     }
   })
-  static find: (id: Identity, a:number, b: number, options?: HttpActionOptions) => RestMixin<User_>;
+  static find: (id: IdentityValueType, a:number, b: number, options?: HttpActionOptions) => RestMixin<User_>;
 }
 
 export const UserConst = RestMixin(User_);

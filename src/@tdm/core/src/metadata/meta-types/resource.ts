@@ -6,11 +6,6 @@ import { MapperFactory } from '../../mapping';
 export interface ResourceMetadataArgs {
   endpoint: string;
 
-  /**
-   * Property name used as identity column
-   */
-  identity: string;
-
   deserializer?: DeserializerFactory;
 
   /**
@@ -45,11 +40,6 @@ export interface ResourceMetadata {
   name: string;
 
   endpoint: string;
-
-  /**
-   * Property name used as identity column
-   */
-  identity: string;
 
   deserializer?: DeserializerFactory;
 

@@ -56,7 +56,7 @@ export interface Deserializer<T> {
  * @public
  */
 export interface TargetFactoryParams {
-  identity?: Identity;
+  identity?: IdentityValueType;
   data?: any;
   ctorArgs?: any[]
 }
@@ -70,7 +70,7 @@ export type DeserializerFactory = () => Deserializer<any>;
 /**
  * @public
  */
-export type Identity = string | number;
+export type IdentityValueType = string | number;
 
 /**
  * @public

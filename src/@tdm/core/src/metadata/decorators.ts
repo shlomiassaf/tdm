@@ -21,6 +21,13 @@ export function ExtendAction(def: Partial<ActionMetadataArgs<any>>): any {
   };
 }
 
+export function Identity() {
+  return (target: Object, propertyKey: string) => {
+    internalMetadataStore.getTargetStore(target.constructor)
+      .setIdentity(propertyKey);
+  };
+}
+
 export function Prop(def?: PropMetadataArgs) {
   return (target: Object, propertyKey: string | symbol) => {
     const type = reflection.designType(target, propertyKey);

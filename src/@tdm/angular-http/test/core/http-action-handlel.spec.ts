@@ -20,8 +20,7 @@ describe('NG-HTTP', () => {
 
     it('should throw if Http service not set (or action invoked before ng bootstrapped)', (done) => {
       @HttpResource({
-        endpoint: '/api/users/:id?',
-        identity: 'id'
+        endpoint: '/api/users/:id?'
       })
       class User extends RestMixin(class { id: number; }) { }
 
@@ -62,7 +61,6 @@ describe('NG-HTTP', () => {
       it('should strip trailing slashes', fakeAsync(() => {
         @HttpResource({
           endpoint: '/api/users/',
-          identity: 'id',
           trailingSlashes: 'strip'
         })
         class User extends RestMixin(class { id: number; }) { }
@@ -78,7 +76,6 @@ describe('NG-HTTP', () => {
       it('should force trailing slashes',  fakeAsync(() => {
         @HttpResource({
           endpoint: '/api/users',
-          identity: 'id',
           trailingSlashes: 'force'
         })
         class User extends RestMixin(class { id: number; }) { }
@@ -94,8 +91,7 @@ describe('NG-HTTP', () => {
       it('should build resource with default param ',  fakeAsync(() => {
         @HttpResource({
           endpoint: '/api/users/:id/:param',
-          urlParams: { param: '99' },
-          identity: 'id'
+          urlParams: { param: '99' }
         })
         class User extends RestMixin(class { id: number; }) { }
 
@@ -110,8 +106,7 @@ describe('NG-HTTP', () => {
 
       it('should replace http on each call', fakeAsync(() => {
         @HttpResource({
-          endpoint: '/api/users',
-          identity: 'id'
+          endpoint: '/api/users'
         })
         class User extends RestMixin(class { id: number; }) { }
 
@@ -126,8 +121,7 @@ describe('NG-HTTP', () => {
 
       it('should throw if id not supplied and not optional', fakeAsync(() => {
         @HttpResource({
-          endpoint: '/api/users/:id',
-          identity: 'id'
+          endpoint: '/api/users/:id'
         })
         class User extends RestMixin(class { id: number; }) { }
 
@@ -153,8 +147,7 @@ describe('NG-HTTP', () => {
 
         @HttpResource({
           endpoint: '/api/users/:id/:param',
-          urlParams: { param: '15' },
-          identity: 'id'
+          urlParams: { param: '15' }
         })
         class User extends RestMixin(User_) { }
 
@@ -183,8 +176,7 @@ describe('NG-HTTP', () => {
         }
 
         @HttpResource({
-          endpoint: '/api/users/:id/:myId/:myId2',
-          identity: 'id'
+          endpoint: '/api/users/:id/:myId/:myId2'
         })
         class User extends RestMixin(User_) { }
 
@@ -242,8 +234,7 @@ describe('NG-HTTP', () => {
           endpoint: '/api/users/:id/:myId/:myId2',
           urlParams: {
             myId: '5'
-          },
-          identity: 'id'
+          }
         })
         class User extends RestMixin(User_) { }
 
@@ -270,8 +261,7 @@ describe('NG-HTTP', () => {
         }
 
         @HttpResource({
-          endpoint: '/api/users',
-          identity: 'id'
+          endpoint: '/api/users'
         })
         class User extends RestMixin(User_) { }
 
@@ -300,8 +290,7 @@ describe('NG-HTTP', () => {
           urlParams: {
             qs1: 'param1',
             qs2: 'param2',
-          },
-          identity: 'id'
+          }
         })
         class User extends RestMixin(User_) { }
 

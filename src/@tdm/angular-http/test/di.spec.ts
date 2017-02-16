@@ -13,8 +13,7 @@ describe('NG-HTTP', () => {
 
     @Injectable()
     @HttpResource({
-      endpoint: '/api/users',
-      identity: 'id'
+      endpoint: '/api/users'
     })
     class User_ {
       constructor(public myInjectable: MyInjectable) {

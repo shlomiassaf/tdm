@@ -47,7 +47,6 @@ class User_ {
 
 @MockResource({
   endpoint: '/api/users/:id?',
-  identity: 'id',
   deserializer: () => localMockDeserializer,
   transformStrategy: 'inclusive'
 })
@@ -55,7 +54,6 @@ class UserInc extends MockMixin(User_) { }
 
 @MockResource({
   endpoint: '/api/users/:id?',
-  identity: 'id',
   deserializer: () => localMockDeserializer,
   transformStrategy: 'exclusive'
 })

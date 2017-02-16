@@ -18,7 +18,6 @@ describe('CORE', () => {
     it('should register resource using const/type (no inheritance)', (done) => {
       @MockResource({
         endpoint: '/api/users/:id?',
-        identity: 'id',
         deserializer: () => localMockDeserializer,
         noBuild: true
       })
@@ -55,7 +54,6 @@ describe('CORE', () => {
 
       @MockResource({
         endpoint: '/api/users/:id?',
-        identity: 'id',
         deserializer: () => localMockDeserializer
       })
       class User extends MockMixin<IUser, IUserStatic>() {
@@ -86,7 +84,6 @@ describe('CORE', () => {
 
       @MockResource({
         endpoint: '/api/users/:id?',
-        identity: 'id',
         deserializer: () => localMockDeserializer
       })
       class User extends MockMixin(User_) { }
@@ -110,7 +107,6 @@ describe('CORE', () => {
       @MockResource({
         name: 'TestUser',
         endpoint: '/api/users/:id?',
-        identity: 'id',
         deserializer: () => localMockDeserializer
       })
       class User extends MockMixin(User_) { }

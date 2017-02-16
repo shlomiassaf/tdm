@@ -8,10 +8,10 @@ import { ARHookableMethods } from '../../active-record/active-record-interfaces'
 
 export class TargetMetadataStore {
 
+  private identity: string;
   private adapters = new Map<AdapterStatic<any, any>, TargetAdapterMetadataStore>();
   private props = new Set<PropMetadata>();
   private extendingActions = new Map<PropertyKey, {def: Partial<ActionMetadataArgs<any>>, info: DecoratorInfo}[]>();
-
   private excludes = new Set<ExcludeMetadata>();
   private hooks = new Map<ARHookableMethods, {before: HookMetadata, after: HookMetadata}>();
 
@@ -37,6 +37,10 @@ export class TargetMetadataStore {
     this.hooks.set(meta.action, hooks);
   }
 
+  setIdentity(propertyKey: string): void {
+    this.identity = propertyKey;
+  }
+
   hasAdapter(adapterClass: AdapterStatic<any, any>): boolean {
     return this.adapters.has(adapterClass);
   }
@@ -54,6 +58,10 @@ export class TargetMetadataStore {
 
   getExtendingActions(): Map<PropertyKey, {def: Partial<ActionMetadataArgs<any>>, info: DecoratorInfo}[]> {
     return this.extendingActions;
+  }
+
+  getIdentity(): string | undefined {
+    return this.identity;
   }
 
   getProps(): PropMetadata[] {

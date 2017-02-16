@@ -1,4 +1,4 @@
-import { ResourceMetadataArgs, ResourceMetadata, Deserializer } from '@tdm/core';
+import { ResourceMetadataArgs, ResourceMetadata, Deserializer, MapperFactory } from '@tdm/core';
 
 export interface MockResourceMetadataArgs extends ResourceMetadataArgs {
   deserializer?: () => Deserializer<any>;
@@ -7,17 +7,16 @@ export interface MockResourceMetadataArgs extends ResourceMetadataArgs {
 export class MockResourceMetadata implements ResourceMetadata {
   name: string;
   endpoint: string;
-  identity: string;
   deserializer?: () => Deserializer<any>;
   noBuild: boolean;
+  mapper: MapperFactory;
 
   constructor(obj: MockResourceMetadataArgs) {
     Object.assign(this, obj);
   }
 
   static DEFAULTS: MockResourceMetadataArgs = {
-    endpoint: undefined,
-    identity: undefined
+    endpoint: undefined
   };
 
   static VALIDATE(obj: MockResourceMetadataArgs): void {
