@@ -6,35 +6,31 @@ import { defaultConfig  } from '../default-config';
 import { LazyInit } from '../utils/decorators';
 import { findProp } from "../utils";
 import { TransformStrategy, ValidationError } from '../metadata/meta-types/schema/interfaces';
-import { TargetAdapterMetadataStore } from '../metadata/reflection/target-adapter-metadata-store';
+import { TargetMetadataStore } from '../metadata/reflection/target-metadata-store';
 import { BaseActiveRecord } from '../active-record/active-record-interfaces';
 import { MapperFactory } from '../mapping';
 
 export class TargetController<T /* extends ActiveRecord<any, any> */> {
 
   @LazyInit(function (this: TargetController<any>): TargetTransformer {
-    const resource = this.adapterStore.globalResource;
+    const resource = this.targetStore.resource;
     const transformNameStrategy = findProp('transformNameStrategy', defaultConfig, resource);
 
-    return new TargetTransformer(this.adapterStore.target, transformNameStrategy, this.strategy);
+    return new TargetTransformer(this.targetStore.target, transformNameStrategy, this.strategy);
   })
   private transformer: TargetTransformer;
 
   @LazyInit(function (this: TargetController<any>): TransformStrategy {
-    return findProp('transformStrategy', defaultConfig, this.adapterStore.globalResource);
+    return findProp('transformStrategy', defaultConfig, this.targetStore.resource);
   })
   private strategy: TransformStrategy;
 
   @LazyInit(function (this: TargetController<any>): TargetValidator {
-    return new TargetValidator(this.adapterStore.target);
+    return new TargetValidator(this.targetStore.target);
   })
   private validator: TargetValidator;
 
-  private mapper: MapperFactory;
-
-  constructor(private adapterStore: TargetAdapterMetadataStore) {
-    this.mapper = findProp('mapper', defaultConfig, this.adapterStore.resource);
-  }
+  constructor(private targetStore: TargetMetadataStore,  private mapper: MapperFactory) {}
 
   createCollection(): ActiveRecordCollection<T> {
     return new ActiveRecordCollection<T>();
@@ -42,12 +38,12 @@ export class TargetController<T /* extends ActiveRecord<any, any> */> {
 
   create(params: TargetFactoryParams = {} as any): T {
     const instance = params.ctorArgs
-        ? new this.adapterStore.target(...params.ctorArgs)
-        : new this.adapterStore.target()
+        ? new this.targetStore.target(...params.ctorArgs)
+        : new this.targetStore.target()
       ;
 
     if (params.hasOwnProperty('identity')) {
-      instance[this.adapterStore.identity] = params.identity;
+      instance[this.targetStore.getIdentity()] = params.identity;
     }
 
     if (params.data) {

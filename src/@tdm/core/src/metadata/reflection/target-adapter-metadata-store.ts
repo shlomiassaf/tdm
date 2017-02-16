@@ -1,3 +1,4 @@
+import { defaultConfig } from '../../default-config';
 import { AdapterStatic } from '../../core/interfaces';
 import { AdapterError, TargetError } from '../../core/errors';
 import { TargetController } from '../../core/target-controller';
@@ -8,7 +9,7 @@ import { ARHookableMethods } from '../../active-record/active-record-interfaces'
 
 import { TargetMetadataStore } from './target-metadata-store';
 import { internalMetadataStore } from './internal-metadata-store';
-import { isFunction, getProtoChain, Constructor, SetExt, MapExt,  } from '../../utils';
+import { findProp, isFunction, getProtoChain, Constructor, SetExt, MapExt,  } from '../../utils';
 import { LazyInit } from '../../utils/decorators';
 import { GlobalResourceMetadata } from "../meta-types/resource";
 
@@ -24,7 +25,7 @@ export class TargetAdapterMetadataStore {
   custom: Map<any, Set<any>> = new Map<any, Set<any>>();
 
   @LazyInit(function (this: TargetAdapterMetadataStore): TargetController<any> {
-    return new TargetController<any>(this);
+    return new TargetController<any>(this.parent, findProp('mapper', defaultConfig, this.resource));
   })
   targetController: TargetController<any>;
 
