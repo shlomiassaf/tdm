@@ -10,6 +10,7 @@ import { TargetMetadataStore } from './target-metadata-store';
 import { internalMetadataStore } from './internal-metadata-store';
 import { isFunction, getProtoChain, Constructor, SetExt, MapExt,  } from '../../utils';
 import { LazyInit } from '../../utils/decorators';
+import { GlobalResourceMetadata } from "../meta-types/resource";
 
 /**
  * A Metadata store for a target-adapter combination.
@@ -50,6 +51,10 @@ export class TargetAdapterMetadataStore {
 
   get identity(): string {
     return this.parent.getIdentity();
+  }
+
+  get globalResource(): GlobalResourceMetadata {
+    return this.parent.resource;
   }
 
   constructor(private readonly parent: TargetMetadataStore, public readonly adapterClass: AdapterStatic<any, any>) {

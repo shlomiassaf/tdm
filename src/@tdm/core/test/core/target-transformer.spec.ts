@@ -2,7 +2,7 @@ import 'rxjs';
 import * as voca from 'voca';
 
 import { MockMixin, MockResource, MockDeserializer, bucketFactory } from '@tdm/core/testing';
-import { Prop } from '@tdm/core';
+import { Prop, Resource } from '@tdm/core';
 
 
 const localMockDeserializer = new MockDeserializer();
@@ -69,13 +69,15 @@ describe('CORE', () => {
     });
 
     it('should apply NamingStrategyConfig', (done) => {
-      @MockResource({
-        endpoint: '/api/users/:id?',
-        deserializer: () => localMockDeserializer,
+      @Resource({
         transformNameStrategy: {
           incoming: name => voca.camelCase(name),
           outgoing: name => voca.snakeCase(name)
         }
+      })
+      @MockResource({
+        endpoint: '/api/users/:id?',
+        deserializer: () => localMockDeserializer
       })
       class User extends MockMixin(class {}) { }
 

@@ -16,7 +16,9 @@ export {
   ValidationContext,
   Validator,
   ValidationError,
-  ValidationSchedule
+  ValidationSchedule,
+  GlobalResourceMetadata,
+  GlobalResourceMetadataArgs
 } from './meta-types';
 
 export { TargetAdapterMetadataStore } from './reflection';

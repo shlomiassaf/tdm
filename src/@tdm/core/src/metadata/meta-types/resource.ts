@@ -3,11 +3,7 @@ import { TransformStrategy } from './schema/interfaces';
 import { NamingStrategyConfig } from '../../core/interfaces';
 import { MapperFactory } from '../../mapping';
 
-export interface ResourceMetadataArgs {
-  endpoint: string;
-
-  deserializer?: DeserializerFactory;
-
+export interface GlobalResourceMetadataArgs {
   /**
    * @link DefaultConfig#transformStrategy
    */
@@ -17,6 +13,34 @@ export interface ResourceMetadataArgs {
    * @link DefaultConfig#transformNameStrategy
    */
   transformNameStrategy?: NamingStrategyConfig | undefined;
+}
+
+export class GlobalResourceMetadata {
+  /**
+   * @link DefaultConfig#transformStrategy
+   */
+  transformStrategy: TransformStrategy | undefined;
+
+  /**
+   * @link DefaultConfig#transformNameStrategy
+   */
+  transformNameStrategy: NamingStrategyConfig | undefined;
+
+  constructor(obj: GlobalResourceMetadata) {
+    Object.assign(this, obj);
+  }
+
+  static DEFAULTS: GlobalResourceMetadataArgs = {} as any;
+
+  static VALIDATE(obj: GlobalResourceMetadataArgs): void {
+  }
+}
+
+export interface ResourceMetadataArgs {
+  endpoint: string;
+
+  deserializer?: DeserializerFactory;
+
 
   /**
    * A name for the resource.
@@ -42,16 +66,6 @@ export interface ResourceMetadata {
   endpoint: string;
 
   deserializer?: DeserializerFactory;
-
-  /**
-   * @link DefaultConfig#transformStrategy
-   */
-  transformStrategy?: TransformStrategy;
-
-  /**
-   * @link DefaultConfig#transformNameStrategy
-   */
-  transformNameStrategy?: NamingStrategyConfig | undefined;
 
   noBuild: boolean;
 

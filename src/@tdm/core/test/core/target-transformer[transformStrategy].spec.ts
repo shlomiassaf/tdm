@@ -1,7 +1,7 @@
 import 'rxjs';
 
 import { MockMixin, MockResource, MockDeserializer, bucketFactory } from '@tdm/core/testing';
-import { Prop, Exclude } from '@tdm/core';
+import { Prop, Exclude, Resource } from '@tdm/core';
 
 
 const localMockDeserializer = new MockDeserializer();
@@ -45,17 +45,21 @@ class User_ {
   nonExisting: string;
 }
 
+@Resource({
+  transformStrategy: 'inclusive'
+})
 @MockResource({
   endpoint: '/api/users/:id?',
-  deserializer: () => localMockDeserializer,
-  transformStrategy: 'inclusive'
+  deserializer: () => localMockDeserializer
 })
 class UserInc extends MockMixin(User_) { }
 
+@Resource({
+  transformStrategy: 'exclusive'
+})
 @MockResource({
   endpoint: '/api/users/:id?',
-  deserializer: () => localMockDeserializer,
-  transformStrategy: 'exclusive'
+  deserializer: () => localMockDeserializer
 })
 class UserExc extends MockMixin(User_) { }
 

@@ -1,10 +1,9 @@
-import { AdapterMetadata, AdapterMetadataArgs, metadataFactory, decoratorInfo, ResourceMetadata, ActionMetadata, ActionMetadataArgs, PropMetadata, PropMetadataArgs, ExcludeMetadata, ExcludeMetadataArgs, HookMetadata, HookMetadataArgs } from './meta-types';
+import { AdapterMetadata, AdapterMetadataArgs, metadataFactory, decoratorInfo, GlobalResourceMetadata, GlobalResourceMetadataArgs, ResourceMetadata, ActionMetadata, ActionMetadataArgs, PropMetadata, PropMetadataArgs, ExcludeMetadata, ExcludeMetadataArgs, HookMetadata, HookMetadataArgs } from './meta-types';
 import { ARHooks, ARHookableMethods } from '../active-record';
 import { internalMetadataStore } from './reflection';
 import { ExecuteResponse } from '../core/interfaces';
 import { DecoratorError, TDMError } from '../core/errors';
-import { reflection, ensureTargetIsType } from '../utils';
-
+import { reflection, ensureTargetIsType, Constructor} from '../utils';
 
 export function ResourceAdapter<T extends ResourceMetadata, Z extends ActionMetadata>(def: AdapterMetadataArgs<T, Z>): (target) => any {
   return target => {
@@ -13,6 +12,14 @@ export function ResourceAdapter<T extends ResourceMetadata, Z extends ActionMeta
     return target;
   };
 }
+
+export function Resource(def: GlobalResourceMetadataArgs) {
+  return (target: Constructor<any>) => {
+    internalMetadataStore.getTargetStore(target)
+      .setResource(metadataFactory(GlobalResourceMetadata, def));
+  };
+}
+
 
 export function ExtendAction(def: Partial<ActionMetadataArgs<any>>): any {
   return (target: Object, propertyKey: string | symbol, desc: any) => {

@@ -13,7 +13,7 @@ import { MapperFactory } from '../mapping';
 export class TargetController<T /* extends ActiveRecord<any, any> */> {
 
   @LazyInit(function (this: TargetController<any>): TargetTransformer {
-    const resource = this.adapterStore.resource;
+    const resource = this.adapterStore.globalResource;
     const transformNameStrategy = findProp('transformNameStrategy', defaultConfig, resource);
 
     return new TargetTransformer(this.adapterStore.target, transformNameStrategy, this.strategy);
@@ -21,7 +21,7 @@ export class TargetController<T /* extends ActiveRecord<any, any> */> {
   private transformer: TargetTransformer;
 
   @LazyInit(function (this: TargetController<any>): TransformStrategy {
-    return findProp('transformStrategy', defaultConfig, this.adapterStore.resource);
+    return findProp('transformStrategy', defaultConfig, this.adapterStore.globalResource);
   })
   private strategy: TransformStrategy;
 

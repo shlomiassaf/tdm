@@ -93,7 +93,6 @@ export class User_ implements   BeforeHook<'bfRef', HttpActionOptions>,
 
 @HttpResource({
   endpoint: '/api/users/:id?',
-  transformStrategy: 'inclusive',
   urlParams: { // there are hard coded params
     limit: '5' // not in path so will go to query string (?param=15)
   },

@@ -1,6 +1,6 @@
 import { AdapterStatic } from '../../core/interfaces';
 import { AdapterError } from '../../core/errors';
-import { PropMetadata, ExcludeMetadata, HookMetadata, ActionMetadataArgs, DecoratorInfo } from '../meta-types';
+import { PropMetadata, ExcludeMetadata, HookMetadata, GlobalResourceMetadata, ActionMetadataArgs, DecoratorInfo } from '../meta-types';
 import { TargetAdapterMetadataStore } from './target-adapter-metadata-store';
 import { internalMetadataStore } from './internal-metadata-store';
 import { stringify, SetExt } from '../../utils';
@@ -8,7 +8,9 @@ import { ARHookableMethods } from '../../active-record/active-record-interfaces'
 
 export class TargetMetadataStore {
 
+  public readonly resource: GlobalResourceMetadata;
   private identity: string;
+
   private adapters = new Map<AdapterStatic<any, any>, TargetAdapterMetadataStore>();
   private props = new Set<PropMetadata>();
   private extendingActions = new Map<PropertyKey, {def: Partial<ActionMetadataArgs<any>>, info: DecoratorInfo}[]>();
@@ -35,6 +37,10 @@ export class TargetMetadataStore {
     const hooks = this.hooks.get(meta.action) || {} as any;
     hooks[meta.event] = meta;
     this.hooks.set(meta.action, hooks);
+  }
+
+  setResource(meta: GlobalResourceMetadata): void {
+    Object.defineProperty(this, 'resource', { value: meta });
   }
 
   setIdentity(propertyKey: string): void {

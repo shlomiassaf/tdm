@@ -14,7 +14,7 @@ export function metadataFactory<T extends MetadataStatic<any, any>, Z>(type: T &
 }
 
 export { MemberDecoratorMetadata, DecoratorInfo, decoratorInfo } from './core';
-export { ResourceMetadata, ResourceMetadataArgs } from './resource';
+export { ResourceMetadata, ResourceMetadataArgs, GlobalResourceMetadata, GlobalResourceMetadataArgs } from './resource';
 export { ActionMetadata, ActionMetadataArgs, ActionMethodType } from './action';
 export { AdapterMetadata, AdapterMetadataArgs } from './adapter';
 export { PropMetadata, PropMetadataArgs } from './prop';
