@@ -99,6 +99,7 @@ export class TargetAdapterMetadataStore {
               });
 
             // Aggregating global lifecycle hooks
+            // TODO: Refactor to support static/instance like ExtendAction in case 2 hooks with same prop name
             MapExt.asKeyValArray(protoStore.getHooks())
               .forEach( ([action, hook]) => {
                 let thisHook = store.findHook(action);
