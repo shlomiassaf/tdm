@@ -62,6 +62,7 @@ export class BaseRestResource {
     method: HttpActionMethodType.Post,
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<HttpActionMetadata>, data: any, options: HttpActionOptions) => {
+      // TODO: user directMapper here, this will choose the user defined mapper
       ctx.adapterStore.targetController.deserialize(ctx.data, data, ctx.action.isCollection);
       return options;
     }
@@ -72,6 +73,7 @@ export class BaseRestResource {
     method: HttpActionMethodType.Put,
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<HttpActionMetadata>, data: any, options: HttpActionOptions) => {
+      // TODO: user directMapper here, this will choose the user defined mapper
       ctx.adapterStore.targetController.deserialize(ctx.data, data, ctx.action.isCollection);
       return options;
     }

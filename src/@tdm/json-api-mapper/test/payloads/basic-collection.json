@@ -1,0 +1,34 @@
+{
+  "payload": {
+    "data": [
+      {
+        "type": "articles",
+        "id": "1",
+        "attributes": {
+          "title": "Basic title test",
+          "category": "sports"
+        }
+      },
+      {
+        "type": "articles",
+        "id": "2",
+        "attributes": {
+          "title": "Basic title test 2",
+          "category": "culture"
+        }
+      }
+    ]
+  },
+  "expected": [
+    {
+      "id": "1",
+      "title": "Basic title test",
+      "category": "sports"
+    },
+    {
+      "id": "2",
+      "title": "Basic title test 2",
+      "category": "culture"
+    }
+  ]
+}

@@ -1,8 +1,12 @@
+import { BaseActiveRecord } from '../active-record/active-record-interfaces';
 import { AdapterStatic } from '../core/interfaces';
 import { AdapterError } from '../core/errors';
 
 import { internalMetadataStore as store } from './reflection/internal-metadata-store';
 import { TargetAdapterMetadataStore } from './reflection/target-adapter-metadata-store';
+import { DeserializeMapper } from '../mapping';
+import { TargetController } from '../core';
+import { Constructor, isString } from '../utils';
 
 /**
  * Returns the adapter store for a target class & Adapter class.
@@ -32,13 +36,31 @@ export class TargetStore {
     }
   }
 
+  deserialize(target: Constructor<any> | string, mapper: DeserializeMapper): BaseActiveRecord<any> | BaseActiveRecord<any>[] | undefined {
+    if (isString(target)) {
+      return this.deserialize(this.findTarget(target), mapper);
+    } else {
+      const targetStore = store.getTargetStore(target, false);
+      if (targetStore) {
+        return TargetController.deserialize(targetStore, mapper);
+      }
+    }
+  }
+
   /**
    * Search for a target registered in the repository by it's name.
    * @see ResourceMetadataArgs#name
    * @param name
    */
-  findTarget(name: string): any {
+  findTarget(name: string): any | undefined {
     return store.findTarget(name);
+  }
+
+  getName(target: any): string | undefined {
+    const ts = store.getTargetStore(target, false);
+    if (ts) {
+      return ts.name;
+    }
   }
 
   buildIfReady(target: any, adapterClass: AdapterStatic<any, any>): boolean {

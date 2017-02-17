@@ -9,15 +9,20 @@ import { ARHookableMethods } from '../../active-record/active-record-interfaces'
 export class TargetMetadataStore {
 
   public readonly resource: GlobalResourceMetadata;
-  private identity: string;
 
-  private adapters = new Map<AdapterStatic<any, any>, TargetAdapterMetadataStore>();
-  private props = new Set<PropMetadata>();
-  private extendingActions = new Map<PropertyKey, {def: Partial<ActionMetadataArgs<any>>, info: DecoratorInfo}[]>();
-  private excludes = new Set<ExcludeMetadata>();
-  private hooks = new Map<ARHookableMethods, {before: HookMetadata, after: HookMetadata}>();
+  name: string;
 
-  constructor(public readonly target: any) { }
+  protected identity: string;
+
+  protected adapters = new Map<AdapterStatic<any, any>, TargetAdapterMetadataStore>();
+  protected props = new Set<PropMetadata>();
+  protected extendingActions = new Map<PropertyKey, {def: Partial<ActionMetadataArgs<any>>, info: DecoratorInfo}[]>();
+  protected excludes = new Set<ExcludeMetadata>();
+  protected hooks = new Map<ARHookableMethods, {before: HookMetadata, after: HookMetadata}>();
+
+  constructor(public readonly target: any) {
+    this.name = stringify(target);
+  }
 
   addExtendingAction(info: DecoratorInfo, def: Partial<ActionMetadataArgs<any>>): void {
     const arr = this.extendingActions.get(info.name) || [];
@@ -40,6 +45,9 @@ export class TargetMetadataStore {
   }
 
   setResource(meta: GlobalResourceMetadata): void {
+    if (meta.name && meta.name !== this.name) {
+      internalMetadataStore.replaceName(meta.name, this.target);
+    }
     Object.defineProperty(this, 'resource', { value: meta });
   }
 

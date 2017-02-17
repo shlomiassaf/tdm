@@ -1,5 +1,5 @@
 import { MockMixin, MockResource, MockDeserializer, MockActionOptions, MockAdapter, bucketFactory } from '@tdm/core/testing';
-import { ActiveRecord, Constructor, Prop } from '@tdm/core';
+import { ActiveRecord, Constructor, Prop, Resource } from '@tdm/core';
 import { internalMetadataStore } from '../../src/metadata/reflection/internal-metadata-store';
 
 const localMockDeserializer = new MockDeserializer();
@@ -32,7 +32,7 @@ describe('CORE', () => {
       const user: User = bucket.create<any>(User);
       user.$refresh({returnValue}).$ar.next()
         .then( data => {
-          expect(internalMetadataStore.getTargetAdapterStore(User, MockAdapter).resource.name).toBe('User_');
+          expect(internalMetadataStore.getTargetStore(User).name).toBe('User_');
           expect(user.name).toBe('test');
           expect(user.value).toBe('value1');
           done();
@@ -65,7 +65,7 @@ describe('CORE', () => {
       const user = bucket.create(User);
       user.$refresh({returnValue}).$ar.next()
         .then( data => {
-          expect(internalMetadataStore.getTargetAdapterStore(User, MockAdapter).resource.name).toBe('User');
+          expect(internalMetadataStore.getTargetStore(User).name).toBe('User');
           expect(user.name).toBe('test');
           expect(user.value).toBe('value1');
           done();
@@ -91,7 +91,7 @@ describe('CORE', () => {
       const user = bucket.create(User);
       user.$refresh({returnValue}).$ar.next()
         .then( data => {
-          expect(internalMetadataStore.getTargetAdapterStore(User, MockAdapter).resource.name).toBe('User');
+          expect(internalMetadataStore.getTargetStore(User).name).toBe('User');
           expect(user.name).toBe('test');
           expect(user.value).toBe('value1');
           done();
@@ -104,14 +104,16 @@ describe('CORE', () => {
     it('should override resource name, if set', () => {
       class User_ { }
 
+      @Resource({
+        name: 'TestUser'
+      })
       @MockResource({
-        name: 'TestUser',
         endpoint: '/api/users/:id?',
         deserializer: () => localMockDeserializer
       })
       class User extends MockMixin(User_) { }
 
-      expect(internalMetadataStore.getTargetAdapterStore(User, MockAdapter).resource.name).toBe('TestUser');
+      expect(internalMetadataStore.getTargetStore(User).name).toBe('TestUser');
     });
 
 

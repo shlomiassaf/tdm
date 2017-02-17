@@ -38,19 +38,21 @@ export function transformValueIn(value: any, prop: PropMetadata): any {
 function excludedPredicate(e: ExcludeMetadata) { return e.name === this; }
 
 export interface PropertyContainer {
+  target: any;
   forEach(keys: string[], cb: (pMap: PoClassPropertyMap) => void): void;
 }
 
 export class InclusivePropertyContainer implements PropertyContainer {
 
   constructor(
+    public target: any,
     private compiled: CompiledTransformation,
     private predicate: (p: PoClassPropertyMap) => boolean,
     private renamer: (po: PoClassPropertyMap) => string
   ){ }
 
   forEach(keys: string[], cb: (pMap: PoClassPropertyMap) => void): void {
-    const len = keys.length;
+    let len = keys.length;
 
     const instructions = this.compiled.instructions.slice();
     const excluded = this.compiled.excluded.slice();
@@ -74,7 +76,7 @@ export class InclusivePropertyContainer implements PropertyContainer {
 
 export class ExclusivePropertyContainer implements PropertyContainer {
 
-  constructor(private compiled: CompiledTransformation) { }
+  constructor(public target: any, private compiled: CompiledTransformation) { }
 
   forEach(keys: string[], cb: (pMap: PoClassPropertyMap) => void): void {
     const instructions = this.compiled.instructions;

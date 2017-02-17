@@ -1,6 +1,6 @@
 import { AdapterStatic, AdapterError } from '../core';
 import { ActionMetadataArgs, ResourceMetadataArgs, decoratorInfo } from './meta-types';
-import { ensureTargetIsType, stringify } from '../utils';
+import { ensureTargetIsType } from '../utils';
 import { internalMetadataStore } from './reflection';
 import { activeRecordClassFactory } from '../active-record';
 
@@ -56,10 +56,6 @@ export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterSt
   return function ResourceDecorator(def: T) {
     return (target: any) => {
       const TDModel = activeRecordClassFactory(target as any);
-
-      if (!def.name) {
-        def.name = stringify(target);
-      }
 
       // TODO: this needs to move outside of core
       // add a hook to `resource` so dev can do stuff before returning.

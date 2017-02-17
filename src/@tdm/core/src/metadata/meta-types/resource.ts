@@ -5,6 +5,15 @@ import { MapperFactory } from '../../mapping';
 
 export interface GlobalResourceMetadataArgs {
   /**
+   * A name for the resource.
+   * Depending on your setup, this property might be used to identify resource from deserialized data. (e.g. JSONAPI)
+   * If not set, the default name is the class name (which does not guarantee uniqueness)
+   * @optional
+   */
+  name?: string;
+
+
+  /**
    * @link DefaultConfig#transformStrategy
    */
   transformStrategy?: TransformStrategy;
@@ -26,7 +35,9 @@ export class GlobalResourceMetadata {
    */
   transformNameStrategy: NamingStrategyConfig | undefined;
 
-  constructor(obj: GlobalResourceMetadata) {
+  name: string;
+
+  constructor(obj: GlobalResourceMetadataArgs) {
     Object.assign(this, obj);
   }
 
@@ -41,15 +52,6 @@ export interface ResourceMetadataArgs {
 
   deserializer?: DeserializerFactory;
 
-
-  /**
-   * A name for the resource.
-   * Depending on your setup, this property might be used to identify resource from deserialized data. (e.g. JSONAPI)
-   * If not set, the default name is the class name (which does not guarantee uniqueness)
-   * @optional
-   */
-  name?: string;
-
   /**
    * If true will not build the decorated class into a resource.
    * @optional
@@ -61,8 +63,6 @@ export interface ResourceMetadataArgs {
 }
 
 export interface ResourceMetadata {
-  name: string;
-
   endpoint: string;
 
   deserializer?: DeserializerFactory;

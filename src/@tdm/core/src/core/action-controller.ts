@@ -138,7 +138,7 @@ export class ActionController {
         .then( () => this.fireHook(action.name as any, 'after', self, options, resp) );
 
       obs$ = obs$
-        .do( ({deserialized}) => targetController.deserialize(deserialized, self, action.isCollection) )
+        .do( ({deserialized}) => targetController.deserialize(deserialized, self instanceof ActiveRecordCollection ? self.collection : self, action.isCollection) )
         .switchMap( resp => fromPromise<void>(endingPromise(resp)) );
     } else {
       async = true;

@@ -1,4 +1,5 @@
 import {
+  Resource,
   MapperFactory,
   DeserializeMapper,
   SerializeMapper,
@@ -9,8 +10,14 @@ import {
   targetStore
 } from '@tdm/core';
 
-import { TopLevel, ResourceObject, ResourceIdentifierObject } from './json-api';
+import { TopLevel, ResourceObject, ResourceIdentifierObject, RelationshipObject } from './json-api';
 import * as japiUtils from './json-api-utils';
+
+
+@Resource({})
+class Empty {
+
+}
 
 /**
  * A mapper that has no mapping effect.
@@ -18,20 +25,42 @@ import * as japiUtils from './json-api-utils';
  *
  */
 export class JSONAPIDeserializeMapper extends DeserializeMapper {
+  setRef(value: any): void {
+    if (this.current) {
+      this.existing.set(this.uuid(this.current.type, this.current.id), value);
+    }
+  }
+
   readonly isCollection: boolean;
 
-  private idx: number = -1;
-  private current: ResourceObject;
-  private keys: { att: string[], rel: string[] };
+  protected idx: number = -1;
+  protected current: ResourceObject;
+  protected keys: { att: string[], rel: string[] };
+  protected existing: Map<string, any>;
+
+  get ref(): any | undefined {
+    if (this.current) {
+      return this.existing.get(this.uuid(this.current.type, this.current.id));
+    }
+  }
+
 
   constructor(public source: TopLevel) {
     super(source);
+
+    if (!this.existing) {
+      this.existing = new Map<string, any>();
+    }
 
     this.isCollection = Array.isArray(source.data);
     if (!this.isCollection) {
       this.current = this.source.data as any;
       this.keys = japiUtils.getResourceKeys(this.current);
     }
+  }
+
+  getIdentity(): string {
+    return this.current.id;
   }
 
   next(): boolean {
@@ -55,22 +84,17 @@ export class JSONAPIDeserializeMapper extends DeserializeMapper {
     } else if (this.keys.rel.indexOf(key) > -1) {
       return this.getRelatedValue(key, prop);
     }
-      // relationship
-      // search included, if found return serialized.
-      // if not in included, serialize only with id (need to set based on identity)
-
-      // Make sure to return array, if this is the case...
-
-      // this requires a refactor, the TargetStore should allow serializing/deserializing based on Target
-      // this must happen within the deserializer since JSONAPI detailed implementation is not known
-      // to the invoker. (i.e.: { type: 'Person', id: 5 } is JSONAPI specific schema)
   }
 
-  private getAttrValue(key: string, prop?: PropMetadata): any {
+  protected uuid(type: string, id: string): string {
+    return `${type}-${id}`;
+  }
+
+  protected getAttrValue(key: string, prop?: PropMetadata): any {
     return this.current.attributes[key];
   }
 
-  private getRelatedValue(key: string, prop?: PropMetadata): any | undefined {
+  protected getRelatedValue(key: string, prop?: PropMetadata): any | undefined {
     const relObject = this.current.relationships[key];
 
     if (relObject && relObject.data) {
@@ -82,27 +106,98 @@ export class JSONAPIDeserializeMapper extends DeserializeMapper {
     }
   }
 
-  private getIncluded(rel: ResourceIdentifierObject, prop?: PropMetadata): any {
-    const included = japiUtils.findIncluded(this.source.included, rel) || {};
+  protected getIncluded(rel: ResourceIdentifierObject, prop?: PropMetadata): any {
 
-    let target: any = (prop && prop.type) || targetStore.findTarget(rel.type);
-    const ident = (target && targetStore.getIdentityKey(target)) || 'id';
+    const uuid = this.uuid(rel.type, rel.id);
 
-    included[ident] = rel.id;
+    if (this.existing.has(uuid)) {
+      return this.existing.get(uuid);
+    }
 
-    return japiUtils.findIncluded(this.source.included, rel) || rel;
+    const included = japiUtils.findIncluded(this.source.included, rel) || rel as any;
+
+    if (included) {
+      let target: any = (prop && prop.type) || targetStore.findTarget(rel.type);
+
+      // TODO:  Move Empty to @tdm/core, change to ObjectLiteral so deserializer with Empty
+      //        will not return an ActiveRecord instance but an ObjectLiteral
+      //        this means that Empty (or new name) does not need to be decorated with @Resource()
+      if (!target) target = Empty;
+
+      if (this.ref) {
+        const child = new JSONAPIChildDeserializeMapper({ data: included, included: this.source.included }, this.existing);
+        return targetStore.deserialize(target, child);
+      } else {
+        return targetStore.deserialize(target, jsonAPIMapper.deserializer({data: included}));
+      }
+
+    }
   }
 }
 
+export class JSONAPIChildDeserializeMapper extends JSONAPIDeserializeMapper {
+  constructor(public source: TopLevel, protected existing: Map<string, any>) {
+    super(source);
+  }
+}
+
+
 export class JSONAPISerializeMapper extends SerializeMapper {
+
   serialize(container: PropertyContainer): any {
-    const target: any = {};
+    if (Array.isArray(this.source)) {
+      return this.serializeCollection(this.source, container);
+    } else {
+      return this.serializeObject(this.source, container);
+    }
+  }
 
-    const cb = (prop: PoClassPropertyMap) => target[prop.obj] = transformValueOut(this.source[prop.cls], prop.prop);
+  private serializeObject(obj: any, container: PropertyContainer): TopLevel {
+    const data: ResourceObject = {
+      id: this.source[targetStore.getIdentityKey(container.target)],
+      type: targetStore.getName(container.target),
+      attributes: {},
+      relationships: {},
+    };
 
-    container.forEach(Object.keys(this.source), cb);
+    const doc: TopLevel = {
+      data
+    };
+    const cb = (prop: PoClassPropertyMap) => {
+      if (!prop.prop || !prop.prop.rel) {
+        data.attributes[prop.obj] = transformValueOut(this.source[prop.cls], prop.prop)
+      } else {
+        // TODO: allow forwardRef for type (circular deps)
+        const type = prop.prop.type;
+        const name = targetStore.getName(type);
+        const rel: RelationshipObject = {
+          data: prop.prop.rel === 'hasMany' // TODO: check source is arr as well
+            ? transformValueOut(this.source[prop.cls], prop.prop).map( v => ({ type: name, id: v[targetStore.getIdentityKey(type)] }) )
+            : { type: name, id: transformValueOut(this.source[prop.cls], prop.prop)[targetStore.getIdentityKey(type)] }
+        };
 
-    return target;
+        data.relationships[prop.obj] = rel;
+      }
+    };
+
+    container.forEach(Object.keys(obj), cb);
+
+    if (Object.keys(data.attributes).length === 0) {
+      delete data.attributes;
+    }
+    if (Object.keys(data.relationships).length === 0) {
+      delete data.relationships;
+    }
+
+    return doc;
+  }
+
+  private serializeCollection(arr: any[], container: PropertyContainer): TopLevel {
+    const doc: TopLevel = {
+      data: []
+    };
+    arr.map( s => this.serializeObject(s, container));
+    return doc;
   }
 }
 

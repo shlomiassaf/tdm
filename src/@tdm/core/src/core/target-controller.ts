@@ -8,7 +8,7 @@ import { findProp } from "../utils";
 import { TransformStrategy, ValidationError } from '../metadata/meta-types/schema/interfaces';
 import { TargetMetadataStore } from '../metadata/reflection/target-metadata-store';
 import { BaseActiveRecord } from '../active-record/active-record-interfaces';
-import { MapperFactory } from '../mapping';
+import { MapperFactory, DeserializeMapper, SerializeMapper } from '../mapping';
 
 export class TargetController<T /* extends ActiveRecord<any, any> */> {
 
@@ -30,7 +30,7 @@ export class TargetController<T /* extends ActiveRecord<any, any> */> {
   })
   private validator: TargetValidator;
 
-  constructor(private targetStore: TargetMetadataStore,  private mapper: MapperFactory) {}
+  constructor(private targetStore: TargetMetadataStore, private mapper: MapperFactory) {}
 
   createCollection(): ActiveRecordCollection<T> {
     return new ActiveRecordCollection<T>();
@@ -62,17 +62,22 @@ export class TargetController<T /* extends ActiveRecord<any, any> */> {
     return this.transformer.serialize(mapper);
   }
 
-  deserialize(source: any, target: BaseActiveRecord<any> | ActiveRecordCollection<any>, isCollection: boolean): void {
+  deserialize(source: any, target: BaseActiveRecord<any> | BaseActiveRecord<any>[], isCollection: boolean): void {
     const mapper = this.mapper.deserializer(source);
+
     if (mapper.isCollection !== !!isCollection) {
       throw new Error(`Expected ${isCollection ? 'Collection' : 'Object'} but got ${isCollection ? 'Object' : 'Collection'}`);
     }
 
+    this._deserialize(mapper, target);
+  }
+
+  private _deserialize(mapper: DeserializeMapper, target: BaseActiveRecord<any> | BaseActiveRecord<any>[]): void {
     if (mapper.isCollection) {
       while(mapper.next()) {
         const t = this.create();
         this.transformer.deserialize(mapper, t);
-        (target as ActiveRecordCollection<any>).collection.push(t);
+        (target as Array<any>).push(t);
       }
     } else {
       this.transformer.deserialize(mapper, target);
@@ -81,5 +86,12 @@ export class TargetController<T /* extends ActiveRecord<any, any> */> {
 
   validate(instance: any): Promise<ValidationError[]> {
     return this.validator.validate(instance);
+  }
+
+  static deserialize(targetStore: TargetMetadataStore, mapper: DeserializeMapper): BaseActiveRecord<any> | BaseActiveRecord<any>[] {
+    const tc = new TargetController(targetStore, undefined);
+    const result: any = mapper.isCollection ? [] : tc.create();
+    tc._deserialize(mapper, result);
+    return result;
   }
 }

@@ -59,6 +59,15 @@ function deserializePredicate(p: PoClassPropertyMap) { return p.obj === this; }
 
 export class TargetTransformer {
 
+  @LazyInit(function (this: TargetTransformer): PoClassPropertyMap | undefined {
+    const idKey = internalMetadataStore.getTargetStore(this.targetType).getIdentity();
+    if (idKey) {
+      return (this.hasOwnProperty('incoming') ? this.incoming : this.outgoing)
+        .instructions.find( p => p.prop.name === idKey);
+    }
+  })
+  private identity: PoClassPropertyMap | undefined;
+
   @LazyInit(function (this: TargetTransformer): CompiledTransformation {
     return getInstructions(this.targetType, 'incoming', this.transformNameStrategy);
   })
@@ -76,9 +85,9 @@ export class TargetTransformer {
           ? (prop) =>  prop.cls = this.transformNameStrategy.incoming(prop.obj)
           : undefined
         ;
-      return new InclusivePropertyContainer(this.incoming, deserializePredicate, rename);
+      return new InclusivePropertyContainer(this.targetType, this.incoming, deserializePredicate, rename);
     } else {
-      return new ExclusivePropertyContainer(this.incoming);
+      return new ExclusivePropertyContainer(this.targetType, this.incoming);
     }
   })
   private incomingContainer: PropertyContainer;
@@ -89,9 +98,9 @@ export class TargetTransformer {
           ? (prop) =>  prop.obj = this.transformNameStrategy.outgoing(prop.cls)
           : undefined
         ;
-      return new InclusivePropertyContainer(this.outgoing, serializePredicate, rename);
+      return new InclusivePropertyContainer(this.targetType, this.outgoing, serializePredicate, rename);
     } else {
-      return new ExclusivePropertyContainer(this.outgoing);
+      return new ExclusivePropertyContainer(this.targetType, this.outgoing);
     }
   })
   private outgoingContainer: PropertyContainer;
@@ -112,7 +121,17 @@ export class TargetTransformer {
   deserialize(mapper: DeserializeMapper, target: any): void {
     const cb = (prop: PoClassPropertyMap) => target[prop.cls] = transformValueIn(mapper.getValue(prop.obj, prop.prop), prop.prop);
 
+    if (isFunction(mapper.setRef)) {
+      mapper.setRef(target);
+    }
+
     this.incomingContainer.forEach(mapper.getKeys(), cb);
+
+    if (isFunction(mapper.getIdentity)) {
+      if (this.identity) {
+        target[this.identity.cls] = transformValueIn(mapper.getIdentity(), this.identity.prop);
+      }
+    }
   }
 }
 

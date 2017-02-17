@@ -3,7 +3,7 @@ import { ARHooks, ARHookableMethods } from '../active-record';
 import { internalMetadataStore } from './reflection';
 import { ExecuteResponse } from '../core/interfaces';
 import { DecoratorError, TDMError } from '../core/errors';
-import { reflection, ensureTargetIsType, Constructor} from '../utils';
+import { reflection, ensureTargetIsType, Constructor, stringify } from '../utils';
 
 export function ResourceAdapter<T extends ResourceMetadata, Z extends ActionMetadata>(def: AdapterMetadataArgs<T, Z>): (target) => any {
   return target => {
@@ -13,14 +13,27 @@ export function ResourceAdapter<T extends ResourceMetadata, Z extends ActionMeta
   };
 }
 
+/**
+ * @classDecorator
+ * @param def
+ */
 export function Resource(def: GlobalResourceMetadataArgs) {
   return (target: Constructor<any>) => {
+    if (!def.name) {
+      def.name = stringify(target);
+    } else {
+      internalMetadataStore.replaceName(def.name, target);
+    }
+
     internalMetadataStore.getTargetStore(target)
       .setResource(metadataFactory(GlobalResourceMetadata, def));
   };
 }
 
-
+/**
+ * @propertyDecorator both
+ * @param def
+ */
 export function ExtendAction(def: Partial<ActionMetadataArgs<any>>): any {
   return (target: Object, propertyKey: string | symbol, desc: any) => {
     const info = decoratorInfo(target, propertyKey, desc);
@@ -28,28 +41,43 @@ export function ExtendAction(def: Partial<ActionMetadataArgs<any>>): any {
   };
 }
 
+/**
+ * @propertyDecorator instance
+ */
 export function Identity() {
   return (target: Object, propertyKey: string) => {
-    internalMetadataStore.getTargetStore(target.constructor)
+    internalMetadataStore.getTargetStore(target.constructor as any)
       .setIdentity(propertyKey);
   };
 }
 
+/**
+ * @propertyDecorator instance
+ * @param def
+ */
 export function Prop(def?: PropMetadataArgs) {
   return (target: Object, propertyKey: string | symbol) => {
     const type = reflection.designType(target, propertyKey);
-    internalMetadataStore.getTargetStore(target.constructor)
+    internalMetadataStore.getTargetStore(target.constructor as any)
       .addProp(metadataFactory(PropMetadata, def, type, propertyKey));
   };
 }
 
+/**
+ * @propertyDecorator instance
+ * @param def
+ */
 export function Exclude(def?: ExcludeMetadataArgs) {
   return (target: Object, propertyKey: string | symbol) => {
-    internalMetadataStore.getTargetStore(target.constructor)
+    internalMetadataStore.getTargetStore(target.constructor as any)
       .addExclude(metadataFactory(ExcludeMetadata, def, propertyKey));
   };
 }
 
+/**
+ * @propertyDecorator both
+ * @param def
+ */
 export function Hook(def: HookMetadataArgs) {
   if (!ARHooks.hasOwnProperty(def.action)) {
     throw new TDMError(`Invalid hook '${def.action}'`);

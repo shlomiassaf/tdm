@@ -3,6 +3,7 @@ import { TargetMetadataStore } from './target-metadata-store';
 import { TargetAdapterMetadataStore } from './target-adapter-metadata-store';
 import { AdapterMetadataStore } from './adapter-metadata-store';
 import { ResourceMetadataArgs } from '../meta-types/resource';
+import { isString, Constructor } from '../../utils';
 
 
 /**
@@ -13,9 +14,9 @@ import { ResourceMetadataArgs } from '../meta-types/resource';
  */
 export class InternalMetadataStore {
   private adapters = new Map<AdapterStatic<any, any>, AdapterMetadataStore>();
-  private targets = new Map<any, TargetMetadataStore>();
+  private targets = new Map<Constructor<any>, TargetMetadataStore>();
   private readyToBuild = new Set<any>();
-  private targetNames = new Map<string, TargetAdapterMetadataStore>();
+  private targetNames = new Map<string, Constructor<any>>();
 
   constructor() {
     // TODO: InternalMetadataStore is singleton, enforce?
@@ -26,19 +27,33 @@ export class InternalMetadataStore {
    * @param target
    * @returns {undefined|TargetMetadataStore}
    */
-  setTarget(target: any): TargetMetadataStore {
+  setTarget(target: Constructor<any>): TargetMetadataStore {
     if (this.targets.has(target)) {
       throw new Error('Target class already exists');
     } else {
-      return this.targets.set(target, new TargetMetadataStore(target)).get(target);
+      const tStore = this.targets.set(target, new TargetMetadataStore(target)).get(target);
+      this.targetNames.set(tStore.name, target);
+      return tStore;
     }
   }
 
-  setTargetAndAdapter(target: any, adapterClass: AdapterStatic<any, any>, def: ResourceMetadataArgs): TargetAdapterMetadataStore {
-    const adapterStore = this.setTarget(target).getAdapterStore(adapterClass, true);
+  setTargetAndAdapter(target: Constructor<any>, adapterClass: AdapterStatic<any, any>, def: ResourceMetadataArgs): TargetAdapterMetadataStore {
+    const targetStore = this.setTarget(target);
+    const adapterStore = targetStore.getAdapterStore(adapterClass, true);
     adapterStore.registerResource(def);
-    this.targetNames.set(def.name, adapterStore);
+
     return adapterStore;
+  }
+
+  replaceName(newName: string, target: Constructor<any>) {
+    if (isString(newName)) {
+      const t = this.getTargetStore(target);
+      if (t) {
+        this.targetNames.delete(t.name);
+        t.name = newName;
+        this.targetNames.set(newName, target);
+      }
+    }
   }
 
   /**
@@ -46,11 +61,8 @@ export class InternalMetadataStore {
    * @see ResourceMetadataArgs#name
    * @param name
    */
-  findTarget(name: string): any {
-    const adapterStore = this.targetNames.get(name);
-    if (adapterStore) {
-      return adapterStore.target;
-    }
+  findTarget(name: string): Constructor<any> {
+    return this.targetNames.get(name);
   }
 
   setReadyToBuild(target: any): void {
@@ -71,11 +83,11 @@ export class InternalMetadataStore {
     return false;
   }
 
-  getTargetStore(target: any, createIfMissing: boolean = true): TargetMetadataStore | undefined {
+  getTargetStore(target: Constructor<any>, createIfMissing: boolean = true): TargetMetadataStore | undefined {
     return this.targets.get(target) || (createIfMissing ? this.setTarget(target) : undefined);
   }
 
-  getTargetAdapterStore(target: any, adapterClass: AdapterStatic<any, any>, createIfMissing: boolean = true): TargetAdapterMetadataStore | undefined {
+  getTargetAdapterStore(target: Constructor<any>, adapterClass: AdapterStatic<any, any>, createIfMissing: boolean = true): TargetAdapterMetadataStore | undefined {
     return this.getTargetStore(target, createIfMissing).getAdapterStore(adapterClass, createIfMissing);
   }
 
