@@ -1,7 +1,7 @@
 import { AdapterStatic, AdapterError } from '../core';
 import { ActionMetadataArgs, ResourceMetadataArgs, decoratorInfo } from './meta-types';
 import { ensureTargetIsType } from '../utils';
-import { internalMetadataStore } from './reflection';
+import { internalMetadataStore } from './reflection/internal-metadata-store';
 import { activeRecordClassFactory } from '../active-record';
 
 export type StoreForValueFactory<T> = (def: T, propertyKey: PropertyKey) => any;

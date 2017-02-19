@@ -5,8 +5,11 @@ import { AdapterError } from '../core/errors';
 import { internalMetadataStore as store } from './reflection/internal-metadata-store';
 import { TargetAdapterMetadataStore } from './reflection/target-adapter-metadata-store';
 import { DeserializeMapper } from '../mapping';
-import { TargetController } from '../core';
 import { Constructor, isString } from '../utils';
+
+class PlainObject {
+
+}
 
 /**
  * Returns the adapter store for a target class & Adapter class.
@@ -36,16 +39,36 @@ export class TargetStore {
     }
   }
 
+  /**
+   * Deserialize and instance of "DeserializeMapper" into an instance of tge target supplied
+   * @param target
+   * @param mapper
+   * @returns {any}
+   */
   deserialize(target: Constructor<any> | string, mapper: DeserializeMapper): BaseActiveRecord<any> | BaseActiveRecord<any>[] | undefined {
     if (isString(target)) {
       return this.deserialize(this.findTarget(target), mapper);
     } else {
       const targetStore = store.getTargetStore(target, false);
       if (targetStore) {
-        return TargetController.deserialize(targetStore, mapper);
+        const result: any = mapper.isCollection ? [] : targetStore.targetController.create();
+        targetStore.targetController.deserialize(mapper, result);
+        return result;
       }
     }
   }
+
+  /**
+   * Deserialize and instance of "DeserializeMapper" into a plain object (object literal)
+   * @param mapper
+   */
+  deserializePlain(mapper: DeserializeMapper): any {
+    const targetStore = store.getTargetStore(PlainObject);
+    const result: any = mapper.isCollection ? [] : {};
+    targetStore.targetController.deserialize(mapper, result, true);
+    return result;
+  }
+
 
   /**
    * Search for a target registered in the repository by it's name.

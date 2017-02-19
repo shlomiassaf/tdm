@@ -1,12 +1,16 @@
 import { AdapterStatic } from '../../core/interfaces';
 import { AdapterError } from '../../core/errors';
+import { TargetController } from '../../core/target-controller';
 import { PropMetadata, ExcludeMetadata, HookMetadata, GlobalResourceMetadata, ActionMetadataArgs, DecoratorInfo } from '../meta-types';
 import { TargetAdapterMetadataStore } from './target-adapter-metadata-store';
 import { internalMetadataStore } from './internal-metadata-store';
 import { stringify, SetExt } from '../../utils';
+import { LazyInit } from '../../utils/decorators';
 import { ARHookableMethods } from '../../active-record/active-record-interfaces';
 
 export class TargetMetadataStore {
+
+  targetController: TargetController<any>;
 
   public readonly resource: GlobalResourceMetadata;
 
@@ -22,6 +26,7 @@ export class TargetMetadataStore {
 
   constructor(public readonly target: any) {
     this.name = stringify(target);
+    this.targetController = new TargetController(this);
   }
 
   addExtendingAction(info: DecoratorInfo, def: Partial<ActionMetadataArgs<any>>): void {

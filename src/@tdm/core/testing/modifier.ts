@@ -4,6 +4,7 @@ import { TargetMetadataStore } from "../src/metadata/reflection/target-metadata-
 import { internalMetadataStore } from '../src/metadata/reflection/internal-metadata-store';
 import { SetExt, stringify, isString, isFunction } from '@tdm/core/src/utils';
 import { ARHookableMethods, ARHooks } from "../src/active-record/active-record-interfaces";
+import { TargetController } from "../src/core/target-controller";
 
 function getTargetStore(target: any): TestTargetMetadataStore {
   return internalMetadataStore.getTargetStore(target, false) as any;
@@ -19,6 +20,7 @@ class TestTargetMetadataStore extends TargetMetadataStore {
       TestTargetMetadataStore.setIdentity(target);
       TestTargetMetadataStore.updateResource(target, new GlobalResourceMetadata({}), true);
       TestTargetMetadataStore.setName(target);
+      t.targetController = new TargetController(t);
     }
   }
 

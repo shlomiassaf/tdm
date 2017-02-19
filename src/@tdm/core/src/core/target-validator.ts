@@ -1,4 +1,4 @@
-import { internalMetadataStore } from '../metadata/reflection';
+import { internalMetadataStore } from '../metadata/reflection/internal-metadata-store';
 import { Validator, ValidationError } from '../metadata/meta-types/schema/interfaces';
 import { PropMetadata } from '../metadata/meta-types';
 import { LazyInit } from '../utils/decorators';

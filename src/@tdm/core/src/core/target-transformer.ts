@@ -1,5 +1,5 @@
 import { TransformDir, TransformStrategy } from '../metadata/meta-types/schema/interfaces';
-import { internalMetadataStore } from '../metadata/reflection';
+import { internalMetadataStore } from '../metadata/reflection/internal-metadata-store';
 import { array, isFunction } from '../utils';
 import { LazyInit } from '../utils/decorators';
 import { NamingStrategyConfig } from './interfaces';
@@ -15,7 +15,7 @@ import { SerializeMapper, DeserializeMapper, CompiledTransformation, PoClassProp
  * @param transformNameStrategy
  * @returns {[string,string]|[string,string]}
  */
-function namingStrategyMap(dir: TransformDir, transformNameStrategy: NamingStrategyConfig): string[] | undefined {
+export function namingStrategyMap(dir: TransformDir, transformNameStrategy: NamingStrategyConfig): string[] | undefined {
   return transformNameStrategy && isFunction(transformNameStrategy[dir])
       ? dir === 'incoming' ? ['cls', 'obj'] : ['obj', 'cls']
       : undefined
@@ -66,18 +66,18 @@ export class TargetTransformer {
         .instructions.find( p => p.prop.name === idKey);
     }
   })
-  private identity: PoClassPropertyMap | undefined;
+  protected identity: PoClassPropertyMap | undefined;
 
   @LazyInit(function (this: TargetTransformer): CompiledTransformation {
     return getInstructions(this.targetType, 'incoming', this.transformNameStrategy);
   })
-  private incoming: CompiledTransformation;
+  protected incoming: CompiledTransformation;
 
 
   @LazyInit(function (this: TargetTransformer): CompiledTransformation {
     return getInstructions(this.targetType, 'outgoing', this.transformNameStrategy);
   })
-  private outgoing: CompiledTransformation;
+  protected outgoing: CompiledTransformation;
 
   @LazyInit(function (this: TargetTransformer): PropertyContainer {
     if (this.strategy === 'inclusive') {
@@ -90,7 +90,7 @@ export class TargetTransformer {
       return new ExclusivePropertyContainer(this.targetType, this.incoming);
     }
   })
-  private incomingContainer: PropertyContainer;
+  protected incomingContainer: PropertyContainer;
 
   @LazyInit(function (this: TargetTransformer): PropertyContainer {
     if (this.strategy === 'inclusive') {
@@ -103,9 +103,9 @@ export class TargetTransformer {
       return new ExclusivePropertyContainer(this.targetType, this.outgoing);
     }
   })
-  private outgoingContainer: PropertyContainer;
+  protected outgoingContainer: PropertyContainer;
 
-  constructor(private targetType: any, private transformNameStrategy: NamingStrategyConfig, private strategy: TransformStrategy) {
+  constructor(protected targetType: any, protected transformNameStrategy: NamingStrategyConfig, protected strategy: TransformStrategy) {
   }
 
   serialize(mapper: SerializeMapper): any {
@@ -134,5 +134,3 @@ export class TargetTransformer {
     }
   }
 }
-
-

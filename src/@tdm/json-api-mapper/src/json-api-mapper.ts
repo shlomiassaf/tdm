@@ -1,5 +1,4 @@
 import {
-  Resource,
   MapperFactory,
   DeserializeMapper,
   SerializeMapper,
@@ -12,12 +11,6 @@ import {
 
 import { TopLevel, ResourceObject, ResourceIdentifierObject, RelationshipObject } from './json-api';
 import * as japiUtils from './json-api-utils';
-
-
-@Resource({})
-class Empty {
-
-}
 
 /**
  * A mapper that has no mapping effect.
@@ -117,20 +110,16 @@ export class JSONAPIDeserializeMapper extends DeserializeMapper {
     const included = japiUtils.findIncluded(this.source.included, rel) || rel as any;
 
     if (included) {
-      let target: any = (prop && prop.type) || targetStore.findTarget(rel.type);
+      const mapper = this.ref
+        ? new JSONAPIChildDeserializeMapper({ data: included, included: this.source.included }, this.existing)
+        : jsonAPIMapper.deserializer({data: included})
+      ;
 
-      // TODO:  Move Empty to @tdm/core, change to ObjectLiteral so deserializer with Empty
-      //        will not return an ActiveRecord instance but an ObjectLiteral
-      //        this means that Empty (or new name) does not need to be decorated with @Resource()
-      if (!target) target = Empty;
-
-      if (this.ref) {
-        const child = new JSONAPIChildDeserializeMapper({ data: included, included: this.source.included }, this.existing);
-        return targetStore.deserialize(target, child);
-      } else {
-        return targetStore.deserialize(target, jsonAPIMapper.deserializer({data: included}));
-      }
-
+      const target: any = (prop && prop.type) || targetStore.findTarget(rel.type);
+      return target
+        ? targetStore.deserialize(target, mapper)
+        : targetStore.deserializePlain(mapper)
+      ;
     }
   }
 }

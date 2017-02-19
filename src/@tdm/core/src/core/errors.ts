@@ -58,6 +58,13 @@ export class ResourceError extends TDMError {
   constructor(public readonly ar: BaseActiveRecord<any>, message?: string) {
     super(message)
   }
+
+  static coll_obj(ar: BaseActiveRecord<any>, expectedCol: boolean): ResourceError {
+    return new ResourceError(null, expectedCol
+      ? `Expected a collection but got an object`
+      : `Expected an object but got a collection`
+    );
+  }
 }
 
 export class ResourceValidationError extends ResourceError {

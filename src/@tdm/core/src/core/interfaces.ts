@@ -11,7 +11,9 @@ import { TargetAdapterMetadataStore } from '../metadata/reflection';
 export interface ExecuteContext<T extends ActionMetadata> {
   adapterStore: TargetAdapterMetadataStore;
   action: T;
-  data?: any;
+  data: any;
+  serialize(): any
+  deserialize(data: any): void
 }
 
 export interface ExecuteResponse {
@@ -57,7 +59,6 @@ export interface Deserializer<T> {
  */
 export interface TargetFactoryParams {
   identity?: IdentityValueType;
-  data?: any;
   ctorArgs?: any[]
 }
 

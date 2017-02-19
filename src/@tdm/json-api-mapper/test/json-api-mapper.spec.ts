@@ -185,6 +185,7 @@ describe('JSONAPIMapper', () => {
     expect(res.category).toEqual(included.expected.category);
     expect(res.freestyle).toBeTruthy();
     expect(res.freestyle.free).toBe('style');
+    expect(res.freestyle.constructor.name).toBe('Object');
 
     const author = res.author;
     expect(author instanceof Author).toBe(true);

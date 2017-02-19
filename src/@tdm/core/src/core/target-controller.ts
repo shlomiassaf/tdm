@@ -1,4 +1,5 @@
 import { TargetFactoryParams } from './interfaces';
+import { ResourceError } from './errors';
 import { ActiveRecordCollection } from '../active-record/active-record-collection';
 import { TargetTransformer } from './target-transformer';
 import { TargetValidator } from './target-validator';
@@ -8,7 +9,7 @@ import { findProp } from "../utils";
 import { TransformStrategy, ValidationError } from '../metadata/meta-types/schema/interfaces';
 import { TargetMetadataStore } from '../metadata/reflection/target-metadata-store';
 import { BaseActiveRecord } from '../active-record/active-record-interfaces';
-import { MapperFactory, DeserializeMapper, SerializeMapper } from '../mapping';
+import { DeserializeMapper, SerializeMapper } from '../mapping';
 
 export class TargetController<T /* extends ActiveRecord<any, any> */> {
 
@@ -18,19 +19,19 @@ export class TargetController<T /* extends ActiveRecord<any, any> */> {
 
     return new TargetTransformer(this.targetStore.target, transformNameStrategy, this.strategy);
   })
-  private transformer: TargetTransformer;
+  protected transformer: TargetTransformer;
 
   @LazyInit(function (this: TargetController<any>): TransformStrategy {
     return findProp('transformStrategy', defaultConfig, this.targetStore.resource);
   })
-  private strategy: TransformStrategy;
+  protected strategy: TransformStrategy;
 
   @LazyInit(function (this: TargetController<any>): TargetValidator {
     return new TargetValidator(this.targetStore.target);
   })
-  private validator: TargetValidator;
+  protected validator: TargetValidator;
 
-  constructor(private targetStore: TargetMetadataStore, private mapper: MapperFactory) {}
+  constructor(protected targetStore: TargetMetadataStore) {}
 
   createCollection(): ActiveRecordCollection<T> {
     return new ActiveRecordCollection<T>();
@@ -46,52 +47,38 @@ export class TargetController<T /* extends ActiveRecord<any, any> */> {
       instance[this.targetStore.getIdentity()] = params.identity;
     }
 
-    if (params.data) {
-      this.deserialize(instance, params.data, false);
-    }
-
     return instance;
   }
 
-  serialize(instance: BaseActiveRecord<any> | ActiveRecordCollection<any>): any {
-    const mapper = instance instanceof ActiveRecordCollection
-      ? this.mapper.serializer(instance.collection)
-      : this.mapper.serializer(instance)
-    ;
-
+  serialize(mapper: SerializeMapper): any {
     return this.transformer.serialize(mapper);
   }
 
-  deserialize(source: any, target: BaseActiveRecord<any> | BaseActiveRecord<any>[], isCollection: boolean): void {
-    const mapper = this.mapper.deserializer(source);
-
-    if (mapper.isCollection !== !!isCollection) {
-      throw new Error(`Expected ${isCollection ? 'Collection' : 'Object'} but got ${isCollection ? 'Object' : 'Collection'}`);
-    }
-
-    this._deserialize(mapper, target);
-  }
-
-  private _deserialize(mapper: DeserializeMapper, target: BaseActiveRecord<any> | BaseActiveRecord<any>[]): void {
+  deserialize(mapper: DeserializeMapper, target: BaseActiveRecord<any> | BaseActiveRecord<any>[], plain: boolean = false): void {
     if (mapper.isCollection) {
+
+      if (!Array.isArray(target)) {
+        throw ResourceError.coll_obj(target, true);
+      }
+
       while(mapper.next()) {
-        const t = this.create();
+        const t: any = plain ? {} : this.create();
         this.transformer.deserialize(mapper, t);
-        (target as Array<any>).push(t);
+        target.push(t);
       }
     } else {
+
+      if (Array.isArray(target)) {
+        throw ResourceError.coll_obj(undefined, false);
+      }
+
       this.transformer.deserialize(mapper, target);
     }
   }
 
+
   validate(instance: any): Promise<ValidationError[]> {
     return this.validator.validate(instance);
   }
-
-  static deserialize(targetStore: TargetMetadataStore, mapper: DeserializeMapper): BaseActiveRecord<any> | BaseActiveRecord<any>[] {
-    const tc = new TargetController(targetStore, undefined);
-    const result: any = mapper.isCollection ? [] : tc.create();
-    tc._deserialize(mapper, result);
-    return result;
-  }
 }
+

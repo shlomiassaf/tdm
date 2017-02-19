@@ -200,7 +200,7 @@ module.exports = function (options) {
         'HMR': false,
         'process.env': {
           'ENV': JSON.stringify(ENV),
-          'NODE_ENV': JSON.stringify(ENV),
+          'NODE_ENV': JSON.stringify(process.env),
           'HMR': false,
         }
       }),

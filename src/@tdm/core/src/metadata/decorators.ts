@@ -1,9 +1,9 @@
 import { AdapterMetadata, AdapterMetadataArgs, metadataFactory, decoratorInfo, GlobalResourceMetadata, GlobalResourceMetadataArgs, ResourceMetadata, ActionMetadata, ActionMetadataArgs, PropMetadata, PropMetadataArgs, ExcludeMetadata, ExcludeMetadataArgs, HookMetadata, HookMetadataArgs } from './meta-types';
 import { ARHooks, ARHookableMethods } from '../active-record';
-import { internalMetadataStore } from './reflection';
 import { ExecuteResponse } from '../core/interfaces';
 import { DecoratorError, TDMError } from '../core/errors';
 import { reflection, ensureTargetIsType, Constructor, stringify } from '../utils';
+import { internalMetadataStore } from './reflection/internal-metadata-store';
 
 export function ResourceAdapter<T extends ResourceMetadata, Z extends ActionMetadata>(def: AdapterMetadataArgs<T, Z>): (target) => any {
   return target => {

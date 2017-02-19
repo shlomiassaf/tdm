@@ -51,7 +51,7 @@ export interface ActionMetadataArgs<T> {
 
 export class ActionMetadata extends MemberDecoratorMetadata {
   method: ActionMethodType;
-  isCollection: boolean;
+  isCollection: boolean | undefined;
   deserializer: DeserializerFactory;
   raw: RawActionMetadata;
   pre?: (ctx: ExecuteContext<any>, ...args: any[] )=> any;

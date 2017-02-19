@@ -7,16 +7,20 @@ import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/switchMap';
 
+import { defaultConfig } from '../default-config';
 import { findProp, noop, isFunction } from '../utils';
 import { ActionMetadata, ValidationSchedule } from '../metadata';
 import {
-  ExecuteContext, DeserializerFactory, Deserializer, ActionOptions, Adapter,
+  ExecuteContext, DeserializerFactory, ActionOptions, Adapter,
   AdapterStatic, ExecuteResponse
 } from './interfaces';
 import { ActiveRecordCollection, BaseActiveRecord, emitEvent, eventFactory, CancellationTokenResourceEvent, ARHookableMethods } from '../active-record';
+import { internalMetadataStore } from '../metadata/reflection/internal-metadata-store';
 import { TargetAdapterMetadataStore } from '../metadata/reflection/target-adapter-metadata-store';
+import { TargetMetadataStore } from '../metadata/reflection/target-metadata-store';
 
-import { ResourceValidationError } from './errors';
+import { ResourceValidationError, ResourceError } from './errors';
+import { MapperFactory } from '../mapping/mapper';
 
 function validateIncoming (validation: ValidationSchedule)  {
   return validation === 'incoming' || validation === 'both';
@@ -34,12 +38,14 @@ export class ActionController {
   deserializer: DeserializerFactory;
 
   private adapter: Adapter<ActionMetadata, ActionOptions>;
+  private mapper: MapperFactory;
 
-  constructor(private adapterStore: TargetAdapterMetadataStore) {
+  constructor(private adapterStore: TargetAdapterMetadataStore, private targetStore: TargetMetadataStore) {
     this.deserializer = adapterStore.adapterMeta.deserializerFactory;
     this.target = adapterStore.target;
     // TODO: adapter can be shared for all targets
     this.adapter = new adapterStore.adapterClass();
+    this.mapper = findProp('mapper', defaultConfig, adapterStore.resource);
   }
 
   commit(): void {
@@ -55,21 +61,20 @@ export class ActionController {
         throw new Error('An action with a collection response must be a static level member');
       }
 
-      const ctx = this.createContext(action);
       const self = this;
 
       if (action.decoratorInfo.isStatic) {
         this.target[action.name] = function(this: AdapterStatic<any, any>, ...args: any[]) {
           const instance = action.isCollection
-            ? ctx.adapterStore.targetController.createCollection()
-            : ctx.adapterStore.targetController.create()
+            ? self.targetStore.targetController.createCollection()
+            : self.targetStore.targetController.create()
           ;
-          self.execute(instance, ctx, true, ...args);
+          self.execute(instance, action, true, ...args);
           return instance;
         }
       } else {
         this.target.prototype[action.name] = function(this: BaseActiveRecord<any>, ...args: any[]) {
-          self.execute(this, ctx, true, ...args);
+          self.execute(this, action, true, ...args);
           return this;
         }
       }
@@ -77,9 +82,8 @@ export class ActionController {
   }
 
   createExecFactory<T extends BaseActiveRecord<any>>(action: ActionMetadata): (self: T, async: boolean, ...args: any[]) => T {
-    const ctx = this.createContext(action);
     return (self: T, async: boolean, ...args: any[]) => {
-      this.execute(self, ctx, async, ...args);
+      this.execute(self, action, async, ...args);
       return self;
     };
   }
@@ -88,22 +92,19 @@ export class ActionController {
     return isFunction(this.target.prototype[name]);
   }
 
-  private createContext(action: ActionMetadata): ExtendedContext {
-    return new ExtendedContext(this.adapterStore, action, findProp('deserializer', this, this.adapterStore.resource, action));
-  }
-
-
-  private execute(self: BaseActiveRecord<any> | ActiveRecordCollection<any>, ctx: ExtendedContext, async: boolean, ...args: any[]): void {
+  private execute(self: BaseActiveRecord<any> | ActiveRecordCollection<any>, action: ActionMetadata, async: boolean, ...args: any[]): void {
     if (self.$ar.busy) { // TODO: Should throw or error?
       emitEvent(eventFactory.error(self, new Error('An action is already running')));
+      return;
+    } else if (!!action.isCollection !== self instanceof ActiveRecordCollection) {
+      emitEvent(eventFactory.error(self, ResourceError.coll_obj(self, action.isCollection)));
       return;
     }
 
     emitEvent(eventFactory.actionStart(self));
 
-    const targetController = this.adapterStore.targetController;
-    const action = ctx.action;
-    const pubCtx = ctx.pubCtx(self);
+    const targetController = this.targetStore.targetController;
+    const pubCtx = new ExtendedContext(self, this.adapterStore, action, this.mapper);
 
     const options = isFunction(action.pre) ? action.pre(pubCtx, ...args) : args[0];
 
@@ -125,8 +126,10 @@ export class ActionController {
     let obs$: Observable<any | void> = fromPromise(startingPromise)
       .switchMap( () => this.adapter.execute(pubCtx, options) )
       .switchMap( resp => {
+        // TODO: Refactor this to lazy
+        const toPlain = findProp('deserializer', this, this.adapterStore.resource, action)();
         let p = !action.raw || action.raw.deserialize
-            ? ctx.deserialize(resp.response).then( data => { resp.deserialized = data; return resp; } )
+            ? Promise.resolve(toPlain.deserialize(resp.response)).then( data => { resp.deserialized = data; return resp; } )
             : Promise.resolve(resp)
           ;
 
@@ -138,7 +141,9 @@ export class ActionController {
         .then( () => this.fireHook(action.name as any, 'after', self, options, resp) );
 
       obs$ = obs$
-        .do( ({deserialized}) => targetController.deserialize(deserialized, self instanceof ActiveRecordCollection ? self.collection : self, action.isCollection) )
+        .do( ({deserialized}) => {
+          pubCtx.deserialize(deserialized);
+        })
         .switchMap( resp => fromPromise<void>(endingPromise(resp)) );
     } else {
       async = true;
@@ -174,24 +179,36 @@ export class ActionController {
   }
 }
 
-class ExtendedContext implements Deserializer<any> {
-  private deserializer: Deserializer<any>;
-
-  constructor(public readonly adapterStore: TargetAdapterMetadataStore, public readonly action: ActionMetadata, private deserializerFactory: DeserializerFactory) {
+class ExtendedContext implements ExecuteContext<any> {
+  constructor(public readonly data: BaseActiveRecord<any> | ActiveRecordCollection<any>,
+              public readonly adapterStore: TargetAdapterMetadataStore,
+              public readonly action: ActionMetadata,
+              public readonly mapper: MapperFactory) {
   }
 
-  deserialize(response: any): Promise<any> {
-    if (!this.deserializer) {
-      this.deserializer = this.deserializerFactory();
-    }
-    return Promise.resolve(this.deserializer.deserialize(response));
+  serialize(): any {
+    const mapper = this.data instanceof ActiveRecordCollection
+      ? this.mapper.serializer(this.data.collection)
+      : this.mapper.serializer(this.data)
+    ;
+
+    return internalMetadataStore
+      .getTargetStore(this.adapterStore.target, false)
+      .targetController
+      .serialize(mapper);
   }
 
-  pubCtx(data: any): ExecuteContext<any> {
-    return {
-      adapterStore: this.adapterStore,
-      action: this.action,
-      data
+  deserialize(data: any): void {
+    const mapper = this.mapper.deserializer(data);
+    const isColl = !!this.action.isCollection;
+
+    if (mapper.isCollection !== isColl) {
+      throw ResourceError.coll_obj(this.data, isColl);
     }
+
+    internalMetadataStore
+      .getTargetStore(this.adapterStore.target, false)
+      .targetController
+      .deserialize(mapper, isColl ? (this.data as ActiveRecordCollection<any>).collection : this.data);
   }
 }

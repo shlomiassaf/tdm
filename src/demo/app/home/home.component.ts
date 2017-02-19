@@ -15,7 +15,6 @@ export class HomeComponent {
   public user: User;
 
   constructor() {
-    User.find('3', 7, 16);
     this.user = new User();
 
 

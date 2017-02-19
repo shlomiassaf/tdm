@@ -45,7 +45,17 @@ testing.TestBed.initTestEnvironment(
  * any file that ends with spec.ts and get its path. By passing in true
  * we say do this recursively
  */
+
 var testContext = require.context('../src', true, /\.\/(?!demo).+\/.+\/.+\.spec\.ts$/);
+// var testContext;
+// if (process.env.NODE_ENV.TDM_TEST === 'core') {
+//   testContext = require.context(`../src/@tdm/core/test`, true, /\.spec\.ts/);
+// } else if (process.env.NODE_ENV.TDM_TEST === 'angular-http') {
+//   testContext = require.context(`../src/@tdm/angular-http/test`, true, /\.spec\.ts/);
+// } else {
+//   testContext = require.context('../src', true, TEST_ALL);
+// }
+
 
 /*
  * get all the files, for each file, call the context function
