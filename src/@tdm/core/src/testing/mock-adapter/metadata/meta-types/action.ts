@@ -1,4 +1,11 @@
-import { Deserializer, ActionMetadata, ActionMetadataArgs, ActionMethodType, ValidationSchedule, DecoratorInfo } from '@tdm/core';
+import {
+  Deserializer,
+  ActionMetadata,
+  ActionMetadataArgs,
+  ActionMethodType,
+  ValidationSchedule,
+  DecoratorInfo
+} from '@tdm/core';
 
 export interface MockActionMetadataArgs extends ActionMetadataArgs<ActionMethodType> {
   deserializerFactory?: () => Deserializer<any>;

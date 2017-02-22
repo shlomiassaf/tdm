@@ -3,34 +3,54 @@
     "target": "es5",
     "module": "es2015",
     "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "allowSyntheticDefaultImports": true,
+    "removeComments": false,
     "sourceMap": true,
-    "noEmit": true,
-    "noEmitHelpers": true,
-    "importHelpers": true,
     "strictNullChecks": false,
-    "baseUrl": "./src",
-    "paths": {
-
-    },
     "lib": [
       "es2015",
       "dom"
     ],
     "types": [
+      "jasmine",
       "hammerjs",
-      "node"
-    ]
+      "node",
+      "selenium-webdriver",
+      "source-map",
+      "uglify-js",
+      "webpack"
+    ],
+    "baseUrl": "./src",
+    "paths": {
+      "@tdm/tixin": ["@tdm/tixin/src/index.ts"],
+      "@tdm/tixin/*": ["@tdm/tixin/src/*"],
+
+      "@tdm/core": ["@tdm/core/src/index.ts"],
+      "@tdm/core/*": ["@tdm/core/src/*"],
+
+      "@tdm/angular-http": ["@tdm/angular-http/src/index.ts"],
+      "@tdm/angular-http/*": ["@tdm/angular-http/src/*"],
+
+      "@tdm/json-api-mapper": ["@tdm/json-api-mapper/src/index.ts"],
+      "@tdm/json-api-mapper/*": ["@tdm/json-api-mapper/src/*"]
+    },
+
+
+
+    "noEmit": true,
+    "noEmitHelpers": true,
+    "importHelpers": true
   },
   "exclude": [
     "node_modules",
     "dist",
     "dist_package",
-    "src/**/*.spec.ts",
-    "src/@tdm/core/testing/**/*.ts",
-    "e2e"
+    "e2e",
+
+
+    "src/**/*.spec.ts"
   ],
   "awesomeTypescriptLoaderOptions": {
     "forkChecker": true,

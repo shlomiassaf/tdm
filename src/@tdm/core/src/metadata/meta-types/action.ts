@@ -1,4 +1,4 @@
-import { DeserializerFactory, ExecuteContext, ExecuteResponse, ActionOptions } from "../../core";
+import { DeserializerFactory, ExecuteContext, ExecuteResponse, ActionOptions } from "../../core/index";
 import { ValidationSchedule } from './schema';
 import { MemberDecoratorMetadata, DecoratorInfo } from './core';
 

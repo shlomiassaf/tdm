@@ -1,9 +1,10 @@
 import 'rxjs';
+import '@tdm/core/add/active-record-state/next';
 import { MockMixin, MockResource, MockDeserializer, bucketFactory } from '@tdm/core/testing';
 import { ActiveRecord, ActionEndResourceEvent, ResourceEvent, ResourceEventType } from "@tdm/core";
-import { ARMethods } from '../../../core/src/active-record';
-import { MockActionOptions } from "../../testing/mock-adapter/core/interfaces";
-import { ActionErrorResourceEvent } from "../../src/active-record/active-record-events";
+import { ARMethods,  } from '@tdm/core/active-record';
+import { MockActionOptions } from "@tdm/core/testing";
+import { ActionErrorResourceEvent } from '@tdm/core/active-record/active-record-events';
 
 const localMockDeserializer = new MockDeserializer();
 

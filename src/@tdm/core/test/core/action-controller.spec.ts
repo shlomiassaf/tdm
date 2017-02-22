@@ -1,10 +1,6 @@
 import 'rxjs';
-import { MockMixin, MockResource, MockDeserializer, bucketFactory } from '@tdm/core/testing';
-import { Hook, ActiveRecordCollection, ExecuteResponse } from '@tdm/core';
-
-import { MockActionOptions } from "../../testing/mock-adapter/core/interfaces";
-import { MockAction } from "../../testing/mock-adapter/metadata";
-import { ActionMethodType } from "../../src/metadata/meta-types/action";
+import { MockMixin, MockResource, MockActionOptions, MockAction, MockDeserializer, bucketFactory } from '@tdm/core/testing';
+import { Hook, ActiveRecordCollection, ActionMethodType, ExecuteResponse } from '@tdm/core';
 
 const localMockDeserializer = new MockDeserializer();
 

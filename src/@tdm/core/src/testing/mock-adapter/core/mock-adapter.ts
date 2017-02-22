@@ -9,10 +9,14 @@ import { MockActionOptions } from './interfaces';
 
 import { mockDeserializer } from '../mock-deserializer';
 
+export function deserializerFactory(): any {
+  return mockDeserializer;
+}
+
 @ResourceAdapter({
   actionMetaClass: MockActionMetadata,
   resourceMetaClass: MockResourceMetadata,
-  deserializerFactory: () => mockDeserializer
+  deserializerFactory: deserializerFactory
 })
 export class MockAdapter implements Adapter<MockActionMetadata, MockActionOptions> {
 

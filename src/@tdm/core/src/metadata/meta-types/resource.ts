@@ -1,4 +1,4 @@
-import { DeserializerFactory } from '../../core';
+import { DeserializerFactory } from '../../core/index';
 import { TransformStrategy } from './schema/interfaces';
 import { NamingStrategyConfig } from '../../core/interfaces';
 import { MapperFactory } from '../../mapping';

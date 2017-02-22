@@ -2,7 +2,7 @@
   "name": "@tdm/json-api-mapper",
   "version": "1.0.0-alpha.1",
   "description": "Typed data models (@tdm) json api mapper",
-  "main": "bundle/tdm.core.umd.js",
+  "main": "bundle/tdm.json-api-mapper.umd.js",
   "module": "index.js",
   "typings": "index.d.ts",
   "keywords": [

@@ -4,7 +4,7 @@ import { PropertyContainer, PoClassPropertyMap, transformValueOut } from '../pro
 import { targetStore } from "../../metadata/target-store";
 import { PlainSerializer, isPrimitive } from '../../utils';
 
-class DualKeyMap {
+export class DualKeyMap {
   private map = new Map<any, Map<string, any>>();
 
   has(type: any, id: string): boolean {

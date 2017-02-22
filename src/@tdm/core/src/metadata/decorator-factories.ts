@@ -1,4 +1,4 @@
-import { AdapterStatic, AdapterError } from '../core';
+import { AdapterStatic, AdapterError } from '../core/index';
 import { ActionMetadataArgs, ResourceMetadataArgs, decoratorInfo } from './meta-types';
 import { ensureTargetIsType, isFunction } from '../utils';
 import { internalMetadataStore } from './reflection/internal-metadata-store';

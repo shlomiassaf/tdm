@@ -10,6 +10,7 @@ const jsonfile = require('jsonfile');
  */
 const DefinePlugin = require('webpack/lib/DefinePlugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const TsConfigPathsPlugin = require('awesome-typescript-loader').TsConfigPathsPlugin;
 const UglifyJsPlugin = require('webpack/lib/optimize/UglifyJsPlugin');
 const BannerPlugin = webpack.BannerPlugin;
 const NgcWebpackPlugin = require('ngc-webpack').NgcWebpackPlugin;
@@ -21,14 +22,23 @@ module.exports = function(metadata) {
  * Licensed under MIT
  */`;
 
+  const entry = fs.existsSync(helpers.root(`src/@tdm/${metadata.dir}/src/all.ts`))
+    ? helpers.root(`src/@tdm/${metadata.dir}/src/all.ts`)
+    : helpers.root(`src/@tdm/${metadata.dir}/src/index.ts`)
+  ;
+
   return {
     devtool: 'source-map',
 
     resolve: {
-      extensions: ['.ts', '.js']
+      extensions: ['.ts', '.js'],
+      alias: fs.readdirSync(helpers.root('src/@tdm')).reduce( (alias, curr) => {
+        alias[`@tdm/${curr}`] = `@tdm/${curr}/src`;
+        return alias;
+      }, {})
     },
 
-    entry: helpers.root(`src/@tdm/${metadata.dir}/index.ts`),
+    entry,
 
     output: {
       path: helpers.root('.'),
@@ -52,6 +62,8 @@ module.exports = function(metadata) {
     },
 
     plugins: [
+      new TsConfigPathsPlugin(),
+
       // fix the warning in ./~/@angular/core/src/linker/system_js_ng_module_factory_loader.js
       new webpack.ContextReplacementPlugin(
         /angular(\\|\/)core(\\|\/)(esm(\\|\/)src|src)(\\|\/)linker/,
@@ -77,7 +89,10 @@ module.exports = function(metadata) {
         // IT ONLY MERGE THE TOP-LEVEL PROPERTIES (NOT DEEP)
         this.plugin('done', function(stats) {
           const pkgDest = helpers.root('dist_package/@tdm/', metadata.dir, 'package.json');
-          const merged = Object.assign(jsonfile.readFileSync(helpers.root('src/@tdm', 'package.json')), jsonfile.readFileSync(helpers.root('src/@tdm/', metadata.dir, 'package.json')));
+          const merged = Object.assign(
+            jsonfile.readFileSync(helpers.root('src/@tdm', 'package.json')),
+            jsonfile.readFileSync(helpers.root('src/@tdm/', metadata.dir, 'package.json'))
+          );
 
           jsonfile.writeFileSync(pkgDest, merged, {spaces: 2});
 

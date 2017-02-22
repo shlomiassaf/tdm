@@ -1,6 +1,5 @@
 import { PropertyContainer } from './prop-container';
 import { PropMetadata } from '../metadata/meta-types';
-import { BaseActiveRecord } from '../active-record/active-record-interfaces';
 
 export interface MapperFactory {
   serializer(source: any): SerializeMapper;
@@ -8,7 +7,7 @@ export interface MapperFactory {
 }
 
 export abstract class SerializeMapper {
-  constructor(public source: BaseActiveRecord<any> | BaseActiveRecord<any>[]) {}
+  constructor(public source: any | any[]) {}
 
   abstract serialize(container: PropertyContainer): any;
 }

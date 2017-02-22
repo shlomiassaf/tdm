@@ -2,8 +2,7 @@ import { Tixin } from '@tdm/tixin';
 import { ActiveRecordCollection, ActionMethodType, BaseActiveRecord, IdentityValueType, ExecuteContext } from '@tdm/core';
 
 import { MockActionOptions } from './core/interfaces';
-import { MockAction } from './metadata/decorators';
-import { MockActionMetadata } from './metadata/meta-types/action';
+import { MockAction, MockActionMetadata } from './metadata';
 
 export class BaseMockResource {
   @MockAction({

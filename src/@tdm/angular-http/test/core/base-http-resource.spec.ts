@@ -1,4 +1,4 @@
-import { RestMixin, HttpResource } from '../../index';
+import { RestMixin, HttpResource } from '@tdm/angular-http';
 
 class User_ {
   id: number;

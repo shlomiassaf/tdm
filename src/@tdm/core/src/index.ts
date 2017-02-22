@@ -1,7 +1,7 @@
-export * from './src/core';
-export * from './src/metadata';
+export * from './core/index';
+export * from './metadata';
 
-export { validators } from './src/core-validators';
+export { validators } from './core-validators';
 
 export {
   BaseActiveRecord,
@@ -14,7 +14,7 @@ export {
   ActiveRecordCollection,
   ActiveRecordState,
   activeRecordClassFactory
-} from './src/active-record';
+} from './active-record';
 
 export {
   MapperFactory,
@@ -24,9 +24,9 @@ export {
   PoClassPropertyMap,
   transformValueIn,
   transformValueOut,
-} from './src/mapping';
+} from './mapping';
 
 export {
   findProp, PlainSerializer,
   isUndefined, isFunction, isNumber, isString, isSymbol, isPropertyKey, stringify, promiser, Constructor
-} from './src/utils';
+} from './utils';

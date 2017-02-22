@@ -1,15 +1,15 @@
 import 'rxjs';
-import { TestBed, async, fakeAsync, tick, inject } from '@angular/core/testing';
 import {
   BaseRequestOptions,
   HttpModule,
   Http,
+  URLSearchParams,
   Response,
   ResponseOptions
 } from '@angular/http';
+import { TestBed, async, fakeAsync, tick, inject } from '@angular/core/testing';
 import { MockBackend, MockConnection } from '@angular/http/testing';
 
-import { URLSearchParams } from '@angular/http';
 import { RestMixin, HttpResource, HttpAction, UrlParam, HttpResourceModule, HttpActionMethodType } from '@tdm/angular-http';
 import { bucketFactory } from '@tdm/core/testing';
 

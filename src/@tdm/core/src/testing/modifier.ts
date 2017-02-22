@@ -1,4 +1,4 @@
-import { Prop, Exclude, Resource, Hook, Owns, BelongsTo } from '@tdm/core';
+import { Prop, Exclude, Resource, Hook, Owns, BelongsTo, stringify, isString, isFunction, TargetController } from '@tdm/core';
 import {
   OwnsMetadataArgs,
   BelongsToMetadataArgs,
@@ -11,12 +11,10 @@ import {
   ExcludeMetadataArgs,
   GlobalResourceMetadata,
   HookMetadataArgs
-} from '../src/metadata/meta-types';
-import { TargetMetadataStore } from "../src/metadata/reflection/target-metadata-store";
-import { internalMetadataStore } from '../src/metadata/reflection/internal-metadata-store';
-import { stringify, isString, isFunction } from '@tdm/core/src/utils';
-import { ARHookableMethods, ARHooks } from "../src/active-record/active-record-interfaces";
-import { TargetController } from "../src/core/target-controller";
+} from '../metadata/meta-types';
+import { TargetMetadataStore } from '../metadata/reflection/target-metadata-store';
+import { internalMetadataStore } from '../metadata/reflection';
+import { ARHookableMethods, ARHooks } from "@tdm/core/active-record";
 
 function getTargetStore(target: any): TestTargetMetadataStore {
   return internalMetadataStore.getTargetStore(target, false) as any;

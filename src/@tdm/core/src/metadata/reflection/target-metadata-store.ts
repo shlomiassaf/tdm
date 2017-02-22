@@ -15,7 +15,7 @@ import {
 } from '../meta-types';
 import { TargetAdapterMetadataStore } from './target-adapter-metadata-store';
 import { internalMetadataStore } from './internal-metadata-store';
-import { stringify, MapExt, KeySet, noop } from '../../utils';
+import { stringify, MapExt, KeySet } from '../../utils';
 import { ARHookableMethods } from '../../active-record/active-record-interfaces';
 
 
@@ -149,45 +149,6 @@ export class TargetMetadataStore {
         fkPointerProp.foreignKeyOf = prop;
       }
     });
-
-    // function fn(value: any, prop: PropMetadata) {
-    //   if (value instanceof prop.type) {
-    //     return value;
-    //   } else {
-    //     return internalMetadataStore.getTargetStore(prop.type as any)
-    //       .targetController
-    //       .create({ identity: value });
-    //   }
-    // }
-    //
-    // this.relations.forEach( rel => {
-    //   const props = this.props;
-    //
-    //   Object.defineProperty(this.target.prototype, rel.name, {
-    //     enumerable: true,
-    //     configurable: true,
-    //     get: noop,
-    //     set: function(value) {
-    //       const prop = props.get(rel.name);
-    //
-    //       let newVal: any;
-    //       if (prop.typedArray) {
-    //         if (Array.isArray(value)) {
-    //           newVal = value.map( v => fn(v, prop))
-    //         } else {
-    //           return; // TODO: throw?
-    //         }
-    //       } else {
-    //         newVal = fn(value, prop);
-    //       }
-    //       Object.defineProperty(this, rel.name, {
-    //         enumerable: true,
-    //         configurable: true,
-    //         value: newVal
-    //       });
-    //     }
-    //   })
-    // });
   }
 
   extendFrom(store: this): void {

@@ -1,3 +1,5 @@
+const fs = require('fs-extra');
+const spawn = require('child_process').execSync;
 const webpack = require('webpack');
 const jsonfile = require('jsonfile');
 const path = require('path');
@@ -32,6 +34,7 @@ function runWebpack(config, ...args) {
 
 
 const metadata = require('./lib_build_config');
+const move = [];
 function runMeta() {
   const meta = metadata.shift();
 
@@ -42,16 +45,45 @@ function runMeta() {
     Object.assign(meta, {tsConfig: './.tsconfig.tmp.json'});
     const config = resolveConfig(root('config/webpack.package.js'), meta);
 
-    runWebpack(config)
+    return runWebpack(config)
       .done
-      .catch( err => {
-        console.error(err);
-        process.exit(1);
+      .then( () => {
+        let p = root(tsConfig.compilerOptions.outDir);
+        if (!p.endsWith(`/${meta.dir}`)) {
+          p = path.join(p, meta.dir);
+        }
+        move.push({
+          from: path.join(p, 'src'),
+          to:  path.join(p),
+        });
       })
-      .then(runMeta);
+      .then(() => {
+        return runMeta();
+      });
+  }
+  else {
+    return Promise.resolve(move);
   }
 }
 
-runMeta();
+function moveDir(from, to) {
+
+  try {
+    if (fs.existsSync(from)) {
+      spawn(`mv ${from}/* ${to}`);
+      spawn(`rm -rf ${from}`);
+    }
+    return Promise.resolve();
+  } catch (err) {
+    return Promise.reject(err);
+  }
+}
+
+runMeta()
+  .then( moves => Promise.all(moves.map( m => moveDir(m.from, m.to) )) )
+  .catch( err => {
+    console.error(err);
+    process.exit(1);
+  });
 
 

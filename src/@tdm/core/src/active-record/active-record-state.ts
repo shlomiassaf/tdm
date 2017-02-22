@@ -6,10 +6,8 @@ import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/do';
 
-import { promiser } from '../utils';
-import { ResourceEvent, CancellationTokenResourceEvent, ActionErrorResourceEvent } from './active-record-events';
+import { ResourceEvent, CancellationTokenResourceEvent } from './active-record-events';
 import { BaseActiveRecord } from './active-record-interfaces';
-import { ResourceError } from '../core/errors';
 import { LazyInit } from '../utils/decorators';
 
 // Weak map for private emitter
@@ -115,31 +113,6 @@ export class ActiveRecordState<T> {
     });
 
     this.busy = false;
-  }
-
-  /**
-   * Returns a promise that will resolve when the current action ends.
-   * Throws a `ResourceError` if not in an action.
-   * @returns Promise<any>
-   */
-  next(): Promise<T> {
-    if (!this.busy) {
-      return Promise.reject(new ResourceError(this.parent, 'Call to next() while not in an active action.'));
-    } else {
-      const p = promiser<any>();
-      const subs = this.events$.subscribe( event => {
-        // TODO: handle ActionCancel and throw an error that represent a cancel
-        // since promises does not cancel this is a design hole...
-        if (event.type === 'ActionError') {
-          p.reject((event as ActionErrorResourceEvent).error);
-          subs.unsubscribe();
-        } else if (event.type === 'ActionEnd') {
-          p.resolve(this.parent);
-          subs.unsubscribe();
-        }
-      });
-      return p.promise;
-    }
   }
 
   /**

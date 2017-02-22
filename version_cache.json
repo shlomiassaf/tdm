@@ -1,0 +1,18 @@
+{
+  "angular-http": {
+    "commit": "814719e98ecae9390ac3e144d62bcf1f30cfdb20",
+    "version": "1.0.0-alpha.5"
+  },
+  "core": {
+    "commit": "10aa1ce060f46112433f1540c4f79a79395d19ee",
+    "version": "1.0.0-alpha.6"
+  },
+  "json-api-mapper": {
+    "commit": "10aa1ce060f46112433f1540c4f79a79395d19ee",
+    "version": "1.0.0-alpha.1"
+  },
+  "tixin": {
+    "commit": "60f734eb67f0b9a684617ccea594a8d1dd491e33",
+    "version": "1.0.0-alpha.1"
+  }
+}

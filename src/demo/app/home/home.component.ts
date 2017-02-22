@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 
 
 import { UserBaseClass, UserConst, UsersInterface } from '../../resource';
+import '@tdm/json-api-mapper/src/add/active-record/json-api';
 
 const User = UserConst;
 type User = UserConst;

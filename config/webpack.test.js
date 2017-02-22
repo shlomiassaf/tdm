@@ -6,6 +6,7 @@
 
 const helpers = require('./helpers');
 const path = require('path');
+const moduleHelpers = require('./module-helpers');
 
 const webpackMerge = require('webpack-merge'); // used to merge webpack configs
 
@@ -16,7 +17,7 @@ const ProvidePlugin = require('webpack/lib/ProvidePlugin');
 const DefinePlugin = require('webpack/lib/DefinePlugin');
 const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
 const ContextReplacementPlugin = require('webpack/lib/ContextReplacementPlugin');
-
+const TsConfigPathsPlugin = require('awesome-typescript-loader').TsConfigPathsPlugin;
 
 /**
  * Webpack Constants
@@ -83,6 +84,7 @@ module.exports = function (options) {
        */
       modules: [helpers.root('src'), 'node_modules'],
 
+      alias: moduleHelpers.getAlias()
     },
 
     /**
@@ -184,6 +186,7 @@ module.exports = function (options) {
      * See: http://webpack.github.io/docs/configuration.html#plugins
      */
     plugins: [
+      new TsConfigPathsPlugin(),
 
       /**
        * Plugin: DefinePlugin

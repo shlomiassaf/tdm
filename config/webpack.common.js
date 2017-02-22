@@ -1,9 +1,10 @@
 /**
  * @author: @AngularClass
  */
-
+const fs = require('fs');
 const webpack = require('webpack');
 const helpers = require('./helpers');
+const moduleHelpers = require('./module-helpers');
 
 /*
  * Webpack Plugins
@@ -15,6 +16,7 @@ const ContextReplacementPlugin = require('webpack/lib/ContextReplacementPlugin')
 const CommonsChunkPlugin = require('webpack/lib/optimize/CommonsChunkPlugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const CheckerPlugin = require('awesome-typescript-loader').CheckerPlugin;
+const TsConfigPathsPlugin = require('awesome-typescript-loader').TsConfigPathsPlugin;
 const HtmlElementsPlugin = require('./html-elements-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
@@ -81,6 +83,8 @@ module.exports = function (options) {
 
       // An array of directory names to be resolved to the current directory
       modules: [helpers.root('src'), helpers.root('node_modules')],
+
+      alias: moduleHelpers.getAlias()
     },
 
     /*
@@ -190,6 +194,9 @@ module.exports = function (options) {
        * See: https://github.com/s-panferov/awesome-typescript-loader#forkchecker-boolean-defaultfalse
        */
       new CheckerPlugin(),
+
+      new TsConfigPathsPlugin(),
+
       /*
        * Plugin: CommonsChunkPlugin
        * Description: Shares common code between the pages.

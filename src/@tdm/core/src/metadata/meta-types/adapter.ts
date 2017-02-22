@@ -2,7 +2,7 @@ import { MetadataStatic, metadataFactory } from './index';
 import { ActionMetadata, ActionMetadataArgs } from "./action";
 import { ResourceMetadata } from "./resource";
 import { TargetAdapterMetadataStore } from '../reflection';
-import { DeserializerFactory } from "../../core";
+import { DeserializerFactory } from "../../core/index";
 import { DecoratorInfo } from './core';
 import { array } from '../../utils';
 
