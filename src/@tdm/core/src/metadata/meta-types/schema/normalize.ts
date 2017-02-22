@@ -2,25 +2,16 @@ import { isString, isFunction } from '../../../utils';
 import { PropAliasConfig, PropTransformConfig, TransformFn } from './interfaces'
 
 
-export function propAliasConfig(from: string | Partial<PropAliasConfig>): PropAliasConfig {
+export function propAliasConfig(from: string | Partial<PropAliasConfig>, fallback: string): PropAliasConfig {
   let incoming: string, outgoing: string;
 
-  if (isString(from) ) {
+  if (!from) {
+    incoming = outgoing = fallback;
+  } else if (isString(from) ) {
     incoming = outgoing = from;
   } else {
-    if (from.hasOwnProperty('incoming')) {
-      incoming = from.incoming;
-    }
-    if (from.hasOwnProperty('outgoing')) {
-      outgoing = from.outgoing;
-    }
-
-    if (!incoming) {
-      incoming = outgoing;
-    }
-    if (!outgoing) {
-      outgoing = incoming;
-    }
+    incoming = from.incoming || fallback;
+    outgoing = from.outgoing || fallback;
   }
 
   return { incoming, outgoing };
@@ -31,19 +22,12 @@ export function propTransformConfig(from: TransformFn | Partial<PropTransformCon
 
   if (isFunction(from) ) {
     incoming = outgoing = from;
-  } else {
-    if (from.hasOwnProperty('incoming')) {
+  } else if (from) {
+    if (isFunction(from.incoming)) {
       incoming = from.incoming;
     }
-    if (from.hasOwnProperty('outgoing')) {
+    if (isFunction(from.outgoing)) {
       outgoing = from.outgoing;
-    }
-
-    if (!incoming) {
-      incoming = outgoing;
-    }
-    if (!outgoing) {
-      outgoing = incoming;
     }
   }
 

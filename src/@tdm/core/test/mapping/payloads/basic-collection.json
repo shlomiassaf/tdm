@@ -1,0 +1,12 @@
+[
+  {
+    "id": "1",
+    "title": "Basic title test",
+    "category": "sports"
+  },
+  {
+    "id": "2",
+    "title": "Basic title test 2",
+    "category": "culture"
+  }
+]

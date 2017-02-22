@@ -1,8 +1,20 @@
-import { Prop, Exclude, Resource, Hook } from '@tdm/core';
-import { PropMetadata, PropMetadataArgs, ExcludeMetadata, ExcludeMetadataArgs, GlobalResourceMetadata, HookMetadata, HookMetadataArgs } from '../src/metadata/meta-types';
+import { Prop, Exclude, Resource, Hook, Owns, BelongsTo } from '@tdm/core';
+import {
+  OwnsMetadataArgs,
+  BelongsToMetadataArgs,
+  OwnsMetadata,
+  BelongsToMetadata,
+  Relationship,
+  PropMetadata,
+  PropMetadataArgs,
+  ExcludeMetadata,
+  ExcludeMetadataArgs,
+  GlobalResourceMetadata,
+  HookMetadataArgs
+} from '../src/metadata/meta-types';
 import { TargetMetadataStore } from "../src/metadata/reflection/target-metadata-store";
 import { internalMetadataStore } from '../src/metadata/reflection/internal-metadata-store';
-import { SetExt, stringify, isString, isFunction } from '@tdm/core/src/utils';
+import { stringify, isString, isFunction } from '@tdm/core/src/utils';
 import { ARHookableMethods, ARHooks } from "../src/active-record/active-record-interfaces";
 import { TargetController } from "../src/core/target-controller";
 
@@ -11,12 +23,35 @@ function getTargetStore(target: any): TestTargetMetadataStore {
 }
 
 class TestTargetMetadataStore extends TargetMetadataStore {
+
+  static getRelation(target: any, key: string): Relationship | undefined {
+    const t = getTargetStore(target);
+    if (t) {
+      return t.relations.get(key);
+    }
+  }
+
+  static getProp(target: any, key: string): PropMetadata | undefined {
+    const t = getTargetStore(target);
+    if (t) {
+      return t.props.get(key);
+    }
+  }
+
+  static getExclude(target: any, key: string): ExcludeMetadata | undefined {
+    const t = getTargetStore(target);
+    if (t) {
+      return t.excludes.get(key);
+    }
+  }
+
   static clear(target: any): void {
     const t = getTargetStore(target);
     if (t) {
       t.props.clear();
       t.excludes.clear();
       t.hooks.clear();
+      t.relations.clear();
       TestTargetMetadataStore.setIdentity(target);
       TestTargetMetadataStore.updateResource(target, new GlobalResourceMetadata({}), true);
       TestTargetMetadataStore.setName(target);
@@ -24,21 +59,23 @@ class TestTargetMetadataStore extends TargetMetadataStore {
     }
   }
 
-  static remove(type: typeof PropMetadata | typeof ExcludeMetadata, target: any, key: string): void {
+  static remove(type: typeof PropMetadata | typeof ExcludeMetadata | typeof OwnsMetadata | typeof BelongsToMetadata, target: any, key: string): void {
     const t = getTargetStore(target);
     if (t) {
-      let set: Set<any>;
       switch (type) {
         case PropMetadata:
-          set = t.props;
+          t.props.delete(key);
           break;
         case ExcludeMetadata:
-          set = t.excludes;
+          t.excludes.delete(key);
+          break;
+        case OwnsMetadata:
+        case BelongsToMetadata:
+          if (t.relations.delete(key)) {
+            t.props.get(key).rel = undefined;
+          }
           break;
       }
-
-      const p = SetExt.asArray(set).find( p => p.name === key);
-      p && set.delete(p);
     }
   }
 
@@ -83,6 +120,16 @@ class TestTargetMetadataStore extends TargetMetadataStore {
     }
   }
 
+  static addOwns(target: any, key: string, meta?: OwnsMetadataArgs<any>): void {
+    const t = getTargetStore(target);
+    t && Owns(meta)(target.prototype, key);
+  }
+
+  static addBelongsTo(target: any, key: string, meta?: BelongsToMetadataArgs): void {
+    const t = getTargetStore(target);
+    t && BelongsTo(meta)(target.prototype, key);
+  }
+
   static addProp(target: any, key: string, meta?: PropMetadataArgs): void {
     const t = getTargetStore(target);
     t && Prop(meta)(target.prototype, key);
@@ -100,10 +147,11 @@ class TestTargetMetadataStore extends TargetMetadataStore {
         Resource({})(target);
       }
       if (replace) {
-        Object.keys(t.resource).forEach( k => {
+        Object.keys(t.resource).forEach(k => {
           try {
             delete t.resource[k];
-          } catch (err) {}
+          } catch (err) {
+          }
         });
       }
       Object.assign(t.resource, resource);
@@ -111,6 +159,13 @@ class TestTargetMetadataStore extends TargetMetadataStore {
       if (resource.name) {
         TestTargetMetadataStore.setName(target, resource.name);
       }
+    }
+  }
+
+  static build(target: any): void {
+    const t = getTargetStore(target);
+    if (t) {
+      t.build();
     }
   }
 }
@@ -166,6 +221,30 @@ export class TargetMetaModifier {
     return this;
   }
 
+  owns(key: string, meta?: OwnsMetadataArgs<any> | false): this {
+    TestTargetMetadataStore.remove(OwnsMetadata, this.target, key);
+
+    if (meta === false) return;
+
+    if (!this.getProp(key)) {
+      throw new Error('TestTargetMetadataStore does not support adding relations without Prop, please set a Prop first');
+    }
+
+    TestTargetMetadataStore.addOwns(this.target, key, meta);
+    return this;
+  }
+
+  belongsTo(key: string, meta?: BelongsToMetadataArgs | false): this {
+    TestTargetMetadataStore.remove(BelongsToMetadata, this.target, key);
+    if (meta === false) return;
+
+    if (!this.getProp(key)) {
+      throw new Error('TestTargetMetadataStore does not support adding relations without Prop, please set a Prop first');
+    }
+    TestTargetMetadataStore.addBelongsTo(this.target, key, meta);
+    return this;
+  }
+
   /**
    * Add or remove prop, to remove set meta to false
    * @param key
@@ -183,16 +262,24 @@ export class TargetMetaModifier {
     }
 
     if (isFunction(type)) {
-      (Reflect as any).defineMetadata("design:type", String, this.target.prototype, key);
+      (Reflect as any).defineMetadata("design:type", type, this.target.prototype, key);
     }
 
     TestTargetMetadataStore.addProp(this.target, key, meta);
     return this;
   }
 
+  getProp(key: string): PropMetadata | undefined {
+    return TestTargetMetadataStore.getProp(this.target, key);
+  }
+
   props(...args: string[]): this {
-    args.forEach( a => this.prop(a) );
+    args.forEach(a => this.prop(a));
     return this;
+  }
+
+  getExclude(key: string): ExcludeMetadata | undefined {
+    return TestTargetMetadataStore.getExclude(this.target, key);
   }
 
   /**
@@ -206,6 +293,10 @@ export class TargetMetaModifier {
     if (meta === false) return;
     TestTargetMetadataStore.addExclude(this.target, key, meta);
     return this;
+  }
+
+  build(): void {
+    TestTargetMetadataStore.build(this.target)
   }
 
   static create(target: any): TargetMetaModifier {

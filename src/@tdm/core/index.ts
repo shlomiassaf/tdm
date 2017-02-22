@@ -27,6 +27,6 @@ export {
 } from './src/mapping';
 
 export {
-  findProp,
+  findProp, PlainSerializer,
   isUndefined, isFunction, isNumber, isString, isSymbol, isPropertyKey, stringify, promiser, Constructor
 } from './src/utils';

@@ -1,4 +1,24 @@
-import { AdapterMetadata, AdapterMetadataArgs, metadataFactory, decoratorInfo, GlobalResourceMetadata, GlobalResourceMetadataArgs, ResourceMetadata, ActionMetadata, ActionMetadataArgs, PropMetadata, PropMetadataArgs, ExcludeMetadata, ExcludeMetadataArgs, HookMetadata, HookMetadataArgs } from './meta-types';
+import {
+  AdapterMetadata,
+  AdapterMetadataArgs,
+  metadataFactory,
+  decoratorInfo,
+  GlobalResourceMetadata,
+  GlobalResourceMetadataArgs,
+  ResourceMetadata,
+  ActionMetadata,
+  ActionMetadataArgs,
+  PropMetadata,
+  PropMetadataArgs,
+  ExcludeMetadata,
+  ExcludeMetadataArgs,
+  HookMetadata,
+  HookMetadataArgs,
+  BelongsToMetadata,
+  BelongsToMetadataArgs,
+  OwnsMetadata,
+  OwnsMetadataArgs
+} from './meta-types';
 import { ARHooks, ARHookableMethods } from '../active-record';
 import { ExecuteResponse } from '../core/interfaces';
 import { DecoratorError, TDMError } from '../core/errors';
@@ -51,15 +71,49 @@ export function Identity() {
   };
 }
 
+export module Identity {
+  export function Multi(order: number) {
+    return (target: Object, propertyKey: string) => {
+      internalMetadataStore.getTargetStore(target.constructor as any)
+        .setMultiIdentity(propertyKey, order);
+    };
+  }
+}
+
 /**
  * @propertyDecorator instance
  * @param def
  */
-export function Prop(def?: PropMetadataArgs) {
-  return (target: Object, propertyKey: string | symbol) => {
-    const type = reflection.designType(target, propertyKey);
+export function Prop(def?: PropMetadataArgs): any {
+  return (target: Object, propertyKey: string | symbol, desc: any) => {
+    const info = decoratorInfo(target, propertyKey, desc);
+
     internalMetadataStore.getTargetStore(target.constructor as any)
-      .addProp(metadataFactory(PropMetadata, def, type, propertyKey));
+      .addProp(metadataFactory(PropMetadata, def, target.constructor, info));
+  };
+}
+
+/**
+ * @propertyDecorator instance
+ */
+export function BelongsTo(def?: BelongsToMetadataArgs): any {
+  return (target: Object, propertyKey: string | symbol, desc: any) => {
+    const info = decoratorInfo(target, propertyKey, desc);
+
+    internalMetadataStore.getTargetStore(target.constructor as any)
+      .addRelationship(metadataFactory(BelongsToMetadata, def, info));
+  };
+}
+
+/**
+ * @propertyDecorator instance
+ */
+export function Owns(def?: OwnsMetadataArgs<any>): any {
+  return (target: Object, propertyKey: string | symbol, desc: any) => {
+    const info = decoratorInfo(target, propertyKey, desc);
+
+    internalMetadataStore.getTargetStore(target.constructor as any)
+      .addRelationship(metadataFactory(OwnsMetadata, def, info));
   };
 }
 
@@ -106,11 +160,11 @@ export function Hook(def: HookMetadataArgs) {
 }
 
 export function BeforeHook(action: ARHookableMethods) {
-  return Hook({ event: 'before', action });
+  return Hook({event: 'before', action});
 }
 
 export function AfterHook(action: ARHookableMethods) {
-  return Hook({ event: 'after', action });
+  return Hook({event: 'after', action});
 }
 
 export type BeforeHook<K extends string, Z> = { [P in K]: (options: Z) => void | Promise<void>; }

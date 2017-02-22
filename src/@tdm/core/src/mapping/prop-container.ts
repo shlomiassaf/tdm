@@ -6,7 +6,7 @@ import { array } from '../utils';
  * @internal
  */
 export interface PoClassPropertyMap {
-  cls: string;
+  cls: PropertyKey;
   obj: string;
   exclude?: ExcludeMetadata;
   prop?: PropMetadata

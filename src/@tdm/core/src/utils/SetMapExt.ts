@@ -224,3 +224,116 @@ export class MapExt {
 }
 
 
+/**
+ * The child of Map and Set
+ */
+export class KeySet<K, V> {
+  map = new Map<K, Set<V>>();
+
+  has(key: K, value: V): boolean {
+    const t = this.map.get(key);
+    return t ? t.has(value) : false;
+  }
+
+  get(key: K): Set<V> {
+    return this.map.get(key);
+  }
+
+  add(key: K, value: V): this {
+    const t = this.map.get(key) || new Set<V>();
+    t.add(value);
+    this.map.set(key, t);
+    return this;
+  }
+
+  clear(key?: K): void {
+    if (!key) {
+      this.map.clear();
+    } else {
+      const t = this.map.get(key);
+      t && t.clear();
+    }
+  }
+
+  delete(key: K, value?: V): boolean {
+    if (arguments.length === 1) {
+      return this.delete(key);
+    } else {
+      const t = this.map.get(key);
+      return t ? t.delete(value) : false;
+    }
+  }
+
+  forEach(key: K, callbackfn: (value: V, index: V, set: Set<V>) => void, thisArg?: any): void {
+    const t = this.map.get(key);
+    if (t) {
+      t.forEach(callbackfn, thisArg);
+    }
+  }
+
+  /**
+   * Returns the amount of map entries
+   * @returns {number}
+   */
+  get size(): number {
+    return this.map.size;
+  }
+
+  sizeOf(key: K): number {
+    const t = this.map.get(key);
+    return t ? t.size : 0;
+  }
+}
+
+
+// export class DualKeyMap<K, K1, V> {
+//   protected map = new Map<K, Map<K1, V>>();
+//
+//   has(type: K, id: K1): boolean {
+//     const t = this.map.get(type);
+//     return t ? t.has(id) : false;
+//   }
+//
+//   get(type: K, id: K1): V | undefined {
+//     const t = this.map.get(type);
+//     return t && t.get(id);
+//   }
+//
+//   getMap(type: K): Map<K1, V> | undefined {
+//     return this.map.get(type);
+//   }
+//
+//   delete(type: K, id: K1): boolean {
+//     const t = this.map.get(type);
+//     return !!(t && t.delete(id));
+//   }
+//
+//   set(type: K, id: K1, value: V): void {
+//     const t = this.map.get(type) || new Map<string, any>();
+//     t.set(id, value);
+//     this.map.set(type, t);
+//   }
+//
+//   clear(type?: K): void {
+//     if (type) {
+//       const t = this.map.get(type);
+//       t && t.clear();
+//     } else {
+//       this.map.clear();
+//     }
+//   }
+//
+//   forEach(type: K, callbackfn: (value: V, index: K1, map: Map<K1, V>) => void, thisArg?: any): void {
+//     const t = this.map.get(type);
+//     t && t.forEach(callbackfn, thisArg);
+//   }
+//
+//   get size(): number {
+//     return this.map.size;
+//   }
+//
+//   sizeOf(type: K): number {
+//     const t = this.map.get(type);
+//     return t ? t.size : 0;
+//   }
+// }

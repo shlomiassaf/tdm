@@ -20,7 +20,7 @@ export class TargetAdapterMetadataStore {
   resource: ResourceMetadata;
   mixins: Set<any> = new Set<any>();
 
-  custom: Map<any, Set<any>> = new Map<any, Set<any>>();
+  custom: Map<any, Set<any>>;
 
   @LazyInit(function (this: TargetAdapterMetadataStore): ActionController {
     return new ActionController(this, this.parent);
@@ -82,7 +82,6 @@ export class TargetAdapterMetadataStore {
     const store = internalMetadataStore.getTargetStore(target);
 
     const customStoredData: Map<any, Set<any>>[] = [];
-    const thisHooks = store.getHooks();
     this.getProtoChainWithMixins(target, this.adapterClass)
       .forEach( proto => {
 
@@ -90,45 +89,12 @@ export class TargetAdapterMetadataStore {
           const protoStore = internalMetadataStore.getTargetStore(proto, false);
 
           if (protoStore) {
-
-            // extend all ExtendedActions from child classes to parent.
-            MapExt.asValArray(protoStore.getExtendingActions())
-              .forEach( extActions => {
-                extActions.forEach( v => {
-                  if (!store.getExtendingAction(v.info)) {
-                    store.addExtendingAction(v.info, v.def);
-                  }
-                });
-              });
-
-            // Aggregating global lifecycle hooks
-            // TODO: Refactor to support static/instance like ExtendAction in case 2 hooks with same prop name
-            MapExt.asKeyValArray(protoStore.getHooks())
-              .forEach( ([action, hook]) => {
-                let thisHook = store.findHook(action);
-                if (!thisHook) {
-                  thisHook = hook;
-                } else {
-                  Object.keys(hook).forEach( k => {
-                    if (!thisHook.hasOwnProperty(k)) {
-                      thisHook[k] = hook[k];
-                    }
-                  });
-                }
-                thisHooks.set(action, thisHook);
-              });
-
-            // TODO: this is slow, allow setProp/setExclude to get array, not single item.
-
-            // Aggregating Props
-            protoStore.getProps().forEach( prop => store.addProp(prop) );
-            // Aggregating Excludes
-            protoStore.getExcludes().forEach( ex => store.addExclude(ex) );
+            store.extendFrom(protoStore);
 
             if (protoStore.hasAdapter(this.adapterClass)) {
-              const custom = protoStore.getAdapterStore(this.adapterClass).custom;
-              if (custom.size > 0) {
-                customStoredData.push(custom);
+              const custom = protoStore.getCustom(this.adapterClass);
+              if (custom && custom.size > 0) {
+                customStoredData.push(custom.map);
               }
             }
           }
@@ -138,6 +104,11 @@ export class TargetAdapterMetadataStore {
     // TODO: refactor for performance on getActions and getProtoChainWithMixins (+ Caching)
     this.getActions(target, this.adapterClass)
       .forEach( action => this.registerAction(action) );
+
+    this.custom = store.getCustom(this.adapterClass)
+      ? store.getCustom(this.adapterClass).map
+      : new Map<any, Set<any>>()
+    ;
 
     customStoredData.forEach( m => {
       MapExt.asKeyArray(m).forEach( key => {
@@ -152,6 +123,8 @@ export class TargetAdapterMetadataStore {
     if (isFunction(this.adapterMeta.commit)) {
       this.adapterMeta.commit(this);
     }
+
+    store.build();
   }
 
 

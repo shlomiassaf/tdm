@@ -4,7 +4,7 @@ import { BaseActiveRecord } from '../active-record/active-record-interfaces';
 
 export interface MapperFactory {
   serializer(source: any): SerializeMapper;
-  deserializer(source: any): DeserializeMapper;
+  deserializer(source: any, sourceType: any): DeserializeMapper;
 }
 
 export abstract class SerializeMapper {
@@ -30,7 +30,7 @@ export abstract class DeserializeMapper {
    */
   setRef?(value: any): void;
 
-  constructor(public source: any) {}
+  constructor(public source: any, public sourceType: any) {}
 
   abstract readonly isCollection: boolean;
 

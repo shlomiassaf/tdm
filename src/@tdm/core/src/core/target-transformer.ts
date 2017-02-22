@@ -1,10 +1,12 @@
+import { PropMetadata } from '../metadata/meta-types';
 import { TransformDir, TransformStrategy } from '../metadata/meta-types/schema/interfaces';
 import { internalMetadataStore } from '../metadata/reflection/internal-metadata-store';
-import { array, isFunction } from '../utils';
+import { array, isFunction, MapExt } from '../utils';
 import { LazyInit } from '../utils/decorators';
 import { NamingStrategyConfig } from './interfaces';
 
 import { SerializeMapper, DeserializeMapper, CompiledTransformation, PoClassPropertyMap, PropertyContainer, ExclusivePropertyContainer, InclusivePropertyContainer, transformValueIn } from '../mapping';
+
 
 
 /**
@@ -33,6 +35,8 @@ export function getInstructions(targetType: any, dir: TransformDir, transformNam
 
   const naming: string[] = namingStrategyMap(dir, transformNameStrategy);
 
+  const fkMap = new Map<PropMetadata, PoClassPropertyMap[]>();
+
   // TODO: move to for loop
   const instructions = internalMetadataStore.getTargetStore(targetType).getProps()
     .map( prop => {
@@ -48,8 +52,35 @@ export function getInstructions(targetType: any, dir: TransformDir, transformNam
         obj[naming[0]] = transformNameStrategy[dir](obj[naming[1]]);
       }
 
+      // store the PoClassPropertyMap of a belongsTo PropMetadata relation
+      // and the PoClassPropertyMap of all foreign key PropMetadata.
+      // These arr actually matching pairs of a belongTo relation and it's fk (not all belongsTo has fk, only different property name is a fk)
+      // At the end, go through the stored PropMetadata's and see if matching pairs found (2 values in array)
+      // for all of them, swap the prop names so:
+      // belongsTo PoClassPropertyMap will output (deserialize) to the original fk property name
+      // foreignKey PoClassPropertyMap wil input (serialize) to the belongsTo property name
+      // this swap make the deserialize/serialize process transparent to fk mismatch defined on the model.
+      // De/Serialize implementations are only responsible to return the right object (e.g. detect when a key is incoming, return obj instead)
+      if (prop.rel === 'belongsTo') {
+        const arr = fkMap.get(prop) || [];
+        arr[0] = obj;
+        fkMap.set(prop, arr);
+      } else if (prop.foreignKeyOf) {
+        const arr = fkMap.get(prop.foreignKeyOf) || [];
+        arr[1] = obj;
+        fkMap.set(prop.foreignKeyOf, arr);
+      }
+
       return obj;
     });
+
+  MapExt.asKeyValArray(fkMap).forEach(([k, v]) => {
+    if (v.length === 2) {
+      // this is a swap
+      v[0].obj = v[1].cls as any;
+      v[1].cls = k.name as any; // v[0].cls === k.name
+    }
+  });
 
   return { excluded, instructions };
 }
@@ -119,7 +150,10 @@ export class TargetTransformer {
    * @param target
    **/
   deserialize(mapper: DeserializeMapper, target: any): void {
-    const cb = (prop: PoClassPropertyMap) => target[prop.cls] = transformValueIn(mapper.getValue(prop.obj, prop.prop), prop.prop);
+    const cb = (prop: PoClassPropertyMap) => {
+      const propMeta = (prop.prop && prop.prop.foreignKeyOf) || prop.prop;
+      target[prop.cls] = transformValueIn(mapper.getValue(prop.obj, propMeta), propMeta);
+    };
 
     if (isFunction(mapper.setRef)) {
       mapper.setRef(target);

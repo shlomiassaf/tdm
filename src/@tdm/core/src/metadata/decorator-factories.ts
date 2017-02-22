@@ -1,6 +1,6 @@
 import { AdapterStatic, AdapterError } from '../core';
 import { ActionMetadataArgs, ResourceMetadataArgs, decoratorInfo } from './meta-types';
-import { ensureTargetIsType } from '../utils';
+import { ensureTargetIsType, isFunction } from '../utils';
 import { internalMetadataStore } from './reflection/internal-metadata-store';
 import { activeRecordClassFactory } from '../active-record';
 
@@ -8,18 +8,15 @@ export type StoreForValueFactory<T> = (def: T, propertyKey: PropertyKey) => any;
 
 
 /**
- * A Factory for custom decorators used by Adapters to store data.
+ * A Factory for custom decorators used by Adapters/mapper etc to store data.
  *
  */
-export function storeFor<T>(adapterClass: AdapterStatic<any, any>, metaKey: any, factory: StoreForValueFactory<T>): (def: T) => PropertyDecorator {
+export function storeFor<T>(storeKey: any, metaKey: any, factory: StoreForValueFactory<T>): (def: T) => PropertyDecorator {
   return function ResourceStorePropertyDecorator(def: T) {
     return (target: Object, propertyKey: PropertyKey) => {
-      const adapterStore = internalMetadataStore
-        .getTargetAdapterStore(ensureTargetIsType(target), adapterClass);
-
-      const coll = adapterStore.custom.get(metaKey) || new Set<any>();
-      coll.add(factory(def, propertyKey));
-      adapterStore.custom.set(metaKey, coll);
+      internalMetadataStore
+        .getTargetStore(ensureTargetIsType(target))
+        .setCustom(storeKey, metaKey, factory(def, propertyKey));
     };
   }
 }
@@ -62,6 +59,19 @@ export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterSt
       // this is temp here to support angular CD
       const paramTypes = (Reflect as any).getOwnMetadata('design:paramtypes', target);
       (Reflect as any).defineMetadata('design:paramtypes', paramTypes, TDModel);
+
+      // check for properties that set the type to self (same class)
+      // the class will point to the base class (target) that TDModel extends.
+      // this is fine if the user didn't set `typeGetter`, if he did we get TDModel
+      internalMetadataStore.getTargetStore(target)
+        .getProps()
+        .forEach( p => {
+          const desc = Object.getOwnPropertyDescriptor(p, 'type');
+
+          if (desc && desc.configurable && isFunction(desc.get) && desc.get() === target) {
+            Object.defineProperty(p, 'type', { configurable: true, value: TDModel });
+          }
+        });
 
       const adapterStore = internalMetadataStore.setTargetAndAdapter(TDModel, adapterClass, def);
 

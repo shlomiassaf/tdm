@@ -47,15 +47,7 @@ testing.TestBed.initTestEnvironment(
  */
 
 var testContext = require.context('../src', true, /\.\/(?!demo).+\/.+\/.+\.spec\.ts$/);
-// var testContext;
-// if (process.env.NODE_ENV.TDM_TEST === 'core') {
-//   testContext = require.context(`../src/@tdm/core/test`, true, /\.spec\.ts/);
-// } else if (process.env.NODE_ENV.TDM_TEST === 'angular-http') {
-//   testContext = require.context(`../src/@tdm/angular-http/test`, true, /\.spec\.ts/);
-// } else {
-//   testContext = require.context('../src', true, TEST_ALL);
-// }
-
+// var testContext = require.context(`../src/@tdm/json-api-mapper/test`, true, /\.spec\.ts/);
 
 /*
  * get all the files, for each file, call the context function

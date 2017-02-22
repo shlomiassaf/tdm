@@ -199,7 +199,7 @@ class ExtendedContext implements ExecuteContext<any> {
   }
 
   deserialize(data: any): void {
-    const mapper = this.mapper.deserializer(data);
+    const mapper = this.mapper.deserializer(data, this.adapterStore.target);
     const isColl = !!this.action.isCollection;
 
     if (mapper.isCollection !== isColl) {

@@ -49,3 +49,18 @@ export function getResourceKeys(resource: J.ResourceObject): { att: string[], re
 export function getDocumentKeys(doc: J.TopLevel): { att: string[], rel: string[] } {
   return Array.isArray(doc.data) ? getResourceKeys(doc.data[0]) : getResourceKeys(doc.data);
 }
+
+export function isIdentObject(obj: any): boolean {
+  let count = 0;
+
+  count += obj.hasOwnProperty('id') ? 1 : 0;
+  count += obj.hasOwnProperty('type') ? 1 : 0;
+
+  if (count !== 2) return false;
+
+  count += obj.hasOwnProperty('attributes') ? -1 : 0;
+  count += obj.hasOwnProperty('relationships') ? -1 : 0;
+  count += obj.hasOwnProperty('links') ? -1 : 0;
+
+  return count === 2;
+}

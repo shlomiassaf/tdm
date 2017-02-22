@@ -1,6 +1,7 @@
 import { Constructor } from './type-utils';
 export * from './type-utils';
 export * from './SetMapExt';
+export * from './plain-serializer';
 
 export function isStaticDecorator(target: any): boolean {
   return isFunction(target);
@@ -56,6 +57,13 @@ export function isUndefined(obj: any): obj is undefined {
 
 export function isFunction(obj: any): obj is Function {
   return typeof obj === 'function';
+}
+
+export function isJsObject(obj: any): boolean {
+  return obj !== null && (typeof obj === 'function' || typeof obj === 'object');
+}
+export function isPrimitive(obj: any): boolean {
+  return !isJsObject(obj);
 }
 
 /**

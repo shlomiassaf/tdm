@@ -17,6 +17,7 @@ export { MemberDecoratorMetadata, DecoratorInfo, decoratorInfo } from './core';
 export { ResourceMetadata, ResourceMetadataArgs, GlobalResourceMetadata, GlobalResourceMetadataArgs } from './resource';
 export { ActionMetadata, ActionMetadataArgs, ActionMethodType } from './action';
 export { AdapterMetadata, AdapterMetadataArgs } from './adapter';
+export { BelongsToMetadata, BelongsToMetadataArgs, OwnsMetadata, OwnsMetadataArgs, Relationship, RelationshipType } from './relations';
 export { PropMetadata, PropMetadataArgs } from './prop';
 export { ExcludeMetadata, ExcludeMetadataArgs } from './exclude';
 export { HookMetadata, HookMetadataArgs } from './hook';

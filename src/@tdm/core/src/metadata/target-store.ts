@@ -1,11 +1,13 @@
 import { BaseActiveRecord } from '../active-record/active-record-interfaces';
 import { AdapterStatic } from '../core/interfaces';
 import { AdapterError } from '../core/errors';
+import { TransformDir } from './meta-types/schema/interfaces';
 
 import { internalMetadataStore as store } from './reflection/internal-metadata-store';
 import { TargetAdapterMetadataStore } from './reflection/target-adapter-metadata-store';
-import { DeserializeMapper } from '../mapping';
-import { Constructor, isString } from '../utils';
+import { DeserializeMapper, SerializeMapper } from '../mapping';
+import { Constructor } from '../utils';
+
 
 class PlainObject {
 
@@ -32,10 +34,30 @@ function getAdapterStore(target: any, adapterClass: AdapterStatic<any, any>): Ta
 export class TargetStore {
   constructor() { /* TODO: ExternalMetadataStore is singleton, enforce? */ }
 
-  getIdentityKey(target): string | undefined {
+  getIdentityKey(target, direction?: TransformDir): string | undefined {
     const targetStore = store.getTargetStore(target, false);
     if (targetStore) {
-      return targetStore.getIdentity();
+      const idKey = targetStore.getIdentity();
+      if (idKey) {
+        if (!direction) {
+          return idKey;
+        }
+        return direction === 'outgoing'
+          ? targetStore.getProp(idKey).alias.outgoing
+          : targetStore.getProp(idKey).alias.incoming
+        ;
+      }
+    }
+  }
+
+  hasTarget(target: any): boolean {
+    return !!store.getTargetStore(target, false);
+  }
+
+  serialize(target: Constructor<any>, mapper: SerializeMapper): any {
+    const targetStore = store.getTargetStore(target, false);
+    if (targetStore) {
+      return targetStore.targetController.serialize(mapper);
     }
   }
 
@@ -45,16 +67,15 @@ export class TargetStore {
    * @param mapper
    * @returns {any}
    */
-  deserialize(target: Constructor<any> | string, mapper: DeserializeMapper): BaseActiveRecord<any> | BaseActiveRecord<any>[] | undefined {
-    if (isString(target)) {
-      return this.deserialize(this.findTarget(target), mapper);
+  deserialize(mapper: DeserializeMapper): BaseActiveRecord<any> | BaseActiveRecord<any>[] | undefined {
+    const targetStore = store.getTargetStore(mapper.sourceType, false);
+
+    if (targetStore) {
+      const result: any = mapper.isCollection ? [] : targetStore.targetController.create();
+      targetStore.targetController.deserialize(mapper, result);
+      return result;
     } else {
-      const targetStore = store.getTargetStore(target, false);
-      if (targetStore) {
-        const result: any = mapper.isCollection ? [] : targetStore.targetController.create();
-        targetStore.targetController.deserialize(mapper, result);
-        return result;
-      }
+      return this.deserializePlain(mapper);
     }
   }
 
