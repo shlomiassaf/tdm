@@ -2,12 +2,12 @@ import { Observable } from 'rxjs/Observable'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import { Subscription } from 'rxjs/Subscription'
 import { Subject } from 'rxjs/Subject'
-import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/do';
 
-import { ResourceEvent, CancellationTokenResourceEvent } from './active-record-events';
-import { BaseActiveRecord } from './active-record-interfaces';
+import { events$, ResourceEvent } from '../events';
+import { CancellationTokenResourceEvent } from '../events/internal';
+import { BaseActiveRecord } from '../active-record';
 import { LazyInit } from '../utils/decorators';
 
 // Weak map for private emitter
@@ -30,7 +30,7 @@ const BUSY_CHANGED = Symbol('BUSY CHANGED');
  * @internal
  * @param event
  */
-export function emitEvent(event: ResourceEvent): void {
+function emitEvent(event: ResourceEvent): void {
   const pData = privateDict.get(event.resource);
   const ar = event.resource.$ar;
 
@@ -52,6 +52,7 @@ export function emitEvent(event: ResourceEvent): void {
     pData.emitter.next(event);
   }
 }
+events$.subscribe(emitEvent);
 
 /**
  * An notification interface to get notified about events and state changes of an active record.
@@ -78,7 +79,7 @@ export class ActiveRecordState<T> {
    * A stream of `ResourceEvent` see `ResourceEventType` for possible events.
    */
   @LazyInit(function(this: ActiveRecordState<any>) {
-    return privateDict.get(this.parent).emitter.share();
+    return privateDict.get(this.parent).emitter.share(); // share imported by events module
   })
   events$: Observable<ResourceEvent>;
 

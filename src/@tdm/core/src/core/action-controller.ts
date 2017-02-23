@@ -7,6 +7,8 @@ import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/switchMap';
 
+import { emitEvent, eventFactory } from '../events';
+import { CancellationTokenResourceEvent } from '../events/internal';
 import { defaultConfig } from '../default-config';
 import { findProp, noop, isFunction } from '../utils';
 import { ActionMetadata, ValidationSchedule } from '../metadata';
@@ -14,7 +16,11 @@ import {
   ExecuteContext, DeserializerFactory, ActionOptions, Adapter,
   AdapterStatic, ExecuteResponse
 } from './interfaces';
-import { ActiveRecordCollection, BaseActiveRecord, emitEvent, eventFactory, CancellationTokenResourceEvent, ARHookableMethods } from '../active-record';
+import {
+  ActiveRecordCollection,
+  BaseActiveRecord,
+  ARHookableMethods
+} from '../active-record';
 import { internalMetadataStore } from '../metadata/reflection/internal-metadata-store';
 import { TargetAdapterMetadataStore } from '../metadata/reflection/target-adapter-metadata-store';
 import { TargetMetadataStore } from '../metadata/reflection/target-metadata-store';
@@ -22,11 +28,11 @@ import { TargetMetadataStore } from '../metadata/reflection/target-metadata-stor
 import { ResourceValidationError, ResourceError } from './errors';
 import { MapperFactory } from '../mapping/mapper';
 
-function validateIncoming (validation: ValidationSchedule)  {
+function validateIncoming(validation: ValidationSchedule) {
   return validation === 'incoming' || validation === 'both';
 }
 
-function validateOutgoing (validation: ValidationSchedule)  {
+function validateOutgoing(validation: ValidationSchedule) {
   return validation === 'outgoing' || validation === 'both';
 }
 
@@ -64,16 +70,16 @@ export class ActionController {
       const self = this;
 
       if (action.decoratorInfo.isStatic) {
-        this.target[action.name] = function(this: AdapterStatic<any, any>, ...args: any[]) {
+        this.target[action.name] = function (this: AdapterStatic<any, any>, ...args: any[]) {
           const instance = action.isCollection
-            ? self.targetStore.targetController.createCollection()
-            : self.targetStore.targetController.create()
-          ;
+              ? self.targetStore.targetController.createCollection()
+              : self.targetStore.targetController.create()
+            ;
           self.execute(instance, action, true, ...args);
           return instance;
         }
       } else {
-        this.target.prototype[action.name] = function(this: BaseActiveRecord<any>, ...args: any[]) {
+        this.target.prototype[action.name] = function (this: BaseActiveRecord<any>, ...args: any[]) {
           self.execute(this, action, true, ...args);
           return this;
         }
@@ -93,7 +99,8 @@ export class ActionController {
   }
 
   private execute(self: BaseActiveRecord<any> | ActiveRecordCollection<any>, action: ActionMetadata, async: boolean, ...args: any[]): void {
-    if (self.$ar.busy) { // TODO: Should throw or error?
+    // TODO: $ar is not promised to be the active record property name, need to publish that for usage
+    if (self.$ar && self.$ar.busy) { // TODO: Should throw or error?
       emitEvent(eventFactory.error(self, new Error('An action is already running')));
       return;
     } else if (!!action.isCollection !== self instanceof ActiveRecordCollection) {
@@ -110,7 +117,7 @@ export class ActionController {
 
     const validator = action.validation === 'skip'
         ? undefined
-        : () => targetController.validate(self).then( validationErrors => {
+        : () => targetController.validate(self).then(validationErrors => {
           if (validationErrors.length > 0) {
             throw new ResourceValidationError(self, validationErrors);
           }
@@ -124,12 +131,15 @@ export class ActionController {
       .then(validateOutgoing(action.validation) ? validator : noopPromise);
 
     let obs$: Observable<any | void> = fromPromise(startingPromise)
-      .switchMap( () => this.adapter.execute(pubCtx, options) )
-      .switchMap( resp => {
+      .switchMap(() => this.adapter.execute(pubCtx, options))
+      .switchMap(resp => {
         // TODO: Refactor this to lazy
         const toPlain = findProp('deserializer', this, this.adapterStore.resource, action)();
         let p = !action.raw || action.raw.deserialize
-            ? Promise.resolve(toPlain.deserialize(resp.response)).then( data => { resp.deserialized = data; return resp; } )
+            ? Promise.resolve(toPlain.deserialize(resp.response)).then(data => {
+              resp.deserialized = data;
+              return resp;
+            })
             : Promise.resolve(resp)
           ;
 
@@ -138,16 +148,16 @@ export class ActionController {
 
     if (!action.raw) {
       const endingPromise = (resp: ExecuteResponse) => (!action.isCollection && validateIncoming(action.validation) ? validator() : noopPromise())
-        .then( () => this.fireHook(action.name as any, 'after', self, options, resp) );
+        .then(() => this.fireHook(action.name as any, 'after', self, options, resp));
 
       obs$ = obs$
-        .do( ({deserialized}) => {
+        .do(({deserialized}) => {
           pubCtx.deserialize(deserialized);
         })
-        .switchMap( resp => fromPromise<void>(endingPromise(resp)) );
+        .switchMap(resp => fromPromise<void>(endingPromise(resp)));
     } else {
       async = true;
-      obs$ = obs$.do( resp => action.raw.handler.apply(self, [resp, options]) );
+      obs$ = obs$.do(resp => action.raw.handler.apply(self, [resp, options]));
     }
 
     const subs = subscribeOn.call(obs$, async ? asap : null).subscribe(
@@ -188,9 +198,9 @@ class ExtendedContext implements ExecuteContext<any> {
 
   serialize(): any {
     const mapper = this.data instanceof ActiveRecordCollection
-      ? this.mapper.serializer(this.data.collection)
-      : this.mapper.serializer(this.data)
-    ;
+        ? this.mapper.serializer(this.data.collection)
+        : this.mapper.serializer(this.data)
+      ;
 
     return internalMetadataStore
       .getTargetStore(this.adapterStore.target, false)

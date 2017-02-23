@@ -1,12 +1,3 @@
-import { ActiveRecordState } from './active-record-state';
-
-/**
- * String enumeration of active record object properties
- */
-export const ARProps = {
-  $ar: '$ar' as '$ar',
-};
-
 /**
  * String enumeration of active record object methods
  */
@@ -44,7 +35,8 @@ export const ARHooks: { [P in ARHookableMethods]: ARHookRule } = {
 };
 
 
-export type BaseActiveRecord<T> = { $ar: ActiveRecordState<T>; };
+export interface BaseActiveRecord<T> {
+}
 
 export type ActiveRecord<T, Z> = BaseActiveRecord<T> & {
   [P in keyof typeof ARMethods]: (options?: Z) => T;

@@ -1,4 +1,4 @@
-import { ActionErrorResourceEvent } from '../active-record/active-record-events';
+import { ActionErrorResourceEvent } from '../events';
 import { ResourceError } from '../core/errors';
 import { promiser } from '../utils';
 
@@ -25,4 +25,4 @@ export function next<T>(): Promise<T> {
     });
     return p.promise;
   }
-};
+}

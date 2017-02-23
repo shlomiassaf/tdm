@@ -1,6 +1,7 @@
 import 'rxjs';
-import { activeRecordClassFactory, ActiveRecordState } from '../../src/active-record';
-
+import '@tdm/core/add/active-record-state';
+import { activeRecordClassFactory } from '../../src/active-record';
+import { ActiveRecordState } from '@tdm/core/active-record-state/active-record-state';
 
 describe('CORE', () => {
   describe('Active Record', () => {

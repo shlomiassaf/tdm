@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 
 
 import { UserBaseClass, UserConst, UsersInterface } from '../../resource';
-import '@tdm/json-api-mapper/src/add/active-record/json-api';
 
 const User = UserConst;
 type User = UserConst;
@@ -22,6 +21,7 @@ export class HomeComponent {
     // this.user.rawDeserialized({trailingSlashes: 'force'}).$ar.next()
     //   .then( () => this.user.raw({withCredentials: true}).$ar.next() )
     //   .then( () => this.gogo());
+
 
     this.user.id = 5;
     this.user.$refresh().$ar.next()

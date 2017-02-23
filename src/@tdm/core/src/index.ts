@@ -4,16 +4,18 @@ export * from './metadata';
 export { validators } from './core-validators';
 
 export {
-  BaseActiveRecord,
+  events$,
   ResourceEvent,
   ResourceEventType,
   ActionErrorResourceEvent,
   ActionEndResourceEvent,
-  eventFactory,
+  eventFactory
+} from './events';
+
+export {
+  BaseActiveRecord,
   ActiveRecord,
-  ActiveRecordCollection,
-  ActiveRecordState,
-  activeRecordClassFactory
+  ActiveRecordCollection
 } from './active-record';
 
 export {

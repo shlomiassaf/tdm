@@ -1,4 +1,4 @@
-import { ActiveRecordState } from '../../active-record/active-record-state';
+import { ActiveRecordState } from '../../active-record-state/active-record-state';
 import { next } from '../../active-record-state/next';
 
 /**
@@ -8,12 +8,13 @@ import { next } from '../../active-record-state/next';
  */
 ActiveRecordState.prototype.next = next;
 
-declare module '../../active-record/active-record-state' {
+declare module '../../active-record-state/active-record-state' {
   interface ActiveRecordState<T> {
     /**
      * Returns a promise that will resolve when the current action ends.
      * Throws a `ResourceError` if not in an action.
      * @returns Promise<any>
+     * @extension '@tdm/core/add/active-record-state/next'
      */
     next(): Promise<T>
   }

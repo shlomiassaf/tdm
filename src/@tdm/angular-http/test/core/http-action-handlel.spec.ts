@@ -1,4 +1,5 @@
 import 'rxjs';
+import '@tdm/core/add/active-record-state';
 import {
   BaseRequestOptions,
   HttpModule,

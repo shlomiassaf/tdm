@@ -36,7 +36,8 @@ function getTsPackagePaths() {
 module.exports.getTsPackagePaths = getTsPackagePaths;
 
 function getLastCommit(dirName) {
-  return execSync(`git log -n 1 --pretty=format:%H ${getPackageFullPath(dirName)}`).toString();
+  // we check the internal 'src' since other changes (e.g. test folder) does not effect version.
+  return execSync(`git log -n 1 --pretty=format:%H ${path.join(getPackageFullPath(dirName), 'src')}`).toString();
 }
 module.exports.getLastCommit = getLastCommit;
 
@@ -90,8 +91,8 @@ if (helpers.hasNpmFlag('printTsPaths')) {
 if (helpers.hasNpmFlag('detectBump')) {
   const needBump = getPackagesThatNeedVersionBump();
   if (Object.keys(needBump).length > 0) {
-    err = JSON.stringify(needBump(), null, 2);
-    console.log(new Error('The following packages need a bump: \n' + err));
+    err = JSON.stringify(needBump, null, 2);
+    console.log('The following packages need a bump: \n' + err);
   } else {
     console.log('No bump needed, can publish.');
   }
