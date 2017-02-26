@@ -27,6 +27,9 @@
       "@tdm/tixin": ["@tdm/tixin/src/index.ts"],
       "@tdm/tixin/*": ["@tdm/tixin/src/*"],
 
+      "@tdm/transformation": ["@tdm/transformation/src/index.ts"],
+      "@tdm/transformation/*": ["@tdm/transformation/src/*"],
+
       "@tdm/core": ["@tdm/core/src/index.ts"],
       "@tdm/core/*": ["@tdm/core/src/*"],
 

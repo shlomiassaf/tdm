@@ -1,3 +1,4 @@
+import { Observable } from 'rxjs/Observable'
 import { Subject } from 'rxjs/Subject'
 import 'rxjs/add/operator/share'; // TODO: move to no-side effect implementation
 import { ResourceEvent } from './events';

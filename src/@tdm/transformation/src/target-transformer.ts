@@ -1,12 +1,17 @@
-import { PropMetadata } from '../metadata/meta-types';
-import { TransformDir, TransformStrategy } from '../metadata/meta-types/schema/interfaces';
-import { internalMetadataStore } from '../metadata/reflection/internal-metadata-store';
-import { array, isFunction, MapExt } from '../utils';
-import { LazyInit } from '../utils/decorators';
-import { NamingStrategyConfig } from './interfaces';
+import { PropMetadata, ExcludeMetadata } from './metadata';
+import { TargetMetadata } from './metadata/target-metadata';
+import { LazyInit, TransformDir, NamingStrategyConfig, isFunction, array } from './fw';
 
-import { SerializeMapper, DeserializeMapper, CompiledTransformation, PoClassPropertyMap, PropertyContainer, ExclusivePropertyContainer, InclusivePropertyContainer, transformValueIn } from '../mapping';
-
+import {
+  SerializeMapper,
+  DeserializeMapper,
+  CompiledTransformation,
+  PoClassPropertyMap,
+  PropertyContainer,
+  ExclusivePropertyContainer,
+  InclusivePropertyContainer,
+  transformValueIn
+} from './mapping';
 
 
 /**
@@ -27,19 +32,19 @@ export function namingStrategyMap(dir: TransformDir, transformNameStrategy: Nami
 /**
  * @internal
  */
-export function getInstructions(targetType: any, dir: TransformDir, transformNameStrategy: NamingStrategyConfig): CompiledTransformation {
+export function getInstructions(meta: TargetMetadata, dir: TransformDir): CompiledTransformation {
   // all excluded instructions for this type
   // this array will be filtered to hold only @Exclude without @Prop
-  const excluded = internalMetadataStore.getTargetStore(targetType).getExcludes()
-    .filter( e => !e.from || e.from === dir );
+  const excluded = meta.getValues(ExcludeMetadata)
+    .filter(e => !e.from || e.from === dir);
 
-  const naming: string[] = namingStrategyMap(dir, transformNameStrategy);
+  const naming: string[] = namingStrategyMap(dir, meta.transformNameStrategy);
 
   const fkMap = new Map<PropMetadata, PoClassPropertyMap[]>();
 
   // TODO: move to for loop
-  const instructions = internalMetadataStore.getTargetStore(targetType).getProps()
-    .map( prop => {
+  const instructions = meta.getValues(PropMetadata)
+    .map(prop => {
       const obj = {
         cls: prop.name,
         obj: prop.alias[dir],
@@ -49,7 +54,7 @@ export function getInstructions(targetType: any, dir: TransformDir, transformNam
 
       // apply naming strategy when DONT HAVE ALIAS!
       if (!obj.exclude && naming && obj.cls === obj.obj) {
-        obj[naming[0]] = transformNameStrategy[dir](obj[naming[1]]);
+        obj[naming[0]] = meta.transformNameStrategy[dir](obj[naming[1]]);
       }
 
       // store the PoClassPropertyMap of a belongsTo PropMetadata relation
@@ -61,7 +66,7 @@ export function getInstructions(targetType: any, dir: TransformDir, transformNam
       // foreignKey PoClassPropertyMap wil input (serialize) to the belongsTo property name
       // this swap make the deserialize/serialize process transparent to fk mismatch defined on the model.
       // De/Serialize implementations are only responsible to return the right object (e.g. detect when a key is incoming, return obj instead)
-      if (prop.rel === 'belongsTo') {
+      if (prop.relation) {
         const arr = fkMap.get(prop) || [];
         arr[0] = obj;
         fkMap.set(prop, arr);
@@ -74,7 +79,7 @@ export function getInstructions(targetType: any, dir: TransformDir, transformNam
       return obj;
     });
 
-  MapExt.asKeyValArray(fkMap).forEach(([k, v]) => {
+  Array.from(fkMap.entries()).forEach(([k, v]) => {
     if (v.length === 2) {
       // this is a swap
       v[0].obj = v[1].cls as any;
@@ -82,62 +87,65 @@ export function getInstructions(targetType: any, dir: TransformDir, transformNam
     }
   });
 
-  return { excluded, instructions };
+  return {excluded, instructions};
 }
 
-function serializePredicate(p: PoClassPropertyMap) { return p.cls === this; }
-function deserializePredicate(p: PoClassPropertyMap) { return p.obj === this; }
+function serializePredicate(p: PoClassPropertyMap) {
+  return p.cls === this;
+}
+function deserializePredicate(p: PoClassPropertyMap) {
+  return p.obj === this;
+}
 
 export class TargetTransformer {
 
   @LazyInit(function (this: TargetTransformer): PoClassPropertyMap | undefined {
-    const idKey = internalMetadataStore.getTargetStore(this.targetType).getIdentity();
+    const idKey = this.meta.getIdentityKey();
     if (idKey) {
       return (this.hasOwnProperty('incoming') ? this.incoming : this.outgoing)
-        .instructions.find( p => p.prop.name === idKey);
+        .instructions.find(p => p.prop.name === idKey);
     }
   })
   protected identity: PoClassPropertyMap | undefined;
 
   @LazyInit(function (this: TargetTransformer): CompiledTransformation {
-    return getInstructions(this.targetType, 'incoming', this.transformNameStrategy);
+    return getInstructions(this.meta, 'incoming');
   })
   protected incoming: CompiledTransformation;
 
 
   @LazyInit(function (this: TargetTransformer): CompiledTransformation {
-    return getInstructions(this.targetType, 'outgoing', this.transformNameStrategy);
+    return getInstructions(this.meta, 'outgoing');
   })
   protected outgoing: CompiledTransformation;
 
   @LazyInit(function (this: TargetTransformer): PropertyContainer {
-    if (this.strategy === 'inclusive') {
-      const rename = namingStrategyMap('incoming', this.transformNameStrategy)
-          ? (prop) =>  prop.cls = this.transformNameStrategy.incoming(prop.obj)
+    if (this.meta.transformStrategy === 'exclusive') {
+      return new ExclusivePropertyContainer(this.meta.target, this.incoming);
+    } else {
+      const rename = namingStrategyMap('incoming', this.meta.transformNameStrategy)
+          ? (prop) => prop.cls = this.meta.transformNameStrategy.incoming(prop.obj)
           : undefined
         ;
-      return new InclusivePropertyContainer(this.targetType, this.incoming, deserializePredicate, rename);
-    } else {
-      return new ExclusivePropertyContainer(this.targetType, this.incoming);
+      return new InclusivePropertyContainer(this.meta.target, this.incoming, deserializePredicate, rename);
     }
   })
   protected incomingContainer: PropertyContainer;
 
   @LazyInit(function (this: TargetTransformer): PropertyContainer {
-    if (this.strategy === 'inclusive') {
-      const rename = namingStrategyMap('outgoing', this.transformNameStrategy)
-          ? (prop) =>  prop.obj = this.transformNameStrategy.outgoing(prop.cls)
+    if (this.meta.transformStrategy === 'exclusive') {
+      return new ExclusivePropertyContainer(this.meta.target, this.outgoing);
+    } else {
+      const rename = namingStrategyMap('outgoing', this.meta.transformNameStrategy)
+          ? (prop) => prop.obj = this.meta.transformNameStrategy.outgoing(prop.cls)
           : undefined
         ;
-      return new InclusivePropertyContainer(this.targetType, this.outgoing, serializePredicate, rename);
-    } else {
-      return new ExclusivePropertyContainer(this.targetType, this.outgoing);
+      return new InclusivePropertyContainer(this.meta.target, this.outgoing, serializePredicate, rename);
     }
   })
   protected outgoingContainer: PropertyContainer;
 
-  constructor(protected targetType: any, protected transformNameStrategy: NamingStrategyConfig, protected strategy: TransformStrategy) {
-  }
+  constructor(protected meta: TargetMetadata) { }
 
   serialize(mapper: SerializeMapper): any {
     return mapper.serialize(this.outgoingContainer);

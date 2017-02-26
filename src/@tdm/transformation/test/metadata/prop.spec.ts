@@ -1,24 +1,10 @@
 import 'rxjs';
 
+import { Prop, Relation } from '@tdm/transformation';
+import { PropMetadata } from '@tdm/transformation/ext';
+import { TargetMetaModifier } from '@tdm/transformation/testing';
 
-import { MockMixin, MockResource, MockDeserializer, MockActionOptions, TargetMetaModifier } from '@tdm/core/testing';
-import { Prop, Constructor, ActiveRecord } from '@tdm/core';
-import { PropMetadata } from "../../../src/metadata/meta-types/prop";
-import { BelongsTo, Owns } from "../../../src/metadata/decorators";
-
-
-const localMockDeserializer = new MockDeserializer();
-
-interface IUserStatic extends Constructor<IUser> { }
-interface IUser extends ActiveRecord<IUser, MockActionOptions> {
-  name: string;
-}
-
-@MockResource({
-  endpoint: '/api/users/:id?',
-  deserializer: () => localMockDeserializer
-})
-class User extends MockMixin<IUser, IUserStatic>() {
+class User {
 
   // alias SPEC //
   @Prop({
@@ -116,29 +102,30 @@ class User extends MockMixin<IUser, IUserStatic>() {
   }) personWithRef: Person;
 // typeGetter SPEC //
 
-// relationship SPEC //
+// relations SPEC //
   @Prop()
   noRelation: Person;
 
   @Prop({ typeGetter: () => Person })
-  @BelongsTo()
+  @Relation()
   belongsTo: Person;
 
   @Prop({ typeGetter: () => Person })
-  @Owns()
+  @Relation({ foreignKey: 'belongsToFk_id' })
+  belongsToFk: Person;
+
+  @Prop({ typeGetter: () => Person })
+  @Relation()
   hasOne: Person;
 
   @Prop({ typeGetter: () => Person })
-  @Owns()
+  @Relation()
   hasMany: Person[];
-// relationship SPEC //
+// relations SPEC //
 }
 
-@MockResource({
-  endpoint: '/api/people/:id?',
-  deserializer: () => localMockDeserializer
-})
-class Person extends MockMixin<IUser, IUserStatic>() {
+
+class Person {
   @Prop() self: Person;
 
   @Prop() user: User;
@@ -156,20 +143,30 @@ class Person extends MockMixin<IUser, IUserStatic>() {
 }
 
 
-describe('CORE', () => {
+describe('@tdm/transformation', () => {
   describe('Metadata types', () => {
     const userModifier = TargetMetaModifier.create(User);
     const personModifier = TargetMetaModifier.create(Person);
 
     it('should reflect relationships', () => {
-      expect(userModifier.getProp('noRelation').rel).toBeUndefined();
-      expect(userModifier.getProp('belongsTo').rel).toBe('belongsTo');
-      expect(userModifier.getProp('hasOne').rel).toBe('hasOne');
-      expect(userModifier.getProp('hasMany').rel).toBe('hasMany');
+      expect(userModifier.getProp('noRelation').relation).toBeUndefined();
+      expect(userModifier.getProp('belongsTo').relation).toBeDefined();
+      expect(userModifier.getProp('hasOne').relation).toBeDefined();
+      expect(userModifier.getProp('hasMany').relation).toBeDefined();
+    });
+
+    it('should auto-create non-matching foreign key properties', () => {
+      const belongsToFk = userModifier.getProp('belongsToFk');
+      const belongsToFk_id = userModifier.getProp('belongsToFk_id' as any);
+
+      expect(belongsToFk.relation).toBeDefined();
+      expect(belongsToFk.relation.foreignKey).toBe('belongsToFk_id');
+      expect(belongsToFk_id).toBeDefined();
+      expect(belongsToFk_id.foreignKeyOf).toBe(belongsToFk);
     });
 
     it('should reflect alias settings', () => {
-      function checkAlias(name: string, incoming: string, outgoing: string) {
+      function checkAlias(name: keyof User, incoming: string, outgoing: string) {
         const p: PropMetadata = userModifier.getProp(name);
         expect(p.name).toBe(name);
         expect(p.alias.incoming).toBe(incoming);
@@ -183,7 +180,7 @@ describe('CORE', () => {
     });
 
     it('should reflect transform settings', () => {
-      function checkTrans(name: string, incoming?: string, outgoing?: string) {
+      function checkTrans(name: keyof User, incoming?: string, outgoing?: string) {
         const p: PropMetadata = userModifier.getProp(name);
         expect(typeof p.transform.incoming === 'function').toBe(!!incoming);
         expect(typeof p.transform.outgoing === 'function').toBe(!!outgoing);
@@ -222,12 +219,12 @@ describe('CORE', () => {
 
       expect(personModifier.getProp('user').type).toBe(User);
       expect(personModifier.getProp('userWithRef').type).toBe(User);
-      expect(personModifier.getProp('self').type).not.toBe(Person);
+      expect(personModifier.getProp('self').type).toBe(Person);
       expect(personModifier.getProp('selfWithRef').type).toBe(Person);
 
       expect(userModifier.getProp('person').type).toBeUndefined();
       expect(userModifier.getProp('personWithRef').type).toBe(Person);
-      expect(userModifier.getProp('self').type).not.toBe(User);
+      expect(userModifier.getProp('self').type).toBe(User);
       expect(userModifier.getProp('selfWithRef').type).toBe(User);
 
     });

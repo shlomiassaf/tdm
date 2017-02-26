@@ -100,7 +100,7 @@ export class ActionController {
 
   private execute(self: BaseActiveRecord<any> | ActiveRecordCollection<any>, action: ActionMetadata, async: boolean, ...args: any[]): void {
     // TODO: $ar is not promised to be the active record property name, need to publish that for usage
-    if (self.$ar && self.$ar.busy) { // TODO: Should throw or error?
+    if (self['$ar'] && self['$ar'].busy) { // TODO: Should throw or error?
       emitEvent(eventFactory.error(self, new Error('An action is already running')));
       return;
     } else if (!!action.isCollection !== self instanceof ActiveRecordCollection) {

@@ -1,6 +1,6 @@
 {
   "name": "@tdm/tixin",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "TypeScript mixins library with support for staic & instance member relfection",
   "main": "bundle/tdm.tixin.umd.js",
   "module": "index.js",

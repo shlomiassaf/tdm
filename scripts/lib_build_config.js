@@ -45,9 +45,10 @@ function createPkgConfig(dirName, externals) {
 
 // TODO: use package.json to build this.
 const pkgExternals = {
-  core: [/^@tdm\/tixin/],
-  'angular-http': [/^path-to-regexp/, /^@tdm\/tixin/, /^@tdm\/core/],
-  'json-api-mapper': [/^@tdm\/tixin/, /^@tdm\/core/]
+  transformation: [/^@tdm\/transformation/],
+  core: [/^@tdm\/tixin/, /^@tdm\/transformation/],
+  'angular-http': [/^path-to-regexp/, /^@tdm\/tixin/, /^@tdm\/transformation/, /^@tdm\/core/],
+  'json-api-mapper': [/^@tdm\/tixin/, /^@tdm\/transformation/, /^@tdm\/core/]
 };
 
 module.exports = fs.readdirSync(PACKAGE_DIR)

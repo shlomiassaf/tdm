@@ -1,12 +1,10 @@
 import * as deepEqual from 'deep-equal';
 
-import { MockResource, MockDeserializer, MockMixin, TargetMetaModifier } from '@tdm/core/testing';
-import { targetStore, GlobalResourceMetadata } from '@tdm/core';
+import { targetStore } from '@tdm/transformation/ext';
+import { TargetMetaModifier } from '@tdm/transformation/testing';
 import { jsonAPIMapper } from '../src/json-api-mapper';
 
-const localMockDeserializer = new MockDeserializer();
-
-class Article_ {
+class Article {
   id: string;
   title: string;
   category: string;
@@ -14,24 +12,18 @@ class Article_ {
   author: Author;
   comments: Comment[];
 }
-@MockResource({ endpoint: '/api/articles/:id?', deserializer: () => localMockDeserializer})
-class Article extends MockMixin(Article_) { }
 
-class Author_ {
+class Author {
   id: string;
   firstName: string;
   lastName: string;
 }
-@MockResource({ endpoint: '/api/authors/:id?', deserializer: () => localMockDeserializer})
-class Author extends MockMixin(Author_) { }
 
-class Comment_ {
+class Comment {
   id: string;
   body: string;
   author: Author;
 }
-@MockResource({ endpoint: '/api/comments/:id?', deserializer: () => localMockDeserializer})
-class Comment extends MockMixin(Comment_) { }
 
 describe('JSONAPIMapper', () => {
 
@@ -87,7 +79,7 @@ describe('JSONAPIMapper', () => {
         .setName('articles')
         .setIdentity('id')
         .props('id', 'title')
-        .prop('myCat', { alias: 'category' });
+        .prop('myCat' as any, { alias: 'category' });
 
 
       const res: Article = targetStore.deserialize(jsonAPIMapper.deserializer(basic.payload, Article)) as any;
@@ -96,14 +88,14 @@ describe('JSONAPIMapper', () => {
       expect(res.id).toEqual(basic.expected.id);
       expect(res.title).toEqual(basic.expected.title);
       expect(res.category).toBeUndefined();
-      expect(res['myCat']).toEqual(basic.expected.category);
+      expect(res['myCat' as any]).toEqual(basic.expected.category);
     });
 
     it('should set the id', () => {
       articleModifier
         .setName('articles')
-        .setIdentity('myId')
-        .props('myId', 'title');
+        .setIdentity('myId' as any)
+        .props('myId' as any, 'title');
 
 
       const res: Article = targetStore.deserialize(jsonAPIMapper.deserializer(basic.payload, Article)) as any;
@@ -111,14 +103,14 @@ describe('JSONAPIMapper', () => {
       expect(res instanceof Article).toBe(true);
       expect(res.title).toEqual(basic.expected.title);
       expect(res.category).toEqual(basic.expected.category);
-      expect(res['myId']).toEqual(basic.expected.id);
+      expect(res['myId' as any]).toEqual(basic.expected.id);
     });
 
     it('should set the aliased id', () => {
       articleModifier
         .setName('articles')
-        .setIdentity('myId')
-        .prop('myId', { alias: 'id' })
+        .setIdentity('myId' as any)
+        .prop('myId' as any, { alias: 'id' })
         .prop('title');
 
 
@@ -127,16 +119,14 @@ describe('JSONAPIMapper', () => {
       expect(res.id).toBeUndefined();
       expect(res.title).toEqual(basic.expected.title);
       expect(res.category).toEqual(basic.expected.category);
-      expect(res['myId']).toEqual(basic.expected.id);
+      expect(res['myId' as any]).toEqual(basic.expected.id);
     });
 
     it('should only include decorated properties in exclusive mode', () => {
       articleModifier
-        .updateResource(new GlobalResourceMetadata({
-          name: 'articles',
-          transformStrategy: 'exclusive'
-        }))
+        .setName('articles')
         .setIdentity('id')
+        .classProp('transformStrategy', 'exclusive')
         .props('id', 'title');
 
 
@@ -227,16 +217,14 @@ describe('JSONAPIMapper', () => {
     });
 
     it('should deserialize an included resources with explicit relations', () => {
-      authorModifier.setName('people').setIdentity('id').props('id', 'firstName', 'lastName').build();
+      authorModifier.setName('people').setIdentity('id').props('id', 'firstName', 'lastName');
 
       articleModifier.setName('articles').setIdentity('id').props('id', 'title', 'category')
-        .prop('comments', { typeGetter: () => Comment }, Array).owns('comments')
-        .prop('author', Author).belongsTo('author')
-        .build();
+        .prop('comments', { typeGetter: () => Comment }, Array).relation('comments')
+        .prop('author', Author).relation('author');
 
       commentModifier.setName('comments').setIdentity('id').props('id', 'body')
-        .prop('author', Author).belongsTo('author')
-        .build();
+        .prop('author', Author).relation('author');
 
       const res: Article = targetStore.deserialize(jsonAPIMapper.deserializer(included.payload, Article)) as any;
 
@@ -310,14 +298,14 @@ describe('JSONAPIMapper', () => {
         .setName('articles')
         .setIdentity('id')
         .props('id', 'title')
-        .prop('myCat', { alias: 'category' });
+        .prop('myCat' as any, { alias: 'category' });
 
 
       const resource: Article = targetStore.deserialize(jsonAPIMapper.deserializer(basic.payload, Article)) as any;
 
       expect(resource instanceof Article).toBe(true);
       expect(resource.category).toBeUndefined();
-      expect(resource['myCat']).toEqual(basic.expected.category);
+      expect(resource['myCat' as any]).toEqual(basic.expected.category);
 
       const ser = targetStore.serialize(Article, jsonAPIMapper.serializer(resource));
       expect(deepEqual(ser, basic.payload)).toBe(true);
@@ -327,8 +315,8 @@ describe('JSONAPIMapper', () => {
     it('should handle different id name and delete it from output', () => {
       articleModifier
         .setName('articles')
-        .setIdentity('myId')
-        .props('myId', 'title');
+        .setIdentity('myId' as any)
+        .props('myId' as any, 'title');
 
 
       const resource: Article = targetStore.deserialize(jsonAPIMapper.deserializer(basic.payload, Article)) as any;
@@ -339,11 +327,9 @@ describe('JSONAPIMapper', () => {
     it('should handle different id with alias name and delete it from output', () => {
       articleModifier
         .setName('articles')
-        .setIdentity('myId')
-        .prop('myId', { alias: 'id' })
-        .prop('title')
-        .build();
-
+        .setIdentity('myId' as any)
+        .prop('myId' as any, { alias: 'id' })
+        .prop('title');
 
       const resource: Article = targetStore.deserialize(jsonAPIMapper.deserializer(basic.payload, Article)) as any;
       const ser = targetStore.serialize(Article, jsonAPIMapper.serializer(resource));
@@ -352,11 +338,9 @@ describe('JSONAPIMapper', () => {
 
     it('should only include decorated properties in exclusive mode', () => {
       articleModifier
-        .updateResource(new GlobalResourceMetadata({
-          name: 'articles',
-          transformStrategy: 'exclusive'
-        }))
+        .setName('articles')
         .setIdentity('id')
+        .classProp('transformStrategy', 'exclusive')
         .props('id', 'title');
 
 
@@ -384,14 +368,12 @@ describe('JSONAPIMapper', () => {
 
     it('should serialize an included resources', () => {
       articleModifier.setName('articles').setIdentity('id').props('id', 'title', 'category')
-        .prop('comments', { typeGetter: () => Comment }, Array).owns('comments')
-        .prop('author', Author).belongsTo('author')
-        .build();
+        .prop('comments', { typeGetter: () => Comment }, Array).relation('comments')
+        .prop('author', Author).relation('author');
 
-      authorModifier.setName('people').setIdentity('id').props('id', 'firstName', 'lastName').build();
+      authorModifier.setName('people').setIdentity('id').props('id', 'firstName', 'lastName');
       commentModifier.setName('comments').setIdentity('id').props('id', 'body')
-        .prop('author', Author).belongsTo('author')
-        .build();
+        .prop('author', Author).relation('author');
 
 
 

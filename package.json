@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
+    "lib:commitVersion": "node ./config/module-helpers.js",
     "lib:detectBump": "node ./config/module-helpers.js",
     "lib:printTsPaths": "node ./config/module-helpers.js",
     "build:lib": "npm run clean:lib && node ./scripts/build_lib.js",

@@ -8,11 +8,9 @@ import {
   PropMetadata,
   PlainSerializer,
   targetStore
-} from '@tdm/core';
+} from '@tdm/transformation/ext';
 
-import {
-  TopLevel, ResourceObject, ResourceIdentifierObject
-} from './json-api';
+import { TopLevel, ResourceObject, ResourceIdentifierObject } from './json-api';
 import * as japiUtils from './json-api-utils';
 
 /**
@@ -39,7 +37,6 @@ export class JSONAPIDeserializeMapper extends DeserializeMapper {
       return this.existing.get(this.uuid(this.current.type, this.current.id));
     }
   }
-
 
   constructor(public source: TopLevel, sourceType: any) {
     super(source, sourceType);
@@ -209,7 +206,7 @@ export class JSONAPISerializeMapper extends SerializeMapper {
 
   private serializeObject(obj: any, doc: TopLevel, container: PropertyContainer): ResourceObject | ResourceIdentifierObject {
     const id = obj[targetStore.getIdentityKey(container.target)];
-    const type = targetStore.getName(container.target);
+    const type = targetStore.getTargetName(container.target);
 
     const uuid = this.uuid(type, id);
 
@@ -226,17 +223,17 @@ export class JSONAPISerializeMapper extends SerializeMapper {
     this.cache.set(uuid, data);
 
     const cb = (prop: PoClassPropertyMap) => {
-      if (prop.prop && prop.prop.rel) {
+      if (prop.prop && prop.prop.relation) {
         const type = prop.prop.type;
-        const name = targetStore.getName(type);
+        const name = targetStore.getTargetName(type as any);
 
         if (!type || !name) {
           // TODO: handle without error
           throw new Error('Property Relation without type or name, try setting typeGetter in prop');
         }
 
-        const isArray = prop.prop.rel === 'hasMany' && Array.isArray(obj[prop.cls]);
-        const idKey = targetStore.getIdentityKey(type);
+        const isArray = prop.prop.relation && prop.prop.typedArray && Array.isArray(obj[prop.cls]);
+        const idKey = targetStore.getIdentityKey(type as any);
         const createRel = (id: string) => ({ id, type: name });
 
         if (isArray) {

@@ -55,7 +55,7 @@ function createVersionCache() {
 module.exports.createVersionCache = createVersionCache;
 
 function updateVersionCache() {
-  fs.writeJson(helpers.root('version_cache.json'), createVersionCache());
+  fs.writeJsonSync(helpers.root('version_cache.json'), createVersionCache());
 }
 module.exports.updateVersionCache = updateVersionCache;
 
@@ -81,6 +81,18 @@ function getPackagesThatNeedVersionBump() {
   return currState;
 }
 module.exports.getPackagesThatNeedVersionBump = getPackagesThatNeedVersionBump;
+
+if (helpers.hasNpmFlag('commitVersion')) {
+  console.log('OLD VERSION MAP:\n');
+  console.log(JSON.stringify(fs.readJsonSync(helpers.root('version_cache.json')), null, 2));
+
+  console.log('\n\n\n\n');
+
+  updateVersionCache();
+
+  console.log('NEW VERSION MAP:\n');
+  console.log(JSON.stringify(fs.readJsonSync(helpers.root('version_cache.json')), null, 2));
+}
 
 if (helpers.hasNpmFlag('printTsPaths')) {
   console.log(
