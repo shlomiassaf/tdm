@@ -39,11 +39,16 @@ function runMeta() {
   const meta = metadata.shift();
 
   if (meta) {
+    console.log(`Compiling ${meta.dir}\n`);
+
     const tsConfig = meta.tsConfigUpdate( jsonfile.readFileSync(root(`tsconfig.package.json`)) );
     jsonfile.writeFileSync(root('.tsconfig.tmp.json'), tsConfig, {spaces: 2});
 
     Object.assign(meta, {tsConfig: './.tsconfig.tmp.json'});
     const config = resolveConfig(root('config/webpack.package.js'), meta);
+
+    console.log(`Include: ${tsConfig.include.join(', ')}\n`);
+    console.log(`OutDir: ${tsConfig.compilerOptions.outDir}\n`);
 
     return runWebpack(config)
       .done
@@ -66,7 +71,7 @@ function runMeta() {
   }
 }
 
-function moveDir(from, to) {
+function moveDir(from, to) { return Promise.resolve();
 
   try {
     if (fs.existsSync(from)) {

@@ -37,6 +37,8 @@ function createPkgConfig(dirName, externals) {
         config.compilerOptions.outDir += dirName;
       }
 
+      // TODO: check why this go outside of folder
+      if (dirName === 'transformation') config.compilerOptions.outDir += '/transformation';
       config.include = [`./src/@tdm/${dirName}/src/**/*.ts`];
       return config;
     }
@@ -45,7 +47,7 @@ function createPkgConfig(dirName, externals) {
 
 // TODO: use package.json to build this.
 const pkgExternals = {
-  transformation: [/^@tdm\/transformation/],
+  transformation: [/^@tdm\/tixin/],
   core: [/^@tdm\/tixin/, /^@tdm\/transformation/],
   'angular-http': [/^path-to-regexp/, /^@tdm\/tixin/, /^@tdm\/transformation/, /^@tdm\/core/],
   'json-api-mapper': [/^@tdm\/tixin/, /^@tdm\/transformation/, /^@tdm\/core/]

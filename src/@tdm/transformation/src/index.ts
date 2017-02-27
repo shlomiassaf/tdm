@@ -9,7 +9,8 @@ export {
 export {
   PropMetadataArgs,
   RelationMetadataArgs,
-  ExcludeMetadataArgs
+  ExcludeMetadataArgs,
+  TransformableMetadataArgs
 } from './metadata';
 
 export { directMapper } from './mapping';
@@ -19,6 +20,7 @@ export { Factory, Identity, SetName } from './decorators';
 export { Prop } from './add/prop';
 export { Exclude } from './add/exclude';
 export { Relation } from './add/relation';
+export { Transformable } from './add/transformable';
 
 
 // public serialize / deserialize functions

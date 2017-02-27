@@ -1,7 +1,9 @@
 export {
   stringify,
   isString,
-  isFunction
+  isFunction,
+  isPrimitive,
+  DualKeyMap
 } from './fw';
 
 export {
