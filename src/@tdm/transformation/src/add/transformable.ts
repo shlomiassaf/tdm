@@ -6,7 +6,9 @@ import { targetStore, TargetStore, ClassMetadata, TransformableMetadataArgs } fr
  * @param def
  */
 export function Transformable(def: TransformableMetadataArgs): Function {
-  return (...args: any[]) => targetStore.setTransformable(def, ...args);
+  return (...args: any[]) => {
+    targetStore.setTransformable(def, ...args);
+  };
 }
 
 const allowedKeys: Array<keyof TransformableMetadataArgs>

@@ -7,7 +7,9 @@ import { targetStore, TargetStore, ExcludeMetadata, ExcludeMetadataArgs } from '
  * @param def
  */
 export function Exclude(def?: ExcludeMetadataArgs): Function {
-  return (...args: any[]) => targetStore.addExclude(def, ...args);
+  return (...args: any[]) =>{
+    targetStore.addExclude(def, ...args);
+  };
 }
 
 TargetStore.prototype.addExclude = targetStoreSetter<ExcludeMetadata, ExcludeMetadataArgs>(ExcludeMetadata);

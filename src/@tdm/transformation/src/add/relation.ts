@@ -43,7 +43,9 @@ registerEvent(TargetStoreEvents.onCreateMetadata, RelationMetadata, Temp.onCreat
  * @param def
  */
 export function Relation(def?: RelationMetadataArgs): Function {
-  return (...args: any[]) => targetStore.addRelation(def, ...args);
+  return (...args: any[]) => {
+    targetStore.addRelation(def, ...args);
+  };
 }
 
 TargetStore.prototype.addRelation = targetStoreSetter<RelationMetadata, RelationMetadataArgs>(RelationMetadata);

@@ -6,7 +6,9 @@ import { targetStore, TargetStore, PropMetadata, PropMetadataArgs } from '../met
  * @param def
  */
 export function Prop(def?: PropMetadataArgs): Function {
-  return (...args: any[]) => targetStore.addProp(def, ...args);
+  return (...args: any[]) => {
+    targetStore.addProp(def, ...args);
+  };
 }
 
 TargetStore.prototype.addProp = targetStoreSetter<PropMetadata, PropMetadataArgs>(PropMetadata);
