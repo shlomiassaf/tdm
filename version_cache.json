@@ -4,11 +4,11 @@
     "version": "1.0.0-alpha.6"
   },
   "core": {
-    "commit": "0f59be710bd6e37f8a5d23533fd28f7f7d1470a2",
+    "commit": "0e5a75e41b0dee8fbef35b301587e439dad7f824",
     "version": "1.0.0-alpha.7"
   },
   "json-api-mapper": {
-    "commit": "bc3c1387582330ab0c18077488b60c59012234d7",
+    "commit": "0e5a75e41b0dee8fbef35b301587e439dad7f824",
     "version": "1.0.0-alpha.2"
   },
   "tixin": {
@@ -16,7 +16,7 @@
     "version": "1.0.0-alpha.2"
   },
   "transformation": {
-    "commit": "0f59be710bd6e37f8a5d23533fd28f7f7d1470a2",
+    "commit": "0e5a75e41b0dee8fbef35b301587e439dad7f824",
     "version": "1.0.0-alpha.1"
   }
 }
