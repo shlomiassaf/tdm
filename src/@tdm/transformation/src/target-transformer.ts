@@ -22,11 +22,8 @@ import {
  * @param transformNameStrategy
  * @returns {[string,string]|[string,string]}
  */
-export function namingStrategyMap(dir: TransformDir, transformNameStrategy: NamingStrategyConfig): string[] | undefined {
-  return transformNameStrategy && isFunction(transformNameStrategy[dir])
-    ? dir === 'incoming' ? ['cls', 'obj'] : ['obj', 'cls']
-    : undefined
-  ;
+export function namingStrategyMap(dir: TransformDir, transformNameStrategy: NamingStrategyConfig): boolean {
+  return transformNameStrategy && isFunction(transformNameStrategy[dir]);
 }
 
 /**
@@ -38,7 +35,16 @@ export function getInstructions(meta: TargetMetadata, dir: TransformDir): Compil
   const excluded = meta.getValues(ExcludeMetadata)
     .filter(e => !e.from || e.from === dir);
 
-  const naming: string[] = namingStrategyMap(dir, meta.transformNameStrategy);
+  // in exclusive mode there is no point in have 2 transformation strategies.
+  // incoming is never there since incoming keys are not calculated, only defined Props.
+  if (meta.transformStrategy === 'exclusive') {
+    dir = 'outgoing';
+  }
+
+  // only apply naming strategy on outgoing, incoming has no effect here
+  const naming = namingStrategyMap(dir, meta.transformNameStrategy);
+
+
 
   const fkMap = new Map<PropMetadata, PoClassPropertyMap[]>();
 
@@ -54,7 +60,7 @@ export function getInstructions(meta: TargetMetadata, dir: TransformDir): Compil
 
       // apply naming strategy when DONT HAVE ALIAS!
       if (!obj.exclude && naming && obj.cls === obj.obj) {
-        obj[naming[0]] = meta.transformNameStrategy[dir](obj[naming[1]]);
+        obj.obj = meta.transformNameStrategy[dir](obj.cls);
       }
 
       // store the PoClassPropertyMap of a belongsTo PropMetadata relation
@@ -124,9 +130,9 @@ export class TargetTransformer {
       return new ExclusivePropertyContainer(this.meta.target, this.incoming);
     } else {
       const rename = namingStrategyMap('incoming', this.meta.transformNameStrategy)
-          ? (prop) => prop.cls = this.meta.transformNameStrategy.incoming(prop.obj)
-          : undefined
-        ;
+        ? (prop) => prop.cls = this.meta.transformNameStrategy.incoming(prop.obj)
+        : undefined
+      ;
       return new InclusivePropertyContainer(this.meta.target, this.incoming, deserializePredicate, rename);
     }
   })
@@ -137,9 +143,9 @@ export class TargetTransformer {
       return new ExclusivePropertyContainer(this.meta.target, this.outgoing);
     } else {
       const rename = namingStrategyMap('outgoing', this.meta.transformNameStrategy)
-          ? (prop) => prop.obj = this.meta.transformNameStrategy.outgoing(prop.cls)
-          : undefined
-        ;
+        ? (prop) => prop.obj = this.meta.transformNameStrategy.outgoing(prop.cls)
+        : undefined
+      ;
       return new InclusivePropertyContainer(this.meta.target, this.outgoing, serializePredicate, rename);
     }
   })

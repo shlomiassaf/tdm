@@ -47,6 +47,9 @@ export interface TransformableMetadataArgs {
    * The example above converts incoming server object properties to camel case (myProperty)
    * and all outgoing client object properties to snake case (my_property)
    *
+   * > In exclusive mode (transformStrategy = 'exclusive` or decorating a class with @Exclude) there
+   * is no meaning to the `incoming` strategy since incoming keys are not part of the process, only
+   * properties defined with @Prop. This means that the outgoing strategy is a mapper for both incoming and outgoing.
    * @optional
    * @default undefined
    */

@@ -19,22 +19,16 @@ export class TargetStore {
     this.targets.set(PlainObject, new DualKeyMap<MetaFactoryStatic, PropertyKey, any>());
   }
 
-  setFactory(target: Constructor<any>, fn: (isColl: boolean) => any): void {
-    this.set(target, ClassMetadata, 'factory', fn);
-  }
-
-  setName(target: Constructor<any>, name: string): void {
+  setClassProp<P extends keyof ClassMetadata>(target: Constructor<any>, key: P, value: ClassMetadata[P]): void {
     if (this.builtTargets.has(target)) {
-      this.builtTargets.get(target).name = name;
-    } else {
-      this.set(target, ClassMetadata, 'name', name);
+      this.builtTargets.get(target)[key] = value;
     }
-    this.namedTargets.set(name, target);
-  }
 
-  setIdentity(...args: any[]): void;
-  setIdentity(target: Constructor<any>, key: PropertyKey): void {
-    this.set(target, ClassMetadata, 'identity', key);
+    if (key === 'name') {
+      this.namedTargets.set(value as any, target);
+    }
+
+    this.set(target, ClassMetadata, key, value);
   }
 
   hasTarget(target: any): boolean {

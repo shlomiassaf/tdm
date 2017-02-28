@@ -8,6 +8,7 @@ function root(args) {
   return path.join.apply(path, [ROOT].concat(args));
 }
 
+
 const PACKAGE_DIR = root('src', '@tdm');
 
 function titleCamelCase(value) {
@@ -53,6 +54,13 @@ const pkgExternals = {
   'json-api-mapper': [/^@tdm\/tixin/, /^@tdm\/transformation/, /^@tdm\/core/]
 };
 
+
+let selected;
+const selectIdx = process.argv.indexOf('--select');
+if (selectIdx > -1) {
+  selected = process.argv[selectIdx + 1].split(',').map( v => v.trim() );
+}
 module.exports = fs.readdirSync(PACKAGE_DIR)
+  .filter( dirName => selected ? selected.indexOf(dirName) > -1 : true)
   .filter( dirName => fs.statSync(path.join(PACKAGE_DIR, dirName)).isDirectory() )
   .map( dirName => createPkgConfig(dirName, pkgExternals[dirName]));

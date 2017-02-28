@@ -22,6 +22,9 @@ export { Exclude } from './add/exclude';
 export { Relation } from './add/relation';
 export { Transformable } from './add/transformable';
 
+// TODO: this is for node support, since esm can be used on node (cant require @tdm/transformation/ext)
+//        this introduces noise to the main import...
+export * from './ext';
 
 // public serialize / deserialize functions
 import { Constructor } from './fw';

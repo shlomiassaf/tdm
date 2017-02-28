@@ -43,15 +43,19 @@ class TestTargetStore extends TargetStore {
     }
   }
 
-  static removeClassProp(target: Constructor<any>, key: keyof ClassMetadata) {
+  static getClassProp<P extends keyof ClassMetadata>(target: Constructor<any>, key: P): ClassMetadata[P] | undefined {
     if (targetStore.targets.has(target)) {
-      return targetStore.targets.get(target).delete(ClassMetadata, key);
+      return targetStore.targets.get(target).get(ClassMetadata, key);
     }
   }
 
-  static setClassProp<P extends keyof ClassMetadata>(target: Constructor<any>, key: P, value: ClassMetadata[P]): void {
+  static removeClassProp(target: Constructor<any>, key: keyof ClassMetadata) {
+    if (targetStore.builtTargets.has(target)) {
+      delete targetStore.builtTargets.get(target)[key];
+    }
+
     if (targetStore.targets.has(target)) {
-      targetStore.targets.get(target).set(ClassMetadata, key, value as any);  // why TS needs help here?
+      return targetStore.targets.get(target).delete(ClassMetadata, key);
     }
   }
 }
@@ -83,32 +87,19 @@ class TestTargetMetadataStore extends TargetMetadata {
   static removeProp = TestTargetMetadataStore.removeFactory(PropMetadata);
   static removeExclude = TestTargetMetadataStore.removeFactory(ExcludeMetadata);
 
-  static removeClassProp(target: Constructor<any>, propName: keyof ClassMetadata): boolean {
+  static getClassProp<P extends keyof ClassMetadata>(target: Constructor<any>, propName: keyof ClassMetadata): ClassMetadata[P] {
     const t = getTargetMetaStore(target);
     if (t) {
-      delete t[propName];
+      return t[propName];
     }
+  }
+
+  static removeClassProp(target: Constructor<any>, propName: keyof ClassMetadata): boolean {
     return TestTargetStore.removeClassProp(target, propName);
   }
 
   static setClassProp<P extends keyof ClassMetadata>(target: Constructor<any>, propName: P, value: ClassMetadata[P]): void {
-    const t = getTargetMetaStore(target);
-    if (t) {
-      t[propName] = value;
-    }
-    return TestTargetStore.setClassProp(target, propName, value);
-  }
-
-  static setName(target: Constructor<any>, name?: string): void {
-    targetStore.setName(target, name || stringify(target));
-  }
-
-  static setIdentity(target: Constructor<any>, key?: string): void {
-    targetStore.setIdentity(target, key || undefined);
-  }
-
-  static setFactory(target: Constructor<any>, fn?: (isColl: boolean) => any): void {
-    targetStore.setFactory(target, fn || undefined);
+    targetStore.setClassProp(target, propName, value);
   }
 
   static addRelation(target: Constructor<any>, key: string, meta?: RelationMetadataArgs): void {
@@ -145,7 +136,7 @@ export class TargetMetaModifier<T, Z> {
    * @returns {TargetMetaModifier}
    */
   setName(name?: string): this {
-    TestTargetMetadataStore.setName(this.target, name);
+    TestTargetMetadataStore.setClassProp(this.target, 'name', name);
     return this;
   }
 
@@ -156,12 +147,7 @@ export class TargetMetaModifier<T, Z> {
    * @returns {TargetMetaModifier}
    */
   setIdentity(key?: keyof T): this {
-    TestTargetMetadataStore.setIdentity(this.target, key);
-    return this;
-  }
-
-  setFactory(fn?: (isColl: boolean) => any): this {
-    TestTargetMetadataStore.setFactory(this.target, fn);
+    TestTargetMetadataStore.setClassProp(this.target, 'identity', key);
     return this;
   }
 
@@ -189,6 +175,10 @@ export class TargetMetaModifier<T, Z> {
 
   getExclude<P extends keyof T>(key: P): ExcludeMetadata {
     return TestTargetMetadataStore.getExclude(this.target, key);
+  }
+
+  getClassProp<P extends keyof ClassMetadata>(key: P): ClassMetadata[P] {
+    return TestTargetMetadataStore.getClassProp(this.target, key);
   }
 
   classProp<P extends keyof ClassMetadata>(key: P, value?: ClassMetadata[P] | false): this {

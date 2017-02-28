@@ -48,7 +48,7 @@ export class InclusivePropertyContainer implements PropertyContainer {
     public target: any,
     private compiled: CompiledTransformation,
     private predicate: (p: PoClassPropertyMap) => boolean,
-    private renamer: (po: PoClassPropertyMap) => string
+    private renamer?: (po: PoClassPropertyMap) => string
   ){ }
 
   forEach(keys: string[], cb: (pMap: PoClassPropertyMap) => void): void {
