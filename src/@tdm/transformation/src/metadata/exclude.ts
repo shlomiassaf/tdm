@@ -1,9 +1,12 @@
 import {
+  MapExt,
   TransformDir,
   BaseMetadata,
   DecoratorInfo,
   MetaFactoryInstance,
-  decoratorInfo
+  registerFactory,
+  decoratorInfo,
+  ensureTargetIsType
 } from '../fw';
 
 import { ClassMetadata } from './class-metadata';
@@ -29,12 +32,13 @@ export class ExcludeMetadata extends BaseMetadata {
 
   }
 
-  static metaFactory(metaArgs: ExcludeMetadataArgs, target: Object | Function, key: PropertyKey, desc: PropertyDescriptor): MetaFactoryInstance {
+  static metaFactory(metaArgs: ExcludeMetadataArgs, target: Object | Function, key: PropertyKey, desc?: PropertyDescriptor): MetaFactoryInstance<ExcludeMetadata> {
     const info = decoratorInfo(target, key, desc);
-
+    const type = ensureTargetIsType(target);
     if (info.isStatic) {
       return {
         info,
+        target: type,
         metaClassKey: ClassMetadata,
         metaPropKey: 'transformStrategy',
         metaValue: 'exclusive'
@@ -42,10 +46,20 @@ export class ExcludeMetadata extends BaseMetadata {
     } else {
       return {
         info,
+        target: type,
         metaClassKey: ExcludeMetadata,
         metaPropKey: info.name,
         metaValue: new ExcludeMetadata(metaArgs, info)
       }
     }
+  }
+
+  static register = registerFactory<ExcludeMetadata>();
+
+  static extend(from: Map<PropertyKey, ExcludeMetadata>, to: Map<PropertyKey, ExcludeMetadata> | undefined): Map<PropertyKey, ExcludeMetadata> {
+    return to
+      ? MapExt.mergeInto(to, from)
+      : new Map<PropertyKey, ExcludeMetadata>(from.entries())
+    ;
   }
 }

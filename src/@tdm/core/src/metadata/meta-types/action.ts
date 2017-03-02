@@ -1,6 +1,7 @@
-import { DeserializerFactory, ExecuteContext, ExecuteResponse, ActionOptions } from "../../core/index";
+import { metaFactoryFactory, BaseMetadata, DecoratorInfo, MapExt, targetStore, MetaFactoryInstance } from '@tdm/transformation';
+
+import { DeserializerFactory, ExecuteContext, ExecuteResponse, ActionOptions } from '../../core/interfaces';
 import { ValidationSchedule } from './schema';
-import { MemberDecoratorMetadata, DecoratorInfo } from './core';
 
 export enum ActionMethodType {
   /**
@@ -48,7 +49,7 @@ export interface ActionMetadataArgs<T> {
   sendBody?: boolean;
 }
 
-export class ActionMetadata extends MemberDecoratorMetadata {
+export class ActionMetadata extends BaseMetadata {
   method: ActionMethodType;
   isCollection: boolean | undefined;
   deserializer: DeserializerFactory;
@@ -59,5 +60,43 @@ export class ActionMetadata extends MemberDecoratorMetadata {
 
   constructor(public readonly metaArgs: ActionMetadataArgs<any>, info: DecoratorInfo) {
     super(info);
+  }
+}
+
+export class ExtendActionMetadata extends ActionMetadata {
+  constructor(metaArgs: Partial<ActionMetadataArgs<any>>, info: DecoratorInfo)  {
+    super(metaArgs as any, info);
+    Object.assign(this, metaArgs)
+  }
+
+  static metaFactory = metaFactoryFactory<ActionMetadataArgs<any>, ExtendActionMetadata>(ExtendActionMetadata);
+
+  static register(meta: MetaFactoryInstance<ExtendActionMetadata>): void {
+    const curr = targetStore.getMetaFor<any, ExtendActionMetadata[]>(meta.target, meta.metaClassKey, meta.info.name as any) || [];
+    curr.push(meta.metaValue);
+    targetStore.setMetaFor<any, ExtendActionMetadata[]>(meta.target, meta.metaClassKey, meta.info.name as any, curr);
+  }
+
+  static extend(from: Map<PropertyKey, ExtendActionMetadata[]>, to: Map<PropertyKey, ExtendActionMetadata[]> | undefined): Map<PropertyKey, ExtendActionMetadata[]> {
+    if (!to) {
+      to = new Map<PropertyKey, ExtendActionMetadata[]>();
+    }
+
+      MapExt.asKeyValArray(from)
+        .forEach( ([k, v]) => {
+          if (!to.has(k)) {
+            to.set(k, v.slice())
+          } else {
+            const arrFrom = v;
+            const arrTo = to.get(k);
+            arrFrom.forEach( action => {
+              if (!arrTo.some( a => a.name === action.name )) {
+                arrTo.push(action);
+              }
+            });
+          }
+        });
+
+    return to;
   }
 }

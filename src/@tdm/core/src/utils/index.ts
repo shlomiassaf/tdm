@@ -1,20 +1,7 @@
-import { Constructor } from './type-utils';
+import { isString, isNumber, isFunction, Constructor } from '@tdm/transformation';
 export * from './type-utils';
-export * from './SetMapExt';
 export * from './plain-serializer';
 
-export function isStaticDecorator(target: any): boolean {
-  return isFunction(target);
-}
-
-/**
- * Return the class from a decorator target.
- * If the target is the prototype: returns the type of the prototype.
- * If the target is the type: returns the type.
- */
-export function ensureTargetIsType(type: any): any {
-  return isFunction(type) ? type : type.constructor;
-}
 
 /**
  * Search search each object in "objects", right to left, for a key and returns the value.
@@ -34,14 +21,6 @@ export function findProp<T, P extends keyof T>(key: P, fallback: T, ...objects: 
 }
 
 
-export function isNumber(obj: any): obj is number {
-  return typeof obj === 'number';
-}
-
-export function isString(obj: any): obj is string {
-  return typeof obj === 'string';
-}
-
 export function isSymbol(obj: any): obj is symbol {
   return typeof obj === 'symbol';
 }
@@ -50,47 +29,6 @@ export function isPropertyKey(obj: any): obj is PropertyKey {
   return isString(obj) || isSymbol(obj) || isNumber(obj);
 }
 
-const undef = undefined;
-export function isUndefined(obj: any): obj is undefined {
-  return obj === undef;
-}
-
-export function isFunction(obj: any): obj is Function {
-  return typeof obj === 'function';
-}
-
-export function isJsObject(obj: any): boolean {
-  return obj !== null && (typeof obj === 'function' || typeof obj === 'object');
-}
-export function isPrimitive(obj: any): boolean {
-  return !isJsObject(obj);
-}
-
-/**
- * See https://github.com/angular/angular/blob/2.0.0-rc.4/modules/%40angular/facade/src/lang.ts#L149
- * @param token
- * @returns {any}
- */
-export function stringify(token: any): string {
-  if (typeof token === 'string') {
-    return token;
-  }
-
-  if (token === undefined || token === null) {
-    return '' + token;
-  }
-
-  if (token.name) {
-    return token.name;
-  }
-  if (token.overriddenName) {
-    return token.overriddenName;
-  }
-
-  var res = token.toString();
-  var newLineIndex = res.indexOf('\n');
-  return (newLineIndex === -1) ? res : res.substring(0, newLineIndex);
-}
 
 export function noop(...args: any[]): void { };
 
@@ -123,12 +61,6 @@ export function getProtoChain(cls: Constructor<any>): Constructor<any>[] {
   }
   return classes;
 }
-
-export const reflection = {
-  designType(target: any, key: string | symbol): any {
-    return (Reflect as any).getMetadata("design:type", target, key);
-  }
-};
 
 export const array = function() {
   const scalar = v => !Array.isArray(v);

@@ -1,4 +1,6 @@
-import { ActionMetadata, ActionMetadataArgs, isFunction, DecoratorInfo } from '@tdm/core';
+import { DecoratorInfo, metaFactoryFactory, isFunction, MetaFactoryInstance } from '@tdm/transformation';
+
+import { ActionMetadata, ActionMetadataArgs } from '@tdm/core';
 import { Params } from '../../utils/match-pattern';
 import { BaseHttpConfig, TrailingSlashesStrategy } from '../../core/interfaces';
 import { mapMethod, MappedMethod, HttpActionMethodType } from './method-mapper';
@@ -10,9 +12,7 @@ export interface HttpActionMetadataArgs extends ActionMetadataArgs<HttpActionMet
    * @default undefined
    */
   endpoint?: string;
-
 }
-
 
 export class HttpActionMetadata extends ActionMetadata {
   methodInfo: MappedMethod;
@@ -27,7 +27,12 @@ export class HttpActionMetadata extends ActionMetadata {
   constructor(obj: HttpActionMetadataArgs, info: DecoratorInfo) {
     super(obj, info);
 
+    if (!obj.hasOwnProperty('method')) {
+      throw new Error('Resource Action method is mandatory.');
+    }
+
     Object.assign(this, obj);
+
     this.methodInfo = mapMethod(obj.method);
     this.method = this.methodInfo.method;
 
@@ -46,14 +51,7 @@ export class HttpActionMetadata extends ActionMetadata {
     }
   }
 
+  static metaFactory = metaFactoryFactory<HttpActionMetadataArgs, HttpActionMetadata>(HttpActionMetadata);
 
-  static DEFAULTS: HttpActionMetadataArgs = {
-    method: undefined
-  };
-
-  static VALIDATE(obj: HttpActionMetadataArgs): void {
-    if (!obj.hasOwnProperty('method')) {
-      throw new Error('Resource Action method is mandatory.');
-    }
-  }
+  static register: (meta: MetaFactoryInstance<HttpActionMetadata>) => void;
 }

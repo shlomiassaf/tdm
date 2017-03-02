@@ -22,8 +22,15 @@ module.exports = function(metadata) {
  * Licensed under MIT
  */`;
 
-  const entry = fs.existsSync(helpers.root(`src/@tdm/${metadata.dir}/src/all.ts`))
-    ? helpers.root(`src/@tdm/${metadata.dir}/src/all.ts`)
+  // bundle mode means the package has plugins, the plugins are not part of the intex.ts
+  // so a bundle.ts file is added to the package with all plugin imports.
+  // IMPORTANT: package.json "typings" property should point to "bundle.d.ts" for typings in
+  // applications that use the UMD bundle, this however means that environments that use modules
+  // will see type extensions that are not really there until import is done to the extension...
+  const bundleMode = fs.existsSync(helpers.root(`src/@tdm/${metadata.dir}/src/bundle.ts`));
+
+  const entry = bundleMode
+    ? helpers.root(`src/@tdm/${metadata.dir}/src/bundle.ts`)
     : helpers.root(`src/@tdm/${metadata.dir}/src/index.ts`)
   ;
 
@@ -89,10 +96,26 @@ module.exports = function(metadata) {
         // IT ONLY MERGE THE TOP-LEVEL PROPERTIES (NOT DEEP)
         this.plugin('done', function(stats) {
           const pkgDest = helpers.root('dist_package/@tdm/', metadata.dir, 'package.json');
+
           const merged = Object.assign(
             jsonfile.readFileSync(helpers.root('src/@tdm', 'package.json')),
             jsonfile.readFileSync(helpers.root('src/@tdm/', metadata.dir, 'package.json'))
           );
+
+          // update versions of @tdm packages that this package depends on.
+          ['dependencies', 'peerDependencies']
+            .forEach( key => {
+              const deps = merged[key];
+              if (deps) {
+                Object.keys(metadata.versions)
+                  .forEach( pkgName => {
+                    if (deps.hasOwnProperty(pkgName)) {
+                      deps[pkgName] = metadata.versions[pkgName];
+                    }
+                  });
+              }
+            });
+
 
           jsonfile.writeFileSync(pkgDest, merged, {spaces: 2});
 

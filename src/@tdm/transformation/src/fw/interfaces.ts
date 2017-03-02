@@ -1,3 +1,5 @@
+import { Constructor } from './utils';
+
 /**
  * The transformation logic defining the input/output of the object.
  *
@@ -34,3 +36,36 @@ export interface NamingStrategyFn extends Function{
  * @public
  */
 export type NamingStrategyConfig =  { [P in TransformDir]: NamingStrategyFn }
+
+export interface DecoratorInfo {
+  type: 'class' | 'member' | 'param';
+  name?: PropertyKey,
+  isStatic?: boolean;
+  hasDescriptor?: boolean;
+}
+
+export interface MetaFactoryStatic {
+  new (...args: any[]): any;
+  metaFactory(metaArgs: any, target: Object | Function, key?: PropertyKey, desc?: PropertyDescriptor): MetaFactoryInstance<any>;
+  register(meta: MetaFactoryInstance<any>): void;
+
+  /**
+   * Optional implementation of extend logic, logic that handles one type extending another type.
+   * If not set, the Metadata class is not extendable and will not inherit metadata from child types.
+   * If the method returns undefined it will also not extend the Metadata class.
+   *
+   * 'to' can be undefined, if so it means that that Metadata class was never assigned to the type.
+   * @param from
+   * @param to
+   * @returns the new extended value.
+   */
+  extend?(from: Map<PropertyKey, any>, to: Map<PropertyKey, any> | undefined): Map<PropertyKey, any>;
+}
+
+export interface MetaFactoryInstance<T> {
+  info: DecoratorInfo;
+  target: Constructor<any>;
+  metaClassKey: MetaFactoryStatic;
+  metaPropKey: any;
+  metaValue: T;
+}

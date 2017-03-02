@@ -1,6 +1,4 @@
-import { TransformStrategy } from './metadata/meta-types/schema/interfaces';
-import { NamingStrategyConfig } from './core/interfaces';
-import { MapperFactory, directMapper } from './mapping';
+import { TransformStrategy, NamingStrategyConfig, MapperFactory, directMapper } from '@tdm/transformation';
 
 export interface DefaultConfig {
   mapper: MapperFactory;

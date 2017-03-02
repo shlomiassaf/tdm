@@ -1,10 +1,12 @@
-import { ResourceMetadataArgs, ResourceMetadata, Deserializer, MapperFactory } from '@tdm/core';
+import { MapperFactory } from '@tdm/transformation';
+import { ResourceMetadataArgs, Deserializer } from '@tdm/core';
 
 export interface MockResourceMetadataArgs extends ResourceMetadataArgs {
+  endpoint: string;
   deserializer?: () => Deserializer<any>;
 }
 
-export class MockResourceMetadata implements ResourceMetadata {
+export class MockResourceMetadata implements ResourceMetadataArgs {
   name: string;
   endpoint: string;
   deserializer?: () => Deserializer<any>;
@@ -15,14 +17,5 @@ export class MockResourceMetadata implements ResourceMetadata {
     Object.assign(this, obj);
   }
 
-  static DEFAULTS: MockResourceMetadataArgs = {
-    endpoint: undefined
-  };
-
-  static VALIDATE(obj: MockResourceMetadataArgs): void {
-    if (!obj.endpoint) {
-      throw new Error('Resource endpoint is mandatory.');
-    }
-  }
 }
 

@@ -1,8 +1,6 @@
-import { internalMetadataStore } from '../metadata/reflection/internal-metadata-store';
+import { targetStore, PropMetadata, LazyInit } from '@tdm/transformation';
 import { Validator, ValidationError } from '../metadata/meta-types/schema/interfaces';
-import { PropMetadata } from '../metadata/meta-types';
-import { LazyInit } from '../utils/decorators';
-import { ValidationContext } from "../metadata/meta-types/schema/validation";
+import { ValidationContext } from '../metadata/meta-types/schema/validation';
 
 /**
  * @internal
@@ -17,7 +15,7 @@ export interface CompiledValidation {
  */
 export function getInstructions(targetType: any): CompiledValidation[] {
   // TODO: once @Validators are allowed (along with PropMetadata#Validators) aggregate here.
-  return internalMetadataStore.getTargetStore(targetType).getProps()
+  return targetStore.getTargetMeta(targetType).getValues(PropMetadata)
     .map( prop => ({
         validators: prop.validation,
         prop

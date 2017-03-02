@@ -1,11 +1,16 @@
 import { Observable } from 'rxjs/Observable';
 import { RequestOptions, Response, URLSearchParams, Headers } from '@angular/http';
-import { Deserializer, Adapter, ResourceAdapter, findProp, isUndefined, stringify, ExecuteContext, ExecuteResponse } from '@tdm/core';
+import { isUndefined, stringify, } from '@tdm/transformation';
 import {
-  HttpResourceMetadata,
-  HttpActionMetadata,
-  UrlParamMetadata
-} from '../metadata';
+  Deserializer,
+  Adapter,
+  ResourceAdapter,
+  findProp,
+  ExecuteContext,
+  ExecuteResponse
+} from '@tdm/core';
+
+import { HttpActionMetadata, UrlParamMetadata } from '../metadata';
 
 import { HttpActionOptions, TrailingSlashesStrategy } from './interfaces';
 import { httpDefaultConfig } from '../http-default-config';
@@ -28,7 +33,6 @@ export function deserializerFactory(): Deserializer<Response> {
 
 @ResourceAdapter({
   actionMetaClass: HttpActionMetadata,
-  resourceMetaClass: HttpResourceMetadata,
   deserializerFactory: deserializerFactory
 })
 export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOptions> {
@@ -37,8 +41,8 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
     const http = getHttp();
 
     if (!options) options = {} as any;
-    let { action } = ctx;
-    const resource = ctx.adapterStore.resource;
+    let {action} = ctx;
+    let resource = ctx.adapterStore.parent;
 
     const url = findProp('endpoint', resource, action);
     const withCredentials = findProp('withCredentials', httpDefaultConfig, resource, action, options);
@@ -62,13 +66,13 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
     });
 
     return http.request(requestOptions.url, requestOptions)
-      .map( response => ({ response, requestOptions }) );
+      .map(response => ({response, requestOptions}));
   }
 
   protected getHeaders(ctx: ExecuteContext<HttpActionMetadata>, options: HttpActionOptions): Headers {
-    const headers = new Headers(findProp('headers', httpDefaultConfig, ctx.adapterStore.resource, ctx.action));
+    const headers = new Headers(findProp('headers', httpDefaultConfig, ctx.adapterStore.parent, ctx.action));
     if (options.headers) {
-      Object.keys(options.headers).forEach( k => {
+      Object.keys(options.headers).forEach(k => {
         if (isUndefined(options.headers[k])) {
           headers.delete(k);
         } else {
@@ -80,22 +84,22 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
   }
 
   protected getParams(ctx: ExecuteContext<HttpActionMetadata>, options: HttpActionOptions): Params {
-    const params = Object.assign({}, findProp('urlParams', httpDefaultConfig,  ctx.adapterStore.resource, ctx.action));
+    const params = Object.assign({}, findProp('urlParams', httpDefaultConfig, ctx.adapterStore.parent, ctx.action));
 
     if (ctx.data) {
-      const boundParams: UrlParamMetadata[] = Array.from(ctx.adapterStore.custom.get(UrlParamMetadata) || []);
+      // we don't care about the keys (properties) UrlParam is on...
+      // TODO: change how UrlParams are stored, instead of target->UrlParamMetadata->propName->Set<UrlParamMetadata>
+      // store everything in one set/array to avoid this messy extraction.
+      // an alternative is to cache the flattened array.
+      const boundParams = ctx.adapterStore.parent
+        .getValues<any, Set<UrlParamMetadata>>(UrlParamMetadata)
+        .reduce( (arr, set) => arr.concat(Array.from(set)) , [] as UrlParamMetadata[]);
 
-      for (let i=0, len=boundParams.length; i<len; i++) {
+      for (let i = 0, len = boundParams.length; i < len; i++) {
         const bp = boundParams[i];
-        if (bp.methods.length === 0 || bp.methods.some( mi => mi.method === ctx.action.method )) {
-          const name = bp.urlTemplateParamName;
-          params[name] = ctx.data[bp.name];
+        if (bp.methods.length === 0 || bp.methods.some(mi => mi.method === ctx.action.method)) {
+          params[bp.urlTemplateParamName] = ctx.data[bp.name];
         }
-      }
-
-      const identityKey = ctx.adapterStore.identity;
-      if (identityKey) {
-        params[identityKey] = ctx.data[identityKey];
       }
     }
 
@@ -117,11 +121,11 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
    * @param params
    * @returns {{path: {}, query: {}}}
    */
-  protected splitParams(url: string, params: Params): { path: Params, query: Params } {
+  protected splitParams(url: string, params: Params): {path: Params, query: Params} {
     const pathParamNames = getParamNames(url);
 
     return Object.keys(params)
-      .reduce( (splitParams, key) => {
+      .reduce((splitParams, key) => {
         if (!isUndefined(params[key])) {
           if (pathParamNames.indexOf(key) === -1) {
             splitParams.query[key] = params[key];
@@ -130,16 +134,16 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
           }
         }
         return splitParams;
-      }, { path: {}, query: {} });
+      }, {path: {}, query: {}});
 
   }
 
   private paramsToSearchParams(params: Params): URLSearchParams {
     return Object.keys(params)
-      .reduce( (search, key) => {
+      .reduce((search, key) => {
         const value = params[key];
         if (Array.isArray(value)) {
-          value.forEach( q => search.append(key, q));
+          value.forEach(q => search.append(key, q));
 
         } else {
           search.append(key, value);

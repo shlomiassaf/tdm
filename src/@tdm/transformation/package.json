@@ -1,10 +1,10 @@
 {
   "name": "@tdm/transformation",
-  "version": "1.0.0-alpha.5",
+  "version": "1.0.0-alpha.10",
   "description": "Typed data models (@tdm) transformation module",
   "main": "bundle/tdm.transformation.umd.js",
   "module": "index.js",
-  "typings": "index.d.ts",
+  "typings": "bundle.d.ts",
   "keywords": [
     "@tdm",
     "json",
@@ -13,6 +13,6 @@
     "mapper"
   ],
   "peerDependencies": {
-    "typescript": "~2.1.0"
+    "@tdm/tixin": "*"
   }
 }

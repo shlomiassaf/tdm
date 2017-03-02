@@ -1,14 +1,11 @@
-import { MetadataStatic, metadataFactory } from './index';
-import { ActionMetadata, ActionMetadataArgs } from "./action";
-import { ResourceMetadata } from "./resource";
-import { TargetAdapterMetadataStore } from '../reflection';
-import { DeserializerFactory } from "../../core/index";
-import { DecoratorInfo } from './core';
+import { metaFactoryFactory, MetaFactoryStatic, targetStore, MetaFactoryInstance } from '@tdm/transformation';
+import { ActionMetadata } from './action';
+import { TargetAdapterMetadataStore } from '../target-adapter-metadata-store';
+import { DeserializerFactory } from "../../core/interfaces";
 import { array } from '../../utils';
 
-export interface AdapterMetadataArgs<T extends ResourceMetadata, Z extends ActionMetadata> {
-  actionMetaClass: MetadataStatic<any, Z>;
-  resourceMetaClass: MetadataStatic<any, T>;
+export interface AdapterMetadataArgs {
+  actionMetaClass: MetaFactoryStatic;
 
   /**
    * Factory that returns an DeserializerFactory
@@ -20,23 +17,21 @@ export interface AdapterMetadataArgs<T extends ResourceMetadata, Z extends Actio
   commit?(adapterStore: TargetAdapterMetadataStore): void;
 }
 
-export class AdapterMetadata<T extends ResourceMetadata, Z extends ActionMetadata> {
-  actionMetaClass: MetadataStatic<any, Z>;
-  resourceMetaClass: MetadataStatic<any, T>;
+export class AdapterMetadata {
+  actionMetaClass: MetaFactoryStatic;
   deserializerFactory: DeserializerFactory;
   commit?: (adapterStore: TargetAdapterMetadataStore) => void;
 
   private actions = new Map<any, ActionMetadata[]>();
 
-  constructor(obj: AdapterMetadataArgs<T, Z>) {
+  constructor(obj: AdapterMetadataArgs) {
     Object.assign(this, obj);
   }
 
-  addAction(target: any, actionArgs: ActionMetadataArgs<any>, info: DecoratorInfo): void {
-    const actionMetadata = metadataFactory(this.actionMetaClass, actionArgs, info);
-    const actions = this.actions.get(target) || [];
-    actions.push(actionMetadata);
-    this.actions.set(target, actions);
+  addAction(meta: MetaFactoryInstance<ActionMetadata>): void {
+    const actions = this.actions.get(meta.target) || [];
+    actions.push(meta.metaValue);
+    this.actions.set(meta.target, actions);
   }
 
   getActions(...targets: any[]): ActionMetadata[] {
@@ -44,14 +39,9 @@ export class AdapterMetadata<T extends ResourceMetadata, Z extends ActionMetadat
     return array.flatten(metadataColl);
   }
 
-  static DEFAULTS: AdapterMetadataArgs<any, any> = {} as any;
+  static metaFactory = metaFactoryFactory<AdapterMetadataArgs, AdapterMetadata>(AdapterMetadata);
 
-  static VALIDATE(obj: AdapterMetadataArgs<any, any>): void {
-    ['actionMetaClass', 'resourceMetaClass']
-      .forEach( k => {
-        if (!obj.hasOwnProperty(k) || !obj[k]) {
-          throw new Error('Resource plugin is missing ' + k);
-        }
-      });
+  static register(meta: MetaFactoryInstance<AdapterMetadata>): void {
+    targetStore.getAdapterStore(meta.target).setMetadata(meta.metaValue);
   }
 }

@@ -1,10 +1,11 @@
+import { DecoratorInfo, metaFactoryFactory, MetaFactoryInstance } from '@tdm/transformation';
+
 import {
   Deserializer,
   ActionMetadata,
   ActionMetadataArgs,
   ActionMethodType,
   ValidationSchedule,
-  DecoratorInfo
 } from '@tdm/core';
 
 export interface MockActionMetadataArgs extends ActionMetadataArgs<ActionMethodType> {
@@ -25,13 +26,7 @@ export class MockActionMetadata extends ActionMetadata {
   }
 
 
-  static DEFAULTS: MockActionMetadataArgs = {
-    method: undefined
-  };
+  static metaFactory = metaFactoryFactory<MockActionMetadataArgs, MockActionMetadata>(MockActionMetadata);
 
-  static VALIDATE(obj: MockActionMetadataArgs): void {
-    if (!obj.hasOwnProperty('method')) {
-      throw new Error('Resource Action method is mandatory.');
-    }
-  }
+  static register: (meta: MetaFactoryInstance<MockActionMetadata>) => void;
 }

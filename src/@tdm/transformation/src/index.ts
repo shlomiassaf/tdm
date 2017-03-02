@@ -1,9 +1,9 @@
 export {
-  TransformationError,
   Constructor,
   TransformDir,
   TransformFn,
-  TransformStrategy
+  TransformStrategy,
+  NamingStrategyConfig
 } from './fw';
 
 export {
@@ -13,23 +13,24 @@ export {
   TransformableMetadataArgs
 } from './metadata';
 
-export { directMapper } from './mapping';
-
-export { Factory, Identity, SetName } from './decorators';
-
-export { Prop } from './add/prop';
-export { Exclude } from './add/exclude';
-export { Relation } from './add/relation';
-export { Transformable } from './add/transformable';
 
 // TODO: this is for node support, since esm can be used on node (cant require @tdm/transformation/ext)
 //        this introduces noise to the main import...
 export * from './ext';
 
+// import/export order is important to prevent null on circular dependencies.
+export { Transformable } from './add/transformable';
+import './add/target-store';
+
+export { directMapper, TransformationError } from './mapping';
+
+export { Prop, Exclude, Relation, Identity } from './decorators';
+
 // public serialize / deserialize functions
 import { Constructor } from './fw';
 import { MapperFactory } from './mapping';
 import { targetStore } from './metadata';
+
 
 /**
  * Serialize a class instance into a plain object.

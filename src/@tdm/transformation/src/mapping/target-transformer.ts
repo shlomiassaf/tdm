@@ -1,6 +1,6 @@
-import { PropMetadata, ExcludeMetadata } from './metadata';
-import { TargetMetadata } from './metadata/target-metadata';
-import { LazyInit, TransformDir, NamingStrategyConfig, isFunction, array } from './fw';
+import { LazyInit, TransformDir, NamingStrategyConfig, isFunction, array } from '../fw';
+import { PropMetadata, ExcludeMetadata, TargetMetadata } from '../metadata';
+
 
 import {
   SerializeMapper,
@@ -11,7 +11,7 @@ import {
   ExclusivePropertyContainer,
   InclusivePropertyContainer,
   transformValueIn
-} from './mapping';
+} from './index';
 
 
 /**

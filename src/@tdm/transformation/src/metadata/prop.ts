@@ -1,4 +1,5 @@
 import {
+  MapExt,
   isFunction,
   reflection,
   Constructor,
@@ -11,11 +12,11 @@ import {
   MetaFactoryInstance,
   DecoratorInfo,
   decoratorInfo,
-  ensureTargetIsType
+  ensureTargetIsType,
+  registerFactory
 } from '../fw';
 
 import { RelationMetadata } from './relation';
-
 
 const TYPE_GETTER_EXCEPTIONS = [
   Array,
@@ -94,6 +95,7 @@ export class PropMetadata extends BaseMetadata {
       this.type = type;
     }
 
+    PropMetadata._onInit.forEach( h => h(this, obj))
   }
 
   setRelationship(rel: RelationMetadata): void {
@@ -109,13 +111,31 @@ export class PropMetadata extends BaseMetadata {
 
   private isTypeGetter?: boolean;
 
-  static metaFactory(metaArgs: any, target: Object | Function, key: PropertyKey, desc: PropertyDescriptor): MetaFactoryInstance {
+
+  // TODO: make this interface global for all metadata classes
+  private static _onInit: Array<(prop: PropMetadata, metaArgs: PropMetadataArgs) => void> = [];
+  static onInit(handler: (prop: PropMetadata, metaArgs: PropMetadataArgs) => void): void {
+    this._onInit.push(handler);
+  }
+
+  static metaFactory(metaArgs: any, target: Object | Function, key: PropertyKey, desc?: PropertyDescriptor): MetaFactoryInstance<PropMetadata> {
     const info = decoratorInfo(target, key, desc);
+    const type = ensureTargetIsType(target);
     return {
       info,
+      target: type,
       metaClassKey: PropMetadata,
       metaPropKey: info.name,
-      metaValue: new PropMetadata(metaArgs, ensureTargetIsType(target), info)
+      metaValue: new PropMetadata(metaArgs, type, info)
     }
+  }
+
+  static register = registerFactory<PropMetadata>();
+
+  static extend(from: Map<PropertyKey, PropMetadata>, to: Map<PropertyKey, PropMetadata> | undefined): Map<PropertyKey, PropMetadata> {
+    return to
+      ? MapExt.mergeInto(to, from)
+      : new Map<PropertyKey, PropMetadata>(from.entries())
+    ;
   }
 }

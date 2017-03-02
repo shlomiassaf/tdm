@@ -1,8 +1,10 @@
 import {
+  MapExt,
   BaseMetadata,
   DecoratorInfo,
-  MetaFactoryInstance,
-  decoratorInfo
+  MetaFactoryInstance, // leave to satisfy angular compiler
+  metaFactoryFactory,
+  registerFactory
 } from '../fw';
 
 export interface RelationMetadataArgs {
@@ -26,14 +28,14 @@ export class RelationMetadata extends BaseMetadata {
     this.foreignKey = obj && obj.foreignKey || info.name as any;
   }
 
-  static metaFactory(metaArgs: RelationMetadataArgs, target: Object | Function, key: PropertyKey, desc: PropertyDescriptor): MetaFactoryInstance {
-    const info = decoratorInfo(target, key, desc);
+  static metaFactory = metaFactoryFactory<RelationMetadataArgs, RelationMetadata>(RelationMetadata);
 
-    return {
-      info,
-      metaClassKey: RelationMetadata,
-      metaPropKey: info.name,
-      metaValue: new RelationMetadata(metaArgs, info)
-    }
+  static register = registerFactory<RelationMetadata>();
+
+  static extend(from: Map<PropertyKey, RelationMetadata>, to: Map<PropertyKey, RelationMetadata> | undefined): Map<PropertyKey, RelationMetadata> {
+    return to
+      ? MapExt.mergeInto(to, from)
+      : new Map<PropertyKey, RelationMetadata>(from.entries())
+    ;
   }
 }

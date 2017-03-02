@@ -7,26 +7,30 @@ import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/switchMap';
 
+import { TargetMetadata, isFunction, MapperFactory } from '@tdm/transformation';
 import { emitEvent, eventFactory } from '../events';
 import { CancellationTokenResourceEvent } from '../events/internal';
 import { defaultConfig } from '../default-config';
-import { findProp, noop, isFunction } from '../utils';
+import { findProp, noop  } from '../utils';
 import { ActionMetadata, ValidationSchedule } from '../metadata';
 import {
-  ExecuteContext, DeserializerFactory, ActionOptions, Adapter,
-  AdapterStatic, ExecuteResponse
+  ExecuteContext,
+  DeserializerFactory,
+  ActionOptions,
+  Adapter,
+  AdapterStatic,
+  ExecuteResponse
 } from './interfaces';
+
 import {
   ActiveRecordCollection,
   BaseActiveRecord,
   ARHookableMethods
 } from '../active-record';
-import { internalMetadataStore } from '../metadata/reflection/internal-metadata-store';
-import { TargetAdapterMetadataStore } from '../metadata/reflection/target-adapter-metadata-store';
-import { TargetMetadataStore } from '../metadata/reflection/target-metadata-store';
+
+import { TargetAdapterMetadataStore } from '../metadata/target-adapter-metadata-store';
 
 import { ResourceValidationError, ResourceError } from './errors';
-import { MapperFactory } from '../mapping/mapper';
 
 function validateIncoming(validation: ValidationSchedule) {
   return validation === 'incoming' || validation === 'both';
@@ -46,12 +50,12 @@ export class ActionController {
   private adapter: Adapter<ActionMetadata, ActionOptions>;
   private mapper: MapperFactory;
 
-  constructor(private adapterStore: TargetAdapterMetadataStore, private targetStore: TargetMetadataStore) {
+  constructor(private adapterStore: TargetAdapterMetadataStore, private targetMetadata: TargetMetadata) {
     this.deserializer = adapterStore.adapterMeta.deserializerFactory;
-    this.target = adapterStore.target;
+    this.target = targetMetadata.target;
     // TODO: adapter can be shared for all targets
     this.adapter = new adapterStore.adapterClass();
-    this.mapper = findProp('mapper', defaultConfig, adapterStore.resource);
+    this.mapper = findProp('mapper', defaultConfig, targetMetadata);
   }
 
   commit(): void {
@@ -71,10 +75,7 @@ export class ActionController {
 
       if (action.decoratorInfo.isStatic) {
         this.target[action.name] = function (this: AdapterStatic<any, any>, ...args: any[]) {
-          const instance = action.isCollection
-              ? self.targetStore.targetController.createCollection()
-              : self.targetStore.targetController.create()
-            ;
+          const instance = self.targetMetadata.factory(action.isCollection);
           self.execute(instance, action, true, ...args);
           return instance;
         }
@@ -110,14 +111,13 @@ export class ActionController {
 
     emitEvent(eventFactory.actionStart(self));
 
-    const targetController = this.targetStore.targetController;
     const pubCtx = new ExtendedContext(self, this.adapterStore, action, this.mapper);
 
     const options = isFunction(action.pre) ? action.pre(pubCtx, ...args) : args[0];
 
     const validator = action.validation === 'skip'
         ? undefined
-        : () => targetController.validate(self).then(validationErrors => {
+        : () => this.targetMetadata.validate(self).then(validationErrors => {
           if (validationErrors.length > 0) {
             throw new ResourceValidationError(self, validationErrors);
           }
@@ -134,7 +134,7 @@ export class ActionController {
       .switchMap(() => this.adapter.execute(pubCtx, options))
       .switchMap(resp => {
         // TODO: Refactor this to lazy
-        const toPlain = findProp('deserializer', this, this.adapterStore.resource, action)();
+        const toPlain = findProp('deserializer', this, this.adapterStore.parent, action)();
         let p = !action.raw || action.raw.deserialize
             ? Promise.resolve(toPlain.deserialize(resp.response)).then(data => {
               resp.deserialized = data;
@@ -202,10 +202,7 @@ class ExtendedContext implements ExecuteContext<any> {
         : this.mapper.serializer(this.data)
       ;
 
-    return internalMetadataStore
-      .getTargetStore(this.adapterStore.target, false)
-      .targetController
-      .serialize(mapper);
+    return this.adapterStore.parent.serialize(mapper);
   }
 
   deserialize(data: any): void {
@@ -216,9 +213,7 @@ class ExtendedContext implements ExecuteContext<any> {
       throw ResourceError.coll_obj(this.data, isColl);
     }
 
-    internalMetadataStore
-      .getTargetStore(this.adapterStore.target, false)
-      .targetController
+    this.adapterStore.parent
       .deserialize(mapper, isColl ? (this.data as ActiveRecordCollection<any>).collection : this.data);
   }
 }

@@ -1,4 +1,4 @@
-import { isFunction } from '@tdm/core';
+import { isFunction } from '@tdm/transformation';
 
 export class MockDeserializer {
 

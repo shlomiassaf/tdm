@@ -1,30 +1,24 @@
 import * as _decoratorFactories from './decorator-factories';
 
 export {
-  DecoratorInfo,
-  MemberDecoratorMetadata,
-  MetadataStatic,
-  metadataFactory,
-  ResourceMetadata,
   ResourceMetadataArgs,
   ActionMetadata,
   ActionMetadataArgs,
   ActionMethodType,
   AdapterMetadata,
   AdapterMetadataArgs,
-  PropMetadata,
+  ExtendActionMetadata,
   ValidationContext,
   Validator,
   ValidationError,
-  ValidationSchedule,
-  GlobalResourceMetadata,
-  GlobalResourceMetadataArgs
+  ValidationSchedule
 } from './meta-types';
 
-export { TargetAdapterMetadataStore } from './reflection';
+export { TargetAdapterMetadataStore } from './target-adapter-metadata-store';
 
-export { targetStore } from './target-store';
+export { store } from './store';
 
 export * from './decorators';
+
 export const decoratorFactories = _decoratorFactories;
 

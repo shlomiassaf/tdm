@@ -32,9 +32,8 @@ function runWebpack(config, ...args) {
 }
 
 
-
 const metadata = require('./lib_build_config');
-const move = [];
+
 function runMeta() {
   const meta = metadata.shift();
 
@@ -57,35 +56,27 @@ function runMeta() {
         if (!p.endsWith(`/${meta.dir}`)) {
           p = path.join(p, meta.dir);
         }
-        move.push({
-          from: path.join(p, 'src'),
-          to:  path.join(p),
-        });
+
+        let from = path.join(p, 'src');
+        let to = path.resolve(p, '..', '..', meta.dir);
+        if (!fs.existsSync(from)) {
+          from = p;
+        }
+
+        spawn(`mv ${from}/* ${to}`);
+        spawn(`rm -rf ${path.resolve(p, '..')}`);
+
       })
       .then(() => {
         return runMeta();
       });
   }
   else {
-    return Promise.resolve(move);
-  }
-}
-
-function moveDir(from, to) { return Promise.resolve();
-
-  try {
-    if (fs.existsSync(from)) {
-      spawn(`mv ${from}/* ${to}`);
-      spawn(`rm -rf ${from}`);
-    }
     return Promise.resolve();
-  } catch (err) {
-    return Promise.reject(err);
   }
 }
 
 runMeta()
-  .then( moves => Promise.all(moves.map( m => moveDir(m.from, m.to) )) )
   .catch( err => {
     console.error(err);
     process.exit(1);

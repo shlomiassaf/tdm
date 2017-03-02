@@ -1,49 +1,61 @@
-import { MemberDecoratorMetadata, DecoratorInfo } from './core';
+import {
+  MapExt,
+  RelationMetadataArgs,
+  MetaFactoryInstance, // leave to satisfy angular compiler
+  DecoratorInfo,
+  BaseMetadata,
+  metaFactoryFactory,
+  registerFactory
+} from '@tdm/transformation';
 
-export interface BelongsToMetadataArgs {
-  /**
-   * The foreign key (property name) that points to the id of the resource belonged to.
-   * If not set, the current property name is used.
-   *
-   * For example, on a Customer object, if the foreign key is customerId and you would like to use
-   * the "customer" property, set the foreignKey to "customerId"
-   */
-  foreignKey?: string;
-}
+
+export type BelongsToMetadataArgs = RelationMetadataArgs;
 
 export interface OwnsMetadataArgs<T> {
   foreignKey: keyof T;
 }
 
-export class BelongsToMetadata extends MemberDecoratorMetadata {
+export class BelongsToMetadata extends BaseMetadata {
 
   foreignKey: string;
 
-  constructor(obj: BelongsToMetadataArgs, info: DecoratorInfo)  {
+  constructor(obj: BelongsToMetadataArgs, info: DecoratorInfo) {
     super(info);
 
     this.foreignKey = obj.foreignKey || info.name as any;
   }
 
-  static DEFAULTS: BelongsToMetadataArgs = {} as any;
+  static metaFactory = metaFactoryFactory<BelongsToMetadataArgs, BelongsToMetadata>(BelongsToMetadata);
 
-  static VALIDATE(obj: BelongsToMetadataArgs): void {
+  static register = registerFactory<BelongsToMetadata>();
+
+  static extend(from: Map<PropertyKey, BelongsToMetadata>, to: Map<PropertyKey, BelongsToMetadata> | undefined): Map<PropertyKey, BelongsToMetadata> {
+    return to
+      ? MapExt.mergeInto(to, from)
+      : new Map<PropertyKey, BelongsToMetadata>(from.entries())
+      ;
   }
 }
 
 
-export class OwnsMetadata extends MemberDecoratorMetadata {
+export class OwnsMetadata extends BaseMetadata {
   foreignKey: string;
 
-  constructor(obj: OwnsMetadataArgs<any>, info: DecoratorInfo)  {
+  constructor(obj: OwnsMetadataArgs<any>, info: DecoratorInfo) {
     super(info);
 
     this.foreignKey = obj.foreignKey;
   }
 
-  static DEFAULTS: OwnsMetadataArgs<any> = {} as any;
+  static metaFactory = metaFactoryFactory<OwnsMetadataArgs<any>, OwnsMetadata>(OwnsMetadata);
 
-  static VALIDATE(obj: OwnsMetadataArgs<any>): void {
+  static register = registerFactory<OwnsMetadata>();
+
+  static extend(from: Map<PropertyKey, OwnsMetadata>, to: Map<PropertyKey, OwnsMetadata> | undefined): Map<PropertyKey, OwnsMetadata> {
+    return to
+      ? MapExt.mergeInto(to, from)
+      : new Map<PropertyKey, OwnsMetadata>(from.entries())
+      ;
   }
 }
 

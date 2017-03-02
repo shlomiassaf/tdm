@@ -1,6 +1,6 @@
 /* tslint:disable:max-line-length */
 import { Tixin, Type } from '@tdm/tixin';
-import { BaseActiveRecord, targetStore } from '@tdm/core';
+import { BaseActiveRecord, store } from '@tdm/core';
 import { MockAdapter } from './core';
 
 import { BaseMockResource, BaseMockResourceStatic  } from './base-mock-resource';
@@ -27,12 +27,12 @@ export function MockMixin<Model, TypeofModel, TMIXIN, CMIXIN>(model?: TypeofMode
    * so the deriving class (base) will get all the actions from the BaseRestResource
    *
    */
-  targetStore.markMixins(model, MockAdapter, BaseMockResource, ...mixins);
+  store.markMixins(model, MockAdapter, BaseMockResource, ...mixins);
 
   // we can't send ...mixin to Tixin since the type limits the ..mixins amount
   const result = (Tixin as any)(model, BaseMockResource, ...mixins);
 
-  targetStore.buildIfReady(result, MockAdapter);
+  store.buildIfReady(result, MockAdapter);
 
   return result as any;
 }

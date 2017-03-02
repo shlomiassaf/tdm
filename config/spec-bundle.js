@@ -47,6 +47,7 @@ testing.TestBed.initTestEnvironment(
  */
 
 var testContext = require.context('../src', true, /\.\/(?!demo).+\/.+\/.+\.spec\.ts$/);
+// var testContext = require.context(`../src/@tdm/core/test`, true, /\.spec\.ts/);
 // var testContext = require.context(`../src/@tdm/json-api-mapper/test`, true, /\.spec\.ts/);
 
 /*

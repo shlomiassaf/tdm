@@ -1,3 +1,4 @@
+import { targetStore, DecoratorInfo, BaseMetadata, metaFactoryFactory, MapExt, SetExt, isString, MetaFactoryInstance } from '@tdm/transformation';
 import { mapMethod, MappedMethod, HttpActionMethodType } from './method-mapper';
 
 export interface UrlParamMetadataArgs {
@@ -20,26 +21,56 @@ export interface UrlParamMetadataArgs {
   methods?: HttpActionMethodType | HttpActionMethodType[]
 }
 
-export class UrlParamMetadata {
+export class UrlParamMetadata extends BaseMetadata {
   urlTemplateParamName: string;
   methods: MappedMethod[] = [];
 
-  constructor(obj: UrlParamMetadataArgs, public name: PropertyKey) {
-    Object.assign(this, obj);
-    if (obj.methods) {
-      const methods: HttpActionMethodType[] = Array.isArray(obj.methods) ? obj.methods : Array.of(obj.methods);
+  constructor(metaArgs: UrlParamMetadataArgs | string | undefined, info: DecoratorInfo)  {
+    super(info);
+
+    const urlParamsMeta: UrlParamMetadataArgs = {};
+
+    if (isString(metaArgs)) {
+      Object.assign(urlParamsMeta, { urlTemplateParamName: metaArgs });
+    } else {
+      metaArgs && Object.assign(urlParamsMeta, metaArgs);
+      if (!urlParamsMeta.urlTemplateParamName) {
+        urlParamsMeta.urlTemplateParamName = info.name as any;
+      }
+    }
+
+    Object.assign(this, urlParamsMeta);
+
+    if (urlParamsMeta.methods) {
+      const methods: HttpActionMethodType[] = Array.isArray(urlParamsMeta.methods) ? urlParamsMeta.methods : Array.of(urlParamsMeta.methods);
       this.methods = methods.map(mapMethod);
     } else {
       this.methods = [];
     }
-
-    if (!this.urlTemplateParamName) {
-      // TODO: Can't accept symbol to param name in URL...
-      this.urlTemplateParamName = <any>name;
-    }
   }
 
+  static metaFactory = metaFactoryFactory<UrlParamMetadataArgs, UrlParamMetadata>(UrlParamMetadata);
 
-  static DEFAULTS: UrlParamMetadataArgs = {};
-  static VALIDATE(obj: UrlParamMetadataArgs): void {}
+  static register(meta: MetaFactoryInstance<UrlParamMetadata>): void {
+    const curr = targetStore.getMetaFor<any, Set<UrlParamMetadata>>(meta.target, meta.metaClassKey, meta.info.name as any) || new Set<UrlParamMetadata>();
+    curr.add(meta.metaValue);
+    targetStore.setMetaFor<any, Set<UrlParamMetadata>>(meta.target, meta.metaClassKey, meta.info.name as any, curr);
+  }
+
+  static extend(from: Map<PropertyKey, Set<UrlParamMetadata>>, to: Map<PropertyKey, Set<UrlParamMetadata>> | undefined): Map<PropertyKey, Set<UrlParamMetadata>> {
+    if (!to) {
+      to = new Map<PropertyKey, Set<UrlParamMetadata>>();
+    }
+
+    MapExt.asKeyValArray(from)
+      .forEach( ([k, v]) => {
+        if (!to.has(k)) {
+          to.set(k, new Set<UrlParamMetadata>(v.values()))
+        } else {
+          SetExt.combine(to.get(k), v);
+        }
+      });
+
+    return to;
+  }
 }

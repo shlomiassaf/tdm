@@ -1,4 +1,4 @@
-import { RestMixin, HttpResource, HttpAction, UrlParam } from '@tdm/angular-http';
+import { HttpResource } from '@tdm/angular-http';
 
 describe('NG-HTTP', () => {
   describe('Decorators', () => {

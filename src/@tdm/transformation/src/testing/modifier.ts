@@ -16,20 +16,19 @@ import {
   TargetStore,
   TargetMetadata,
   targetStore as targetStore_,
-  stringify,
-  isString,
   isFunction
 } from '@tdm/transformation/ext';
+import { TransformableMetadataArgs } from "@tdm/transformation/metadata";
 
 const targetStore: TestTargetStore = targetStore_;
 
-function getTargetMetaStore(target: any): TestTargetMetadataStore {
+function getTargetMetaStore(target: any): TestTargetMetadata {
   return targetStore.getTargetMeta(target) as any;
 }
 
 class TestTargetStore extends TargetStore {
 
-  static getTargetMeta(target: any): TestTargetMetadataStore | undefined {
+  static getTargetMeta(target: any): TestTargetMetadata | undefined {
     return targetStore.builtTargets.get(target);
   }
 
@@ -40,12 +39,6 @@ class TestTargetStore extends TargetStore {
       targetStore.builtTargets.delete(target);
       targetStore.targets.get(target).clear();
 
-    }
-  }
-
-  static getClassProp<P extends keyof ClassMetadata>(target: Constructor<any>, key: P): ClassMetadata[P] | undefined {
-    if (targetStore.targets.has(target)) {
-      return targetStore.targets.get(target).get(ClassMetadata, key);
     }
   }
 
@@ -60,7 +53,7 @@ class TestTargetStore extends TargetStore {
   }
 }
 
-class TestTargetMetadataStore extends TargetMetadata {
+export class TestTargetMetadata extends TargetMetadata {
   static getFactory<T, Z>(type: Z & Constructor<T>): (target: any, key: any) => T | undefined {
     return (target: any, key: string) => {
       const t = getTargetMetaStore(target);
@@ -79,13 +72,13 @@ class TestTargetMetadataStore extends TargetMetadata {
     }
   }
 
-  static getRelation = TestTargetMetadataStore.getFactory(RelationMetadata);
-  static getProp = TestTargetMetadataStore.getFactory(PropMetadata);
-  static getExclude = TestTargetMetadataStore.getFactory(ExcludeMetadata);
+  static getRelation = TestTargetMetadata.getFactory(RelationMetadata);
+  static getProp = TestTargetMetadata.getFactory(PropMetadata);
+  static getExclude = TestTargetMetadata.getFactory(ExcludeMetadata);
 
-  static removeRelation = TestTargetMetadataStore.removeFactory(RelationMetadata);
-  static removeProp = TestTargetMetadataStore.removeFactory(PropMetadata);
-  static removeExclude = TestTargetMetadataStore.removeFactory(ExcludeMetadata);
+  static removeRelation = TestTargetMetadata.removeFactory(RelationMetadata);
+  static removeProp = TestTargetMetadata.removeFactory(PropMetadata);
+  static removeExclude = TestTargetMetadata.removeFactory(ExcludeMetadata);
 
   static getClassProp<P extends keyof ClassMetadata>(target: Constructor<any>, propName: keyof ClassMetadata): ClassMetadata[P] {
     const t = getTargetMetaStore(target);
@@ -129,6 +122,12 @@ export class TargetMetaModifier<T, Z> {
     return this;
   }
 
+  updateResource(resource: TransformableMetadataArgs): this {
+    targetStore.setTransformable(resource, this.target);
+    return this;
+  }
+
+
   /**
    * Set/Update the identity field.
    * If key is empty will set to default name
@@ -136,7 +135,7 @@ export class TargetMetaModifier<T, Z> {
    * @returns {TargetMetaModifier}
    */
   setName(name?: string): this {
-    TestTargetMetadataStore.setClassProp(this.target, 'name', name);
+    TestTargetMetadata.setClassProp(this.target, 'name', name);
     return this;
   }
 
@@ -147,7 +146,7 @@ export class TargetMetaModifier<T, Z> {
    * @returns {TargetMetaModifier}
    */
   setIdentity(key?: keyof T): this {
-    TestTargetMetadataStore.setClassProp(this.target, 'identity', key);
+    TestTargetMetadata.setClassProp(this.target, 'identity', key);
     return this;
   }
 
@@ -158,42 +157,42 @@ export class TargetMetaModifier<T, Z> {
    */
   setExclude(exclude: boolean): this {
     if (!exclude) {
-      TestTargetMetadataStore.removeClassProp(this.target, 'transformStrategy');
+      TestTargetMetadata.removeClassProp(this.target, 'transformStrategy');
     } else {
-      TestTargetMetadataStore.setExcludeClass(this.target);
+      TestTargetMetadata.setExcludeClass(this.target);
     }
     return this;
   }
 
   getProp<P extends keyof T>(key: P): PropMetadata {
-    return TestTargetMetadataStore.getProp(this.target, key);
+    return TestTargetMetadata.getProp(this.target, key);
   }
 
   getRelation<P extends keyof T>(key: P): RelationMetadata {
-    return TestTargetMetadataStore.getRelation(this.target, key);
+    return TestTargetMetadata.getRelation(this.target, key);
   }
 
   getExclude<P extends keyof T>(key: P): ExcludeMetadata {
-    return TestTargetMetadataStore.getExclude(this.target, key);
+    return TestTargetMetadata.getExclude(this.target, key);
   }
 
   getClassProp<P extends keyof ClassMetadata>(key: P): ClassMetadata[P] {
-    return TestTargetMetadataStore.getClassProp(this.target, key);
+    return TestTargetMetadata.getClassProp(this.target, key);
   }
 
   classProp<P extends keyof ClassMetadata>(key: P, value?: ClassMetadata[P] | false): this {
-    TestTargetMetadataStore.removeClassProp(this.target, key);
+    TestTargetMetadata.removeClassProp(this.target, key);
     if (typeof value !== 'boolean') {
-      TestTargetMetadataStore.setClassProp(this.target, key, value);
+      TestTargetMetadata.setClassProp(this.target, key, value);
     }
     return this;
   }
 
   relation(key: keyof T, meta?: RelationMetadataArgs | false): this {
-    TestTargetMetadataStore.removeRelation(this.target, key);
+    TestTargetMetadata.removeRelation(this.target, key);
 
     if (typeof meta !== 'boolean') {
-      TestTargetMetadataStore.addRelation(this.target, key, meta);
+      TestTargetMetadata.addRelation(this.target, key, meta);
     }
 
     return this;
@@ -207,10 +206,10 @@ export class TargetMetaModifier<T, Z> {
    * @returns {any}
    */
   prop(key: keyof T, meta?: PropMetadataArgs | false | Function, type?: Function): this {
-    TestTargetMetadataStore.removeProp(this.target, key);
+    TestTargetMetadata.removeProp(this.target, key);
 
     if (typeof meta !== 'boolean' && !isFunction(meta)) {
-      TestTargetMetadataStore.addProp(this.target, key, meta);
+      TestTargetMetadata.addProp(this.target, key, meta);
     } else if (isFunction(meta)) {
       type = meta;
     }
@@ -234,9 +233,9 @@ export class TargetMetaModifier<T, Z> {
    * @returns {any}
    */
   exclude(key: keyof T, meta?: ExcludeMetadataArgs | false): this {
-    TestTargetMetadataStore.removeExclude(this.target, key);
+    TestTargetMetadata.removeExclude(this.target, key);
     if (typeof meta !== 'boolean') {
-      TestTargetMetadataStore.addExclude(this.target, key, meta);
+      TestTargetMetadata.addExclude(this.target, key, meta);
     }
     return this;
   }

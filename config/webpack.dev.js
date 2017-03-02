@@ -14,6 +14,7 @@ const AddAssetHtmlPlugin = require('add-asset-html-webpack-plugin');
 const DefinePlugin = require('webpack/lib/DefinePlugin');
 const NamedModulesPlugin = require('webpack/lib/NamedModulesPlugin');
 const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
+const CircularDependencyPlugin = require('circular-dependency-plugin');
 
 /**
  * Webpack Constants
@@ -140,6 +141,13 @@ module.exports = function (options) {
           'HMR': METADATA.HMR,
         }
       }),
+
+      // new CircularDependencyPlugin({
+      //   // exclude detection of files based on a RegExp
+      //   exclude: /node_modules/,
+      //   // add errors to webpack instead of warnings
+      //   failOnError: false
+      // }),
 
       new DllBundlesPlugin({
         bundles: {

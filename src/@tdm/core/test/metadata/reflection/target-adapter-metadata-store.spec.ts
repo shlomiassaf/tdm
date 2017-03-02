@@ -1,6 +1,5 @@
 import { MockMixin, MockResource, MockDeserializer, MockActionOptions, MockAdapter, bucketFactory } from '@tdm/core/testing';
 import { ActiveRecord, Constructor, Prop } from '@tdm/core';
-import { internalMetadataStore } from '../../src/metadata/reflection/internal-metadata-store';
 
 describe('CORE', () => {
   describe('TargetAdapterMetadataStore', () => {

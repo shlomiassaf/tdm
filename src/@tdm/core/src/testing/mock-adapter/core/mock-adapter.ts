@@ -1,10 +1,7 @@
 import { Observable } from 'rxjs';
 import { Adapter, ResourceAdapter, ExecuteContext, findProp, ExecuteResponse } from '@tdm/core';
 
-import {
-  MockResourceMetadata,
-  MockActionMetadata
-} from '../metadata';
+import { MockActionMetadata } from '../metadata';
 import { MockActionOptions } from './interfaces';
 
 import { mockDeserializer } from '../mock-deserializer';
@@ -15,7 +12,6 @@ export function deserializerFactory(): any {
 
 @ResourceAdapter({
   actionMetaClass: MockActionMetadata,
-  resourceMetaClass: MockResourceMetadata,
   deserializerFactory: deserializerFactory
 })
 export class MockAdapter implements Adapter<MockActionMetadata, MockActionOptions> {
@@ -23,7 +19,7 @@ export class MockAdapter implements Adapter<MockActionMetadata, MockActionOption
   execute(ctx: ExecuteContext<MockActionMetadata>, options: MockActionOptions): Observable<ExecuteResponse> {
     if (!options) options = {} as any;
 
-    const [resource, action] = [ctx.adapterStore.resource, ctx.action];
+    const [resource, action] = [ctx.adapterStore.parent, ctx.action];
     const endpoint = findProp('endpoint', resource, action);
 
     if (options.payloadInspect) {

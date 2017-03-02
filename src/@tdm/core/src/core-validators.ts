@@ -1,4 +1,4 @@
-import { isNumber } from './utils';
+import { isNumber } from '@tdm/transformation';
 import { ValidationConfigError } from './core/errors';
 
 import { ValidationContext } from './metadata/meta-types/schema/interfaces';

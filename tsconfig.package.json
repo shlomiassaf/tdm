@@ -8,6 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "removeComments": false,
     "sourceMap": true,
+    "inlineSources": true,
     "strictNullChecks": false,
     "lib": [
       "es2015",
@@ -63,7 +64,7 @@
   },
   "angularCompilerOptions": {
    "genDir": "./compiled",
-   "skipMetadataEmit": true
+   "skipMetadataEmit": false
   },
   "compileOnSave": false,
   "buildOnSave": false,

@@ -1,7 +1,7 @@
 /* tslint:disable:max-line-length */
 
 import { Tixin, Type } from '@tdm/tixin';
-import { BaseActiveRecord, targetStore } from '@tdm/core';
+import { BaseActiveRecord, store } from '@tdm/core';
 import { HttpAdapter } from './core';
 
 import { BaseRestResource, BaseRestResourceStatic  } from './base-http-resource';
@@ -28,12 +28,12 @@ export function RestMixin<Model, TypeofModel, TMIXIN, CMIXIN>(model?: TypeofMode
    * so the deriving class (base) will get all the actions from the BaseRestResource
    *
    */
-  targetStore.markMixins(model, HttpAdapter, BaseRestResource, ...mixins);
+  store.markMixins(model, HttpAdapter, BaseRestResource, ...mixins);
 
   // we can't send ...mixin to Tixin since the type limits the ..mixins amount
   const result = (Tixin as any)(model, BaseRestResource, ...mixins);
 
-  targetStore.buildIfReady(result, HttpAdapter);
+  store.buildIfReady(result, HttpAdapter);
 
   return result as any;
 }

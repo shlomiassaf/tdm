@@ -1,4 +1,5 @@
-import { ResourceMetadataArgs, Deserializer, ResourceMetadata, MapperFactory } from '@tdm/core';
+import { MapperFactory } from '@tdm/transformation';
+import { ResourceMetadataArgs, Deserializer } from '@tdm/core';
 import { Response } from '@angular/http';
 
 import { Params } from '../../utils/match-pattern';
@@ -13,7 +14,7 @@ export interface HttpResourceMetadataArgs extends ResourceMetadataArgs, BaseHttp
   deserializer?: () => Deserializer<Response>;
 }
 
-export class HttpResourceMetadata implements ResourceMetadata {
+export class HttpResourceMetadata implements HttpResourceMetadataArgs {
   /**
    * The url for this resource.
    * This property does not extend from a base type.
@@ -29,16 +30,6 @@ export class HttpResourceMetadata implements ResourceMetadata {
 
   constructor(obj: HttpResourceMetadataArgs) {
     Object.assign(this, obj);
-  }
-
-  static DEFAULTS: HttpResourceMetadataArgs = {
-    endpoint: undefined
-  };
-
-  static VALIDATE(obj: HttpResourceMetadataArgs): void {
-    if (!obj.endpoint) {
-      throw new Error('Resource endpoint is mandatory.');
-    }
   }
 }
 

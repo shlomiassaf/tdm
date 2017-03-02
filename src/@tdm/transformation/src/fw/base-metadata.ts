@@ -1,11 +1,5 @@
 import { isNumber, isStaticDecorator } from './utils';
-
-export interface DecoratorInfo {
-  type: 'class' | 'member' | 'param';
-  name?: PropertyKey,
-  isStatic?: boolean;
-  hasDescriptor?: boolean;
-}
+import { DecoratorInfo } from './interfaces';
 
 export function decoratorInfo(...args: any[]): DecoratorInfo {
 

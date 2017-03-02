@@ -4,4 +4,3 @@ export type DefinePropertyTyped<T, Z> = (t: any, p: keyof T, a: TypedPropertyDes
 
 export type DefineProperties<T> = (t: any, o: { [ P in keyof T ]?: TypedPropertyDescriptor<T[P]> }) => any
 
-export type Constructor<T> = new(...args: any[]) => T;

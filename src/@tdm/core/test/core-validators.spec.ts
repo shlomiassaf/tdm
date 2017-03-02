@@ -1,3 +1,5 @@
+import '@tdm/core/add/active-record-state'
+import '@tdm/core/add/active-record-state/next';
 import { MockMixin, MockResource, MockDeserializer, bucketFactory } from '@tdm/core/testing';
 import { Prop, validators } from '@tdm/core';
 

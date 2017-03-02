@@ -121,4 +121,8 @@ export class ClassMetadata {
   static metaFactory(metaArgs: any, target: Object | Function, key: PropertyKey, desc: PropertyDescriptor): any {
     throw new Error('Not supported');
   }
+
+  static register(meta: any): void {
+    throw new Error('Not supported');
+  }
 }

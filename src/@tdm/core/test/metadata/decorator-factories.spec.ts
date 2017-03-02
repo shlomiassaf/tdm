@@ -1,6 +1,6 @@
-import { MockMixin, MockResource, MockDeserializer, MockActionOptions, MockAdapter, bucketFactory } from '@tdm/core/testing';
+import { targetStore } from '@tdm/transformation';
+import { MockMixin, MockResource, MockDeserializer, MockActionOptions, bucketFactory } from '@tdm/core/testing';
 import { ActiveRecord, Constructor, Prop, Resource } from '@tdm/core';
-import { internalMetadataStore } from '../../src/metadata/reflection/internal-metadata-store';
 
 const localMockDeserializer = new MockDeserializer();
 
@@ -32,7 +32,7 @@ describe('CORE', () => {
       const user: User = bucket.create<any>(User);
       user.$refresh({returnValue}).$ar.next()
         .then( data => {
-          expect(internalMetadataStore.getTargetStore(User).name).toBe('User_');
+          expect(targetStore.getClassProp(User, 'name')).toBe('User_');
           expect(user.name).toBe('test');
           expect(user.value).toBe('value1');
           done();
@@ -65,7 +65,7 @@ describe('CORE', () => {
       const user = bucket.create(User);
       user.$refresh({returnValue}).$ar.next()
         .then( data => {
-          expect(internalMetadataStore.getTargetStore(User).name).toBe('User');
+          expect(targetStore.getClassProp(User, 'name')).toBe('User');
           expect(user.name).toBe('test');
           expect(user.value).toBe('value1');
           done();
@@ -91,7 +91,7 @@ describe('CORE', () => {
       const user = bucket.create(User);
       user.$refresh({returnValue}).$ar.next()
         .then( data => {
-          expect(internalMetadataStore.getTargetStore(User).name).toBe('User');
+          expect(targetStore.getClassProp(User, 'name')).toBe('User');
           expect(user.name).toBe('test');
           expect(user.value).toBe('value1');
           done();
@@ -113,7 +113,7 @@ describe('CORE', () => {
       })
       class User extends MockMixin(User_) { }
 
-      expect(internalMetadataStore.getTargetStore(User).name).toBe('TestUser');
+      expect(targetStore.getClassProp(User, 'name')).toBe('TestUser');
     });
 
 

@@ -1,44 +1,8 @@
+import { isFunction, targetStore, PropMetadata } from '@tdm/transformation';
 import { AdapterStatic, AdapterError } from '../core/index';
-import { ActionMetadataArgs, ResourceMetadataArgs, decoratorInfo } from './meta-types';
-import { ensureTargetIsType, isFunction } from '../utils';
-import { internalMetadataStore } from './reflection/internal-metadata-store';
+import { ResourceMetadataArgs } from './meta-types';
 import { activeRecordClassFactory } from '../active-record';
-
-export type StoreForValueFactory<T> = (def: T, propertyKey: PropertyKey) => any;
-
-
-/**
- * A Factory for custom decorators used by Adapters/mapper etc to store data.
- *
- */
-export function storeFor<T>(storeKey: any, metaKey: any, factory: StoreForValueFactory<T>): (def: T) => PropertyDecorator {
-  return function ResourceStorePropertyDecorator(def: T) {
-    return (target: Object, propertyKey: PropertyKey) => {
-      internalMetadataStore
-        .getTargetStore(ensureTargetIsType(target))
-        .setCustom(storeKey, metaKey, factory(def, propertyKey));
-    };
-  }
-}
-
-/**
- * A Factory for Action property decorators, the returned decorator will automatically create a
- * relation between the target, adapterType and action.
- *
- * Actions are not registered until the resource is set.
- *
- * Actions are set based on the `adapterType` and target, i.e. a target can have multiple actions based
- * on the same name but different adapters.
- * @param adapterClass
- */
-export function action<T extends ActionMetadataArgs<any>>(adapterClass: AdapterStatic<any, any>): (def: T) => any {
-  return function ActionDecorator(def: T) {
-    return (target: Object, propertyKey: PropertyKey, desc: any) => {
-      internalMetadataStore.getAdapterStore(adapterClass).meta
-        .addAction(ensureTargetIsType(target), def, decoratorInfo(target, propertyKey, desc));
-    };
-  }
-}
+import { ActiveRecordCollection } from '../active-record/active-record-collection';
 
 /**
  * A Factory for Resource class decorators, the returned decorator will automatically register the
@@ -46,7 +10,7 @@ export function action<T extends ActionMetadataArgs<any>>(adapterClass: AdapterS
  * @param adapterClass
  */
 export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterStatic<any, any>): (def: T) => ClassDecorator {
-  if (!internalMetadataStore.hasAdapter(adapterClass)) {
+  if (!targetStore.hasAdapter(adapterClass)) {
     throw AdapterError.notRegistered(adapterClass);
   }
 
@@ -60,11 +24,17 @@ export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterSt
       const paramTypes = (Reflect as any).getOwnMetadata('design:paramtypes', target);
       (Reflect as any).defineMetadata('design:paramtypes', paramTypes, TDModel);
 
+      if (!def.factory) {
+        def.factory = (isColl: boolean) => isColl ? new ActiveRecordCollection() : new TDModel();
+      }
+
+      targetStore.setResource(def, target);
+
       // check for properties that set the type to self (same class)
       // the class will point to the base class (target) that TDModel extends.
       // this is fine if the user didn't set `typeGetter`, if he did we get TDModel
-      internalMetadataStore.getTargetStore(target)
-        .getProps()
+      targetStore.getTargetMeta(target)
+        .getValues(PropMetadata)
         .forEach( p => {
           const desc = Object.getOwnPropertyDescriptor(p, 'type');
 
@@ -73,12 +43,16 @@ export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterSt
           }
         });
 
-      const adapterStore = internalMetadataStore.setTargetAndAdapter(TDModel, adapterClass, def);
+
+      targetStore.registerTarget(TDModel);
+
+      const adapterStore = targetStore.getTargetAdapterStore(TDModel, adapterClass, true);
+      adapterStore.isAbstract = false;
 
       if (def.noBuild !== true) {
         adapterStore.build();
       } else {
-        internalMetadataStore.setReadyToBuild(TDModel);
+        targetStore.setReadyToBuild(TDModel);
       }
 
       return TDModel;

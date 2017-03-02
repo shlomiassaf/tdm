@@ -1,8 +1,8 @@
-import { AdapterStatic } from '../../core/interfaces';
-import { AdapterMetadata } from '../meta-types';
+import { AdapterStatic } from '../core/interfaces';
+import { AdapterMetadata } from './meta-types';
 
 export class AdapterMetadataStore {
-  meta: AdapterMetadata<any, any>;
+  meta: AdapterMetadata;
 
   get isAbstract(): boolean {
     return !this.meta;
@@ -13,7 +13,7 @@ export class AdapterMetadataStore {
   }
 
 
-  setMetadata(meta: AdapterMetadata<any, any>): void {
+  setMetadata(meta: AdapterMetadata): void {
     this.meta = meta;
 
   }

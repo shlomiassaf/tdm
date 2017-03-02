@@ -1,9 +1,8 @@
-import { DeserializerFactory } from '../../core/index';
-import { TransformStrategy } from './schema/interfaces';
-import { NamingStrategyConfig } from '../../core/interfaces';
-import { MapperFactory } from '../../mapping';
+import { TransformableMetadataArgs, MapperFactory } from '@tdm/transformation';
 
-export interface GlobalResourceMetadataArgs {
+import { DeserializerFactory } from '../../core/interfaces';
+
+export interface ResourceMetadataArgs extends TransformableMetadataArgs {
   /**
    * A name for the resource.
    * Depending on your setup, this property might be used to identify resource from deserialized data. (e.g. JSONAPI)
@@ -11,44 +10,6 @@ export interface GlobalResourceMetadataArgs {
    * @optional
    */
   name?: string;
-
-
-  /**
-   * @link DefaultConfig#transformStrategy
-   */
-  transformStrategy?: TransformStrategy;
-
-  /**
-   * @link DefaultConfig#transformNameStrategy
-   */
-  transformNameStrategy?: NamingStrategyConfig | undefined;
-}
-
-export class GlobalResourceMetadata {
-  /**
-   * @link DefaultConfig#transformStrategy
-   */
-  transformStrategy: TransformStrategy | undefined;
-
-  /**
-   * @link DefaultConfig#transformNameStrategy
-   */
-  transformNameStrategy: NamingStrategyConfig | undefined;
-
-  name: string;
-
-  constructor(obj: GlobalResourceMetadataArgs) {
-    Object.assign(this, obj);
-  }
-
-  static DEFAULTS: GlobalResourceMetadataArgs = {} as any;
-
-  static VALIDATE(obj: GlobalResourceMetadataArgs): void {
-  }
-}
-
-export interface ResourceMetadataArgs {
-  endpoint: string;
 
   deserializer?: DeserializerFactory;
 
@@ -61,14 +22,3 @@ export interface ResourceMetadataArgs {
 
   mapper?: MapperFactory;
 }
-
-export interface ResourceMetadata {
-  endpoint: string;
-
-  deserializer?: DeserializerFactory;
-
-  noBuild: boolean;
-
-  mapper: MapperFactory;
-}
-

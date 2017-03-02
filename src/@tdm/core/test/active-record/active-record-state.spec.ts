@@ -154,7 +154,7 @@ describe('CORE', () => {
           expect(spies.errCb).toHaveBeenCalledTimes(0);
           matchEvents(getEvents(spies.streamCb), 'ActionStart', 'ActionError');
 
-          const error: ActionErrorResourceEvent = <any>getEvents(spies.streamCb)[1];
+          const error = <any>getEvents(spies.streamCb)[1];
           expect(error.error.toString()).toBe('Error: testError');
           done();
         });

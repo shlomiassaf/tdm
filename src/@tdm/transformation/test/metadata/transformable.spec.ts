@@ -24,7 +24,7 @@ describe('@tdm/transformation', () => {
         myProperty3: 3
       };
 
-      it('should register @Transformable decorator', () => {
+      xit('should register @Transformable decorator', () => {
         @Transformable({
           transformNameStrategy
         })

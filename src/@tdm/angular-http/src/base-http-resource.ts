@@ -61,6 +61,7 @@ export class BaseRestResource {
   @HttpAction({
     method: HttpActionMethodType.Post,
     validation: 'both' as 'both',
+    sendBody: true,
     pre: (ctx: ExecuteContext<HttpActionMetadata>, data: any, options: HttpActionOptions) => {
       // TODO: use directMapper here, this will choose the user defined mapper
       ctx.deserialize(data);
@@ -72,6 +73,7 @@ export class BaseRestResource {
   @HttpAction({
     method: HttpActionMethodType.Put,
     validation: 'both' as 'both',
+    sendBody: true,
     pre: (ctx: ExecuteContext<HttpActionMetadata>, data: any, options: HttpActionOptions) => {
       // TODO: use directMapper here, this will choose the user defined mapper
       ctx.deserialize(data);

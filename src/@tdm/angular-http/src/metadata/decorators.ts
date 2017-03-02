@@ -1,28 +1,27 @@
-import { decoratorFactories as df, isString, metadataFactory } from '@tdm/core';
+import { decoratorFactory, targetStore, MetaFactoryInstance } from '@tdm/transformation';
+import { decoratorFactories as df} from '@tdm/core';
 
 import {
   HttpResourceMetadataArgs,
   HttpActionMetadataArgs,
+  HttpActionMetadata,
   UrlParamMetadataArgs,
   UrlParamMetadata
 } from './meta-types';
 
 import { HttpAdapter } from '../core';
 
+/**
+ * @propertyDecorator both
+ * @param def
+ */
+export const HttpAction = decoratorFactory<HttpActionMetadataArgs>(HttpActionMetadata);
 
-export function UrlParamsDecorator(urlParam: string | UrlParamMetadataArgs, propertyKey: PropertyKey): any {
-  const urlParamsMeta: UrlParamMetadataArgs = {};
-
-  if (!urlParam) {
-    Object.assign(urlParamsMeta, {urlTemplateParamName: name});
-  } else if (isString(urlParam)) {
-    Object.assign(urlParamsMeta, {urlTemplateParamName: urlParam});
-  } else {
-    Object.assign(urlParamsMeta, urlParam);
-  }
-
-  return metadataFactory(UrlParamMetadata, urlParamsMeta, propertyKey);
-}
+/**
+ * @propertyDecorator instance
+ * @param metaArgs
+ */
+export const UrlParam = decoratorFactory<string | UrlParamMetadataArgs>(UrlParamMetadata, true);
 
 
 // FOR AOT
@@ -34,15 +33,13 @@ const httpResource = df.resource<HttpResourceMetadataArgs>(HttpAdapter);
  * @param def
  */
 export function HttpResource(def: HttpResourceMetadataArgs): (target) => any {
+  if (!def.endpoint) {
+    throw new Error('Resource endpoint is mandatory.');
+  }
   return httpResource(def) as any;
 }
 
-/**
- * @propertyDecorator both
- */
-export const HttpAction = df.action<HttpActionMetadataArgs>(HttpAdapter);
-/**
- * @propertyDecorator instance
- * @param def
- */
-export const UrlParam = <(def?: string | UrlParamMetadataArgs) => PropertyDecorator> df.storeFor(HttpAdapter, UrlParamMetadata, UrlParamsDecorator);
+// HttpAdapter in action module will create circular dependency.
+HttpActionMetadata.register = function register(meta: MetaFactoryInstance<HttpActionMetadata>): void {
+  targetStore.getAdapterStore(HttpAdapter).meta.addAction(meta);
+};

@@ -1,4 +1,6 @@
 import 'rxjs';
+import '@tdm/core/add/active-record-state'
+import '@tdm/core/add/active-record-state/next';
 import { MockMixin, MockResource, MockActionOptions, MockAction, MockDeserializer, bucketFactory } from '@tdm/core/testing';
 import { Hook, ActiveRecordCollection, ActionMethodType, ExecuteResponse } from '@tdm/core';
 

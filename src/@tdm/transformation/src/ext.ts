@@ -1,9 +1,26 @@
 export {
   stringify,
+  isNumber,
   isString,
   isFunction,
+  isUndefined,
   isPrimitive,
-  DualKeyMap
+  LazyInit,
+  DualKeyMap,
+  SetExt,
+  KeySet,
+  MapExt,
+  ensureTargetIsType,
+  registerFactory,
+  decoratorFactory,
+  MetaFactoryStatic,
+  MetaFactoryInstance,
+  BaseMetadata,
+  DecoratorInfo,
+  decoratorInfo,
+  metaFactoryFactory,
+  registerEvent,
+  TargetStoreEvents
 } from './fw';
 
 export {

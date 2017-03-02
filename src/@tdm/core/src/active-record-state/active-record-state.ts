@@ -1,3 +1,4 @@
+import { LazyInit } from '@tdm/transformation';
 import { Observable } from 'rxjs/Observable'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import { Subscription } from 'rxjs/Subscription'
@@ -8,7 +9,7 @@ import 'rxjs/add/operator/do';
 import { events$, ResourceEvent } from '../events';
 import { CancellationTokenResourceEvent } from '../events/internal';
 import { BaseActiveRecord } from '../active-record';
-import { LazyInit } from '../utils/decorators';
+
 
 // Weak map for private emitter
 // TODO: check perf, maybe symbols are "less" private but more performant

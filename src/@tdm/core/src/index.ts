@@ -1,5 +1,9 @@
-export * from './core/index';
+import '@tdm/transformation/add/mapping';
+
 export * from './metadata';
+import './add/transformation';
+export * from './core';
+
 
 export { validators } from './core-validators';
 
@@ -19,16 +23,11 @@ export {
 } from './active-record';
 
 export {
-  MapperFactory,
-  DeserializeMapper,
-  SerializeMapper,
-  PropertyContainer,
-  PoClassPropertyMap,
-  transformValueIn,
-  transformValueOut,
-} from './mapping';
-
-export {
-  findProp, PlainSerializer,
-  isUndefined, isFunction, isNumber, isString, isSymbol, isPropertyKey, stringify, promiser, Constructor
+  findProp,
+  PlainSerializer,
+  isSymbol,
+  isPropertyKey,
+  promiser,
 } from './utils';
+
+export { Constructor } from '@tdm/transformation';

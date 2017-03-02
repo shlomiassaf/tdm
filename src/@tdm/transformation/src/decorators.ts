@@ -1,23 +1,47 @@
-import { Constructor } from './fw';
-import { targetStore } from './metadata';
+import { Constructor, decoratorFactory, registerEvent, TargetStoreEvents } from './fw';
+import { targetStore, ExcludeMetadata, ExcludeMetadataArgs, PropMetadata, PropMetadataArgs, RelationMetadata, RelationMetadataArgs } from './metadata';
+
+function onCreateMetadata(target: Constructor<any>) {
+  const meta = targetStore.getTargetMeta(target);
+
+  meta.getValues(RelationMetadata)
+    .forEach( relation => {
+      // Its possible to set @Relation() without @Prop(), so make sure to create one if not set by the user.
+      const prop = meta.getCreateProp(relation.decoratorInfo);
+      prop.setRelationship(relation);
+
+      // if the fk is a different key, attach a reference to the foreign key PropMetadata (and create one if not there)
+      if (relation.name !== relation.foreignKey) {
+        meta.getCreateProp(relation.foreignKey).foreignKeyOf = prop;
+      }
+    });
+}
+registerEvent(TargetStoreEvents.onCreateMetadata, onCreateMetadata);
 
 /**
- * @propertyDecorator static
+ * @propertyDecorator instance
+ * @param def
  */
-export function Factory<T extends Constructor<any>>(fn: (isColl: boolean) => T): ClassDecorator {
-  return (target: T) => targetStore.setClassProp(target, 'factory', fn);
-}
+export const Prop = decoratorFactory<PropMetadataArgs>(PropMetadata, true);
 
 /**
- * @propertyDecorator static
+ * @propertyDecorator instance
+ * @param def
  */
-export function SetName<T extends Constructor<any>>(name: string): ClassDecorator {
-  return (target: T) => targetStore.setClassProp(target, 'name', name);
-}
+export const Exclude: (metaArgs?: ExcludeMetadataArgs) => (target: Object | Function, key?: PropertyKey, desc?: PropertyDescriptor) => any
+  = <any>decoratorFactory<any>(ExcludeMetadata);
+
+/**
+ * @propertyDecorator instance
+ * @param def
+ */
+export const Relation = decoratorFactory<RelationMetadataArgs>(RelationMetadata, true);
 
 /**
  * @propertyDecorator instance
  */
 export function Identity(): Function {
-  return (target: Constructor<any>, key: PropertyKey) => targetStore.setClassProp(target, 'identity', key);
+  return (target: Object, key: PropertyKey) => {
+    targetStore.setClassProp(target.constructor as any, 'identity', key);
+  }
 }

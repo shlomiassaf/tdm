@@ -1,17 +1,17 @@
 {
   "name": "@tdm/core",
-  "version": "1.0.0-alpha.7",
+  "version": "1.0.0-alpha.10",
   "description": "Typed data models (@tdm) core library",
   "main": "bundle/tdm.core.umd.js",
   "module": "index.js",
-  "typings": "index.d.ts",
+  "typings": "bundle.d.ts",
   "keywords": [
     "@tdm",
     "core"
   ],
   "peerDependencies": {
+    "rxjs": "^5.0.1",
     "@tdm/tixin": "*",
-    "@tdm/transformation": "*",
-    "typescript": "~2.1.0"
+    "@tdm/transformation": "*"
   }
 }

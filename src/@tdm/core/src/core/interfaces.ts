@@ -1,8 +1,6 @@
 import { Observable } from 'rxjs/Observable';
 import { ActionMetadata } from '../metadata';
-import { TransformDir } from '../metadata/meta-types';
-import { TargetAdapterMetadataStore } from '../metadata/reflection';
-
+import { TargetAdapterMetadataStore } from '../metadata/target-adapter-metadata-store';
 
 
 /**
@@ -72,15 +70,3 @@ export type DeserializerFactory = () => Deserializer<any>;
  * @public
  */
 export type IdentityValueType = string | number;
-
-/**
- * @public
- */
-export interface NamingStrategyFn extends Function{
-  (propertyName: string): string;
-}
-
-/**
- * @public
- */
-export type NamingStrategyConfig =  { [P in TransformDir]: NamingStrategyFn }

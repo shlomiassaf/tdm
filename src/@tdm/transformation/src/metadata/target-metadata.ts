@@ -1,10 +1,19 @@
-import { Constructor, DualKeyMap, TransformDir, TransformStrategy, NamingStrategyConfig, LazyInit, TransformationError, stringify, MetaFactoryStatic } from "../fw";
+import {
+  Constructor,
+  DualKeyMap,
+  BaseMetadata,
+  TransformDir,
+  TransformStrategy,
+  NamingStrategyConfig,
+  isString,
+  stringify,
+  MetaFactoryStatic,
+  DecoratorInfo
+} from '../fw';
 import { ClassMetadata } from './class-metadata';
 import { PropMetadata } from './prop';
-import { targetStore } from './target-store';
-import { SerializeMapper, DeserializeMapper } from '../mapping';
-import { TargetTransformer } from '../target-transformer';
 
+import { Prop } from '../decorators';
 
 const defaultCollFactory = () => [];
 
@@ -15,18 +24,13 @@ export class TargetMetadata implements ClassMetadata {
   transformStrategy: TransformStrategy | undefined;
   transformNameStrategy: NamingStrategyConfig | undefined;
 
-  @LazyInit(function (this: TargetMetadata): TargetTransformer {
-    return new TargetTransformer(this);
-  })
-  protected transformer: TargetTransformer;
-
   protected config: DualKeyMap<Constructor<any>, PropertyKey, any>;
 
   constructor(public readonly target: Constructor<any>, config: DualKeyMap<MetaFactoryStatic, PropertyKey, any>) {
     this.config = config;
 
     if (config.has(ClassMetadata as any)) {
-      Array.from(config.get(ClassMetadata as any).entries()).forEach( ([k, v]) => this[k] = v );
+      Array.from(config.get(ClassMetadata as any).entries()).forEach(([k, v]) => this[k] = v);
     }
 
     if (!this.factory) {
@@ -46,35 +50,18 @@ export class TargetMetadata implements ClassMetadata {
       return direction === 'outgoing'
         ? this.get(PropMetadata, this.identity as any).alias.outgoing
         : this.get(PropMetadata, this.identity as any).alias.incoming
-      ;
+        ;
     }
   }
 
+  getCreateProp(info: DecoratorInfo | string): PropMetadata {
+    const name = isString(info) ? info : info.name;
 
-  serialize(mapper: SerializeMapper): any {
-    return this.transformer.serialize(mapper);
-  }
-
-  deserialize(mapper: DeserializeMapper, target: any | any[], plain: boolean = false): void {
-    if (mapper.isCollection) {
-
-      if (!Array.isArray(target)) {
-        throw TransformationError.coll_obj(true);
-      }
-
-      while(mapper.next()) {
-        const t: any = plain ? {} : this.factory(false);
-        this.transformer.deserialize(mapper, t);
-        target.push(t);
-      }
-    } else {
-
-      if (Array.isArray(target)) {
-        throw TransformationError.coll_obj(false);
-      }
-
-      this.transformer.deserialize(mapper, target);
+    if (!this.config.has(PropMetadata, name)) {
+      Prop()(this.target.prototype, name);
     }
+
+    return this.config.get(PropMetadata, name);
   }
 
   /**
@@ -90,7 +77,14 @@ export class TargetMetadata implements ClassMetadata {
     return values ? Array.from(values.values()) : [];
   }
 
-  private get<T, Z, P extends keyof T>(type: T & Constructor<Z>, key: P): Z {
+  getMetaFor<T extends MetaFactoryStatic, Z extends BaseMetadata>(metaClass: T & Constructor<Z>, name: string): Z {
+    const meta = this.config.get(metaClass);
+    if (meta) {
+      return meta.get(name);
+    }
+  }
+
+  protected get<T, Z, P extends keyof T>(type: T & Constructor<Z>, key: P): Z {
     return this.config.get(PropMetadata, key);
   }
 }
