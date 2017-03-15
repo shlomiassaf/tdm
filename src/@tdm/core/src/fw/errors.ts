@@ -1,7 +1,5 @@
 import { stringify } from '@tdm/transformation';
-import { BaseActiveRecord } from '../active-record/active-record-interfaces';
-import { ValidationError } from '../metadata/meta-types/schema/interfaces';
-import { AdapterStatic } from './interfaces';
+import { AdapterStatic, BaseActiveRecord, ValidationError } from './interfaces';
 
 
 export class TDMError extends Error {

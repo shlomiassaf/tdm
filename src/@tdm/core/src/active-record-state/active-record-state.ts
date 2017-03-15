@@ -8,7 +8,7 @@ import 'rxjs/add/operator/do';
 
 import { events$, ResourceEvent } from '../events';
 import { CancellationTokenResourceEvent } from '../events/internal';
-import { BaseActiveRecord } from '../active-record';
+import { BaseActiveRecord } from '../fw';
 
 
 // Weak map for private emitter

@@ -1,7 +1,6 @@
 import { metaFactoryFactory, BaseMetadata, DecoratorInfo, MapExt, targetStore, MetaFactoryInstance } from '@tdm/transformation';
 
-import { DeserializerFactory, ExecuteContext, ExecuteResponse, ActionOptions } from '../../core/interfaces';
-import { ValidationSchedule } from './schema';
+import { DeserializerFactory, ExecuteContext, ExecuteResponse, ActionOptions, ValidationSchedule } from '../../fw';
 
 export enum ActionMethodType {
   /**

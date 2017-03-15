@@ -1,10 +1,8 @@
 import { Constructor } from '../fw/utils';
 import { TransformDir } from '../fw/interfaces'
-import { TargetStore } from '../metadata/target-store';
-import { ClassMetadata } from '../metadata/class-metadata';
-import { TargetMetadata } from '../metadata/target-metadata';
-import { PropMetadata } from '../metadata/prop';
 import { fireEvents, TargetStoreEvents } from '../fw/events';
+import { TargetStore, ClassMetadata, TargetMetadata, PropMetadata } from '../metadata';
+
 
 declare module '@tdm/transformation/metadata/target-store' {
   interface TargetStore {

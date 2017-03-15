@@ -1,7 +1,15 @@
-import { MapExt, DecoratorInfo, BaseMetadata, metaFactoryFactory, targetStore, MetaFactoryInstance } from '@tdm/transformation';
-import { ARHookableMethods } from '../../active-record/active-record-interfaces';
+import {
+  MapExt,
+  DecoratorInfo,
+  BaseMetadata,
+  metaFactoryFactory,
+  targetStore,
+  MetaFactoryInstance
+} from '@tdm/transformation';
 
-export interface Hook {
+import { ARHookableMethods } from '../../fw';
+
+export interface StoredHook {
   before?: HookMetadata;
   after?: HookMetadata
 }
@@ -16,7 +24,7 @@ export class HookMetadata extends BaseMetadata {
   event: 'before' | 'after';
   action: ARHookableMethods;
 
-  constructor(obj: HookMetadataArgs, info: DecoratorInfo)  {
+  constructor(obj: HookMetadataArgs, info: DecoratorInfo) {
     super(info);
 
     this.event = obj.event;
@@ -26,24 +34,24 @@ export class HookMetadata extends BaseMetadata {
   static metaFactory = metaFactoryFactory<HookMetadataArgs, HookMetadata>(HookMetadata);
 
   static register(meta: MetaFactoryInstance<HookMetadata>): void {
-    const hook: Hook = { [meta.metaValue.event]: meta.metaValue };
+    const hook: StoredHook = {[meta.metaValue.event]: meta.metaValue};
 
-    const currHook = targetStore.getMetaFor<any, Hook>(meta.target, HookMetadata, meta.metaValue.action) || {} as any;
-    targetStore.setMetaFor<any, Hook>(meta.target, meta.metaClassKey, meta.metaValue.action as any, Object.assign(currHook, hook));
+    const currHook = targetStore.getMetaFor<any, StoredHook>(meta.target, HookMetadata, meta.metaValue.action) || {} as any;
+    targetStore.setMetaFor<any, StoredHook>(meta.target, meta.metaClassKey, meta.metaValue.action as any, Object.assign(currHook, hook));
   }
 
-  static extend(from: Map<PropertyKey, Hook>, to: Map<PropertyKey, Hook> | undefined): Map<PropertyKey, Hook> {
+  static extend(from: Map<PropertyKey, StoredHook>, to: Map<PropertyKey, StoredHook> | undefined): Map<PropertyKey, StoredHook> {
     if (!to) {
-      to = new Map<PropertyKey, Hook>(from.entries());
+      to = new Map<PropertyKey, StoredHook>(from.entries());
     } else {
       // TODO: Refactor to support static/instance like ExtendAction in case 2 hooks with same prop name
       MapExt.asKeyValArray(from)
-        .forEach( ([k, hookFrom]) => {
+        .forEach(([k, hookFrom]) => {
           if (!to.has(k)) {
             to.set(k, hookFrom);
           } else {
             const hookTo = to.get(k);
-            Object.keys(hookFrom).forEach( event => {
+            Object.keys(hookFrom).forEach(event => {
               if (!hookTo.hasOwnProperty(event)) {
                 hookTo[event] = hookFrom[event];
               }

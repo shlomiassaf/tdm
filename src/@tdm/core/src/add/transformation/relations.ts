@@ -1,18 +1,11 @@
 import {
   Constructor,
   TargetStoreEvents,
-  RelationMetadataArgs, // leave to satisfy angular compiler
   targetStore,
-  registerEvent,
-  PropMetadata,
-  decoratorFactory
+  registerEvent
 } from '@tdm/transformation';
-import {
-  BelongsToMetadata,
-  BelongsToMetadataArgs,
-  OwnsMetadata,
-  OwnsMetadataArgs
-} from '../../metadata/meta-types/relations';
+
+import { BelongsToMetadata, OwnsMetadata } from '../../metadata';
 
 
 function onCreateMetadata(target: Constructor<any>, relClass: typeof BelongsToMetadata | typeof OwnsMetadata) {
@@ -37,18 +30,5 @@ function onCreateMetadata(target: Constructor<any>, relClass: typeof BelongsToMe
 
 registerEvent(TargetStoreEvents.onCreateMetadata, (target: Constructor<any>) => onCreateMetadata(target, BelongsToMetadata));
 registerEvent(TargetStoreEvents.onCreateMetadata, (target: Constructor<any>) => onCreateMetadata(target, OwnsMetadata));
-
-/**
- * @propertyDecorator instance
- * @param def
- */
-export const BelongsTo = decoratorFactory<BelongsToMetadataArgs>(PropMetadata, true);
-
-
-/**
- * @propertyDecorator instance
- * @param def
- */
-export const Owns = decoratorFactory<OwnsMetadataArgs<any>>(PropMetadata, true);
 
 

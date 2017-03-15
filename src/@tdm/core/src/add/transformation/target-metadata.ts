@@ -1,11 +1,8 @@
 import { Tixin } from '@tdm/tixin';
 import { targetStore, DecoratorInfo, TargetMetadata, stringify, LazyInit } from '@tdm/transformation';
 
-import { AdapterError } from '../../core/errors';
-import { AdapterStatic } from "../../core/interfaces";
-import { ARHookableMethods } from "../../active-record";
-import { TargetAdapterMetadataStore } from '../../metadata/target-adapter-metadata-store';
-import { ExtendActionMetadata, HookMetadata, ResourceMetadataArgs, ValidationError } from '../../metadata/meta-types';
+import { AdapterError, AdapterStatic, ARHookableMethods } from '../../fw';
+import { TargetAdapterMetadataStore, ExtendActionMetadata, HookMetadata, ResourceMetadataArgs, ValidationError } from '../../metadata';
 import { TargetValidator } from '../../core/target-validator';
 
 class CoreTargetMetadata extends TargetMetadata {

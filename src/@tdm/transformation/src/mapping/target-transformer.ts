@@ -103,6 +103,10 @@ function deserializePredicate(p: PoClassPropertyMap) {
   return p.obj === this;
 }
 
+/**
+ * A Target transformer is the running context of a mapper.
+ * It will run the mapper, provide input and parse results
+ */
 export class TargetTransformer {
 
   @LazyInit(function (this: TargetTransformer): PoClassPropertyMap | undefined {

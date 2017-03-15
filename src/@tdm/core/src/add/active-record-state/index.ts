@@ -1,7 +1,6 @@
-import { BaseActiveRecord } from '../../active-record/active-record-interfaces';
-import { onCreateNew } from '../../active-record/active-record';
-import { ActiveRecordCollection } from '../../active-record/active-record-collection';
-import { ActiveRecordState as ActiveRecordState_ } from '../../active-record-state/active-record-state';
+import { BaseActiveRecord } from '../../fw';
+import { onCreateNew, ActiveRecordCollection } from '../../active-record';
+import { ActiveRecordState as ActiveRecordState_ } from '../../active-record-state';
 
 function onCreateNewHandler(instance: any): void {
   /**
@@ -14,7 +13,7 @@ function onCreateNewHandler(instance: any): void {
 }
 onCreateNew(onCreateNewHandler);
 
-declare module '../../active-record/active-record-interfaces' {
+declare module '../../active-record/interfaces' {
   interface BaseActiveRecord<T> {
     /**
      * @extension '@tdm/core/add/active-record-state'

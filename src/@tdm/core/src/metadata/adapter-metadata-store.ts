@@ -1,4 +1,4 @@
-import { AdapterStatic } from '../core/interfaces';
+import { AdapterStatic } from '../fw';
 import { AdapterMetadata } from './meta-types';
 
 export class AdapterMetadataStore {

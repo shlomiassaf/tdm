@@ -1,6 +1,6 @@
 import { TransformableMetadataArgs, MapperFactory } from '@tdm/transformation';
 
-import { DeserializerFactory } from '../../core/interfaces';
+import { DeserializerFactory } from '../../fw';
 
 export interface ResourceMetadataArgs extends TransformableMetadataArgs {
   /**

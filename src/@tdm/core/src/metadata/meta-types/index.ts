@@ -1,6 +1,6 @@
-export { ResourceMetadataArgs } from './resource';
-export { ActionMetadata, ActionMetadataArgs, ActionMethodType, ExtendActionMetadata } from './action';
-export { AdapterMetadata, AdapterMetadataArgs } from './adapter';
-export { BelongsToMetadata, BelongsToMetadataArgs, OwnsMetadata, OwnsMetadataArgs, Relationship, RelationshipType } from './relations';
-export { HookMetadata, HookMetadataArgs } from './hook';
+export * from './resource';
+export * from './action';
+export * from './adapter';
+export * from './relations';
+export * from './hook';
 export * from './schema';

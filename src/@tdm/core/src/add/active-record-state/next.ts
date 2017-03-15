@@ -1,5 +1,4 @@
-import { ActiveRecordState } from '../../active-record-state/active-record-state';
-import { next } from '../../active-record-state/next';
+import { ActiveRecordState, next } from '../../active-record-state';
 
 /**
  * Returns a promise that will resolve when the current action ends.

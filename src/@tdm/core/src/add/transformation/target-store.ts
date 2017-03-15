@@ -1,9 +1,8 @@
 import { Tixin } from '@tdm/tixin';
 import { TargetStore, LazyInit, Constructor } from '@tdm/transformation';
 
-import { AdapterStatic } from '../../core/interfaces';
-import { AdapterMetadataStore } from '../../metadata/adapter-metadata-store';
-import { TargetAdapterMetadataStore } from '../../metadata/target-adapter-metadata-store';
+import { AdapterStatic } from '../../fw';
+import { TargetAdapterMetadataStore, AdapterMetadataStore } from '../../metadata';
 
 class CoreTargetStore extends TargetStore {
 

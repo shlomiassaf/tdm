@@ -1,7 +1,7 @@
 import { metaFactoryFactory, MetaFactoryStatic, targetStore, MetaFactoryInstance } from '@tdm/transformation';
 import { ActionMetadata } from './action';
 import { TargetAdapterMetadataStore } from '../target-adapter-metadata-store';
-import { DeserializerFactory } from "../../core/interfaces";
+import { DeserializerFactory } from '../../fw';
 import { array } from '../../utils';
 
 export interface AdapterMetadataArgs {

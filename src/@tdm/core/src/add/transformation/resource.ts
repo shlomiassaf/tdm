@@ -1,16 +1,7 @@
-import { TargetStore, targetStore, MapperFactory } from '@tdm/transformation';
+import { TargetStore, MapperFactory } from '@tdm/transformation';
 import { ResourceMetadataArgs } from '../../metadata';
-import { DeserializerFactory } from '../../core/interfaces';
+import { DeserializerFactory } from '../../fw';
 
-/**
- * @classDecorator
- * @param metaArgs
- */
-export function Resource(metaArgs: ResourceMetadataArgs) {
-  return target => {
-    targetStore.setResource(metaArgs, target);
-  };
-}
 
 declare module '@tdm/transformation/metadata/target-store' {
   interface TargetStore {

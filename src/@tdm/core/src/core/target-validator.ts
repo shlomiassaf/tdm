@@ -1,6 +1,5 @@
 import { targetStore, PropMetadata, LazyInit } from '@tdm/transformation';
-import { Validator, ValidationError } from '../metadata/meta-types/schema/interfaces';
-import { ValidationContext } from '../metadata/meta-types/schema/validation';
+import { Validator, ValidationError, ValidationContext } from '../fw';
 
 /**
  * @internal

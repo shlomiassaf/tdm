@@ -1,4 +1,4 @@
-import { targetStore as _targetStore, TargetStore as _TargetStore, Constructor, isString } from '@tdm/transformation';
+import { targetStore as _targetStore, TargetStore as _TargetStore, Constructor, isString, PropMetadata } from '@tdm/transformation';
 import { TargetMetaModifier as _TargetMetaModifier } from '@tdm/transformation/testing';
 import { TestTargetMetadata as _TestTargetMetadata } from '@tdm/transformation/testing/modifier';
 import { Resource, Hook, Owns, BelongsTo, ResourceMetadataArgs } from '@tdm/core';
@@ -9,8 +9,7 @@ import {
   BelongsToMetadata,
   HookMetadataArgs, HookMetadata
 } from '../metadata/meta-types';
-import { ARHookableMethods, ARHooks } from '@tdm/core/active-record';
-import { PropMetadata } from "@tdm/transformation/metadata";
+import { ARHookableMethods, ARHooks } from '@tdm/core/active-record/interfaces';
 
 const targetStore: TestTargetStore = _targetStore;
 

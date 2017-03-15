@@ -1,10 +1,8 @@
 import { targetStore, Constructor,  MapExt, isFunction, LazyInit, TargetMetadata, SetExt } from '@tdm/transformation';
-import { AdapterStatic } from '../core/interfaces';
-import { AdapterError, TargetError } from '../core/errors';
-import { ActionController } from '../core/action-controller';
+import { AdapterStatic, AdapterError, TargetError, ARHookableMethods } from '../fw';
+import { ActionController } from '../core';
 
 import { AdapterMetadata, ActionMetadata, HookMetadata } from './meta-types';
-import { ARHookableMethods } from '../active-record/active-record-interfaces';
 import { getProtoChain } from '../utils';
 
 /**

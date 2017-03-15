@@ -1,5 +1,5 @@
 import { ActionErrorResourceEvent } from '../events';
-import { ResourceError } from '../core/errors';
+import { ResourceError } from '../fw';
 import { promiser } from '../utils';
 
 /**

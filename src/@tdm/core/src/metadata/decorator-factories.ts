@@ -1,8 +1,7 @@
 import { isFunction, targetStore, PropMetadata } from '@tdm/transformation';
-import { AdapterStatic, AdapterError } from '../core/index';
+import { AdapterStatic, AdapterError } from '../fw';
 import { ResourceMetadataArgs } from './meta-types';
-import { activeRecordClassFactory } from '../active-record';
-import { ActiveRecordCollection } from '../active-record/active-record-collection';
+import { activeRecordClassFactory, ActiveRecordCollection } from '../active-record';
 
 /**
  * A Factory for Resource class decorators, the returned decorator will automatically register the

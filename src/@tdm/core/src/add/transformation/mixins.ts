@@ -1,5 +1,5 @@
 import { TargetStore, KeySet, SetExt } from '@tdm/transformation';
-import { AdapterStatic } from '../../core/interfaces';
+import { AdapterStatic } from '../../fw';
 
 declare module '@tdm/transformation/metadata/target-metadata' {
   interface TargetMetadata {

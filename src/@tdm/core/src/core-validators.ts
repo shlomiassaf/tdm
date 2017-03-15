@@ -1,7 +1,5 @@
 import { isNumber } from '@tdm/transformation';
-import { ValidationConfigError } from './core/errors';
-
-import { ValidationContext } from './metadata/meta-types/schema/interfaces';
+import { ValidationConfigError, ValidationContext } from './fw';
 
 const undef = undefined;
 

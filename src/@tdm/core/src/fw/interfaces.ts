@@ -1,7 +1,9 @@
+export * from '../active-record/interfaces';
+export * from '../metadata/meta-types/schema/interfaces';
+
 import { Observable } from 'rxjs/Observable';
 import { ActionMetadata } from '../metadata';
 import { TargetAdapterMetadataStore } from '../metadata/target-adapter-metadata-store';
-
 
 /**
  * @public
