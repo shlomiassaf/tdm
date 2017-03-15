@@ -110,7 +110,7 @@ module.exports = function(metadata) {
                 Object.keys(metadata.versions)
                   .forEach( pkgName => {
                     if (deps.hasOwnProperty(pkgName)) {
-                      deps[pkgName] = metadata.versions[pkgName];
+                      deps[pkgName] = '^' + metadata.versions[pkgName];
                     }
                   });
               }
