@@ -10,7 +10,7 @@ import 'rxjs/add/operator/switchMap';
 
 import { TargetMetadata, isFunction, MapperFactory } from '@tdm/transformation';
 import { emitEvent, eventFactory } from '../events';
-import { CancellationTokenResourceEvent } from '../events/internal';
+import { CancellationTokenResourceEvent, ExecuteInitResourceEvent } from '../events/internal';
 import { defaultConfig } from '../default-config';
 import { findProp, noop  } from '../utils';
 import { ActionMetadata, ValidationSchedule } from '../metadata';
@@ -108,6 +108,7 @@ export class ActionController {
       return;
     }
 
+    emitEvent(new ExecuteInitResourceEvent(self, {adapterMeta: this.adapterStore, action, async, args}));
     emitEvent(eventFactory.actionStart(self));
 
     const pubCtx = new ExtendedContext(self, this.adapterStore, action, this.mapper);
@@ -205,14 +206,16 @@ class ExtendedContext implements ExecuteContext<any> {
   }
 
   deserialize(data: any): void {
-    const mapper = this.mapper.deserializer(data, this.adapterStore.target);
-    const isColl = !!this.action.isCollection;
+    if (data) { // only if exists (false, 0, '' and all falsy's === not exists)
+      const mapper = this.mapper.deserializer(data, this.adapterStore.target);
+      const isColl = !!this.action.isCollection;
 
-    if (mapper.isCollection !== isColl) {
-      throw ResourceError.coll_obj(this.data, isColl);
+      if (mapper.isCollection !== isColl) {
+        throw ResourceError.coll_obj(this.data, isColl);
+      }
+
+      this.adapterStore.parent
+        .deserialize(mapper, isColl ? (this.data as ActiveRecordCollection<any>).collection : this.data);
     }
-
-    this.adapterStore.parent
-      .deserialize(mapper, isColl ? (this.data as ActiveRecordCollection<any>).collection : this.data);
   }
 }

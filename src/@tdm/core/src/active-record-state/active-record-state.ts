@@ -6,16 +6,17 @@ import { Subject } from 'rxjs/Subject'
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/do';
 
-import { events$, ResourceEvent } from '../events';
-import { CancellationTokenResourceEvent } from '../events/internal';
-import { BaseActiveRecord } from '../fw';
-
+import { events$, ResourceEvent, ResourceEventType } from '../events';
+import { CancellationTokenResourceEvent, ExecuteInitResourceEvent, ExecuteInitResourceEventArgs } from '../events/internal';
+import { BaseActiveRecord, ResourceError } from '../fw';
+import { ActiveRecordCollection } from '../active-record';
 
 // Weak map for private emitter
 // TODO: check perf, maybe symbols are "less" private but more performant
 const privateDict = new WeakMap<BaseActiveRecord<any>, {
   emitter: Subject<ResourceEvent>,
   actionCancel: Subscription,
+  lastExecute: ExecuteInitResourceEventArgs
 }>();
 
 const ENDING_EVENTS = [
@@ -48,6 +49,8 @@ function emitEvent(event: ResourceEvent): void {
   if (event.internal === true) {
     if (event instanceof CancellationTokenResourceEvent) {
       privateDict.get(event.resource).actionCancel = event.token;
+    } else if (event instanceof ExecuteInitResourceEvent) {
+      privateDict.get(event.resource).lastExecute = event.data;
     }
   } else {
     pData.emitter.next(event);
@@ -89,32 +92,128 @@ export class ActiveRecordState<T> {
    */
   get busy$(): Observable<boolean> {
     if (!this._busy$) { // recover from disconnection.
-      const subject = new BehaviorSubject(this.busy);
+      this._busySubject = new BehaviorSubject(this.busy);
 
       this.events$
-        .filter( event => event.hasOwnProperty(BUSY_CHANGED) )
-        .map( event => event[BUSY_CHANGED]).subscribe(subject);
+        .filter( event => event.hasOwnProperty(BUSY_CHANGED))
+        .map( event => event[BUSY_CHANGED]).subscribe(this._busySubject);
 
-      this._busy$ = new Observable( o => subject.subscribe(o) );
+      this._busy$ = new Observable( o => this._busySubject.subscribe(o) );
     }
     return this._busy$;
   }
+
+  /**
+   * An observable that emits the resource (hence self) on every ActionSuccess event.
+   * If self is ActiveRecordCollection it will emit the collection property.
+   */
+  get self$(): Observable<T> {
+    if (!this._self$) { // recover from disconnection.
+      const subject = new BehaviorSubject(this.parent instanceof ActiveRecordCollection ? this.parent.collection : this.parent);
+
+      this.events$
+        .filter( event => event.type === ResourceEventType.ActionSuccess )
+        .map( event => this.parent instanceof ActiveRecordCollection ? this.parent.collection : this.parent)
+        .subscribe(subject);
+
+      this._self$ = new Observable( o => subject.subscribe(o) );
+    }
+    return this._self$;
+  }
+
 
   /**
    * Indicates if the active record is busy performing an action.
    */
   busy: boolean;
 
+  private _busySubject: BehaviorSubject<boolean>;
   private _busy$: Observable<boolean>;
+  private _self$: Observable<T>;
 
   constructor(public parent: BaseActiveRecord<T>) {
 
     privateDict.set(parent, {
       emitter: new Subject<ResourceEvent>(),
-      actionCancel: undefined
+      actionCancel: undefined,
+      lastExecute: undefined
     });
 
     this.busy = false;
+  }
+
+  /**
+   * Reply the last operation.
+   * Busy state must be false and the resource should have been executed at least once (any action)
+   */
+  replay(): void {
+    if (this.busy) {
+      throw new ResourceError(this.parent, `Can not replay while busy.`);
+    }
+
+    const pData = privateDict.get(this.parent);
+    if (!pData.lastExecute) {
+      throw new ResourceError(this.parent, `No replay data`);
+    }
+
+    const last = pData.lastExecute;
+    if (this.parent instanceof ActiveRecordCollection) {
+      this.parent.collection.splice(0, this.parent.collection.length);
+    }
+    last.adapterMeta.actionController.createExecFactory(last.action)(this.parent, last.async, ...last.args);
+  }
+
+  /**
+   * Reply the last operation after the the supplied items finish their current operation. (not busy)
+   * Busy state must be false and the resource should have been executed at least once (any action)
+   * @param resources
+   * @param ignoreError Whether to reply or not if an error is thrown from some or all of the resources.
+   * always: Always execute the reply operation
+   * some: Execute the reply operation if at least one item did not throw.
+   * never: Don't execute the reply operation if at least one item threw.
+   */
+  replayAfter(resources: BaseActiveRecord<any> | Array<BaseActiveRecord<any>>, ignoreError: 'always' | 'some' | 'never' = 'never'): void {
+    if (this.busy) {
+      throw new ResourceError(this.parent, `Can not replay while busy.`);
+    }
+
+    const pData = privateDict.get(this.parent);
+    if (!pData.lastExecute) {
+      throw new ResourceError(this.parent, `No replay data`);
+    }
+
+    this.busy = true;
+    if (this._busySubject) {
+      this._busySubject.next(true);
+    }
+
+    //TODO: make sure next() rejects on cancel or this is a memory leak.
+    const arr: Array<BaseActiveRecord<any>> = Array.isArray(resources) ? resources.slice() : [resources];
+
+
+    let catcher: (err?: Error) => any | void;
+
+    switch (ignoreError) {
+      case 'always':
+        catcher = () => {};
+        break;
+      case 'some':
+        catcher = err => { arr.pop(); if (arr.length === 0) throw err; }
+        break;
+      default:
+        catcher = err => { throw err };
+        break;
+    }
+
+    Promise.all(arr.map( a => a.$ar.busy ? a.$ar.next().catch(catcher) : Promise.resolve() ))
+      .then( () => {
+        this.busy = false;
+        this.replay();
+      })
+      .catch( err => {
+        this.busy = false;
+        this._busySubject && this._busySubject.next(false)
+      });
   }
 
   /**
@@ -127,7 +226,7 @@ export class ActiveRecordState<T> {
     if (pData.emitter.observers) {
       pData.emitter.observers.slice().forEach(o => !o.closed && o.complete());
     }
-    this._busy$ = undefined;
+    this._busySubject = this._busy$ = this._self$ = undefined;
   }
 
   /**

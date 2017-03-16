@@ -85,7 +85,7 @@ export class BaseRestResource {
 
 export interface BaseRestResourceStatic<T> {
   find(id: IdentityValueType, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & BaseRestResource>;
-  query(options?: HttpActionOptions): ActiveRecordCollection<Tixin<T, BaseActiveRecord<T> & BaseRestResource>[]>;
+  query(options?: HttpActionOptions): ActiveRecordCollection<Tixin<T, BaseActiveRecord<T> & BaseRestResource>>;
   create(data: Partial<T>, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & BaseRestResource>;
   update(data: Partial<T>, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & BaseRestResource>;
   remove(id: IdentityValueType, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & BaseRestResource>;

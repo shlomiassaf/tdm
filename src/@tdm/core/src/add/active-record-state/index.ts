@@ -3,12 +3,6 @@ import { onCreateNew, ActiveRecordCollection } from '../../active-record';
 import { ActiveRecordState as ActiveRecordState_ } from '../../active-record-state';
 
 function onCreateNewHandler(instance: any): void {
-  /**
-   * Make active record prop future proof for refactoring.
-   */
-// (Object.defineProperty as DefinePropertyTyped<typeof ARProps, ActiveRecordState<T>>)
-//   (this, '$ar', { value: new ActiveRecordState<T>(this as any) });
-
   Object.defineProperty(instance, '$ar', { value: new ActiveRecordState_<any>(instance as any) });
 }
 onCreateNew(onCreateNewHandler);

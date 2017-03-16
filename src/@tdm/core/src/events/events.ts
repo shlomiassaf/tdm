@@ -8,7 +8,8 @@ export const ResourceEventType = {
 };
 
 export const InternalResourceEventType = {
-  $CancellationToken: '$CancellationToken' as '$CancellationToken'
+  $CancellationToken: '$CancellationToken' as '$CancellationToken',
+  $ExecuteInit: '$ExecuteInit' as '$ExecuteInit'
 };
 
 export class ResourceEvent {
