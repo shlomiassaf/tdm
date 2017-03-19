@@ -73,5 +73,5 @@ dll/
 *.shim.ngstyle.ts
 
 # private scripts
-_*.sh
+_buildTo*.js
 .tsconfig.tmp.json
