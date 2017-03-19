@@ -1,6 +1,6 @@
 {
   "name": "@tdm/transformation",
-  "version": "1.0.0-alpha.12",
+  "version": "1.0.0-alpha.13",
   "description": "Typed data models (@tdm) transformation module",
   "main": "bundle/tdm.transformation.umd.js",
   "module": "index.js",

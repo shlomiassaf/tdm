@@ -28,8 +28,13 @@ export const Prop = decoratorFactory<PropMetadataArgs>(PropMetadata, true);
  * @propertyDecorator instance
  * @param def
  */
-export const Exclude: (metaArgs?: ExcludeMetadataArgs) => (target: Object | Function, key?: PropertyKey, desc?: PropertyDescriptor) => any
-  = <any>decoratorFactory<any>(ExcludeMetadata);
+
+export function Exclude(metaArgs?: ExcludeMetadataArgs): (target: Object | Function, key?: PropertyKey, desc?: PropertyDescriptor) => any {
+  return exclude(metaArgs) as any;
+}
+export const exclude: (metaArgs?: ExcludeMetadataArgs) => (target: Object | Function, key?: PropertyKey, desc?: PropertyDescriptor) => any
+  = <any>decoratorFactory<any>(ExcludeMetadata); // for Angular AOT
+
 
 /**
  * @propertyDecorator instance
