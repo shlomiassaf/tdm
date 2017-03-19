@@ -49,7 +49,11 @@ export class TargetStore {
     return this.getClassProp(target, 'name');
   }
 
-  setClassProp<P extends keyof ClassMetadata>(target: Constructor<any>, key: P, value: ClassMetadata[P]): void {
+  hasClassProp<P extends keyof ClassMetadata>(target: Constructor<any>, key: P): boolean {
+    return this.hasTarget(target) && this.targets.get(target).has(ClassMetadata, key);
+  }
+
+  setClassProp<P extends keyof ClassMetadata>(target: Constructor<any>, key: P, value: ClassMetadata[P]): ClassMetadata[P] {
     if (this.builtTargets.has(target)) {
       this.builtTargets.get(target)[key] = value;
     }
@@ -59,6 +63,8 @@ export class TargetStore {
     }
 
     this.set(target, ClassMetadata, key, value);
+
+    return value;
   }
 
   getClassProp<P extends keyof ClassMetadata>(target: Constructor<any>, key: P): ClassMetadata[P] | undefined {
@@ -69,10 +75,12 @@ export class TargetStore {
     }
   }
 
-  getMetaFor<T extends MetaFactoryStatic, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, name: string): Z | undefined {
+  getMetaFor<T extends MetaFactoryStatic, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>): Map<PropertyKey, Z> | undefined;
+  getMetaFor<T extends MetaFactoryStatic, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, name: PropertyKey): Z | undefined;
+  getMetaFor<T extends MetaFactoryStatic, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, name?: PropertyKey): Z | Map<PropertyKey, Z> | undefined {
     const dkm = this.targets.get(target);
     if (dkm) {
-      return dkm.get(metaClass, name);
+      return name ? dkm.get(metaClass, name) : dkm.get(metaClass);
     }
   }
 

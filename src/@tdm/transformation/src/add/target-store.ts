@@ -1,6 +1,6 @@
 import { Constructor } from '../fw/utils';
 import { TransformDir } from '../fw/interfaces'
-import { fireEvents, TargetStoreEvents } from '../fw/events';
+import { fireEvents } from '../fw/events';
 import { TargetStore, ClassMetadata, TargetMetadata, PropMetadata } from '../metadata';
 
 
@@ -33,7 +33,7 @@ TargetStore.prototype.getTargetMeta = function getTargetMeta(target: Constructor
     meta = new TargetMetadata(target, metaArgs);
     this.builtTargets.set(target, meta);
     this.namedTargets.set(meta.name, target);
-    fireEvents(TargetStoreEvents.onCreateMetadata, target);
+    fireEvents('onCreateMetadata', target);
   }
   return meta;
 };

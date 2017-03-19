@@ -19,6 +19,7 @@ export {
   DecoratorInfo,
   decoratorInfo,
   metaFactoryFactory,
+  fireEvents,
   registerEvent,
   TargetStoreEvents
 } from './fw';

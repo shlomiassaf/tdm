@@ -22,7 +22,7 @@ export * from './ext';
 export { Transformable } from './add/transformable';
 import './add/target-store';
 
-export { directMapper, TransformationError } from './mapping';
+export { directMapper, TransformationError, DirectSerializeMapper, DirectDeserializeMapper } from './mapping';
 
 export { Prop, Exclude, Relation, Identity } from './decorators';
 

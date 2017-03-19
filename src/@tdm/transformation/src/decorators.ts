@@ -1,4 +1,4 @@
-import { Constructor, decoratorFactory, registerEvent, TargetStoreEvents } from './fw';
+import { Constructor, decoratorFactory, registerEvent } from './fw';
 import { targetStore, ExcludeMetadata, ExcludeMetadataArgs, PropMetadata, PropMetadataArgs, RelationMetadata, RelationMetadataArgs } from './metadata';
 
 function onCreateMetadata(target: Constructor<any>) {
@@ -16,7 +16,7 @@ function onCreateMetadata(target: Constructor<any>) {
       }
     });
 }
-registerEvent(TargetStoreEvents.onCreateMetadata, onCreateMetadata);
+registerEvent('onCreateMetadata', onCreateMetadata);
 
 /**
  * @propertyDecorator instance

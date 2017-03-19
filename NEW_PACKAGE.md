@@ -5,7 +5,7 @@
 --DIR_NAME
    |-src
      |-index.ts
-     |-all.ts (optional)
+     |-bundle.ts (optional)
      |- package content...
    |-test
    |-package.json
@@ -21,7 +21,7 @@ In the future, the `external` list will be build from that (see below)
 `test` is where all spec files are stored.
   
 `src` is the source code directory, it **must** include an `index.ts` file.  
-An optional `all.ts` files can be set that, if exists, is used by webpack to create the UMD bundle.  
+An optional `bundle.ts` files can be set that, if exists, is used by webpack to create the UMD bundle.  
 This is useful if you have extensions that might be added by the user, in ESM mode (like rxjs)
 
 ### in `tsconfig.json`, `tsconfig.package.json`, `tsconfig.webpack.json` add:
@@ -42,18 +42,6 @@ For example, the package **core** with DIR_NAME `core`:
 npm run lib:printTsPaths
 ```
 
-### in `scripts/lib_build_config.js` add externals, not to be included in the build, into the `pkgExternals` object.
-
-```
-const pkgExternals = {
-  core: [/^@tdm\/tixin/],
-  'angular-http': [/^path-to-regexp/, /^@tdm\/tixin/, /^@tdm\/core/],
-  'json-api-mapper': [/^@tdm\/tixin/, /^@tdm\/core/]
-};
-```
-
 the key is the DIR_NAME.
 
-> `@angular` and `rxjs` are added by default.
-
-##### This can be automatically set by the scripts, once a logic is implemented to get this data from `package.json` of each package (and recurse)
+> `@angular` is added by default.

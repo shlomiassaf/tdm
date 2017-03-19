@@ -1,0 +1,22 @@
+{
+  "name": "@tdm/angular-forms-mapper",
+  "version": "1.0.0-alpha.1",
+  "description": "Typed data models (@tdm) angular mapper.",
+  "main": "bundle/tdm.angular-forms-mapper.umd.js",
+  "module": "index.js",
+  "typings": "index.d.ts",
+  "keywords": [
+    "@tdm",
+    "angular",
+    "forms",
+    "mapper"
+  ],
+  "peerDependencies": {
+    "rxjs": "^5.0.1",
+    "@angular/core": "^2.4.0",
+    "@angular/forms": "^2.4.0",
+    "@tdm/tixin": "*",
+    "@tdm/transformation": "*",
+    "@tdm/core": "*"
+  }
+}

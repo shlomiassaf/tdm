@@ -28,7 +28,7 @@ function onCreateMetadata(target: Constructor<any>, relClass: typeof BelongsToMe
   });
 }
 
-registerEvent(TargetStoreEvents.onCreateMetadata, (target: Constructor<any>) => onCreateMetadata(target, BelongsToMetadata));
-registerEvent(TargetStoreEvents.onCreateMetadata, (target: Constructor<any>) => onCreateMetadata(target, OwnsMetadata));
+registerEvent('onCreateMetadata', (target: Constructor<any>) => onCreateMetadata(target, BelongsToMetadata));
+registerEvent('onCreateMetadata', (target: Constructor<any>) => onCreateMetadata(target, OwnsMetadata));
 
 

@@ -2,6 +2,7 @@ import { Tixin } from '@tdm/tixin';
 import { LazyInit, Constructor, TargetStore, TargetMetadata, targetStore } from '../../index';
 import { SerializeMapper, DeserializeMapper, TransformationError } from '../../mapping';
 import { TargetTransformer } from '../../mapping/target-transformer';
+import { isFunction, array } from '../../fw';
 
 class PlainObject {}
 
@@ -9,9 +10,19 @@ declare module '@tdm/transformation/metadata/target-store' {
   interface TargetStore {
     serialize(target: Constructor<any>, mapper: SerializeMapper): any;
 
-    deserialize(mapper: DeserializeMapper): any | any[] | undefined;
+    /**
+     * Deserialize a known target.
+     * @param mapper
+     * @param instance Optional, if not set a new instance of the type will be created.
+     */
+    deserialize(mapper: DeserializeMapper, instance?: any): any | any[] | undefined;
 
-    deserializePlain(mapper: DeserializeMapper): any;
+    /**
+     * Plain deserializer, deserialize with no metadata.
+     * @param mapper
+     * @param instance Optional, if not set a new instance of will be created.
+     */
+    deserializePlain(mapper: DeserializeMapper, instance?: any): any;
   }
 }
 
@@ -28,24 +39,26 @@ TargetStore.prototype.serialize = function serialize(target: Constructor<any>, m
  * @param mapper
  * @returns {any}
  */
-TargetStore.prototype.deserialize = function deserialize(mapper: DeserializeMapper): any | any[] | undefined {
+TargetStore.prototype.deserialize = function deserialize(mapper: DeserializeMapper, instance?: any): any | any[] | undefined {
   if (this.hasTarget(mapper.sourceType)) {
     const meta = this.getTargetMeta(mapper.sourceType);
-    const result: any = meta.factory(mapper.isCollection);
+    const result: any = instance || meta.factory(mapper.isCollection);
+
     meta.deserialize(mapper, result);
     return result;
   } else {
-    return this.deserializePlain(mapper);
+    return this.deserializePlain(mapper, instance);
   }
 };
 
 /**
  * Deserialize and instance of "DeserializeMapper" into a plain object (object literal)
  * @param mapper
+ * @param instance Optional, if not set a new instance of will be created.
  */
-TargetStore.prototype.deserializePlain = function deserializePlain(mapper: DeserializeMapper): any {
+TargetStore.prototype.deserializePlain = function deserializePlain(mapper: DeserializeMapper, instance?: any): any {
   const meta = this.getTargetMeta(PlainObject);
-  const result: any = mapper.isCollection ? [] : {};
+  const result: any = instance || mapper.isCollection ? [] : {};
   meta.deserialize(mapper, result, true);
   return result;
 };
@@ -71,8 +84,24 @@ class MappingTargetMetadata extends TargetMetadata {
         throw TransformationError.coll_obj(true);
       }
 
+      const refItems = target.splice(0, target.length);
+      const identKey = targetStore.getIdentityKey(this.target, 'incoming');
+
       while (mapper.next()) {
-        const t: any = plain ? {} : this.factory(false);
+        let t: any;
+
+        // compare current item to map with a list of items that if we, if we got.
+        // if match use that instance.
+        // TODO: Move compare to the global store, so logic can change without bugs.
+        if (refItems.length > 0 && isFunction(mapper.getIdentity)) {
+          const incomingIdent = mapper.getIdentity();
+          t = array.findRemove(refItems, (item) => item[identKey] === incomingIdent);
+        }
+
+        if (!t) {
+          t = plain ? {} : this.factory(false);
+        }
+
         this.transformer.deserialize(mapper, t);
         target.push(t);
       }

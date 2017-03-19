@@ -177,7 +177,12 @@ export class TargetTransformer {
       mapper.setRef(target);
     }
 
-    this.incomingContainer.forEach(mapper.getKeys(), cb);
+    if (mapper.raw === true) {
+      this.incomingContainer.forEachRaw(mapper.getKeys(), cb);
+    } else {
+      this.incomingContainer.forEach(mapper.getKeys(), cb);
+    }
+
 
     if (isFunction(mapper.getIdentity)) {
       if (this.identity) {

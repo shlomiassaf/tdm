@@ -67,6 +67,12 @@ export abstract class DeserializeMapper {
    */
   setRef?(value: any): void;
 
+  /**
+   * If true will iterate excluded items when calling getValue.
+   * See PropertyContainer.forEachRaw
+   */
+  raw?: boolean;
+
   constructor(public source: any, public sourceType: any) {}
 
   /**

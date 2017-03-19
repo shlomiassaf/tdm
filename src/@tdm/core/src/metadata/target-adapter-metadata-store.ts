@@ -1,4 +1,4 @@
-import { targetStore, Constructor,  MapExt, isFunction, LazyInit, TargetMetadata, SetExt } from '@tdm/transformation';
+import { targetStore, Constructor,  MapExt, isFunction, LazyInit, TargetMetadata, SetExt, fireEvents } from '@tdm/transformation';
 import { AdapterStatic, AdapterError, TargetError, ARHookableMethods } from '../fw';
 import { ActionController } from '../core';
 
@@ -72,6 +72,8 @@ export class TargetAdapterMetadataStore {
     if (isFunction(this.adapterMeta.commit)) {
       this.adapterMeta.commit(this);
     }
+
+    fireEvents('onBuildMetadata', this.target);
   }
 
 

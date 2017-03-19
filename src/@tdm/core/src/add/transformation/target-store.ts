@@ -1,5 +1,5 @@
 import { Tixin } from '@tdm/tixin';
-import { TargetStore, LazyInit, Constructor } from '@tdm/transformation';
+import { TargetStore, LazyInit, Constructor, TargetStoreEvents } from '@tdm/transformation';
 
 import { AdapterStatic } from '../../fw';
 import { TargetAdapterMetadataStore, AdapterMetadataStore } from '../../metadata';
@@ -51,6 +51,13 @@ class CoreTargetStore extends TargetStore {
     if (createIfMissing || this.hasTarget(target)) {
       return this.getTargetMeta(target).getAdapterStore(adapterClass, createIfMissing)
     }
+  }
+}
+
+
+declare module '@tdm/transformation/fw/events' {
+  interface TargetStoreEvents {
+    onBuildMetadata: 'onBuildMetadata'
   }
 }
 

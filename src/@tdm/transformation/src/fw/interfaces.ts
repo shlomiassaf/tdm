@@ -46,7 +46,21 @@ export interface DecoratorInfo {
 
 export interface MetaFactoryStatic {
   new (...args: any[]): any;
+
+  /**
+   * Create a new metadata instnace.
+   * @param metaArgs
+   * @param target
+   * @param key
+   * @param desc
+   */
   metaFactory(metaArgs: any, target: Object | Function, key?: PropertyKey, desc?: PropertyDescriptor): MetaFactoryInstance<any>;
+
+  /**
+   * Register the metadata instance.
+   * This operation save the instance in the targetStore.
+   * @param meta
+   */
   register(meta: MetaFactoryInstance<any>): void;
 
   /**

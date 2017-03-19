@@ -20,15 +20,16 @@ export class DirectDeserializeMapper extends DeserializeMapper {
   readonly isCollection: boolean;
 
   protected existing: DualKeyMap<any, string, any>;
-  private idx: number = -1;
-  private current: any;
-  private identity: string;
-
-  private get ref(): any | undefined {
+  protected get ref(): any | undefined {
     if (this.current) {
       return this.existing.get(this.sourceType, this.getIdentity());
     }
   }
+
+  private idx: number = -1;
+  private current: any;
+  private identity: string;
+
 
   constructor(source: any, sourceType: any) {
     super(source, sourceType);
@@ -46,6 +47,7 @@ export class DirectDeserializeMapper extends DeserializeMapper {
   }
 
   getIdentity(): string {
+    // TODO: Move compare to the global store, so logic can change without bugs.
     return this.current[this.identity];
   }
 
@@ -81,18 +83,18 @@ export class DirectDeserializeMapper extends DeserializeMapper {
       }
 
       if (targetStore.hasTarget(prop.type)) {
-        return this.getCache(prop.type, value) || this.deserialize(value, prop.type);
+        return this.getCache(prop.type, value) || this.deserialize(value, prop);
       }
     }
 
     return value;
   }
 
-  private deserialize(value: any, type: any): any {
+  protected deserialize(value: any, prop: PropMetadata): any {
 
     const mapper = this.ref
-        ? new DirectChildDeserializeMapper(value, type, this.existing)
-        : directMapper.deserializer(value, type)
+        ? new DirectChildDeserializeMapper(value, prop.type, this.existing)
+        : directMapper.deserializer(value, prop.type)
       ;
 
     return targetStore.deserialize(mapper);

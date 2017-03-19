@@ -11,6 +11,7 @@
   ],
   "peerDependencies": {
     "rxjs": "^5.0.1",
+    "@angular/core": "^2.4.0",
     "@angular/http": "^2.4.0",
     "path-to-regexp": "^1.7.0",
     "@tdm/tixin": "*",

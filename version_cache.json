@@ -1,22 +1,22 @@
 {
   "angular-http": {
-    "commit": "2e9965c76dbeec4b9296da9bbfaec553a38503af",
-    "version": "1.0.0-alpha.10"
+    "commit": "3b1ca0ca9be16d8118b8c908d9a8e7d30a7f87e2",
+    "version": "1.0.0-alpha.11"
   },
   "core": {
-    "commit": "2e9965c76dbeec4b9296da9bbfaec553a38503af",
-    "version": "1.0.0-alpha.10"
+    "commit": "3b1ca0ca9be16d8118b8c908d9a8e7d30a7f87e2",
+    "version": "1.0.0-alpha.11"
   },
   "json-api-mapper": {
-    "commit": "2e9965c76dbeec4b9296da9bbfaec553a38503af",
-    "version": "1.0.0-alpha.10"
+    "commit": "b60e263490e0ced19fa81e53ef7abc713522e1e0",
+    "version": "1.0.0-alpha.11"
   },
   "tixin": {
-    "commit": "9e3701ec3e8152881ee8f5387c3ca780ba60e90d",
-    "version": "1.0.0-alpha.10"
+    "commit": "dfddf27d330e7267afd55b0425cad8a6bfed02a2",
+    "version": "1.0.0-alpha.11"
   },
   "transformation": {
-    "commit": "2e9965c76dbeec4b9296da9bbfaec553a38503af",
-    "version": "1.0.0-alpha.10"
+    "commit": "b81981b369b926fdb7257539edbce84a3fb0e546",
+    "version": "1.0.0-alpha.11"
   }
 }

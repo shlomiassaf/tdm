@@ -38,8 +38,18 @@ export function transformValueIn(value: any, prop: PropMetadata): any {
 function excludedPredicate(e: ExcludeMetadata) { return e.name === this; }
 
 export interface PropertyContainer {
+
   target: any;
+
   forEach(keys: string[], cb: (pMap: PoClassPropertyMap) => void): void;
+
+  /**
+   * A forEach loop on all instructions including excluded instructions and properties not in "keys" but in metadata.
+   * It is recommended to use "forEach" unless the mapper implementation has different transformation strategies.
+   * @param keys
+   * @param cb
+   */
+  forEachRaw(keys: string[], cb: (pMap: PoClassPropertyMap) => void): void;
 }
 
 export class InclusivePropertyContainer implements PropertyContainer {
@@ -71,6 +81,44 @@ export class InclusivePropertyContainer implements PropertyContainer {
       }
     }
   }
+
+  /**
+   * A forEach loop on all instructions including excluded instructions and properties not in "keys" but in metadata.
+   * It is recommended to use "forEach" unless the mapper implementation has different transformation strategies.
+   * @param keys
+   * @param cb
+   */
+  forEachRaw(keys: string[], cb: (pMap: PoClassPropertyMap) => void): void {
+    let len = keys.length;
+
+    const instructions = this.compiled.instructions.slice();
+    const excluded = this.compiled.excluded.slice();
+
+    for (let i = 0; i < len; i++) {
+      let prop: PoClassPropertyMap = array.findRemove(instructions, this.predicate, keys[i])
+        || { cls: keys[i] , obj: keys[i], exclude: array.findRemove(excluded, excludedPredicate, keys[i]) };
+
+      // we only transform names for ad-hoc properties. registered @Prop's are transformed
+      // when the prop is compiled.
+      if (!prop.prop && this.renamer) {
+        this.renamer(prop);
+      }
+      cb(prop);
+    }
+
+    len = instructions.length;
+    for (let i = 0; i < len; i++) {
+      let prop: PoClassPropertyMap = instructions[i];
+
+      // we only transform names for ad-hoc properties. registered @Prop's are transformed
+      // when the prop is compiled.
+      if (!prop.prop && this.renamer) {
+        this.renamer(prop);
+      }
+      cb(prop);
+    }
+
+  }
 }
 
 
@@ -83,6 +131,19 @@ export class ExclusivePropertyContainer implements PropertyContainer {
     // No need to apply transformNameStrategy, it is cached in the instructions.
     for (let i = 0, len = instructions.length; i < len; i++) {
       !instructions[i].exclude && cb(instructions[i]);
+    }
+  }
+
+  /**
+   * A forEach loop on all instructions including excluded instructions and properties not in "keys" but in metadata.
+   * It is recommended to use "forEach" unless the mapper implementation has different transformation strategies.
+   * @param keys
+   * @param cb
+   */
+  forEachRaw(keys: string[], cb: (pMap: PoClassPropertyMap) => void): void {
+    const instructions = this.compiled.instructions;
+    for (let i = 0, len = instructions.length; i < len; i++) {
+      cb(instructions[i]);
     }
   }
 }
