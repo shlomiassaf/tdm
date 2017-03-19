@@ -1,11 +1,15 @@
 {
+  "angular-forms-mapper": {
+    "commit": "72d724a05ce3d2cf42fde383eef486e98b459beb",
+    "version": "1.0.0-alpha.1"
+  },
   "angular-http": {
     "commit": "3b1ca0ca9be16d8118b8c908d9a8e7d30a7f87e2",
     "version": "1.0.0-alpha.11"
   },
   "core": {
-    "commit": "3b1ca0ca9be16d8118b8c908d9a8e7d30a7f87e2",
-    "version": "1.0.0-alpha.11"
+    "commit": "72d724a05ce3d2cf42fde383eef486e98b459beb",
+    "version": "1.0.0-alpha.12"
   },
   "json-api-mapper": {
     "commit": "b60e263490e0ced19fa81e53ef7abc713522e1e0",
@@ -16,7 +20,7 @@
     "version": "1.0.0-alpha.11"
   },
   "transformation": {
-    "commit": "b81981b369b926fdb7257539edbce84a3fb0e546",
-    "version": "1.0.0-alpha.11"
+    "commit": "72d724a05ce3d2cf42fde383eef486e98b459beb",
+    "version": "1.0.0-alpha.12"
   }
 }
