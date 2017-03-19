@@ -49,6 +49,9 @@ Core library, extends `@tdm/transformation`  and the active record pattern.
   - Active records pattern with full Type support.
   - more..
 
+### @tdm/angular-forms-mapper (name might change)
+Map data models defined with `@tdm/transformation` and `@tdm/core` into and back from `@angular/forms` **FormGroup** / **FormArray**
+
 ### @tdm/angular-http (name might change)
 An adapter implementation for the angular (2) library.
 
