@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs/Observable';
 import { subscribeOn } from 'rxjs/operator/subscribeOn';
-import { asap } from 'rxjs/scheduler/asap';
+import { async as asyncScheduler } from 'rxjs/scheduler/async';
 import { fromPromise } from 'rxjs/observable/fromPromise';
 
 //TODO: dont add
@@ -160,7 +160,7 @@ export class ActionController {
       obs$ = obs$.do(resp => action.raw.handler.apply(self, [resp, options]));
     }
 
-    const subs = subscribeOn.call(obs$, async ? asap : null).subscribe(
+    const subs = subscribeOn.call(obs$, async ? asyncScheduler : null).subscribe(
       _ => emitEvent(eventFactory.success(self)),
       err => emitEvent(eventFactory.error(self, err)),
       () => emitEvent(eventFactory.actionEnd(self, 'success'))
