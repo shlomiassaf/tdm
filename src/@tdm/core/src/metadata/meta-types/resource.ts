@@ -15,6 +15,23 @@ export interface ResourceMetadataArgs extends TransformableMetadataArgs {
 
   /**
    * If true will not build the decorated class into a resource.
+   * Use this if you are registering the mixin outside of the class declaration.
+   *
+   * ### Example
+   * **Registering the mixin INSIDE the class declaration (noBuild: false, or don't declare it):**
+   * ```ts
+   * @HttpResource({ endpoint: '/api/users/:id?' })
+   * export class UserBaseClass extends RestMixin(User_) { }
+   *
+   * **Registering the mixin OUTSIDE the class declaration (noBuild: true):**
+   * ```ts
+   * @HttpResource({ endpoint: '/api/users/:id?' })
+   * export class UserConst_) { }
+   *
+   * export const UserConst = RestMixin(UserConst_);
+   * export type UserConst = RestMixin<UserConst_>;
+   * ```
+   *
    * @optional
    * @default false
    */
