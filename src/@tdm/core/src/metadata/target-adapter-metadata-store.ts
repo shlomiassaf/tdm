@@ -55,8 +55,6 @@ export class TargetAdapterMetadataStore {
     }
     Object.defineProperty(this, 'committed', {value: true});
 
-    this.actionController.commit();
-
     this.getProtoChainWithMixins(this.target, this.adapterClass)
       .forEach( proto => {
         if (this.target !== proto && targetStore.hasTarget(proto)) {
@@ -68,6 +66,8 @@ export class TargetAdapterMetadataStore {
     this.getActions(this.target, this.adapterClass)
       .forEach( action => this.registerAction(action) );
 
+
+    this.actionController.commit();
 
     if (isFunction(this.adapterMeta.commit)) {
       this.adapterMeta.commit(this);
