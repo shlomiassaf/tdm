@@ -42,18 +42,6 @@ export class TargetMetadata implements ClassMetadata {
     }
   }
 
-  getIdentityKey(direction?: TransformDir): string | undefined {
-    if (this.identity) {
-      if (!direction) {
-        return this.identity as string;
-      }
-      return direction === 'outgoing'
-        ? this.get(PropMetadata, this.identity as any).alias.outgoing
-        : this.get(PropMetadata, this.identity as any).alias.incoming
-        ;
-    }
-  }
-
   getCreateProp(info: DecoratorInfo | string): PropMetadata {
     const name = isString(info) ? info : info.name;
 

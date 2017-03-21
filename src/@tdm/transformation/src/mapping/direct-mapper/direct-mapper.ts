@@ -38,7 +38,7 @@ export class DirectDeserializeMapper extends DeserializeMapper {
       this.existing = new DualKeyMap<any, string, any>();
     }
 
-    this.identity = targetStore.getIdentityKey(this.sourceType, 'incoming');
+    this.identity = targetStore.getIdentityKey(this.sourceType, 'outgoing');
 
     this.isCollection = Array.isArray(source);
     if (!this.isCollection) {
@@ -79,7 +79,7 @@ export class DirectDeserializeMapper extends DeserializeMapper {
       // later we wil check if this value is in cache, if not create it.
       /// if its not a primitive, it will process as a full object inlcuded in the payload.
       if (prop.relation && isPrimitive(value)) {
-        value = { [targetStore.getIdentityKey(prop.type as any, 'incoming')]: value };
+        value = { [targetStore.getIdentityKey(prop.type as any, 'outgoing')]: value };
       }
 
       if (targetStore.hasTarget(prop.type)) {
@@ -101,7 +101,7 @@ export class DirectDeserializeMapper extends DeserializeMapper {
   }
 
   private getCache(type: any, value: any): any | undefined {
-    const idKey = targetStore.getIdentityKey(type, 'incoming');
+    const idKey = targetStore.getIdentityKey(type, 'outgoing');
     const idVal = idKey && value[idKey];
     if (idVal) {
       return this.existing.get(type, idVal)
