@@ -1,9 +1,10 @@
+import { LazyInit } from '@tdm/transformation';
 import { BaseActiveRecord } from '../../fw';
 import { onCreateNew, ActiveRecordCollection } from '../../active-record';
-import { ActiveRecordState as ActiveRecordState_ } from '../../active-record-state';
+import { ActiveRecordState } from '../../active-record-state';
 
 function onCreateNewHandler(instance: any): void {
-  Object.defineProperty(instance, '$ar', { value: new ActiveRecordState_<any>(instance as any) });
+  Object.defineProperty(instance, '$ar', { value: new ActiveRecordState<any>(instance as any) });
 }
 onCreateNew(onCreateNewHandler);
 
@@ -12,26 +13,24 @@ declare module '../../active-record/interfaces' {
     /**
      * @extension '@tdm/core/add/active-record-state'
      */
-    readonly $ar: ActiveRecordState_<T>;
+    readonly $ar: ActiveRecordState<T>;
   }
 }
 
-Object.defineProperty(ActiveRecordCollection.prototype, '$ar', {
-  configurable: true,
-  get: function() {
-    Object.defineProperty(this, '$ar', { value: new ActiveRecordState_<any>(this as any)})
-  }
-});
+
+export class StatefulActiveRecordCollection<T> implements BaseActiveRecord<StatefulActiveRecordCollection<T>> {
+  @LazyInit(function(this:  StatefulActiveRecordCollection<T>): ActiveRecordState<StatefulActiveRecordCollection<T>> {
+    return new ActiveRecordState<StatefulActiveRecordCollection<T>>(this);
+  })
+  $ar: ActiveRecordState<StatefulActiveRecordCollection<T>>;
+}
 
 declare module '../../active-record/active-record-collection' {
   interface ActiveRecordCollection<T> {
     /**
      * @extension '@tdm/core/add/active-record-state'
      */
-    readonly $ar: ActiveRecordState_<ActiveRecordCollection<T>>;
+    readonly $ar: ActiveRecordState<StatefulActiveRecordCollection<T>>;
   }
 }
-
-declare module '@tdm/core' {
-  export type ActiveRecordState<T> = ActiveRecordState_<T>;
-}
+ActiveRecordCollection.extend(StatefulActiveRecordCollection);

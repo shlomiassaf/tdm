@@ -103,7 +103,7 @@ export class ActionController {
     if (self['$ar'] && self['$ar'].busy) { // TODO: Should throw or error?
       emitEvent(eventFactory.error(self, new Error('An action is already running')));
       return;
-    } else if (!!action.isCollection !== self instanceof ActiveRecordCollection) {
+    } else if (!!action.isCollection !== ActiveRecordCollection.instanceOf(self)) {
       emitEvent(eventFactory.error(self, ResourceError.coll_obj(self, action.isCollection)));
       return;
     }
@@ -197,12 +197,7 @@ class ExtendedContext implements ExecuteContext<any> {
   }
 
   serialize(): any {
-    const mapper = this.data instanceof ActiveRecordCollection
-        ? this.mapper.serializer(this.data.collection)
-        : this.mapper.serializer(this.data)
-      ;
-
-    return this.adapterStore.parent.serialize(mapper);
+    return this.adapterStore.parent.serialize(this.mapper.serializer(this.data));
   }
 
   deserialize(data: any): void {
@@ -215,7 +210,7 @@ class ExtendedContext implements ExecuteContext<any> {
       }
 
       this.adapterStore.parent
-        .deserialize(mapper, isColl ? (this.data as ActiveRecordCollection<any>).collection : this.data);
+        .deserialize(mapper, this.data);
     }
   }
 }

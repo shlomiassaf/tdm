@@ -163,9 +163,9 @@ describe('CORE', () => {
 
       users.$ar.next()
         .then( data => {
-          expect(users.collection.length).toBe(3);
+          expect(users.length).toBe(3);
 
-          users.collection.forEach( (user: UserInc, idx: number) => {
+          users.forEach( (user: UserInc, idx: number) => {
             expect(user.id).toBe(idx+1);
             expect(user.age).toBe(returnValue.age);
 

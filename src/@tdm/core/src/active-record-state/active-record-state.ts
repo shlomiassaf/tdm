@@ -109,11 +109,11 @@ export class ActiveRecordState<T> {
    */
   get self$(): Observable<T> {
     if (!this._self$) { // recover from disconnection.
-      const subject = new BehaviorSubject(this.parent instanceof ActiveRecordCollection ? this.parent.collection : this.parent);
+      const subject = new BehaviorSubject(this.parent);
 
       this.events$
         .filter( event => event.type === ResourceEventType.ActionSuccess )
-        .map( event => this.parent instanceof ActiveRecordCollection ? this.parent.collection : this.parent)
+        .map( event => this.parent)
         .subscribe(subject);
 
       this._self$ = new Observable( o => subject.subscribe(o) );
@@ -157,8 +157,8 @@ export class ActiveRecordState<T> {
     }
 
     const last = pData.lastExecute;
-    if (this.parent instanceof ActiveRecordCollection) {
-      this.parent.collection.splice(0, this.parent.collection.length);
+    if (ActiveRecordCollection.instanceOf(this.parent)) {
+      this.parent.splice(0, this.parent.length);
     }
     last.adapterMeta.actionController.createExecFactory(last.action)(this.parent, last.async, ...last.args);
   }

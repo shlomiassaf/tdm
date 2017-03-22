@@ -104,7 +104,7 @@ describe('CORE', () => {
 
           expect(data).toBe(SUser.afterQuery.calls.mostRecent().object);
 
-          SUser.afterQuery.calls.mostRecent().object.collection.forEach( (value, idx) => {
+          SUser.afterQuery.calls.mostRecent().object.forEach( (value, idx) => {
             expect(value.username).toBe(String(idx +1))
           });
           done();
