@@ -1,0 +1,1 @@
+export { VehicleModule } from './module';

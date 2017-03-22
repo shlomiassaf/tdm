@@ -1,0 +1,22 @@
+<div>
+
+  <md-input-container floatPlaceholder="never">
+    <input mdInput placeholder="Select a make" [mdAutocomplete]="reactiveAuto" [formControl]="makerCtrl">
+  </md-input-container>
+
+  <md-autocomplete #reactiveAuto="mdAutocomplete" [displayWith]="displayFn">
+    <md-option *ngFor="let maker of filtered$ | async" [value]="maker">
+      <span>{{ maker.makeName }}</span>
+    </md-option>
+  </md-autocomplete>
+
+  <button md-mini-fab [disabled]="!makerCtrl.value || !makerCtrl.value.makeName" (click)="getModels()">
+    <md-icon class="md-24">search</md-icon>
+  </button>
+
+  <ul>
+    <li *ngFor="let model of models?.$ar.self$ | async">
+      {{model.modelName}}
+    </li>
+  </ul>
+</div>

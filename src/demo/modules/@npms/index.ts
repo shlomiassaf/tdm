@@ -1,0 +1,1 @@
+export { NpmsModule } from './module';

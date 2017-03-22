@@ -23,13 +23,21 @@ import { AppState } from './app.service';
       <a [routerLink]=" ['./'] " routerLinkActive="active">
         Index
       </a>
-      <a [routerLink]=" ['./home'] " routerLinkActive="active">
-        Home
+      <a [routerLink]=" ['./netflix'] " routerLinkActive="active">
+        Netflix Roulette
+      </a>
+      <a [routerLink]=" ['./vehicles'] " routerLinkActive="active">
+        Vehicles
+      </a>
+      <a [routerLink]=" ['./npms'] " routerLinkActive="active">
+        Npms
       </a>
     </nav>
 
     <main>
-      <router-outlet></router-outlet>
+      <div class="main-view">
+        <router-outlet></router-outlet>
+      </div>      
     </main>
   `
 })

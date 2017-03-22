@@ -59,7 +59,10 @@
       ],
       "@tdm/transformation/*": [
         "@tdm/transformation/src/*"
-      ]
+      ],
+
+
+      "@*": ["demo/modules/@*"]
     },
 
 

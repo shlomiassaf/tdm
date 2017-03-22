@@ -1,20 +1,9 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
-import {
-  NgModule,
-  ApplicationRef
-} from '@angular/core';
-import {
-  removeNgStyles,
-  createNewHosts,
-  createInputTransfer
-} from '@angularclass/hmr';
-import {
-  RouterModule,
-  PreloadAllModules
-} from '@angular/router';
+import { NgModule, ApplicationRef } from '@angular/core';
+import { removeNgStyles, createNewHosts, createInputTransfer } from '@angularclass/hmr';
+import { RouterModule,  PreloadAllModules } from '@angular/router';
 
+import { SharedModule } from '@shared';
 /*
  * Platform and Environment providers/directives/pipes
  */
@@ -27,10 +16,9 @@ import { HomeComponent } from './home';
 import { AboutComponent } from './about';
 import { NoContentComponent } from './no-content';
 
-import '../styles/styles.scss';
-import '../styles/headings.css';
+import '../../styles/styles.scss';
+import '../../styles/headings.css';
 
-import { HttpResourceModule } from '@tdm/angular-http';
 
 // Application wide providers
 const APP_PROVIDERS = [
@@ -55,10 +43,8 @@ type StoreType = {
   ],
   imports: [ // import Angular's modules
     BrowserModule,
-    FormsModule,
-    HttpModule,
     RouterModule.forRoot(ROUTES, { useHash: true, preloadingStrategy: PreloadAllModules }),
-    HttpResourceModule.forRoot()
+    SharedModule.forRoot()
   ],
   providers: [ // expose our Services and Providers into Angular's dependency injection
     ...ENV_PROVIDERS,
@@ -67,10 +53,7 @@ type StoreType = {
 })
 export class AppModule {
 
-  constructor(
-    public appRef: ApplicationRef,
-    public appState: AppState
-  ) {}
+  constructor(public appRef: ApplicationRef, public appState: AppState) { }
 
   public hmrOnInit(store: StoreType) {
     if (!store || !store.state) {

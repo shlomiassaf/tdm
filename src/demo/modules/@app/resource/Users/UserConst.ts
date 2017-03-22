@@ -118,8 +118,8 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
 export const UserConst = RestMixin(User_);
 export type UserConst = RestMixin<User_>;
 
-// UserConst.find(2).username__;                                    // OK
-// UserConst.find(2).usernam23e;                                    // SHOULD ERROR
+// UserConst.find(2, 3, 4).username__;                              // OK
+// UserConst.find(2, 3, 4).usernam23e;                              // SHOULD ERROR
 // UserConst.num;                                                   // OK
 // new UserConst().$refresh().username__;                           // OK
 // const user: UserConst = new UserConst();                         // OK

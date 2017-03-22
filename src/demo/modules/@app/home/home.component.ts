@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 
-import { UserBaseClass, UserConst, UsersInterface } from '../../resource';
+import { UserBaseClass, UserConst, UsersInterface } from '../resource';
 
 const User = UserConst;
 type User = UserConst;
@@ -15,7 +15,8 @@ export class HomeComponent {
   public user: User;
 
   constructor() {
-    this.user = new User();
+    // this.user = new User();
+    this.user = User.find(5);
 
 
     // this.user.rawDeserialized({trailingSlashes: 'force'}).$ar.next()
@@ -23,14 +24,14 @@ export class HomeComponent {
     //   .then( () => this.gogo());
 
 
-    this.user.id = 5;
-    this.user.$refresh().$ar.next()
-      .then(() => {
-
-      })
-      .catch((err) => {
-      console.error(err);
-      });
+    // this.user.id = 5;
+    // this.user.$refresh().$ar.next()
+    //   .then(() => {
+    //
+    //   })
+    //   .catch((err) => {
+    //   console.error(err);
+    //   });
 
 
     // this.gogo();
