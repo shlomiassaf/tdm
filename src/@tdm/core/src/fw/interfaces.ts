@@ -11,7 +11,20 @@ import { TargetAdapterMetadataStore } from '../metadata/target-adapter-metadata-
 export interface ExecuteContext<T extends ActionMetadata> {
   adapterStore: TargetAdapterMetadataStore;
   action: T;
+
+  /**
+   * The instance currently executing
+   */
   data: any;
+
+  /**
+   * Optional body to be sent if set.
+   * If not set the body is a serialized value of data.
+   *
+   * Applies only if the action is configured to send body.
+   */
+  rawBody?: any;
+
   serialize(): any
   deserialize(data: any): void
 }

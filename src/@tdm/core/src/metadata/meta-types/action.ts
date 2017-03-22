@@ -45,6 +45,13 @@ export interface ActionMetadataArgs<T> {
    */
   pre?: (ctx: ExecuteContext<any>, ...args: any[] )=> any,
   validation?: ValidationSchedule;
+
+  /**
+   * Send data to the server.
+   * True / False / 'asis'
+   *
+   * When using 'asis' the data will be sent without serializing it.
+   */
   sendBody?: boolean;
 }
 

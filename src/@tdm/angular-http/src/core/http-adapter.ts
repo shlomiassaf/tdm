@@ -54,7 +54,9 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
     }
 
     const {path, query} = this.splitParams(url, urlParams);
-    const body = ctx.data && action.sendBody === true ? ctx.serialize() : undefined;
+    const body = ctx.data && action.sendBody === true
+      ? ctx.hasOwnProperty('rawBody') ? ctx.rawBody : ctx.serialize()
+      : undefined;
 
     const requestOptions = new RequestOptions({
       url: processUrl(this.parseUrl(url, path), strip),

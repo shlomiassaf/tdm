@@ -186,7 +186,10 @@ export class TargetTransformer {
 
     if (isFunction(mapper.getIdentity)) {
       if (this.identity) {
-        target[this.identity.cls] = transformValueIn(mapper.getIdentity(), this.identity.prop);
+        const ident = transformValueIn(mapper.getIdentity(), this.identity.prop);
+        if (ident) {
+          target[this.identity.cls] = ident;
+        }
       }
     }
   }
