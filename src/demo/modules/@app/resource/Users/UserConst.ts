@@ -95,7 +95,7 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
   static bfQuery(this: ActiveRecordCollection<RestMixin<User_>>) {
     this.$ar.next()
       .then( coll => {
-        console.log(`BeforeQuery-AfterQuery: got ${coll.collection.length}`)
+        console.log(`BeforeQuery-AfterQuery: got ${coll.length}`)
       });
     console.log('BeforeQuery');
   }
@@ -103,7 +103,7 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
   @Hook({event: 'after', action: 'query'})
   static afQuery(this: ActiveRecordCollection<RestMixin<User_>>) {
     console.log('AfterQuery');
-    console.log(`AfterQuery: got ${this.collection.length}`)
+    console.log(`AfterQuery: got ${this.length}`)
   }
 
   @ExtendAction({
@@ -127,5 +127,5 @@ export type UserConst = RestMixin<User_>;
 // user.$refresh().abcd;                                            // SHOULD ERROR
 // user.$ar.next().then( u => u.id );                               // OK
 // user.$ar.next().then( u => u.f34 );                              // SHOULD ERROR
-// UserConst.query().$ar.next().then(coll => coll.collection );     // OK
+// UserConst.query().$ar.next().then(coll => coll );     // OK
 // UserConst.query().$ar.next().then(coll => coll.sdfd );           // SHOULD ERROR

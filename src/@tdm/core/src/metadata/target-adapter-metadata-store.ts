@@ -35,11 +35,17 @@ export class TargetAdapterMetadataStore {
     return this.parent.getIdentityKey();
   }
 
+  private registeredActions: Map<PropertyKey, ActionMetadata>;
+
   constructor(public readonly parent: TargetMetadata, public readonly adapterClass: AdapterStatic<any, any>) {
     this.adapterMeta = targetStore.getAdapterStore(adapterClass).meta;
     if (!this.adapterMeta) {
       throw AdapterError.notRegistered(adapterClass)
     }
+  }
+
+  findAction(name: string): ActionMetadata | undefined {
+    return this.registeredActions && this.registeredActions.get(name);
   }
 
   findHookEvent(action: ARHookableMethods, timeline: 'before' | 'after'): HookMetadata | undefined {
@@ -54,6 +60,8 @@ export class TargetAdapterMetadataStore {
       throw TargetError.built(this.parent.target, this.adapterClass);
     }
     Object.defineProperty(this, 'committed', {value: true});
+
+    this.registeredActions = new Map<PropertyKey, ActionMetadata>();
 
     this.getProtoChainWithMixins(this.target, this.adapterClass)
       .forEach( proto => {
@@ -120,6 +128,8 @@ export class TargetAdapterMetadataStore {
       const metaArgs = Object.assign({}, action.metaArgs, extAction);
       action = this.adapterMeta.actionMetaClass.metaFactory(metaArgs, this.target, extAction.decoratorInfo.name).metaValue;
     }
+
+    this.registeredActions.set(action.name, action);
     this.actionController.registerAction(action, true);
   }
 }

@@ -4,7 +4,7 @@ import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { ActiveRecordCollection } from "@tdm/core";
 
 import { UiBlockService, UiBlock } from '@shared';
-import { Title } from '../models';
+import { Title, TitleCollection } from '../models';
 
 @Component({
   selector: 'netflix-page',
@@ -14,7 +14,7 @@ import { Title } from '../models';
 })
 export class NetflixPageComponent {
   title: Title;
-  titles: ActiveRecordCollection<Title>;
+  titles: TitleCollection;
 
   columns: any;
 
@@ -80,10 +80,15 @@ export class NetflixPageComponent {
 
     if (type === 'title') {
       this.titles = undefined;
-      this.title = <any>Title.find(value);
+      this.title = Title.find(value);
       this.uiBlock.closeWithPromise(this.title.$ar.next()).open(UiBlock);
     } else {
-      this.titles = <any>Title.query(type, value);
+      if (!this.titles) {
+        this.titles = Title.query(type, value);
+      } else {
+        this.titles.query(type, value);
+      }
+
       this.uiBlock.closeWithPromise(this.titles.$ar.next()).open(UiBlock);
     }
   }

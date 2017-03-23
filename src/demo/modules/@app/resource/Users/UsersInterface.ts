@@ -103,7 +103,7 @@ export class UsersInterface extends RestMixin<IUserInterface, IUserInterfaceStat
   static bfQuery(this: ActiveRecordCollection<RestMixin<UsersInterface>>) {
     this.$ar.next()
       .then( coll => {
-        console.log(`BeforeQuery-AfterQuery: got ${coll.collection.length}`)
+        console.log(`BeforeQuery-AfterQuery: got ${coll.length}`)
       });
     console.log('BeforeQuery');
   }
@@ -111,7 +111,7 @@ export class UsersInterface extends RestMixin<IUserInterface, IUserInterfaceStat
   @Hook({event: 'after', action: 'query'})
   static afQuery(this: ActiveRecordCollection<RestMixin<UsersInterface>>) {
     console.log('AfterQuery');
-    console.log(`AfterQuery: got ${this.collection.length}`)
+    console.log(`AfterQuery: got ${this.length}`)
   }
 }
 
@@ -124,6 +124,6 @@ export class UsersInterface extends RestMixin<IUserInterface, IUserInterfaceStat
 // user.$refresh().abcd;                                                // SHOULD ERROR
 // user.$ar.next().then( u => u.id );                                   // OK
 // user.$ar.next().then( u => u.f34 );                                  // SHOULD ERROR
-// UsersInterface.query().$ar.next().then( coll => coll.collection );   // OK
+// UsersInterface.query().$ar.next().then( coll => coll );   // OK
 // UsersInterface.query().$ar.next().then( coll => coll.sdfd );         // SHOULD ERROR
 

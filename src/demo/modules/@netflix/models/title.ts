@@ -1,6 +1,7 @@
 import { camelCase, snakeCase } from 'voca';
 import { ExtendAction, ExecuteContext, Identity } from '@tdm/core';
 import { RestMixin, HttpResource, UrlParam, HttpActionOptions } from '@tdm/angular-http';
+import { ActiveRecordCollection } from "@tdm/core/active-record";
 
 /**
  * This resource wraps a single endpoint REST API which means it is not resource oriented.
@@ -82,5 +83,7 @@ export class Title {
       return options;
     }
   })
-  static query: (filter: 'director' | 'year' | 'actor', value: string, options?: HttpActionOptions) => RestMixin<Title>;
+  static query: (filter: 'director' | 'year' | 'actor', value: string, options?: HttpActionOptions) => TitleCollection;
 }
+
+export type TitleCollection = (ActiveRecordCollection<RestMixin<Title>> & { query: typeof Title.query });

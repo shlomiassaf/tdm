@@ -35,6 +35,13 @@ export interface ActionMetadataArgs<T> {
    * @default false
    */
   isCollection?: boolean;
+
+  /**
+   * If set to true, the action is also set on the ActiveRecordCollection instance.
+   * Valid on if isCollection is true;
+   */
+  collInstance?: boolean;
+
   deserializer?: DeserializerFactory;
   raw?: RawActionMetadataArgs;
   /**
@@ -58,6 +65,7 @@ export interface ActionMetadataArgs<T> {
 export class ActionMetadata extends BaseMetadata {
   method: ActionMethodType;
   isCollection: boolean | undefined;
+  collInstance: boolean | undefined;
   deserializer: DeserializerFactory;
   raw: RawActionMetadata;
   pre?: (ctx: ExecuteContext<any>, ...args: any[] )=> any;

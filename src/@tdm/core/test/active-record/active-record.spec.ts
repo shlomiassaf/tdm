@@ -1,7 +1,7 @@
 import 'rxjs';
-import '@tdm/core/add/active-record-state';
+import '@tdm/core/add/resource-control';
 import { activeRecordClassFactory } from '../../src/active-record';
-import { ActiveRecordState } from '@tdm/core/active-record-state/active-record-state';
+import { ResourceControl } from '@tdm/core/resource-control/resource-control';
 
 describe('CORE', () => {
   describe('Active Record', () => {
@@ -15,7 +15,7 @@ describe('CORE', () => {
     it('should have an active record state', () => {
       const User = activeRecordClassFactory(class User { });
       const user = new User();
-      expect(user['$ar'] instanceof ActiveRecordState).toBe(true);
+      expect(user['$ar'] instanceof ResourceControl).toBe(true);
     });
 
 

@@ -1,6 +1,5 @@
 import 'rxjs';
-import '@tdm/core/add/active-record-state';
-import '@tdm/core/add/active-record-state/next';
+import '@tdm/core/add/resource-control';
 import { MockMixin, MockResource, MockDeserializer, bucketFactory } from '@tdm/core/testing';
 import { ActiveRecord, ActionEndResourceEvent, ResourceEvent, ResourceEventType } from "@tdm/core";
 import { ARMethods,  } from '@tdm/core/active-record';

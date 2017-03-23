@@ -28,6 +28,7 @@ import {
 } from '../fw';
 
 import { ActiveRecordCollection } from '../active-record';
+import { getCtrl } from '../resource-control/get-ctrl';
 
 import { TargetAdapterMetadataStore } from '../metadata/target-adapter-metadata-store';
 
@@ -48,6 +49,11 @@ export class ActionController {
 
   private adapter: Adapter<ActionMetadata, ActionOptions>;
   private mapper: MapperFactory;
+
+  /**
+   * Holds a prototype of collection methods to copy/merge to a new ActiveRecordCollection instance.
+   */
+  private collectionProto: any = {};
 
   constructor(private adapterStore: TargetAdapterMetadataStore, private targetMetadata: TargetMetadata) {
     this.deserializer = adapterStore.adapterMeta.deserializerFactory;
@@ -73,8 +79,21 @@ export class ActionController {
       const self = this;
 
       if (action.decoratorInfo.isStatic) {
+
+        if (action.isCollection && action.collInstance) {
+          this.collectionProto[action.name] = function (this: ActiveRecordCollection<any>, ...args: any[]): any {
+            this.splice(0, this.length);
+            self.execute(this, action, true, ...args);
+          }
+        }
+
         this.target[action.name] = function (this: AdapterStatic<any, any>, ...args: any[]) {
           const instance = self.targetMetadata.factory(action.isCollection);
+
+          if (ActiveRecordCollection.instanceOf(instance)) {
+            Object.assign(instance, self.collectionProto);
+          }
+
           self.execute(instance, action, true, ...args);
           return instance;
         }
@@ -99,8 +118,8 @@ export class ActionController {
   }
 
   private execute(self: BaseActiveRecord<any> | ActiveRecordCollection<any>, action: ActionMetadata, async: boolean, ...args: any[]): void {
-    // TODO: $ar is not promised to be the active record property name, need to publish that for usage
-    if (self['$ar'] && self['$ar'].busy) { // TODO: Should throw or error?
+    const state = getCtrl(self);
+    if (state && state.busy) { // TODO: Should throw or error?
       emitEvent(eventFactory.error(self, new Error('An action is already running')));
       return;
     } else if (!!action.isCollection !== ActiveRecordCollection.instanceOf(self)) {

@@ -6,10 +6,12 @@ import { Subject } from 'rxjs/Subject'
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/do';
 
-import { events$, ResourceEvent, ResourceEventType } from '../events';
+import { events$, ResourceEvent, ResourceEventType, ActionErrorResourceEvent } from '../events';
 import { CancellationTokenResourceEvent, ExecuteInitResourceEvent, ExecuteInitResourceEventArgs } from '../events/internal';
-import { BaseActiveRecord, ResourceError } from '../fw';
+import { BaseActiveRecord, ResourceError,  } from '../fw';
+import { promiser } from '../utils';
 import { ActiveRecordCollection } from '../active-record';
+import { getCtrl } from './get-ctrl';
 
 // Weak map for private emitter
 // TODO: check perf, maybe symbols are "less" private but more performant
@@ -34,7 +36,7 @@ const BUSY_CHANGED = Symbol('BUSY CHANGED');
  */
 function emitEvent(event: ResourceEvent): void {
   const pData = privateDict.get(event.resource);
-  const ar = event.resource.$ar;
+  const ar = getCtrl(event.resource);
 
   // emitter might face race issues with micro tasks, make sure busy state is sync at all times.
   if (ar.busy === false && event.type === 'ActionStart') {
@@ -78,11 +80,11 @@ events$.subscribe(emitEvent);
  * you don't manually subscribe you are safe. e.g: In Angular using the `async` pipe (`|`) will also
  * unsubscribe when the component get disposed.
  */
-export class ActiveRecordState<T> {
+export class ResourceControl<T> {
   /**
    * A stream of `ResourceEvent` see `ResourceEventType` for possible events.
    */
-  @LazyInit(function(this: ActiveRecordState<any>) {
+  @LazyInit(function(this: ResourceControl<any>) {
     return privateDict.get(this.parent).emitter.share(); // share imported by events module
   })
   events$: Observable<ResourceEvent>;
@@ -205,7 +207,8 @@ export class ActiveRecordState<T> {
         break;
     }
 
-    Promise.all(arr.map( a => a.$ar.busy ? a.$ar.next().catch(catcher) : Promise.resolve() ))
+    // TODO: change logic or remove plugin option for next() and set here fixed.
+    Promise.all(arr.map( a => getCtrl(a).busy ? getCtrl(a).next().catch(catcher) : Promise.resolve() ))
       .then( () => {
         this.busy = false;
         this.replay();
@@ -215,6 +218,27 @@ export class ActiveRecordState<T> {
         this._busySubject && this._busySubject.next(false)
       });
   }
+
+  next(): Promise<T> {
+    if (!this.busy) {
+      return Promise.reject(new ResourceError(this.parent, 'Call to next() while not in an active action.'));
+    } else {
+      const p = promiser<any>();
+      const subs = this.events$.subscribe( event => {
+        // TODO: handle ActionCancel and throw an error that represent a cancel
+        // since promises does not cancel this is a design hole...
+        if (event.type === 'ActionError') {
+          p.reject((event as ActionErrorResourceEvent).error);
+          subs.unsubscribe();
+        } else if (event.type === 'ActionEnd') {
+          p.resolve(this.parent);
+          subs.unsubscribe();
+        }
+      });
+      return p.promise;
+    }
+  }
+
 
   /**
    * Disconnect all subscriptions from the active record instance.

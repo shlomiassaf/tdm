@@ -1,5 +1,4 @@
-import '@tdm/core/add/active-record-state';
-import '@tdm/core/add/active-record-state/next';
+import '@tdm/core/add/resource-control';
 
 
 // App

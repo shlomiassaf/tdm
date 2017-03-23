@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs/Observable';
 import { RequestOptions, Response, URLSearchParams, Headers } from '@angular/http';
-import { isUndefined, stringify, } from '@tdm/transformation';
+import { isUndefined, stringify } from '@tdm/transformation';
 import {
   Deserializer,
   Adapter,

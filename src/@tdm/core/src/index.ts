@@ -66,6 +66,7 @@ export {
 } from './events';
 
 export { ActiveRecordCollection } from './active-record';
+export { getCtrl } from './resource-control/get-ctrl';
 
 export {
   findProp,
