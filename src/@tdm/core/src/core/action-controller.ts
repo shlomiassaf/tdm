@@ -15,8 +15,8 @@ import { defaultConfig } from '../default-config';
 import { findProp, noop  } from '../utils';
 import { ActionMetadata, ValidationSchedule } from '../metadata';
 import {
+  IdentityValueType,
   ExecuteContext,
-  DeserializerFactory,
   ActionOptions,
   Adapter,
   AdapterStatic,
@@ -43,20 +43,18 @@ function validateOutgoing(validation: ValidationSchedule) {
 const noopPromise = () => Promise.resolve();
 
 export class ActionController {
-  private target: any;
+  public target: any;
 
-  deserializer: DeserializerFactory;
-
-  private adapter: Adapter<ActionMetadata, ActionOptions>;
-  private mapper: MapperFactory;
+  public adapter: Adapter<ActionMetadata, ActionOptions>;
+  public mapper: MapperFactory;
 
   /**
    * Holds a prototype of collection methods to copy/merge to a new ActiveRecordCollection instance.
    */
-  private collectionProto: any = {};
+  public collectionProto: any = {};
+  public dao: any = {};
 
-  constructor(private adapterStore: TargetAdapterMetadataStore, private targetMetadata: TargetMetadata) {
-    this.deserializer = adapterStore.adapterMeta.deserializerFactory;
+  constructor(public adapterStore: TargetAdapterMetadataStore, public targetMetadata: TargetMetadata) {
     this.target = targetMetadata.target;
     // TODO: adapter can be shared for all targets
     this.adapter = new adapterStore.adapterClass();
@@ -87,20 +85,15 @@ export class ActionController {
           }
         }
 
+        this.dao[action.name] = function(...args: any[]) {
+
+        }
         this.target[action.name] = function (this: AdapterStatic<any, any>, ...args: any[]) {
-          const instance = self.targetMetadata.factory(action.isCollection);
-
-          if (ActiveRecordCollection.instanceOf(instance)) {
-            Object.assign(instance, self.collectionProto);
-          }
-
-          self.execute(instance, action, true, ...args);
-          return instance;
+          return self.execute(undefined, action, true, ...args);
         }
       } else {
         this.target.prototype[action.name] = function (this: BaseActiveRecord<any>, ...args: any[]) {
-          self.execute(this, action, true, ...args);
-          return this;
+          return self.execute(this, action, true, ...args);
         }
       }
     }
@@ -117,7 +110,14 @@ export class ActionController {
     return isFunction(this.target.prototype[name]);
   }
 
-  private execute(self: BaseActiveRecord<any> | ActiveRecordCollection<any>, action: ActionMetadata, async: boolean, ...args: any[]): void {
+  private execute(self: BaseActiveRecord<any> | ActiveRecordCollection<any> | undefined, action: ActionMetadata, async: boolean, ...args: any[]): any {
+    const pubCtx = new ExtendedContext(self, this, action);
+    const options = isFunction(action.pre) ? action.pre(pubCtx, ...args) : args[0];
+
+    if (!self) {
+      self = pubCtx.instance;
+    }
+
     const state = getCtrl(self);
     if (state && state.busy) { // TODO: Should throw or error?
       emitEvent(eventFactory.error(self, new Error('An action is already running')));
@@ -130,9 +130,7 @@ export class ActionController {
     emitEvent(new ExecuteInitResourceEvent(self, {adapterMeta: this.adapterStore, action, async, args}));
     emitEvent(eventFactory.actionStart(self));
 
-    const pubCtx = new ExtendedContext(self, this.adapterStore, action, this.mapper);
 
-    const options = isFunction(action.pre) ? action.pre(pubCtx, ...args) : args[0];
 
     const validator = action.validation === 'skip'
         ? undefined
@@ -149,35 +147,24 @@ export class ActionController {
     const startingPromise = this.fireHook(action.name as any, 'before', self, options)
       .then(validateOutgoing(action.validation) ? validator : noopPromise);
 
+    if (action.post) {
+      async = true;
+    }
+
+    const endingPromise = (resp: ExecuteResponse) => (!action.isCollection && validateIncoming(action.validation) ? validator() : noopPromise())
+      .then(() => this.fireHook(action.name as any, 'after', self, options, resp));
+
     let obs$: Observable<any | void> = fromPromise(startingPromise)
       .switchMap(() => this.adapter.execute(pubCtx, options))
-      .switchMap(resp => {
-        // TODO: Refactor this to lazy
-        const toPlain = findProp('deserializer', this, this.adapterStore.parent, action)();
-        let p = !action.raw || action.raw.deserialize
-            ? Promise.resolve(toPlain.deserialize(resp.response)).then(data => {
-              resp.deserialized = data;
-              return resp;
-            })
-            : Promise.resolve(resp)
-          ;
-
-        return fromPromise(p);
-      });
-
-    if (!action.raw) {
-      const endingPromise = (resp: ExecuteResponse) => (!action.isCollection && validateIncoming(action.validation) ? validator() : noopPromise())
-        .then(() => this.fireHook(action.name as any, 'after', self, options, resp));
-
-      obs$ = obs$
-        .do(({deserialized}) => {
-          pubCtx.deserialize(deserialized);
-        })
-        .switchMap(resp => fromPromise<void>(endingPromise(resp)));
-    } else {
-      async = true;
-      obs$ = obs$.do(resp => action.raw.handler.apply(self, [resp, options]));
-    }
+      .do( response => {
+        if (!action.post || !action.post.skipDeserialize) {
+          pubCtx.deserialize(response.data);
+        }
+        if (action.post) {
+          action.post.handler.apply(self, [response, options])
+        }
+      })
+      .switchMap(resp => fromPromise<void>(endingPromise(resp)));
 
     const subs = subscribeOn.call(obs$, async ? asyncScheduler : null).subscribe(
       _ => emitEvent(eventFactory.success(self)),
@@ -195,6 +182,8 @@ export class ActionController {
     };
 
     emitEvent(new CancellationTokenResourceEvent(self, subscription));
+
+    return pubCtx.instance;
   }
 
   private fireHook(action: ARHookableMethods, event: 'before' | 'after', self: any, options: ActionOptions, ...args: any[]): Promise<void> {
@@ -209,27 +198,62 @@ export class ActionController {
 }
 
 class ExtendedContext implements ExecuteContext<any> {
-  constructor(public readonly data: BaseActiveRecord<any> | ActiveRecordCollection<any>,
-              public readonly adapterStore: TargetAdapterMetadataStore,
-              public readonly action: ActionMetadata,
-              public readonly mapper: MapperFactory) {
+  constructor(private data: BaseActiveRecord<any> | ActiveRecordCollection<any>,
+              private readonly ac: ActionController,
+              public readonly action: ActionMetadata) {
+  }
+
+  get adapterStore(): TargetAdapterMetadataStore {
+    return this.ac.adapterStore;
+  }
+
+  get instance(): BaseActiveRecord<any> | ActiveRecordCollection<any> {
+    if (!this.data) {
+      this.data = this.ac.targetMetadata.factory(this.action.isCollection);
+
+      if (ActiveRecordCollection.instanceOf(this.data)) {
+        Object.assign(this.data, this.ac.collectionProto);
+      }
+    }
+
+    return this.data;
+  }
+
+  set instance(value: BaseActiveRecord<any> | ActiveRecordCollection<any>) {
+    if (this.data) {
+      throw new Error('Instance exists');
+    }
+
+    if (!ActiveRecordCollection.instanceOf(this.data) && !(value instanceof this.ac.target) ) {
+      throw new Error('Instance does not match type');
+    }
+
+    this.data = value;
+  }
+
+  getIdentity(): IdentityValueType {
+    return this.instance[this.adapterStore.identity];
+  }
+
+  setIdentity(identity: IdentityValueType): void {
+    this.instance[this.adapterStore.identity] = identity;
   }
 
   serialize(): any {
-    return this.adapterStore.parent.serialize(this.mapper.serializer(this.data));
+    return this.adapterStore.parent.serialize(this.ac.mapper.serializer(this.instance));
   }
 
   deserialize(data: any): void {
     if (data) { // only if exists (false, 0, '' and all falsy's === not exists)
-      const mapper = this.mapper.deserializer(data, this.adapterStore.target);
+      const mapper = this.ac.mapper.deserializer(data, this.adapterStore.target);
       const isColl = !!this.action.isCollection;
 
       if (mapper.isCollection !== isColl) {
-        throw ResourceError.coll_obj(this.data, isColl);
+        throw ResourceError.coll_obj(this.instance, isColl);
       }
 
       this.adapterStore.parent
-        .deserialize(mapper, this.data);
+        .deserialize(mapper, this.instance);
     }
   }
 }

@@ -67,10 +67,10 @@ export class Title {
 
       switch (filter) {
         case 'director':
-          ctx.data.director = value;
+          ctx.instance.director = value;
           break;
         case 'year':
-          ctx.data.releaseYear = value;
+          ctx.instance.releaseYear = value;
           break;
         case 'actor':
           // there is no actor property so we need to manually push the query string.

@@ -6,32 +6,6 @@ import { HttpActionMetadata, HttpAction, HttpActionMethodType } from './metadata
 
 export class BaseRestResource {
   @HttpAction({
-    method: HttpActionMethodType.Post,
-    validation: 'both' as 'both',
-    sendBody: true
-  })
-  $create: (options?: HttpActionOptions) => this;
-
-  @HttpAction({
-    method: HttpActionMethodType.Get,
-    validation: 'incoming' as 'incoming'
-  })
-  $refresh: (options?: HttpActionOptions) => this;
-
-  @HttpAction({
-    method: HttpActionMethodType.Put,
-    validation: 'both' as 'both',
-    sendBody: true
-  })
-  $update: (options?: HttpActionOptions) => this;
-
-  @HttpAction({
-    method: HttpActionMethodType.Delete,
-    validation: 'skip' as 'skip'
-  })
-  $remove: (options?: HttpActionOptions) => this;
-
-  @HttpAction({
     method: HttpActionMethodType.Get,
     isCollection: true,
     collInstance: true,

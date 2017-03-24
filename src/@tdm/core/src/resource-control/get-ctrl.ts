@@ -1,13 +1,15 @@
 import { ResourceControl } from './resource-control'
 
-const getCtrlContainer: { getState: typeof getCtrl } = {} as any;
+const getCtrlContainer: { getCtrl: typeof getCtrl } = {
+  getCtrl: (instance: any) => undefined
+};
 
 /**
  * @internal
  * @param gsFn
  */
 export function setGetCtrl(gsFn: typeof getCtrl): void {
-  getCtrlContainer.getState = gsFn;
+  getCtrlContainer.getCtrl = gsFn;
 }
 
 /**
@@ -17,6 +19,6 @@ export function setGetCtrl(gsFn: typeof getCtrl): void {
  * @returns {ResourceControl<T>|undefined}
  */
 export function getCtrl<T>(instance: T): ResourceControl<T> | undefined {
-  return getCtrlContainer.getState(instance);
+  return getCtrlContainer.getCtrl(instance);
 }
 

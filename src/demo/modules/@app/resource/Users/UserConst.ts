@@ -72,21 +72,21 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
 
   @HttpAction({
     method: HttpActionMethodType.Get,
-    raw: {
-      handler: User_.prototype.rawDeserializedHandler,
-      deserialize: true
-    }
+    post: User_.prototype.postDeserializedHandler
   })
-  rawDeserialized: (options?: HttpActionOptions) => RestMixin<User_>;
-  private rawDeserializedHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
+  postDeserialized: (options?: HttpActionOptions) => RestMixin<User_>;
+  private postDeserializedHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
   }
 
   @HttpAction({
     method: HttpActionMethodType.Get,
-    raw: User_.prototype.rawHandler
+    post: {
+      handler: User_.prototype.postHandler,
+      skipDeserialize: true
+    }
   })
   raw: (options?: HttpActionOptions) => RestMixin<User_>;
-  private rawHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
+  private postHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
   }
 
   static num: number;
@@ -108,7 +108,7 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
 
   @ExtendAction({
     pre: (ctx: ExecuteContext<any>, id: IdentityValueType, a:number, b: number, options: HttpActionOptions) => {
-      ctx.data[ctx.adapterStore.identity] = id;
+      ctx.setIdentity(id);
       return options;
     }
   })

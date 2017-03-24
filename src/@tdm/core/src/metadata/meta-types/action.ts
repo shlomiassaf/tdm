@@ -1,6 +1,6 @@
-import { metaFactoryFactory, BaseMetadata, DecoratorInfo, MapExt, targetStore, MetaFactoryInstance } from '@tdm/transformation';
+import { isFunction, metaFactoryFactory, BaseMetadata, DecoratorInfo, MapExt, targetStore, MetaFactoryInstance } from '@tdm/transformation';
 
-import { DeserializerFactory, ExecuteContext, ExecuteResponse, ActionOptions, ValidationSchedule } from '../../fw';
+import { ExecuteContext, ExecuteResponse, ActionOptions, ValidationSchedule } from '../../fw';
 
 export enum ActionMethodType {
   /**
@@ -14,16 +14,10 @@ export enum ActionMethodType {
   DELETE
 }
 
-export type RawActionHandler = (executeResponse: ExecuteResponse, options: ActionOptions) => void;
-
-export type RawActionMetadataArgs = RawActionHandler | {
-  handler: RawActionHandler;
-  deserialize?: boolean;
-}
-
-export interface RawActionMetadata {
-  handler: RawActionHandler;
-  deserialize: boolean;
+export type PostActionHandler = (response: ExecuteResponse, options: ActionOptions) => void;
+export type PostActionMetadata =  {
+  handler: PostActionHandler;
+  skipDeserialize?: boolean;
 }
 
 export interface ActionMetadataArgs<T> {
@@ -42,8 +36,6 @@ export interface ActionMetadataArgs<T> {
    */
   collInstance?: boolean;
 
-  deserializer?: DeserializerFactory;
-  raw?: RawActionMetadataArgs;
   /**
    * A hook to update data and return the options.
    * If not set the options is taken from the 1st arg.
@@ -51,6 +43,8 @@ export interface ActionMetadataArgs<T> {
    * @param args
    */
   pre?: (ctx: ExecuteContext<any>, ...args: any[] )=> any,
+  post?: PostActionHandler | PostActionMetadata;
+
   validation?: ValidationSchedule;
 
   /**
@@ -66,14 +60,21 @@ export class ActionMetadata extends BaseMetadata {
   method: ActionMethodType;
   isCollection: boolean | undefined;
   collInstance: boolean | undefined;
-  deserializer: DeserializerFactory;
-  raw: RawActionMetadata;
   pre?: (ctx: ExecuteContext<any>, ...args: any[] )=> any;
+  post?: PostActionMetadata;
   validation: ValidationSchedule;
   sendBody: boolean;
 
   constructor(public readonly metaArgs: ActionMetadataArgs<any>, info: DecoratorInfo) {
     super(info);
+    Object.assign(this, metaArgs);
+    if (metaArgs.post) {
+      if (isFunction(metaArgs.post)) {
+        this.post = { handler: metaArgs.post }
+      } else if (metaArgs.post && isFunction(metaArgs.post.handler)) {
+        this.post= metaArgs.post;
+      }
+    }
   }
 }
 

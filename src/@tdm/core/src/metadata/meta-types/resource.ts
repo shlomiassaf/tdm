@@ -1,7 +1,5 @@
 import { TransformableMetadataArgs, MapperFactory } from '@tdm/transformation';
 
-import { DeserializerFactory } from '../../fw';
-
 export interface ResourceMetadataArgs extends TransformableMetadataArgs {
   /**
    * A name for the resource.
@@ -10,8 +8,6 @@ export interface ResourceMetadataArgs extends TransformableMetadataArgs {
    * @optional
    */
   name?: string;
-
-  deserializer?: DeserializerFactory;
 
   /**
    * If true will not build the decorated class into a resource.

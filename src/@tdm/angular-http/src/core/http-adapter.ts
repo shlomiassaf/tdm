@@ -2,7 +2,6 @@ import { Observable } from 'rxjs/Observable';
 import { RequestOptions, Response, URLSearchParams, Headers } from '@angular/http';
 import { isUndefined, stringify } from '@tdm/transformation';
 import {
-  Deserializer,
   Adapter,
   ResourceAdapter,
   findProp,
@@ -18,22 +17,8 @@ import { Params, getParamNames, formatPattern } from '../utils/match-pattern';
 
 import { getHttp } from '../providers';
 
-
-/**
- * @internal
- */
-export function deserializerFactory(): Deserializer<Response> {
-  return {
-    deserialize(resp: Response) {
-      return resp.json();
-    }
-  }
-}
-
-
 @ResourceAdapter({
-  actionMetaClass: HttpActionMetadata,
-  deserializerFactory: deserializerFactory
+  actionMetaClass: HttpActionMetadata
 })
 export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOptions> {
 
@@ -54,7 +39,7 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
     }
 
     const {path, query} = this.splitParams(url, urlParams);
-    const body = ctx.data && action.sendBody === true
+    const body = ctx.instance && action.sendBody === true
       ? ctx.hasOwnProperty('rawBody') ? ctx.rawBody : ctx.serialize()
       : undefined;
 
@@ -68,7 +53,7 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
     });
 
     return http.request(requestOptions.url, requestOptions)
-      .map(response => ({response, requestOptions}));
+      .map(response => ({data: response.json(), response, request: requestOptions}));
   }
 
   protected getHeaders(ctx: ExecuteContext<HttpActionMetadata>, options: HttpActionOptions): Headers {
@@ -88,7 +73,7 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
   protected getParams(ctx: ExecuteContext<HttpActionMetadata>, options: HttpActionOptions): Params {
     const params = Object.assign({}, findProp('urlParams', httpDefaultConfig, ctx.adapterStore.parent, ctx.action));
 
-    if (ctx.data) {
+    if (ctx.instance) {
       // we don't care about the keys (properties) UrlParam is on...
       // TODO: change how UrlParams are stored, instead of target->UrlParamMetadata->propName->Set<UrlParamMetadata>
       // store everything in one set/array to avoid this messy extraction.
@@ -100,7 +85,7 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
       for (let i = 0, len = boundParams.length; i < len; i++) {
         const bp = boundParams[i];
         if (bp.methods.length === 0 || bp.methods.some(mi => mi.method === ctx.action.method)) {
-          params[bp.urlTemplateParamName] = ctx.data[bp.name];
+          params[bp.urlTemplateParamName] = ctx.instance[bp.name];
         }
       }
     }

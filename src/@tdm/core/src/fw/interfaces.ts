@@ -15,7 +15,7 @@ export interface ExecuteContext<T extends ActionMetadata> {
   /**
    * The instance currently executing
    */
-  data: any;
+  instance: any;
 
   /**
    * Optional body to be sent if set.
@@ -25,14 +25,16 @@ export interface ExecuteContext<T extends ActionMetadata> {
    */
   rawBody?: any;
 
+  getIdentity(): IdentityValueType;
+  setIdentity(identity: IdentityValueType): void;
   serialize(): any
   deserialize(data: any): void
 }
 
 export interface ExecuteResponse {
-  response: any;
+  data: any;
+  response?: any;
   request?: any;
-  deserialized?: any;
 }
 
 /**
@@ -56,30 +58,6 @@ export interface AdapterStatic<T extends ActionMetadata, Z extends ActionOptions
 export interface Adapter<T extends ActionMetadata, Z extends ActionOptions> {
   execute(ctx: ExecuteContext<T>, options: Z): Observable<ExecuteResponse>;
 }
-
-
-/**
- * Performs a deserialization from the result of an action handler
- * Can be sync or async.
- * @public
- */
-export interface Deserializer<T> {
-  deserialize(response: T): any | Promise<any>;
-}
-
-/**
- * @public
- */
-export interface TargetFactoryParams {
-  identity?: IdentityValueType;
-  ctorArgs?: any[]
-}
-
-
-/**
- * @public
- */
-export type DeserializerFactory = () => Deserializer<any>;
 
 /**
  * @public

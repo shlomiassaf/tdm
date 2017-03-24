@@ -4,15 +4,8 @@ import { Adapter, ResourceAdapter, ExecuteContext, findProp, ExecuteResponse } f
 import { MockActionMetadata } from '../metadata';
 import { MockActionOptions } from './interfaces';
 
-import { mockDeserializer } from '../mock-deserializer';
-
-export function deserializerFactory(): any {
-  return mockDeserializer;
-}
-
 @ResourceAdapter({
-  actionMetaClass: MockActionMetadata,
-  deserializerFactory: deserializerFactory
+  actionMetaClass: MockActionMetadata
 })
 export class MockAdapter implements Adapter<MockActionMetadata, MockActionOptions> {
 
@@ -33,6 +26,6 @@ export class MockAdapter implements Adapter<MockActionMetadata, MockActionOption
         o.next(options.returnValue || {});
         o.complete();
       }
-    }).map( response => ({ response }) );
+    }).map( data => ({ data }) );
   }
 }

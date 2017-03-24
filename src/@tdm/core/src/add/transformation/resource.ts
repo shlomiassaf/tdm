@@ -1,7 +1,5 @@
 import { TargetStore, MapperFactory } from '@tdm/transformation';
 import { ResourceMetadataArgs } from '../../metadata';
-import { DeserializerFactory } from '../../fw';
-
 
 declare module '@tdm/transformation/metadata/target-store' {
   interface TargetStore {
@@ -22,8 +20,6 @@ declare module '@tdm/transformation/metadata/target-metadata' {
   interface TargetMetadata {
     endpoint: string;
 
-    deserializer?: DeserializerFactory;
-
     /**
      * If true will not build the decorated class into a resource.
      * @optional
@@ -38,8 +34,6 @@ declare module '@tdm/transformation/metadata/target-metadata' {
 declare module '@tdm/transformation/metadata/class-metadata' {
   interface ClassMetadata {
     endpoint: string;
-
-    deserializer?: DeserializerFactory;
 
     /**
      * If true will not build the decorated class into a resource.

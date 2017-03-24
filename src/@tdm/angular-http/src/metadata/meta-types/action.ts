@@ -31,24 +31,8 @@ export class HttpActionMetadata extends ActionMetadata {
       throw new Error('Resource Action method is mandatory.');
     }
 
-    Object.assign(this, obj);
-
     this.methodInfo = mapMethod(obj.method);
     this.method = this.methodInfo.method;
-
-    if (obj.raw) {
-      if (isFunction(obj.raw)) {
-        this.raw = {
-          handler: obj.raw,
-          deserialize: false
-        }
-      } else {
-        obj.raw = {
-          handler: obj.raw.handler,
-          deserialize: !!obj.raw.deserialize
-        }
-      }
-    }
   }
 
   static metaFactory = metaFactoryFactory<HttpActionMetadataArgs, HttpActionMetadata>(HttpActionMetadata);

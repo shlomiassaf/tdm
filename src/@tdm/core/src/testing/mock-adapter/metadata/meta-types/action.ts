@@ -1,7 +1,6 @@
 import { DecoratorInfo, metaFactoryFactory, MetaFactoryInstance } from '@tdm/transformation';
 
 import {
-  Deserializer,
   ActionMetadata,
   ActionMetadataArgs,
   ActionMethodType,
@@ -9,14 +8,12 @@ import {
 } from '@tdm/core';
 
 export interface MockActionMetadataArgs extends ActionMetadataArgs<ActionMethodType> {
-  deserializerFactory?: () => Deserializer<any>;
   isCollection?: boolean;
 }
 
 
 export class MockActionMetadata extends ActionMetadata {
   method: ActionMethodType;
-  deserializer: () => Deserializer<any>;
   isCollection: boolean;
   validation: ValidationSchedule;
 

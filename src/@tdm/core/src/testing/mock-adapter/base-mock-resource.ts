@@ -42,7 +42,7 @@ export class BaseMockResource {
     method: ActionMethodType.READ,
     validation: 'incoming' as 'incoming',
     pre: (ctx: ExecuteContext<MockActionMetadata>, id: IdentityValueType, options: MockActionOptions) => {
-      ctx.data[ctx.adapterStore.identity] = id;
+      ctx.setIdentity(id);
       return options;
     }
   })
@@ -52,7 +52,7 @@ export class BaseMockResource {
     method: ActionMethodType.DELETE,
     validation: 'skip' as 'skip',
     pre: (ctx: ExecuteContext<MockActionMetadata>, id: IdentityValueType, options: MockActionOptions) => {
-      ctx.data[ctx.adapterStore.identity] = id;
+      ctx.setIdentity(id);
       return options;
     }
   })

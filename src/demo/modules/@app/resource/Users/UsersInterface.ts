@@ -80,21 +80,21 @@ export class UsersInterface extends RestMixin<IUserInterface, IUserInterfaceStat
 
   @HttpAction({
     method: HttpActionMethodType.Get,
-    raw: {
-      handler: UsersInterface.prototype.rawDeserializedHandler,
-      deserialize: true
-    }
+    post: UsersInterface.prototype.postDeserializedHandler
   })
-  rawDeserialized: (options?: HttpActionOptions) => RestMixin<UsersInterface>;
-  private rawDeserializedHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
+  postDeserialized: (options?: HttpActionOptions) => RestMixin<UsersInterface>;
+  private postDeserializedHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
   }
 
   @HttpAction({
     method: HttpActionMethodType.Get,
-    raw: UsersInterface.prototype.rawHandler
+    post: {
+      handler: UsersInterface.prototype.postHandler,
+      skipDeserialize: true
+    }
   })
   raw: (options?: HttpActionOptions) => RestMixin<UsersInterface>;
-  private rawHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
+  private postHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
   }
 
   static num: number;
