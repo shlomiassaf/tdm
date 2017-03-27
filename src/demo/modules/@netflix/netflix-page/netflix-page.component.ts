@@ -1,7 +1,6 @@
 import { Observable } from "rxjs/Observable";
 import { Component, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
-import { ActiveRecordCollection } from "@tdm/core";
 
 import { UiBlockService, UiBlock } from '@shared';
 import { Title, TitleCollection } from '../models';

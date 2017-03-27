@@ -28,7 +28,6 @@ export {
   Relationship,
   RelationshipType,
   Resource,
-  ResourceAdapter,
   ResourceMetadataArgs,
   ValidationContext,
   ValidationError,
@@ -74,3 +73,5 @@ export {
 } from './utils';
 
 export { Constructor } from '@tdm/transformation';
+
+export { DAO } from './dao';

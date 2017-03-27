@@ -127,13 +127,11 @@ export class Package {
 
   @ExtendAction({
     method: HttpActionMethodType.Post,
-    sendBody: true,
     pre: (ctx: ExecuteContext<any>, packages: string | string[], options?: HttpActionOptions) => {
-      let body: string[];
       if (packages && typeof packages === 'string') {
-        body = [packages];
+        ctx.body = [packages];
       } else if (Array.isArray(packages)) {
-        body = packages.filter( p => !!p);
+        ctx.body = packages.filter( p => !!p);
       } else {
         throw new Error('Invalid parameters supplied');
       }
@@ -141,8 +139,6 @@ export class Package {
       if (packages.length === 0) {
         throw new Error('Empty search');
       }
-
-      ctx.rawBody = body;
 
       if (!options) {
         options = {};

@@ -47,10 +47,6 @@ export class TargetError extends TDMError {
   static built(target: any, adapterClass: AdapterStatic<any, any>): TargetError {
     return new TargetError(target, `Target/Adapter ${stringify(target)}/${stringify(adapterClass)} is already built`);
   }
-
-  static isAbstract(target: any, adapterClass: AdapterStatic<any, any>): TargetError {
-    return new TargetError(target, `Adapter '${stringify(adapterClass)}' is not declared for target ${stringify(target)}.`);
-  }
 }
 
 export class ResourceError extends TDMError {

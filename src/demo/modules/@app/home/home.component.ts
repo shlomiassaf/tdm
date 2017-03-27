@@ -6,6 +6,7 @@ import { UserBaseClass, UserConst, UsersInterface } from '../resource';
 const User = UserConst;
 type User = UserConst;
 
+
 @Component({
   selector: 'home',
   styleUrls: [ './home.component.css' ],

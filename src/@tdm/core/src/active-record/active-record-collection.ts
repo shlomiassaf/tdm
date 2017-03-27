@@ -1,21 +1,24 @@
 import { Tixin } from '@tdm/tixin';
+import { Constructor } from '@tdm/transformation';
 
 const ARColl = Symbol('ActiveRecordCollection');
 const NON_EXTENDABLE_PROPS = ['constructor'];
 
-let propertiesToCopy: Array<string | symbol>;
+const pCopyMap = new Map<any, Array<string | symbol>>();
 
-function buildAndCacheProperties() {
-  const proto = ActiveRecordCollection.prototype;
-  propertiesToCopy = Object.getOwnPropertyNames(proto)
+function buildAndCacheProperties(proto: any) {
+  const propertiesToCopy = Object.getOwnPropertyNames(proto)
     .concat(Object.getOwnPropertySymbols(proto) as any)
-    .filter(v => NON_EXTENDABLE_PROPS.indexOf(v) === -1)
+    .filter(v => NON_EXTENDABLE_PROPS.indexOf(v) === -1);
+
+  pCopyMap.set(proto, propertiesToCopy);
 }
 
-function runtimeExtend(thisVar: Array<any>): any {
+function runtimeExtend(proto: any, thisVar: Array<any>): any {
+  const propertiesToCopy = pCopyMap.get(proto) || [];
+
   thisVar[ARColl] = true;
 
-  const proto = ActiveRecordCollection.prototype;
   for (let i=0, len=propertiesToCopy.length; i<len; i++) {
     const name = propertiesToCopy[i];
     const propDesc = Object.getOwnPropertyDescriptor(proto, name);
@@ -32,12 +35,12 @@ function runtimeExtend(thisVar: Array<any>): any {
 export class ActiveRecordCollection<T /* extends ActiveRecord<any, any> */> extends Array<T> {
   constructor() {
     super();
-    runtimeExtend(this);
+    runtimeExtend(ActiveRecordCollection.prototype, this);
   }
 
   static extend(type: any): void {
     Tixin(ActiveRecordCollection as any, type);
-    buildAndCacheProperties();
+    buildAndCacheProperties(ActiveRecordCollection.prototype);
   }
 
   static instanceOf(instance: any): instance is ActiveRecordCollection<any> {
@@ -49,4 +52,27 @@ Object.defineProperty(ActiveRecordCollection, Symbol.hasInstance, {
   value: ActiveRecordCollection.instanceOf
 });
 
-buildAndCacheProperties();
+buildAndCacheProperties(ActiveRecordCollection.prototype);
+
+export function collectionClassFactory<T>(proto: any): typeof ActiveRecordCollection  & Constructor<ActiveRecordCollection<T>> {
+  const clz = class RuntimeActiveRecordCollection<T> extends ActiveRecordCollection<T> {
+    constructor() {
+      super();
+      runtimeExtend(clz.prototype, this);
+    }
+
+    static extend(type: any): void {
+      Tixin(ActiveRecordCollection as any, type);
+      buildAndCacheProperties(clz.prototype);
+    }
+  };
+
+  Object.defineProperty(clz, Symbol.hasInstance, {
+    value: clz.instanceOf
+  });
+
+  Object.assign(clz.prototype, proto);
+  buildAndCacheProperties(clz.prototype);
+
+  return clz;
+}

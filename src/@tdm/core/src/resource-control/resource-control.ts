@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs/Subscription'
 import { Subject } from 'rxjs/Subject'
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/do';
+import 'rxjs/add/operator/share'; // TODO: move to no-side effect implementation
 
 import { events$, ResourceEvent, ResourceEventType, ActionErrorResourceEvent } from '../events';
 import { CancellationTokenResourceEvent, ExecuteInitResourceEvent, ExecuteInitResourceEventArgs } from '../events/internal';

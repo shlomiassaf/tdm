@@ -47,13 +47,6 @@ export interface ActionMetadataArgs<T> {
 
   validation?: ValidationSchedule;
 
-  /**
-   * Send data to the server.
-   * True / False / 'asis'
-   *
-   * When using 'asis' the data will be sent without serializing it.
-   */
-  sendBody?: boolean;
 }
 
 export class ActionMetadata extends BaseMetadata {
@@ -63,7 +56,6 @@ export class ActionMetadata extends BaseMetadata {
   pre?: (ctx: ExecuteContext<any>, ...args: any[] )=> any;
   post?: PostActionMetadata;
   validation: ValidationSchedule;
-  sendBody: boolean;
 
   constructor(public readonly metaArgs: ActionMetadataArgs<any>, info: DecoratorInfo) {
     super(info);

@@ -1,8 +1,9 @@
-import { DecoratorInfo, metaFactoryFactory, isFunction, MetaFactoryInstance } from '@tdm/transformation';
+import { lazyRef, DecoratorInfo, metaFactoryFactory, targetStore, MetaFactoryInstance } from '@tdm/transformation';
 
 import { ActionMetadata, ActionMetadataArgs } from '@tdm/core';
-import { Params } from '../../utils/match-pattern';
-import { BaseHttpConfig, TrailingSlashesStrategy } from '../../core/interfaces';
+import { HttpAdapter } from '../core';
+import { Params } from '../utils/match-pattern';
+import { BaseHttpConfig, TrailingSlashesStrategy } from '../core/interfaces';
 import { mapMethod, MappedMethod, HttpActionMethodType } from './method-mapper';
 
 export interface HttpActionMetadataArgs extends ActionMetadataArgs<HttpActionMethodType>, BaseHttpConfig {
@@ -37,5 +38,7 @@ export class HttpActionMetadata extends ActionMetadata {
 
   static metaFactory = metaFactoryFactory<HttpActionMetadataArgs, HttpActionMetadata>(HttpActionMetadata);
 
-  static register: (meta: MetaFactoryInstance<HttpActionMetadata>) => void;
+  static register(meta: MetaFactoryInstance<HttpActionMetadata>): void {
+    targetStore.getAdapter(HttpAdapter).addAction(meta);
+  };
 }

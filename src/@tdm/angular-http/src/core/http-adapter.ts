@@ -1,9 +1,9 @@
 import { Observable } from 'rxjs/Observable';
 import { RequestOptions, Response, URLSearchParams, Headers } from '@angular/http';
-import { isUndefined, stringify } from '@tdm/transformation';
+import { isUndefined, stringify, TargetMetadata } from '@tdm/transformation';
+
 import {
   Adapter,
-  ResourceAdapter,
   findProp,
   ExecuteContext,
   ExecuteResponse
@@ -17,9 +17,8 @@ import { Params, getParamNames, formatPattern } from '../utils/match-pattern';
 
 import { getHttp } from '../providers';
 
-@ResourceAdapter({
-  actionMetaClass: HttpActionMetadata
-})
+const EMPTY_META: TargetMetadata = <any>{};
+
 export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOptions> {
 
   execute(ctx: ExecuteContext<HttpActionMetadata>, options: HttpActionOptions): Observable<ExecuteResponse> {
@@ -27,28 +26,27 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
 
     if (!options) options = {} as any;
     let {action} = ctx;
-    let resource = ctx.adapterStore.parent;
+    let resource = ctx.targetMeta || EMPTY_META;
 
     const url = findProp('endpoint', resource, action);
+    if (!url) {
+      // TODO: move to @tdm error with more info.
+      throw new Error('Invalid endpoint, no endpoint found.')
+    }
+
     const withCredentials = findProp('withCredentials', httpDefaultConfig, resource, action, options);
     const strip = findProp('trailingSlashes', httpDefaultConfig, resource, action, options);
 
-    const urlParams = this.getParams(ctx, options);
-    if (options.urlParams) {
-      Object.assign(urlParams, options.urlParams);
-    }
+    const urlParams = this.getParams(ctx, resource, options);
 
     const {path, query} = this.splitParams(url, urlParams);
-    const body = ctx.instance && action.sendBody === true
-      ? ctx.hasOwnProperty('rawBody') ? ctx.rawBody : ctx.serialize()
-      : undefined;
 
     const requestOptions = new RequestOptions({
       url: processUrl(this.parseUrl(url, path), strip),
       method: action.methodInfo.source as any,
       search: this.paramsToSearchParams(query),
-      headers: this.getHeaders(ctx, options),
-      body,
+      headers: this.getHeaders(ctx, resource, options),
+      body: ctx.body,
       withCredentials
     });
 
@@ -56,8 +54,8 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
       .map(response => ({data: response.json(), response, request: requestOptions}));
   }
 
-  protected getHeaders(ctx: ExecuteContext<HttpActionMetadata>, options: HttpActionOptions): Headers {
-    const headers = new Headers(findProp('headers', httpDefaultConfig, ctx.adapterStore.parent, ctx.action));
+  protected getHeaders(ctx: ExecuteContext<HttpActionMetadata>, meta: TargetMetadata, options: HttpActionOptions): Headers {
+    const headers = new Headers(findProp('headers', httpDefaultConfig, meta, ctx.action));
     if (options.headers) {
       Object.keys(options.headers).forEach(k => {
         if (isUndefined(options.headers[k])) {
@@ -70,15 +68,15 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
     return headers;
   }
 
-  protected getParams(ctx: ExecuteContext<HttpActionMetadata>, options: HttpActionOptions): Params {
-    const params = Object.assign({}, findProp('urlParams', httpDefaultConfig, ctx.adapterStore.parent, ctx.action));
+  protected getParams(ctx: ExecuteContext<HttpActionMetadata>, meta: TargetMetadata, options: HttpActionOptions): Params {
+    const params = Object.assign({}, findProp('urlParams', httpDefaultConfig, meta, ctx.action));
 
-    if (ctx.instance) {
+    if (meta !== EMPTY_META && ctx.instance) {
       // we don't care about the keys (properties) UrlParam is on...
       // TODO: change how UrlParams are stored, instead of target->UrlParamMetadata->propName->Set<UrlParamMetadata>
       // store everything in one set/array to avoid this messy extraction.
       // an alternative is to cache the flattened array.
-      const boundParams = ctx.adapterStore.parent
+      const boundParams = meta
         .getValues<any, Set<UrlParamMetadata>>(UrlParamMetadata)
         .reduce( (arr, set) => arr.concat(Array.from(set)) , [] as UrlParamMetadata[]);
 
@@ -88,6 +86,10 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
           params[bp.urlTemplateParamName] = ctx.instance[bp.name];
         }
       }
+    }
+
+    if (options.urlParams) {
+      Object.assign(params, options.urlParams);
     }
 
     return params;

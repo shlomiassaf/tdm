@@ -19,14 +19,6 @@ export class TargetAdapterMetadataStore {
 
   readonly committed: boolean;
 
-  /**
-   * If true means that the target was not decorated with the adapter this store represents.
-   * An abstract target/adapter can't be built into the target, it can only be used as a mixin
-   * or base class for other targets.
-   * @returns {boolean}
-   */
-  isAbstract: boolean = true;
-
   get target(): any {
     return this.parent.target;
   }
@@ -38,7 +30,7 @@ export class TargetAdapterMetadataStore {
   private registeredActions: Map<PropertyKey, ActionMetadata>;
 
   constructor(public readonly parent: TargetMetadata, public readonly adapterClass: AdapterStatic<any, any>) {
-    this.adapterMeta = targetStore.getAdapterStore(adapterClass).meta;
+    this.adapterMeta = targetStore.getAdapter(adapterClass);
     if (!this.adapterMeta) {
       throw AdapterError.notRegistered(adapterClass)
     }
@@ -53,9 +45,6 @@ export class TargetAdapterMetadataStore {
   }
 
   build(): void {
-    if (this.isAbstract) {
-      throw TargetError.isAbstract(this.parent.target, this.adapterClass);
-    }
     if (this.committed === true) {
       throw TargetError.built(this.parent.target, this.adapterClass);
     }
@@ -71,11 +60,10 @@ export class TargetAdapterMetadataStore {
       });
 
     // TODO: refactor for performance on getActions and getProtoChainWithMixins (+ Caching)
-    this.getActions(this.target, this.adapterClass)
-      .forEach( action => this.registerAction(action) );
+    const actions = this.getActions(this.target, this.adapterClass)
+      .map( action => this.processAction(action) );
 
-
-    this.actionController.commit();
+    this.actionController.commit(actions);
 
     if (isFunction(this.adapterMeta.commit)) {
       this.adapterMeta.commit(this);
@@ -121,7 +109,7 @@ export class TargetAdapterMetadataStore {
     return MapExt.asValArray(actions);
   }
 
-  private registerAction(action: ActionMetadata): void {
+  private processAction(action: ActionMetadata): ActionMetadata {
     // TODO check action instance of ActionMetadata + in ActionMetadata verify using DecoratorInfo
     const extAction = targetStore.getTargetMeta(this.target).getExtendingAction(action.decoratorInfo);
     if (extAction) {
@@ -130,6 +118,6 @@ export class TargetAdapterMetadataStore {
     }
 
     this.registeredActions.set(action.name, action);
-    this.actionController.registerAction(action, true);
+    return action;
   }
 }

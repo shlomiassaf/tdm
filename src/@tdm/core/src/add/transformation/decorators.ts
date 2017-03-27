@@ -7,20 +7,8 @@ import {
   ExtendActionMetadata,
   ResourceMetadataArgs,
   BelongsToMetadataArgs,
-  OwnsMetadataArgs,
-  AdapterMetadata,
-  AdapterMetadataArgs
+  OwnsMetadataArgs
 } from '../../metadata';
-
-
-/**
- * @classDecorator
- * @param def
- */
-export function ResourceAdapter(def: AdapterMetadataArgs): (target) => any {
-  return resourceAdapter(def) as any;
-}
-const resourceAdapter = decoratorFactory<AdapterMetadataArgs>(AdapterMetadata, 'class'); // FOR AOT
 
 /**
  * @classDecorator

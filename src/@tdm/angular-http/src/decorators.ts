@@ -1,15 +1,14 @@
-import { decoratorFactory, targetStore, MetaFactoryInstance } from '@tdm/transformation';
-import { decoratorFactories as df} from '@tdm/core';
-
+import { decoratorFactory } from '@tdm/transformation';
+import { decoratorFactories } from '@tdm/core';
 import {
   HttpResourceMetadataArgs,
   HttpActionMetadataArgs,
   HttpActionMetadata,
   UrlParamMetadataArgs,
   UrlParamMetadata
-} from './meta-types';
+} from './metadata';
 
-import { HttpAdapter } from '../core';
+import { HttpAdapter } from './core';
 
 /**
  * @propertyDecorator both
@@ -24,9 +23,10 @@ export const HttpAction = decoratorFactory<HttpActionMetadataArgs>(HttpActionMet
 export const UrlParam = decoratorFactory<string | UrlParamMetadataArgs>(UrlParamMetadata, true);
 
 
+
 // FOR AOT
 // export const HttpResource = df.resource<HttpResourceMetadataArgs>(HttpAdapter);
-const httpResource = df.resource<HttpResourceMetadataArgs>(HttpAdapter);
+const httpResource = decoratorFactories.resource<HttpResourceMetadataArgs>(HttpAdapter);
 
 /**
  * @classDecorator
@@ -38,8 +38,3 @@ export function HttpResource(def: HttpResourceMetadataArgs): (target) => any {
   }
   return httpResource(def) as any;
 }
-
-// HttpAdapter in action module will create circular dependency.
-HttpActionMetadata.register = function register(meta: MetaFactoryInstance<HttpActionMetadata>): void {
-  targetStore.getAdapterStore(HttpAdapter).meta.addAction(meta);
-};

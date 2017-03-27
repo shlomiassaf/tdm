@@ -2,8 +2,8 @@ import { MapperFactory } from '@tdm/transformation';
 import { ResourceMetadataArgs } from '@tdm/core';
 
 
-import { Params } from '../../utils/match-pattern';
-import { BaseHttpConfig, TrailingSlashesStrategy } from '../../core/interfaces';
+import { Params } from '../utils/match-pattern';
+import { BaseHttpConfig, TrailingSlashesStrategy } from '../core/interfaces';
 
 export interface HttpResourceMetadataArgs extends ResourceMetadataArgs, BaseHttpConfig {
   /**

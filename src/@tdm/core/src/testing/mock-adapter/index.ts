@@ -11,5 +11,16 @@ export {
   MockActionOptions
 } from './core';
 
+// TODO: solve this circular dependency hell
+import { MockDao } from './core/mock-dao';
+import { targetStore } from '@tdm/transformation/metadata';
+import { MockAdapter } from './core';
+import { MockActionMetadata } from './metadata';
+targetStore.registerAdapter(MockAdapter, {
+  actionMetaClass: MockActionMetadata,
+  daoClass: MockDao
+});
+
+
 export { MockMixin } from './mixin-factory';
 export * from './mock-deserializer';

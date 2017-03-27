@@ -6,7 +6,6 @@ export function onCreateNew(cb: (instance: any) => void) {
   onCreateNewCallbackArray.push(cb);
 }
 
-// TODO: TDModel to implement & ActiveRecord $ar and return it in type
 export function activeRecordClassFactory<T>(model: Type<T>): Type<T> {
 
   class TDModel extends (model as Type<{}>) {

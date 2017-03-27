@@ -21,7 +21,8 @@ export {
   metaFactoryFactory,
   fireEvents,
   registerEvent,
-  TargetStoreEvents
+  TargetStoreEvents,
+  lazyRef
 } from './fw';
 
 export {

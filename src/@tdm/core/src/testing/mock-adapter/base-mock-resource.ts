@@ -1,4 +1,5 @@
 import { Tixin } from '@tdm/tixin';
+import { isPrimitive } from '@tdm/transformation';
 import { ActiveRecordCollection, ActionMethodType, BaseActiveRecord, IdentityValueType, ExecuteContext } from '@tdm/core';
 
 import { MockActionOptions } from './core/interfaces';
@@ -8,7 +9,10 @@ export class BaseMockResource {
   @MockAction({
     method: ActionMethodType.CREATE,
     validation: 'both' as 'both',
-    sendBody: true
+    pre: (ctx: ExecuteContext<MockActionMetadata>, options?: MockActionOptions) => {
+      ctx.body = ctx.serialize();
+      return options;
+    }
   })
   $create: (options?: MockActionOptions) => this;
 
@@ -21,7 +25,10 @@ export class BaseMockResource {
   @MockAction({
     method: ActionMethodType.UPDATE,
     validation: 'both' as 'both',
-    sendBody: true
+    pre: (ctx: ExecuteContext<MockActionMetadata>, options?: MockActionOptions) => {
+      ctx.body = ctx.serialize();
+      return options;
+    }
   })
   $update: (options?: MockActionOptions) => this;
 
@@ -34,6 +41,7 @@ export class BaseMockResource {
   @MockAction({
     method: ActionMethodType.READ,
     isCollection: true,
+    collInstance: true,
     validation: 'incoming' as 'incoming'
   })
   static query: (options?: MockActionOptions) => ActiveRecordCollection<any>;
@@ -51,8 +59,15 @@ export class BaseMockResource {
   @MockAction({
     method: ActionMethodType.DELETE,
     validation: 'skip' as 'skip',
-    pre: (ctx: ExecuteContext<MockActionMetadata>, id: IdentityValueType, options: MockActionOptions) => {
-      ctx.setIdentity(id);
+    pre: (ctx: ExecuteContext<MockActionMetadata>, id: IdentityValueType | any, options?: MockActionOptions) => {
+
+      if (isPrimitive(id)) {
+        ctx.setIdentity(id);
+      } else if (ctx.instanceOf(id)) {
+        ctx.instance = id;
+      } else {
+        ctx.deserialize(id);
+      }
       return options;
     }
   })
@@ -61,8 +76,15 @@ export class BaseMockResource {
   @MockAction({
     method: ActionMethodType.CREATE,
     validation: 'both' as 'both',
-    pre: (ctx: ExecuteContext<MockActionMetadata>, data: any, options: MockActionOptions) => {
-      ctx.deserialize(data);
+    pre: (ctx: ExecuteContext<MockActionMetadata>, data: any, options?: MockActionOptions) => {
+      if (ctx.instanceOf(data)) {
+        ctx.instance = data;
+      } else {
+        ctx.deserialize(data);
+      }
+
+      ctx.body = ctx.serialize();
+
       return options;
     }
   })
@@ -71,8 +93,15 @@ export class BaseMockResource {
   @MockAction({
     method: ActionMethodType.UPDATE,
     validation: 'both' as 'both',
-    pre: (ctx: ExecuteContext<MockActionMetadata>, data: any, options: MockActionOptions) => {
-      ctx.deserialize(data);
+    pre: (ctx: ExecuteContext<MockActionMetadata>, data: any, options?: MockActionOptions) => {
+      if (ctx.instanceOf(data)) {
+        ctx.instance = data;
+      } else {
+        ctx.deserialize(data);
+      }
+
+      ctx.body = ctx.serialize();
+
       return options;
     }
   })

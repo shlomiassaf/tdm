@@ -8,15 +8,13 @@ import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/switchMap';
 
-import { TargetMetadata, isFunction, MapperFactory } from '@tdm/transformation';
+import { TargetMetadata, isFunction, MapperFactory, Constructor } from '@tdm/transformation';
 import { emitEvent, eventFactory } from '../events';
 import { CancellationTokenResourceEvent, ExecuteInitResourceEvent } from '../events/internal';
 import { defaultConfig } from '../default-config';
 import { findProp, noop  } from '../utils';
 import { ActionMetadata, ValidationSchedule } from '../metadata';
 import {
-  IdentityValueType,
-  ExecuteContext,
   ActionOptions,
   Adapter,
   AdapterStatic,
@@ -27,10 +25,10 @@ import {
   ARHookableMethods
 } from '../fw';
 
-import { ActiveRecordCollection } from '../active-record';
+import { ActiveRecordCollection, collectionClassFactory } from '../active-record';
 import { getCtrl } from '../resource-control/get-ctrl';
-
 import { TargetAdapterMetadataStore } from '../metadata/target-adapter-metadata-store';
+import { ExtendedContext, ExecuteParams } from './execute-context';
 
 function validateIncoming(validation: ValidationSchedule) {
   return validation === 'incoming' || validation === 'both';
@@ -48,11 +46,7 @@ export class ActionController {
   public adapter: Adapter<ActionMetadata, ActionOptions>;
   public mapper: MapperFactory;
 
-  /**
-   * Holds a prototype of collection methods to copy/merge to a new ActiveRecordCollection instance.
-   */
-  public collectionProto: any = {};
-  public dao: any = {};
+  private collectionProto: any = {};
 
   constructor(public adapterStore: TargetAdapterMetadataStore, public targetMetadata: TargetMetadata) {
     this.target = targetMetadata.target;
@@ -61,8 +55,41 @@ export class ActionController {
     this.mapper = findProp('mapper', defaultConfig, targetMetadata);
   }
 
-  commit(): void {
+  commit(localActions: ActionMetadata[]): void {
+    localActions.forEach( action => this.registerAction(action, true));
 
+    this.registerDAO();
+
+    // creating collection type for this target
+    if (Object.keys(this.collectionProto).length > 0) {
+      this.targetMetadata.collectionClass = collectionClassFactory(this.collectionProto);
+    }
+  }
+
+  registerDAO() {
+    const daoClass = this.adapterStore.adapterMeta.daoClass;
+    const actions = this.adapterStore.adapterMeta.getActions(daoClass);
+
+    const runtimeDAO = class RuntimeDAO extends (daoClass as Constructor<{}>) {};
+
+    // creating DAO for this target
+    // TODO: each RuntimeDAO creates a new handler for global daoClass handlers.
+    // find a way to register once, then provide targetMeta every time.
+
+    actions.forEach(action => {
+      if (action.decoratorInfo.isStatic) {
+        throw new Error('DAO can define static actions.');
+      }
+
+      const ctx = new ExtendedContext(this.targetMetadata, action);
+      const self = this;
+
+      runtimeDAO.prototype[action.name] = function (this: BaseActiveRecord<any>, ...args: any[]) {
+        return self.execute(ctx.clone(), { async: true, args }, 'obs$');
+      };
+    });
+
+    this.targetMetadata.daoClass = runtimeDAO;
   }
 
   registerAction(action: ActionMetadata, override: boolean = false): void {
@@ -74,6 +101,7 @@ export class ActionController {
         throw new Error('An action with a collection response must be a static level member');
       }
 
+      const ctx = new ExtendedContext(this.targetMetadata, action);
       const self = this;
 
       if (action.decoratorInfo.isStatic) {
@@ -81,62 +109,61 @@ export class ActionController {
         if (action.isCollection && action.collInstance) {
           this.collectionProto[action.name] = function (this: ActiveRecordCollection<any>, ...args: any[]): any {
             this.splice(0, this.length);
-            self.execute(this, action, true, ...args);
-          }
+            return self.execute(ctx.clone(this), {async: true, args});
+          };
         }
 
-        this.dao[action.name] = function(...args: any[]) {
-
-        }
         this.target[action.name] = function (this: AdapterStatic<any, any>, ...args: any[]) {
-          return self.execute(undefined, action, true, ...args);
-        }
+          return self.execute(ctx.clone(), { async: true, args});
+        };
       } else {
         this.target.prototype[action.name] = function (this: BaseActiveRecord<any>, ...args: any[]) {
-          return self.execute(this, action, true, ...args);
-        }
+          return self.execute(ctx.clone(this), {async: true, args});
+        };
       }
     }
   }
 
-  createExecFactory<T extends BaseActiveRecord<any>>(action: ActionMetadata): (self: T, async: boolean, ...args: any[]) => T {
-    return (self: T, async: boolean, ...args: any[]) => {
-      this.execute(self, action, async, ...args);
-      return self;
-    };
+  createExecFactory<T>(action: ActionMetadata, ret: 'obs$'): (self: T, async: boolean, ...args: any[]) => Observable<T>;
+  createExecFactory<T>(action: ActionMetadata, ret?: 'instance'): (self: T, async: boolean, ...args: any[]) => T;
+  createExecFactory<T>(action: ActionMetadata, ret?: any): (self: T, async: boolean, ...args: any[]) => T | Observable<T> {
+    const ac = this;
+    return function (self: T, async: boolean, ...args: any[]) {
+      return ac.execute(this.clone(self), {async,  args}, ret);
+    }.bind(new ExtendedContext(this.targetMetadata, action));
   }
 
   hasMethod(name: PropertyKey): boolean {
     return isFunction(this.target.prototype[name]);
   }
 
-  private execute(self: BaseActiveRecord<any> | ActiveRecordCollection<any> | undefined, action: ActionMetadata, async: boolean, ...args: any[]): any {
-    const pubCtx = new ExtendedContext(self, this, action);
-    const options = isFunction(action.pre) ? action.pre(pubCtx, ...args) : args[0];
 
-    if (!self) {
-      self = pubCtx.instance;
-    }
+  execute(ctx: ExtendedContext, params: ExecuteParams, ret: 'obs$'): Observable<any>;
+  execute(ctx: ExtendedContext, params: ExecuteParams, ret?: 'instance'): any;
+  execute(ctx: ExtendedContext, params: ExecuteParams, ret?: 'instance' | 'obs$'): any {
+    const action = ctx.action;
+    const args = params.args || [];
+    let async = params.async;
 
-    const state = getCtrl(self);
+    const options = isFunction(action.pre) ? action.pre(ctx, ...args) : args[0];
+
+    const state = getCtrl(ctx.instance);
     if (state && state.busy) { // TODO: Should throw or error?
-      emitEvent(eventFactory.error(self, new Error('An action is already running')));
+      emitEvent(eventFactory.error(ctx.instance, new Error('An action is already running')));
       return;
-    } else if (!!action.isCollection !== ActiveRecordCollection.instanceOf(self)) {
-      emitEvent(eventFactory.error(self, ResourceError.coll_obj(self, action.isCollection)));
+    } else if (!!action.isCollection !== ActiveRecordCollection.instanceOf(ctx.instance)) {
+      emitEvent(eventFactory.error(ctx.instance, ResourceError.coll_obj(ctx.instance, action.isCollection)));
       return;
     }
 
-    emitEvent(new ExecuteInitResourceEvent(self, {adapterMeta: this.adapterStore, action, async, args}));
-    emitEvent(eventFactory.actionStart(self));
-
-
+    emitEvent(new ExecuteInitResourceEvent(ctx.instance, {adapterMeta: this.adapterStore, action, async, args}));
+    emitEvent(eventFactory.actionStart(ctx.instance));
 
     const validator = action.validation === 'skip'
         ? undefined
-        : () => this.targetMetadata.validate(self).then(validationErrors => {
+        : () => this.targetMetadata.validate(ctx.instance).then( (validationErrors: any) => {
           if (validationErrors.length > 0) {
-            throw new ResourceValidationError(self, validationErrors);
+            throw new ResourceValidationError(ctx.instance, validationErrors);
           }
         })
       ;
@@ -144,7 +171,7 @@ export class ActionController {
     // TODO:  fireEvent uses member name as Hook matcher, this requires member name to be one of
     //        "ARHookableMethods", let user set the action method in ActionMetadata or something
     //        - Also applied to fireEvent "after" below.
-    const startingPromise = this.fireHook(action.name as any, 'before', self, options)
+    const startingPromise = this.fireHook(action.name as any, 'before', ctx.instance, options)
       .then(validateOutgoing(action.validation) ? validator : noopPromise);
 
     if (action.post) {
@@ -152,24 +179,34 @@ export class ActionController {
     }
 
     const endingPromise = (resp: ExecuteResponse) => (!action.isCollection && validateIncoming(action.validation) ? validator() : noopPromise())
-      .then(() => this.fireHook(action.name as any, 'after', self, options, resp));
+      .then(() => this.fireHook(action.name as any, 'after', ctx.instance, options, resp));
 
     let obs$: Observable<any | void> = fromPromise(startingPromise)
-      .switchMap(() => this.adapter.execute(pubCtx, options))
+      .switchMap(() => this.adapter.execute(ctx, options))
       .do( response => {
         if (!action.post || !action.post.skipDeserialize) {
-          pubCtx.deserialize(response.data);
+          ctx.deserialize(response.data);
         }
         if (action.post) {
-          action.post.handler.apply(self, [response, options])
+          action.post.handler.apply(ctx.instance, [response, options])
         }
       })
       .switchMap(resp => fromPromise<void>(endingPromise(resp)));
 
-    const subs = subscribeOn.call(obs$, async ? asyncScheduler : null).subscribe(
-      _ => emitEvent(eventFactory.success(self)),
-      err => emitEvent(eventFactory.error(self, err)),
-      () => emitEvent(eventFactory.actionEnd(self, 'success'))
+    obs$ = subscribeOn.call(obs$, async ? asyncScheduler : null);
+
+    let response: any;
+    if (ret === 'obs$') {
+      obs$ = obs$.share();
+      response = obs$.first().map( () => ctx.instance)
+    } else {
+      response = ctx.instance;
+    }
+
+    const subs = obs$.subscribe(
+      _ => emitEvent(eventFactory.success(ctx.instance)),
+      err => emitEvent(eventFactory.error(ctx.instance, err)),
+      () => emitEvent(eventFactory.actionEnd(ctx.instance, 'success'))
       // TODO: protect from never ending observables in this chain?
       // maybe first()? take()? are there handlers that emit multiple values?
     );
@@ -177,13 +214,13 @@ export class ActionController {
     const subscription = Object.create(subs);
     subscription.unsubscribe = () => {
       subs.unsubscribe();
-      emitEvent(eventFactory.cancel(self));
-      emitEvent(eventFactory.actionEnd(self, 'cancel'));
+      emitEvent(eventFactory.cancel(ctx.instance));
+      emitEvent(eventFactory.actionEnd(ctx.instance, 'cancel'));
     };
 
-    emitEvent(new CancellationTokenResourceEvent(self, subscription));
+    emitEvent(new CancellationTokenResourceEvent(ctx.instance, subscription));
 
-    return pubCtx.instance;
+    return response;
   }
 
   private fireHook(action: ARHookableMethods, event: 'before' | 'after', self: any, options: ActionOptions, ...args: any[]): Promise<void> {
@@ -194,66 +231,5 @@ export class ActionController {
       : noop;
 
     return Promise.resolve(fn.apply(self, [options, ...args]));
-  }
-}
-
-class ExtendedContext implements ExecuteContext<any> {
-  constructor(private data: BaseActiveRecord<any> | ActiveRecordCollection<any>,
-              private readonly ac: ActionController,
-              public readonly action: ActionMetadata) {
-  }
-
-  get adapterStore(): TargetAdapterMetadataStore {
-    return this.ac.adapterStore;
-  }
-
-  get instance(): BaseActiveRecord<any> | ActiveRecordCollection<any> {
-    if (!this.data) {
-      this.data = this.ac.targetMetadata.factory(this.action.isCollection);
-
-      if (ActiveRecordCollection.instanceOf(this.data)) {
-        Object.assign(this.data, this.ac.collectionProto);
-      }
-    }
-
-    return this.data;
-  }
-
-  set instance(value: BaseActiveRecord<any> | ActiveRecordCollection<any>) {
-    if (this.data) {
-      throw new Error('Instance exists');
-    }
-
-    if (!ActiveRecordCollection.instanceOf(this.data) && !(value instanceof this.ac.target) ) {
-      throw new Error('Instance does not match type');
-    }
-
-    this.data = value;
-  }
-
-  getIdentity(): IdentityValueType {
-    return this.instance[this.adapterStore.identity];
-  }
-
-  setIdentity(identity: IdentityValueType): void {
-    this.instance[this.adapterStore.identity] = identity;
-  }
-
-  serialize(): any {
-    return this.adapterStore.parent.serialize(this.ac.mapper.serializer(this.instance));
-  }
-
-  deserialize(data: any): void {
-    if (data) { // only if exists (false, 0, '' and all falsy's === not exists)
-      const mapper = this.ac.mapper.deserializer(data, this.adapterStore.target);
-      const isColl = !!this.action.isCollection;
-
-      if (mapper.isCollection !== isColl) {
-        throw ResourceError.coll_obj(this.instance, isColl);
-      }
-
-      this.adapterStore.parent
-        .deserialize(mapper, this.instance);
-    }
   }
 }

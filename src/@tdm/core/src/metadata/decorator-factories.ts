@@ -9,10 +9,6 @@ import { activeRecordClassFactory, ActiveRecordCollection } from '../active-reco
  * @param adapterClass
  */
 export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterStatic<any, any>): (def: T) => ClassDecorator {
-  if (!targetStore.hasAdapter(adapterClass)) {
-    throw AdapterError.notRegistered(adapterClass);
-  }
-
   return function ResourceDecorator(def: T) {
     return (target: any) => {
       const TDModel = activeRecordClassFactory(target as any);
@@ -23,8 +19,9 @@ export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterSt
       const paramTypes = (Reflect as any).getOwnMetadata('design:paramtypes', target);
       (Reflect as any).defineMetadata('design:paramtypes', paramTypes, TDModel);
 
-      if (!def.factory) {
-        def.factory = (isColl: boolean) => isColl ? new ActiveRecordCollection() : new TDModel();
+      if (def.factory) {
+        console.warn('Transformable#factory can not be set in @tdm/core');
+        delete def.factory;
       }
 
       targetStore.setResource(def, target);
@@ -45,11 +42,12 @@ export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterSt
 
       targetStore.registerTarget(TDModel);
 
-      const adapterStore = targetStore.getTargetAdapterStore(TDModel, adapterClass, true);
-      adapterStore.isAbstract = false;
-
       if (def.noBuild !== true) {
-        adapterStore.build();
+        const tMeta = targetStore.getTargetMeta(TDModel);
+        // default behaviour, register the first adapter, if multiple...
+        if (!tMeta.activeAdapter) {
+          tMeta.setActiveAdapter(adapterClass);
+        }
       } else {
         targetStore.setReadyToBuild(TDModel);
       }

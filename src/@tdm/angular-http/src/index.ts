@@ -1,11 +1,8 @@
 export { Params } from './utils/match-pattern';
 
 export {
-  UrlParam,
   UrlParamMetadataArgs,
-  HttpResource,
   HttpResourceMetadataArgs,
-  HttpAction,
   HttpActionMetadataArgs,
   HttpActionMethodType
 } from './metadata';
@@ -16,7 +13,20 @@ export {
   HttpActionOptions
 } from './core';
 
-export { RestMixin } from './mixin-factory';
+export { HttpAction, UrlParam, HttpResource } from './decorators';
+
+// TODO: solve this circular dependency hell
+import { HttpDao } from './core/http-dao';
+import { targetStore } from '@tdm/transformation/metadata';
+import { HttpAdapter } from './core';
+import { HttpActionMetadata } from './metadata';
+targetStore.registerAdapter(HttpAdapter, {
+  actionMetaClass: HttpActionMetadata,
+  daoClass: HttpDao
+});
+
 export { httpDefaultConfig, HttpDefaultConfig } from './http-default-config';
 export { ActiveRecordCollection } from './base-http-resource';
 export { HttpResourceModule } from './module';
+export { RestMixin } from './mixin-factory';
+

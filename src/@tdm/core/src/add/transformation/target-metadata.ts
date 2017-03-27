@@ -1,11 +1,20 @@
 import { Tixin } from '@tdm/tixin';
-import { targetStore, DecoratorInfo, TargetMetadata, stringify, LazyInit } from '@tdm/transformation';
+import { targetStore, DecoratorInfo, TargetMetadata, stringify, LazyInit, Constructor } from '@tdm/transformation';
 
+import { ActiveRecordCollection } from '../../active-record/active-record-collection';
 import { AdapterError, AdapterStatic, ARHookableMethods } from '../../fw';
 import { TargetAdapterMetadataStore, ExtendActionMetadata, HookMetadata, ResourceMetadataArgs, ValidationError } from '../../metadata';
 import { TargetValidator } from '../../core/target-validator';
 
 class CoreTargetMetadata extends TargetMetadata {
+
+  collectionClass: typeof ActiveRecordCollection & Constructor<ActiveRecordCollection<any>>;
+  daoClass: Constructor<any>;
+
+  get activeAdapter(): AdapterStatic<any, any> | undefined {
+    return this._activeAdapter;
+  }
+
   @LazyInit(function (this: CoreTargetMetadata): TargetValidator {
     return new TargetValidator(this.target);
   })
@@ -15,6 +24,8 @@ class CoreTargetMetadata extends TargetMetadata {
     return  new Map<AdapterStatic<any, any>, TargetAdapterMetadataStore>();
   })
   protected adapters: Map<AdapterStatic<any, any>, TargetAdapterMetadataStore>;
+
+  private _activeAdapter: AdapterStatic<any, any>;
 
   validate(instance: any): Promise<ValidationError[]> {
     return this.validator.validate(instance);
@@ -39,8 +50,14 @@ class CoreTargetMetadata extends TargetMetadata {
     return this.adapters.has(adapterClass);
   }
 
-  getAdapterStore<T extends AdapterStatic<any, any>>(adapterClass: T, create: boolean = true): TargetAdapterMetadataStore | undefined {
-    return this.adapters.get(adapterClass) || (create ? this.registerAdapter(adapterClass) : undefined);
+  getAdapterMeta(): TargetAdapterMetadataStore | undefined;
+  getAdapterMeta<T extends AdapterStatic<any, any>>(adapterClass: T, create?: boolean): TargetAdapterMetadataStore | undefined;
+  getAdapterMeta<T extends AdapterStatic<any, any>>(adapterClass?: T, create: boolean = true): TargetAdapterMetadataStore | undefined {
+    if (arguments.length === 0) {
+      return this.activeAdapter && this.adapters.get(this.activeAdapter);
+    } else {
+      return this.adapters.get(adapterClass) || (create ? this.registerAdapter(adapterClass) : undefined);
+    }
   }
 
   getExtendingAction(info: DecoratorInfo): ExtendActionMetadata | undefined {
@@ -48,6 +65,19 @@ class CoreTargetMetadata extends TargetMetadata {
     if (arr) {
       return arr.find(a => a.name === info.name && a.decoratorInfo.isStatic === info.isStatic);
     }
+  }
+
+  setActiveAdapter(adapter: AdapterStatic<any, any>): void {
+    const adapterMeta = this.getAdapterMeta(adapter);
+    adapterMeta.build();
+    this._activeAdapter = adapter;
+  }
+
+  private createCollection() {
+    return this.collectionClass
+      ? new this.collectionClass()
+      : new ActiveRecordCollection()
+    ;
   }
 
   private registerAdapter(adapterClass: AdapterStatic<any, any>): TargetAdapterMetadataStore {
@@ -61,8 +91,18 @@ class CoreTargetMetadata extends TargetMetadata {
   }
 }
 
+CoreTargetMetadata.prototype.factory = function targetFactory(isColl: boolean): any {
+  return isColl
+    ? this.createCollection()
+    : new this.target()
+  ;
+};
+
 declare module '@tdm/transformation/metadata/target-metadata' {
   interface TargetMetadata {
+    collectionClass: typeof ActiveRecordCollection & Constructor<ActiveRecordCollection<any>>;
+    daoClass: Constructor<any>;
+
     validate(instance: any): Promise<ValidationError[]>;
 
     setResource(meta: ResourceMetadataArgs): void;
@@ -71,8 +111,14 @@ declare module '@tdm/transformation/metadata/target-metadata' {
     findHookEvent(action: ARHookableMethods, event: 'before' | 'after'): HookMetadata | undefined;
 
     hasAdapter(adapterClass: AdapterStatic<any, any>): boolean;
-    getAdapterStore<T extends AdapterStatic<any, any>>(adapterClass: T, create?: boolean): TargetAdapterMetadataStore | undefined;
+
+    getAdapterMeta(): TargetAdapterMetadataStore | undefined;
+    getAdapterMeta<T extends AdapterStatic<any, any>>(adapterClass: T, create?: boolean): TargetAdapterMetadataStore | undefined;
+
     getExtendingAction(info: DecoratorInfo): ExtendActionMetadata | undefined;
+
+    readonly activeAdapter: AdapterStatic<any, any>;
+    setActiveAdapter(adapter: AdapterStatic<any, any>): void;
 
     extendFrom(store: this): void;
   }

@@ -45,6 +45,7 @@ export interface DecoratorInfo {
 }
 
 export interface MetaFactoryStatic {
+  // TODO: require meta specific constructor: new (metaArgs: any, info) [NOTE: info is not required for class decorating metas]
   new (...args: any[]): any;
 
   /**

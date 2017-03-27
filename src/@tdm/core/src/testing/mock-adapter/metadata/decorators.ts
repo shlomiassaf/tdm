@@ -16,5 +16,5 @@ export const MockAction = decoratorFactory<MockActionMetadataArgs>(MockActionMet
 
 // HttpAdapter in action module will create circular dependency.
 MockActionMetadata.register = function register(meta: MetaFactoryInstance<MockActionMetadata>): void {
-  targetStore.getAdapterStore(MockAdapter).meta.addAction(meta);
+  targetStore.getAdapter(MockAdapter).addAction(meta);
 };

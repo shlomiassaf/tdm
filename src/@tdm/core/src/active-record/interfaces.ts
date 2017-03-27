@@ -42,5 +42,5 @@ export type ActiveRecord<T, Z> = BaseActiveRecord<T> & {
   [P in keyof typeof ARMethods]: (options?: Z) => T;
 };
 
-export type AnyActiveRecord = ActiveRecord<any, any>;
+
 
