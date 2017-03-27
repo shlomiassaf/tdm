@@ -37,7 +37,7 @@ export {
   store
 } from './metadata';
 
-import './add/transformation'; // extending @tdm/transformation
+import './transformation'; // extending @tdm/transformation
 export * from './core';
 
 export { validators } from './core-validators';
@@ -49,7 +49,9 @@ export {
   ExecuteContext,
   ExecuteResponse,
   Adapter,
-  ActionOptions
+  ActionOptions,
+  plugins,
+  PluginStore
 } from './fw';
 
 export {
@@ -62,7 +64,6 @@ export {
 } from './events';
 
 export { ActiveRecordCollection } from './active-record';
-export { getCtrl } from './resource-control/get-ctrl';
 
 export {
   findProp,
@@ -74,4 +75,4 @@ export {
 
 export { Constructor } from '@tdm/transformation';
 
-export { DAO } from './dao';
+export { DS } from './ds';

@@ -26,7 +26,7 @@ import {
 } from '../fw';
 
 import { ActiveRecordCollection, collectionClassFactory } from '../active-record';
-import { getCtrl } from '../resource-control/get-ctrl';
+import { DS } from '../ds';
 import { TargetAdapterMetadataStore } from '../metadata/target-adapter-metadata-store';
 import { ExtendedContext, ExecuteParams } from './execute-context';
 
@@ -46,7 +46,6 @@ export class ActionController {
   public adapter: Adapter<ActionMetadata, ActionOptions>;
   public mapper: MapperFactory;
 
-  private collectionProto: any = {};
 
   constructor(public adapterStore: TargetAdapterMetadataStore, public targetMetadata: TargetMetadata) {
     this.target = targetMetadata.target;
@@ -55,15 +54,8 @@ export class ActionController {
     this.mapper = findProp('mapper', defaultConfig, targetMetadata);
   }
 
-  commit(localActions: ActionMetadata[]): void {
-    localActions.forEach( action => this.registerAction(action, true));
-
+  commit(): void {
     this.registerDAO();
-
-    // creating collection type for this target
-    if (Object.keys(this.collectionProto).length > 0) {
-      this.targetMetadata.collectionClass = collectionClassFactory(this.collectionProto);
-    }
   }
 
   registerDAO() {
@@ -92,38 +84,6 @@ export class ActionController {
     this.targetMetadata.daoClass = runtimeDAO;
   }
 
-  registerAction(action: ActionMetadata, override: boolean = false): void {
-    if (override || !this.hasMethod(action.name)) {
-
-      // ACTION VALIDATION
-      // TODO: move to separate function, add more assertions, create unique error class
-      if (action.isCollection && !action.decoratorInfo.isStatic) {
-        throw new Error('An action with a collection response must be a static level member');
-      }
-
-      const ctx = new ExtendedContext(this.targetMetadata, action);
-      const self = this;
-
-      if (action.decoratorInfo.isStatic) {
-
-        if (action.isCollection && action.collInstance) {
-          this.collectionProto[action.name] = function (this: ActiveRecordCollection<any>, ...args: any[]): any {
-            this.splice(0, this.length);
-            return self.execute(ctx.clone(this), {async: true, args});
-          };
-        }
-
-        this.target[action.name] = function (this: AdapterStatic<any, any>, ...args: any[]) {
-          return self.execute(ctx.clone(), { async: true, args});
-        };
-      } else {
-        this.target.prototype[action.name] = function (this: BaseActiveRecord<any>, ...args: any[]) {
-          return self.execute(ctx.clone(this), {async: true, args});
-        };
-      }
-    }
-  }
-
   createExecFactory<T>(action: ActionMetadata, ret: 'obs$'): (self: T, async: boolean, ...args: any[]) => Observable<T>;
   createExecFactory<T>(action: ActionMetadata, ret?: 'instance'): (self: T, async: boolean, ...args: any[]) => T;
   createExecFactory<T>(action: ActionMetadata, ret?: any): (self: T, async: boolean, ...args: any[]) => T | Observable<T> {
@@ -132,11 +92,6 @@ export class ActionController {
       return ac.execute(this.clone(self), {async,  args}, ret);
     }.bind(new ExtendedContext(this.targetMetadata, action));
   }
-
-  hasMethod(name: PropertyKey): boolean {
-    return isFunction(this.target.prototype[name]);
-  }
-
 
   execute(ctx: ExtendedContext, params: ExecuteParams, ret: 'obs$'): Observable<any>;
   execute(ctx: ExtendedContext, params: ExecuteParams, ret?: 'instance'): any;
@@ -147,7 +102,7 @@ export class ActionController {
 
     const options = isFunction(action.pre) ? action.pre(ctx, ...args) : args[0];
 
-    const state = getCtrl(ctx.instance);
+    const state = DS.getCtrl && DS.getCtrl(ctx.instance);
     if (state && state.busy) { // TODO: Should throw or error?
       emitEvent(eventFactory.error(ctx.instance, new Error('An action is already running')));
       return;

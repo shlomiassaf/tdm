@@ -1,9 +1,8 @@
 import { Observable } from 'rxjs/Observable';
-import { Constructor, isFunction } from '@tdm/transformation';
+import { Constructor, isFunction, targetStore } from '@tdm/transformation';
 import { ActiveRecordCollection as ARecordColl, ActionOptions, IdentityValueType } from '@tdm/core';
-import { targetStore } from "@tdm/transformation/metadata";
 
-export class DAO {
+export class DS {
 
   find<T>(target: Constructor<T>, id: IdentityValueType, options?: ActionOptions): Observable<T> {
     return this.run(target, 'find', id, options);
@@ -61,7 +60,7 @@ export class DAO {
     return Observable.throw(new Error('Invalid input'));
   }
 
-  private run(target: Constructor<any>, cmd: keyof DAO, ...args: any[]): any {
+  private run(target: Constructor<any>, cmd: keyof DS, ...args: any[]): any {
     if (!targetStore.hasTarget(target)) {
       // TODO: normalize error.
       return Observable.throw(new Error('Target does not exist'));
@@ -76,3 +75,4 @@ export class DAO {
     return fn(...args);
   }
 }
+

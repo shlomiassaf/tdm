@@ -1,6 +1,6 @@
 import { RelationMetadata, PropMetadata, isFunction } from '@tdm/transformation';
-import { BelongsToMetadata, OwnsMetadata, RelationshipType } from '../../metadata';
-import { Validator } from '../../fw';
+import { BelongsToMetadata, OwnsMetadata, RelationshipType } from '../metadata';
+import { Validator } from '../fw';
 
 declare module '@tdm/transformation/metadata/prop' {
   interface PropMetadataArgs {

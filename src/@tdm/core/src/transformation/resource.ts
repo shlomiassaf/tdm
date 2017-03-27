@@ -1,5 +1,5 @@
 import { TargetStore, MapperFactory } from '@tdm/transformation';
-import { ResourceMetadataArgs } from '../../metadata';
+import { ResourceMetadataArgs } from '../metadata';
 
 declare module '@tdm/transformation/metadata/target-store' {
   interface TargetStore {

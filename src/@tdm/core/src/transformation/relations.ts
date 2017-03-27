@@ -1,11 +1,10 @@
 import {
   Constructor,
-  TargetStoreEvents,
   targetStore,
   registerEvent
 } from '@tdm/transformation';
 
-import { BelongsToMetadata, OwnsMetadata } from '../../metadata';
+import { BelongsToMetadata, OwnsMetadata } from '../metadata';
 
 
 function onCreateMetadata(target: Constructor<any>, relClass: typeof BelongsToMetadata | typeof OwnsMetadata) {

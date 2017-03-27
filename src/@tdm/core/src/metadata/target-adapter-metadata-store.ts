@@ -27,6 +27,13 @@ export class TargetAdapterMetadataStore {
     return this.parent.getIdentityKey();
   }
 
+  get actions(): ActionMetadata[] {
+    return this.registeredActions
+      ? MapExt.asValArray(this.registeredActions)
+      : []
+    ;
+  }
+
   private registeredActions: Map<PropertyKey, ActionMetadata>;
 
   constructor(public readonly parent: TargetMetadata, public readonly adapterClass: AdapterStatic<any, any>) {
@@ -63,7 +70,7 @@ export class TargetAdapterMetadataStore {
     const actions = this.getActions(this.target, this.adapterClass)
       .map( action => this.processAction(action) );
 
-    this.actionController.commit(actions);
+    this.actionController.commit();
 
     if (isFunction(this.adapterMeta.commit)) {
       this.adapterMeta.commit(this);
@@ -99,7 +106,7 @@ export class TargetAdapterMetadataStore {
 
     for (let i=0, len=chain.length; i<len; i++) {
       if (targetStore.hasTarget(chain[i])) {
-        const protoAdapterStore = targetStore.getTargetAdapterStore(chain[i], adapterClass);
+        const protoAdapterStore = targetStore.getAdapterMeta(chain[i], adapterClass);
         const mixins = SetExt.asArray(targetStore.getMixins(chain[i], adapterClass));
         const protoActions = protoAdapterStore.adapterMeta.getActions(chain[i], ...mixins);
         MapExt.fromArray(protoActions, (v) => v.name, actions, true);

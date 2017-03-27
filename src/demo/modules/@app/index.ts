@@ -1,6 +1,4 @@
-import '@tdm/core/add/resource-control';
-import '@tdm/core/add/resource-control/ar';
-
+import './init-tdm';
 
 // App
 export * from './app.module';

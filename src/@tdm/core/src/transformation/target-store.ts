@@ -1,8 +1,8 @@
 import { Tixin } from '@tdm/tixin';
 import { TargetStore, LazyInit, Constructor, TargetStoreEvents } from '@tdm/transformation';
 
-import { AdapterStatic } from '../../fw';
-import { TargetAdapterMetadataStore, AdapterMetadata, AdapterMetadataArgs } from '../../metadata';
+import { AdapterStatic } from '../fw';
+import { TargetAdapterMetadataStore, AdapterMetadata, AdapterMetadataArgs } from '../metadata';
 
 class CoreTargetStore extends TargetStore {
 
@@ -42,11 +42,20 @@ class CoreTargetStore extends TargetStore {
     return false;
   }
 
-  getTargetAdapterStore(target: Constructor<any>, adapterClass: AdapterStatic<any, any>, createIfMissing: boolean = true): TargetAdapterMetadataStore | undefined {
-    if (createIfMissing || this.hasTarget(target)) {
-      return this.getTargetMeta(target).getAdapterMeta(adapterClass, createIfMissing)
+  /**
+   * Returns the metadata of the current (active) adapter on this target.
+   */
+  getAdapterMeta(target: Constructor<any>): TargetAdapterMetadataStore | undefined;
+  getAdapterMeta<T extends AdapterStatic<any, any>>(target: Constructor<any>, adapterClass: T): TargetAdapterMetadataStore | undefined;
+  getAdapterMeta<T extends AdapterStatic<any, any>>(target: Constructor<any>, adapterClass?: T): TargetAdapterMetadataStore | undefined {
+    if (this.hasTarget(target)) {
+      return adapterClass
+        ? this.getTargetMeta(target).getAdapterMeta(adapterClass)
+        : this.getTargetMeta(target).getAdapterMeta()
+      ;
     }
   }
+
 }
 
 
@@ -65,7 +74,12 @@ declare module '@tdm/transformation/metadata/target-store' {
     setReadyToBuild(target: any): void;
     buildIfReady(target: any, adapterClass: AdapterStatic<any, any>): boolean;
 
-    getTargetAdapterStore(target: Constructor<any>, adapterClass: AdapterStatic<any, any>, createIfMissing?: boolean): TargetAdapterMetadataStore | undefined;
+    /**
+     * Returns the metadata of an adapter for a given target.
+     */
+
+    getAdapterMeta(target: Constructor<any>): TargetAdapterMetadataStore | undefined;
+    getAdapterMeta(target: Constructor<any>, adapterClass: AdapterStatic<any, any>): TargetAdapterMetadataStore | undefined;
   }
 }
 Tixin(TargetStore as any, CoreTargetStore as any);

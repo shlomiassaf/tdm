@@ -1,5 +1,5 @@
 import { targetStore, decoratorFactory, PropMetadata, RelationMetadataArgs } from '@tdm/transformation'; // RelationMetadataArgs - leave to satisfy angular compiler
-import { TDMError, DecoratorError, ExecuteResponse, ARHooks, ARHookableMethods } from '../../fw';
+import { TDMError, DecoratorError, ExecuteResponse, ARHooks, ARHookableMethods } from '../fw';
 import {
   HookMetadata,
   HookMetadataArgs,
@@ -8,7 +8,7 @@ import {
   ResourceMetadataArgs,
   BelongsToMetadataArgs,
   OwnsMetadataArgs
-} from '../../metadata';
+} from '../metadata';
 
 /**
  * @classDecorator

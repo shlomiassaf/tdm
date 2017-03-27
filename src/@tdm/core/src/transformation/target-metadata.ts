@@ -1,10 +1,10 @@
 import { Tixin } from '@tdm/tixin';
 import { targetStore, DecoratorInfo, TargetMetadata, stringify, LazyInit, Constructor } from '@tdm/transformation';
 
-import { ActiveRecordCollection } from '../../active-record/active-record-collection';
-import { AdapterError, AdapterStatic, ARHookableMethods } from '../../fw';
-import { TargetAdapterMetadataStore, ExtendActionMetadata, HookMetadata, ResourceMetadataArgs, ValidationError } from '../../metadata';
-import { TargetValidator } from '../../core/target-validator';
+import { ActiveRecordCollection } from '../active-record/active-record-collection';
+import { AdapterError, AdapterStatic, ARHookableMethods } from '../fw';
+import { TargetAdapterMetadataStore, ExtendActionMetadata, HookMetadata, ResourceMetadataArgs, ValidationError } from '../metadata';
+import { TargetValidator } from '../core/target-validator';
 
 class CoreTargetMetadata extends TargetMetadata {
 
@@ -69,8 +69,8 @@ class CoreTargetMetadata extends TargetMetadata {
 
   setActiveAdapter(adapter: AdapterStatic<any, any>): void {
     const adapterMeta = this.getAdapterMeta(adapter);
-    adapterMeta.build();
     this._activeAdapter = adapter;
+    adapterMeta.build();
   }
 
   private createCollection() {
@@ -112,7 +112,13 @@ declare module '@tdm/transformation/metadata/target-metadata' {
 
     hasAdapter(adapterClass: AdapterStatic<any, any>): boolean;
 
+    /**
+     * Returns the metadata of the current (active) adapter on this target.
+     */
     getAdapterMeta(): TargetAdapterMetadataStore | undefined;
+    /**
+     * Returns the metadata of an adapter on this target.
+     */
     getAdapterMeta<T extends AdapterStatic<any, any>>(adapterClass: T, create?: boolean): TargetAdapterMetadataStore | undefined;
 
     getExtendingAction(info: DecoratorInfo): ExtendActionMetadata | undefined;

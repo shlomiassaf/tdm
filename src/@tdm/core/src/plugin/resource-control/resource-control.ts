@@ -7,12 +7,12 @@ import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/share'; // TODO: move to no-side effect implementation
 
-import { events$, ResourceEvent, ResourceEventType, ActionErrorResourceEvent } from '../events';
-import { CancellationTokenResourceEvent, ExecuteInitResourceEvent, ExecuteInitResourceEventArgs } from '../events/internal';
-import { BaseActiveRecord, ResourceError,  } from '../fw';
-import { promiser } from '../utils';
-import { ActiveRecordCollection } from '../active-record';
-import { getCtrl } from './get-ctrl';
+import { DS } from '../../ds';
+import { events$, ResourceEvent, ResourceEventType, ActionErrorResourceEvent } from '../../events';
+import { CancellationTokenResourceEvent, ExecuteInitResourceEvent, ExecuteInitResourceEventArgs } from '../../events/internal';
+import { BaseActiveRecord, ResourceError,  } from '../../fw';
+import { promiser } from '../../utils';
+import { ActiveRecordCollection } from '../../active-record';
 
 // Weak map for private emitter
 // TODO: check perf, maybe symbols are "less" private but more performant
@@ -37,7 +37,7 @@ const BUSY_CHANGED = Symbol('BUSY CHANGED');
  */
 function emitEvent(event: ResourceEvent): void {
   const pData = privateDict.get(event.resource);
-  const ar = getCtrl(event.resource);
+  const ar = DS.getCtrl(event.resource);
 
   // emitter might face race issues with micro tasks, make sure busy state is sync at all times.
   if (ar.busy === false && event.type === 'ActionStart') {
@@ -208,8 +208,7 @@ export class ResourceControl<T> {
         break;
     }
 
-    // TODO: change logic or remove plugin option for next() and set here fixed.
-    Promise.all(arr.map( a => getCtrl(a).busy ? getCtrl(a).next().catch(catcher) : Promise.resolve() ))
+    Promise.all(arr.map( a => DS.getCtrl(a).busy ? DS.getCtrl(a).next().catch(catcher) : Promise.resolve() ))
       .then( () => {
         this.busy = false;
         this.replay();
