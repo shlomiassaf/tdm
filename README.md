@@ -46,7 +46,8 @@ Core library, extends `@tdm/transformation`  and the active record pattern.
   - Hooks for built in actions
   - Adapter architecture
   - Event stream (using observables)
-  - Active records pattern with full Type support.
+  - DAO pattern
+  - Active records pattern with full Type support. (need to opt in)
   - more..
 
 ### @tdm/angular-forms-mapper (name might change)
@@ -57,7 +58,7 @@ An adapter implementation for the angular (2) library.
 
 With `@tdm/angular-http` Model classes become Resource much like in angular 1 `ng-resource` but now with full typescript Type support for model properties, methods and Active record methods.
 
-
+> This is an Active record implementation, you can also go pure and use a DAO leaving your models clean.
 
 ```ts
 @HttpResource({
