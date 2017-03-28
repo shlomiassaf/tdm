@@ -1,4 +1,5 @@
 import { Constructor } from '@tdm/transformation';
+import { PluginError } from '../fw/errors';
 
 export interface PluginStatic extends Constructor<Plugin> {
   prototype: Plugin;
@@ -11,6 +12,12 @@ export interface Plugin {
 
 export class PluginStore {
   private constructor() {}
+
+  assertPlugin(name: string) {
+    if (!this[name]) {
+      throw PluginError.missing(name);
+    }
+  }
 
   /**
    * Register's a plugin in the store.

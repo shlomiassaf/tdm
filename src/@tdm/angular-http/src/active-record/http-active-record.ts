@@ -2,11 +2,11 @@ import { Tixin } from '@tdm/tixin';
 import { isPrimitive } from '@tdm/transformation';
 import { ActiveRecordCollection as ARecordColl, BaseActiveRecord, IdentityValueType, ExecuteContext } from '@tdm/core';
 
-import { HttpActionOptions } from './core/interfaces';
-import { HttpActionMetadata, HttpActionMethodType } from './metadata';
-import { HttpAction } from './decorators';
+import { HttpActionOptions } from '../core/interfaces';
+import { HttpActionMetadata, HttpActionMethodType } from '../metadata';
+import { HttpAction } from '../decorators';
 
-export class BaseRestResource {
+export class HttpActiveRecord {
   @HttpAction({
     method: HttpActionMethodType.Post,
     validation: 'both' as 'both',
@@ -112,15 +112,15 @@ export class BaseRestResource {
 
 export const ActiveRecordCollection = ARecordColl;
 export type ActiveRecordCollection<T> =
-  ARecordColl<Tixin<T, BaseActiveRecord<T> & BaseRestResource>>
+  ARecordColl<Tixin<T, BaseActiveRecord<T> & HttpActiveRecord>>
     & { query: ActiveRecordCollection<T> };
 
-export interface BaseRestResourceStatic<T> {
-  find(id: IdentityValueType, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & BaseRestResource>;
+export interface HttpActiveRecordStatic<T> {
+  find(id: IdentityValueType, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & HttpActiveRecord>;
   query(options?: HttpActionOptions): ActiveRecordCollection<T>;
-  create(data: T, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & BaseRestResource>;
-  update(data: Partial<T>, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & BaseRestResource>;
-  remove(id: IdentityValueType | T, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & BaseRestResource>;
+  create(data: T, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & HttpActiveRecord>;
+  update(data: Partial<T>, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & HttpActiveRecord>;
+  remove(id: IdentityValueType | T, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & HttpActiveRecord>;
 }
 
 

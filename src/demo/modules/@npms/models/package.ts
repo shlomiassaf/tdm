@@ -1,5 +1,5 @@
 import { Prop, ExtendAction, ExecuteContext, Identity, Exclude } from '@tdm/core';
-import { RestMixin, HttpResource, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/angular-http';
+import { ARMixin, HttpResource, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/angular-http';
 
 import { packageMapper } from '../mapper';
 
@@ -147,5 +147,5 @@ export class Package {
       return options;
     }
   })
-  static query: (packages: string | string[], options?: HttpActionOptions) => RestMixin<Package>;
+  static query: (packages: string | string[], options?: HttpActionOptions) => ARMixin<Package>;
 }

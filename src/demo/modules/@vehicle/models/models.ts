@@ -1,5 +1,5 @@
 import { Prop, Exclude, ExtendAction, ExecuteContext } from '@tdm/core';
-import { HttpResource, RestMixin, HttpActionOptions, UrlParam } from '@tdm/angular-http';
+import { HttpResource, ARMixin, HttpActionOptions, UrlParam } from '@tdm/angular-http';
 
 import { vehicleMapper } from '../mapper';
 
@@ -65,5 +65,5 @@ export class Model {
       return options;
     }
   })
-  static query: (makeId: number, options?: HttpActionOptions) => RestMixin<Model>;
+  static query: (makeId: number, options?: HttpActionOptions) => ARMixin<Model>;
 }

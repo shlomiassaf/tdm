@@ -2,13 +2,31 @@ import { stringify } from '@tdm/transformation';
 import { AdapterStatic, BaseActiveRecord, ValidationError } from './interfaces';
 
 
+function getErrorName(type: Function): string {
+  return `TDM${type.name}`;
+}
+
 export class TDMError extends Error {
 
 }
 
+export class PluginError extends TDMError {
+  constructor(public pluginName: string, message: string) {
+    super(message);
+    this.name = getErrorName(PluginError);
+  }
+
+  static missing(name: string): DecoratorError {
+    return new PluginError(name, `Unknown plugin "${name}"`);
+  }
+
+}
+
+
 export class DecoratorError extends TDMError {
   constructor(target: any, propertyName: PropertyKey, message: string) {
     super(`Invalid decorator @ ${stringify(target)}#${stringify(propertyName)}: ${message}`);
+    this.name = getErrorName(DecoratorError);
   }
 
   static hookNoStatic(target: any, propertyName: PropertyKey, action: string): DecoratorError {
@@ -24,6 +42,7 @@ export class DecoratorError extends TDMError {
 export class AdapterError extends TDMError {
   constructor(public adapterClass: AdapterStatic<any, any>, message: string) {
     super(message);
+    this.name = getErrorName(AdapterError);
   }
 
   static notRegistered(adapterClass: AdapterStatic<any, any>): AdapterError {
@@ -42,6 +61,7 @@ export class AdapterError extends TDMError {
 export class TargetError extends TDMError {
   constructor(public target: any, message: string) {
     super(message);
+    this.name = getErrorName(TargetError);
   }
 
   static built(target: any, adapterClass: AdapterStatic<any, any>): TargetError {
@@ -52,6 +72,7 @@ export class TargetError extends TDMError {
 export class ResourceError extends TDMError {
   constructor(public readonly ar: BaseActiveRecord<any>, message?: string) {
     super(message)
+    this.name = getErrorName(ResourceError);
   }
 
   static coll_obj(ar: BaseActiveRecord<any>, expectedCol: boolean): ResourceError {

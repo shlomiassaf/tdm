@@ -2,7 +2,22 @@ import { Observable } from 'rxjs/Observable';
 import { Constructor, isFunction, targetStore } from '@tdm/transformation';
 import { ActiveRecordCollection as ARecordColl, ActionOptions, IdentityValueType } from '@tdm/core';
 
-export class DS {
+export interface AdapterDAO<Options extends ActionOptions> {
+  find<T>(id: IdentityValueType, options?: Options): Observable<T>;
+
+  query<T>(options?: Options): Observable<T[]>
+
+  create<T>(instance: T, options?: Options): Observable<T | void>;
+  create<T>(obj: Partial<T>, options?: Options): Observable<T | void>;
+
+  update<T>(instance: T, options?: Options): Observable<T | void>;
+  update<T>(obj: Partial<T>, options?: Options): Observable<T | void>;
+
+  remove<T>(instance: T, options?: Options): Observable<void>;
+  remove(id: IdentityValueType, options?: Options): Observable<void>;
+}
+
+export class DAO {
 
   find<T>(target: Constructor<T>, id: IdentityValueType, options?: ActionOptions): Observable<T> {
     return this.run(target, 'find', id, options);
@@ -60,12 +75,12 @@ export class DS {
     return Observable.throw(new Error('Invalid input'));
   }
 
-  private run(target: Constructor<any>, cmd: keyof DS, ...args: any[]): any {
+  private run(target: Constructor<any>, cmd: keyof DAO, ...args: any[]): any {
     if (!targetStore.hasTarget(target)) {
       // TODO: normalize error.
       return Observable.throw(new Error('Target does not exist'));
     }
-    const fn = targetStore.getTargetMeta(target).daoClass.prototype.find;
+    const fn = targetStore.getTargetMeta(target).daoClass.prototype['cmd'];
 
     if (!isFunction(fn)) {
       // TODO: normalize error.

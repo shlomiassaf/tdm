@@ -21,7 +21,7 @@
 
 import { Injectable } from '@angular/core';
 import { Hook, BeforeHook, AfterHook, ActiveRecordCollection, Prop, Exclude, ExecuteResponse, Identity } from '@tdm/core';
-import { RestMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/angular-http';
+import { ARMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/angular-http';
 
 export class User_ implements   BeforeHook<'bfRef', HttpActionOptions>,
                                 AfterHook<'afRef', HttpActionOptions> {
@@ -57,7 +57,7 @@ export class User_ implements   BeforeHook<'bfRef', HttpActionOptions>,
     method: HttpActionMethodType.Get,
     post: User_.prototype.postDeserializedHandler
   })
-  postDeserialized: (options?: HttpActionOptions) => RestMixin<User_>;
+  postDeserialized: (options?: HttpActionOptions) => ARMixin<User_>;
   private postDeserializedHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
   }
 
@@ -68,14 +68,14 @@ export class User_ implements   BeforeHook<'bfRef', HttpActionOptions>,
       skipDeserialize: true
     }
   })
-  raw: (options?: HttpActionOptions) => RestMixin<User_>;
+  raw: (options?: HttpActionOptions) => ARMixin<User_>;
   private postHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
   }
 
   static num: number;
 
   @Hook({event: 'before', action: 'query'})
-  static bfQuery(this: ActiveRecordCollection<RestMixin<User_>>) {
+  static bfQuery(this: ActiveRecordCollection<ARMixin<User_>>) {
     this.$ar.next()
       .then( coll => {
         console.log(`BeforeQuery-AfterQuery: got ${coll.length}`)
@@ -84,7 +84,7 @@ export class User_ implements   BeforeHook<'bfRef', HttpActionOptions>,
   }
 
   @Hook({event: 'after', action: 'query'})
-  static afQuery(this: ActiveRecordCollection<RestMixin<User_>>) {
+  static afQuery(this: ActiveRecordCollection<ARMixin<User_>>) {
     console.log('AfterQuery');
     console.log(`AfterQuery: got ${this.length}`)
   }
@@ -98,7 +98,7 @@ export class User_ implements   BeforeHook<'bfRef', HttpActionOptions>,
   },
 })
 @Injectable()
-export class UserBaseClass extends RestMixin(User_) { }
+export class UserBaseClass extends ARMixin(User_) { }
 
 
 // UserBaseClass.find(2).username__;                                    // OK

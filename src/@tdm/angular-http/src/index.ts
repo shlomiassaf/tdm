@@ -26,7 +26,6 @@ targetStore.registerAdapter(HttpAdapter, {
 });
 
 export { httpDefaultConfig, HttpDefaultConfig } from './http-default-config';
-export { ActiveRecordCollection } from './base-http-resource';
 export { HttpResourceModule } from './module';
-export { RestMixin } from './mixin-factory';
 
+export { ARMixin, ActiveRecordCollection, HttpActiveRecord, HttpActiveRecordStatic } from './active-record';

@@ -1,6 +1,6 @@
 import { camelCase, snakeCase } from 'voca';
 import { ExtendAction, ExecuteContext, Identity } from '@tdm/core';
-import { RestMixin, HttpResource, UrlParam, HttpActionOptions } from '@tdm/angular-http';
+import { ARMixin, HttpResource, UrlParam, HttpActionOptions } from '@tdm/angular-http';
 import { ActiveRecordCollection } from "@tdm/core/active-record";
 
 /**
@@ -86,4 +86,4 @@ export class Title {
   static query: (filter: 'director' | 'year' | 'actor', value: string, options?: HttpActionOptions) => TitleCollection;
 }
 
-export type TitleCollection = (ActiveRecordCollection<RestMixin<Title>> & { query: typeof Title.query });
+export type TitleCollection = (ActiveRecordCollection<ARMixin<Title>> & { query: typeof Title.query });

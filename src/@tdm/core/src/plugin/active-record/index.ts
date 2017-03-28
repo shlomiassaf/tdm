@@ -1,11 +1,38 @@
-import { targetStore, registerEvent, Constructor, isFunction } from '@tdm/transformation';
+import { targetStore, registerEvent, Constructor, isFunction, SetExt, MapExt } from '@tdm/transformation';
 
 import { PluginStore, ActiveRecordCollection, ActionMetadata, BaseActiveRecord } from '@tdm/core';
+import { getProtoChain } from '../../utils';
 import { ExtendedContext } from '../../core/execute-context';
 import { AdapterStatic } from '../../fw';
 import { ActionController } from '../..//core';
 import { collectionClassFactory } from '../../active-record';
 
+/**
+ * Returns all of the actions registered for a target going through the proto chain and all
+ * mixins associated with each proto.
+ *
+ * Returns a unique list of actioned, uniqueness is set by the `name` of each action.
+ * If 2 actions with the same 'name' exists, the top level actions wins, i.e. the first in the chain.
+ *
+ * @param target
+ * @param adapterClass
+ * @returns {ActionMetadata[]}
+ */
+function getActions(target: Constructor<any>, adapterClass: AdapterStatic<any, any>): ActionMetadata[] {
+  const chain = getProtoChain(target);
+  const actions = new Map<PropertyKey, ActionMetadata>();
+
+  for (let i=0, len=chain.length; i<len; i++) {
+    if (targetStore.hasTarget(chain[i])) {
+      const protoAdapterStore = targetStore.getAdapterMeta(chain[i], adapterClass);
+      const mixins = SetExt.asArray(targetStore.getMixins(chain[i], adapterClass));
+      const protoActions = protoAdapterStore.adapterMeta.getActions(chain[i], ...mixins);
+      MapExt.fromArray(protoActions, (v) => v.name, actions, true);
+    }
+  }
+
+  return MapExt.asValArray(actions);
+}
 
 function registerAction(this: ActionController, action: ActionMetadata, collProto: any, override: boolean = false): void {
   if (override || !isFunction(this.target.prototype[action.name])) {
@@ -44,8 +71,18 @@ function activeRecord(target: Constructor<any>): void {
   const meta = targetStore.getAdapterMeta(target);
   const collProto: any = {};
 
+  // build actions on the target type for the currently active adapter.
   if (meta) {
-    meta.actions.forEach( a => registerAction.call(meta.actionController, a, collProto, true ) );
+    getActions(target, meta.adapterClass).forEach( a => {
+      // TODO check action instance of ActionMetadata + in ActionMetadata verify using DecoratorInfo
+      const extAction = targetStore.getTargetMeta(target).getExtendingAction(a.decoratorInfo);
+      if (extAction) {
+        const metaArgs = Object.assign({}, a.metaArgs, extAction);
+        a = meta.adapterMeta.actionMetaClass.metaFactory(metaArgs, target, extAction.decoratorInfo.name).metaValue;
+      }
+
+      registerAction.call(meta.actionController, a, collProto, true )
+    });
   }
 
   // creating collection type for this target

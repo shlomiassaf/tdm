@@ -3,7 +3,7 @@ import { registerEvent, Constructor } from '@tdm/transformation';
 import { PluginStore } from '../../fw';
 import { ActiveRecordCollection } from '../../active-record';
 import { ResourceControl } from './resource-control';
-import { DS } from '../../ds';
+import { DAO } from '../../dao';
 
 const privateDict = new WeakMap<any, ResourceControl<any>>();
 
@@ -34,7 +34,7 @@ export class ResourceControlPlugin {
   }
 
   init(): void {
-    DS.getCtrl = getCtrl;
+    DAO.getCtrl = getCtrl;
     if (this.attach) {
       attachToResource(this.attach);
     }
@@ -51,8 +51,8 @@ declare module '../../fw/plugin' {
   }
 }
 
-declare module '../../ds' {
-  module DS {
+declare module '../../dao' {
+  module DAO {
     /**
      * @extension '@tdm/core/plugin/resource-control'
      */

@@ -17,7 +17,6 @@ import { ActionMetadata, ValidationSchedule } from '../metadata';
 import {
   ActionOptions,
   Adapter,
-  AdapterStatic,
   ExecuteResponse,
   ResourceValidationError,
   ResourceError,
@@ -25,8 +24,8 @@ import {
   ARHookableMethods
 } from '../fw';
 
-import { ActiveRecordCollection, collectionClassFactory } from '../active-record';
-import { DS } from '../ds';
+import { ActiveRecordCollection } from '../active-record';
+import { DAO } from '../dao';
 import { TargetAdapterMetadataStore } from '../metadata/target-adapter-metadata-store';
 import { ExtendedContext, ExecuteParams } from './execute-context';
 
@@ -102,7 +101,7 @@ export class ActionController {
 
     const options = isFunction(action.pre) ? action.pre(ctx, ...args) : args[0];
 
-    const state = DS.getCtrl && DS.getCtrl(ctx.instance);
+    const state = DAO.getCtrl && DAO.getCtrl(ctx.instance);
     if (state && state.busy) { // TODO: Should throw or error?
       emitEvent(eventFactory.error(ctx.instance, new Error('An action is already running')));
       return;

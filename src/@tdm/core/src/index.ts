@@ -75,4 +75,4 @@ export {
 
 export { Constructor } from '@tdm/transformation';
 
-export { DS } from './ds';
+export { DAO, AdapterDAO } from './dao';

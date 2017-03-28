@@ -13,7 +13,7 @@
  *
  * Cons:
  *   - Requires manual type creation (https://github.com/Microsoft/TypeScript/issues/6606)
- *   - For multiple mixins need to create type without RestMixin<> help.
+ *   - For multiple mixins need to create type without ARMixin<> help.
  *     https://github.com/Microsoft/TypeScript/issues/13798
  *   - Won't work with angular DI + AOT (https://github.com/angular/angular/issues/14128)
  */
@@ -21,7 +21,7 @@
 
 import { Injectable } from '@angular/core';
 import { Hook, BeforeHook, AfterHook, ActiveRecordCollection, Prop, Exclude, ExecuteResponse, ExtendAction, ExecuteContext, IdentityValueType, Identity } from '@tdm/core';
-import { RestMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/angular-http';
+import { ARMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/angular-http';
 
 @HttpResource({
   endpoint: '/api/users/:id?',
@@ -74,7 +74,7 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
     method: HttpActionMethodType.Get,
     post: User_.prototype.postDeserializedHandler
   })
-  postDeserialized: (options?: HttpActionOptions) => RestMixin<User_>;
+  postDeserialized: (options?: HttpActionOptions) => ARMixin<User_>;
   private postDeserializedHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
   }
 
@@ -85,14 +85,14 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
       skipDeserialize: true
     }
   })
-  raw: (options?: HttpActionOptions) => RestMixin<User_>;
+  raw: (options?: HttpActionOptions) => ARMixin<User_>;
   private postHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
   }
 
   static num: number;
 
   @Hook({event: 'before', action: 'query'})
-  static bfQuery(this: ActiveRecordCollection<RestMixin<User_>>) {
+  static bfQuery(this: ActiveRecordCollection<ARMixin<User_>>) {
     this.$ar.next()
       .then( coll => {
         console.log(`BeforeQuery-AfterQuery: got ${coll.length}`)
@@ -101,7 +101,7 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
   }
 
   @Hook({event: 'after', action: 'query'})
-  static afQuery(this: ActiveRecordCollection<RestMixin<User_>>) {
+  static afQuery(this: ActiveRecordCollection<ARMixin<User_>>) {
     console.log('AfterQuery');
     console.log(`AfterQuery: got ${this.length}`)
   }
@@ -112,11 +112,11 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
       return options;
     }
   })
-  static find: (id: IdentityValueType, a:number, b: number, options?: HttpActionOptions) => RestMixin<User_>;
+  static find: (id: IdentityValueType, a:number, b: number, options?: HttpActionOptions) => ARMixin<User_>;
 }
 
-export const UserConst = RestMixin(User_);
-export type UserConst = RestMixin<User_>;
+export const UserConst = ARMixin(User_);
+export type UserConst = ARMixin<User_>;
 
 // UserConst.find(2, 3, 4).username__;                              // OK
 // UserConst.find(2, 3, 4).usernam23e;                              // SHOULD ERROR

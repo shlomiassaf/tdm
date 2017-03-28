@@ -21,12 +21,12 @@
 
 import { Injectable } from '@angular/core';
 import { Hook, BeforeHook, AfterHook, ActiveRecord, ActiveRecordCollection, Constructor, Prop, Exclude, ExecuteResponse, Identity } from '@tdm/core';
-import { RestMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/angular-http';
+import { ARMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/angular-http';
 
 
 export interface IUserInterfaceStatic extends Constructor<IUserInterface> {
-  bfQuery(this: ActiveRecordCollection<RestMixin<IUserInterface>>);
-  afQuery(this: ActiveRecordCollection<RestMixin<IUserInterface>>);
+  bfQuery(this: ActiveRecordCollection<ARMixin<IUserInterface>>);
+  afQuery(this: ActiveRecordCollection<ARMixin<IUserInterface>>);
 }
 
 export interface IUserInterface extends ActiveRecord<IUserInterface, HttpActionOptions> {
@@ -34,8 +34,8 @@ export interface IUserInterface extends ActiveRecord<IUserInterface, HttpActionO
   username__: string;
   _motto_: string;
 
-  rawDeserialized: (options?: HttpActionOptions) => RestMixin<IUserInterface>;
-  raw: (options?: HttpActionOptions) => RestMixin<IUserInterface>;
+  rawDeserialized: (options?: HttpActionOptions) => ARMixin<IUserInterface>;
+  raw: (options?: HttpActionOptions) => ARMixin<IUserInterface>;
 }
 
 @HttpResource({
@@ -47,7 +47,7 @@ export interface IUserInterface extends ActiveRecord<IUserInterface, HttpActionO
   // more... setting the transformer (incoming result to object), security etc...\
 })
 @Injectable()
-export class UsersInterface extends RestMixin<IUserInterface, IUserInterfaceStatic>()
+export class UsersInterface extends ARMixin<IUserInterface, IUserInterfaceStatic>()
                             implements  IUserInterface,
                                         BeforeHook<'bfRef', HttpActionOptions>,
                                         AfterHook<'afRef', HttpActionOptions> {
@@ -82,7 +82,7 @@ export class UsersInterface extends RestMixin<IUserInterface, IUserInterfaceStat
     method: HttpActionMethodType.Get,
     post: UsersInterface.prototype.postDeserializedHandler
   })
-  postDeserialized: (options?: HttpActionOptions) => RestMixin<UsersInterface>;
+  postDeserialized: (options?: HttpActionOptions) => ARMixin<UsersInterface>;
   private postDeserializedHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
   }
 
@@ -93,14 +93,14 @@ export class UsersInterface extends RestMixin<IUserInterface, IUserInterfaceStat
       skipDeserialize: true
     }
   })
-  raw: (options?: HttpActionOptions) => RestMixin<UsersInterface>;
+  raw: (options?: HttpActionOptions) => ARMixin<UsersInterface>;
   private postHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
   }
 
   static num: number;
 
   @Hook({event: 'before', action: 'query'})
-  static bfQuery(this: ActiveRecordCollection<RestMixin<UsersInterface>>) {
+  static bfQuery(this: ActiveRecordCollection<ARMixin<UsersInterface>>) {
     this.$ar.next()
       .then( coll => {
         console.log(`BeforeQuery-AfterQuery: got ${coll.length}`)
@@ -109,7 +109,7 @@ export class UsersInterface extends RestMixin<IUserInterface, IUserInterfaceStat
   }
 
   @Hook({event: 'after', action: 'query'})
-  static afQuery(this: ActiveRecordCollection<RestMixin<UsersInterface>>) {
+  static afQuery(this: ActiveRecordCollection<ARMixin<UsersInterface>>) {
     console.log('AfterQuery');
     console.log(`AfterQuery: got ${this.length}`)
   }

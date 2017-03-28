@@ -7,7 +7,7 @@ import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/share'; // TODO: move to no-side effect implementation
 
-import { DS } from '../../ds';
+import { DAO } from '../../dao';
 import { events$, ResourceEvent, ResourceEventType, ActionErrorResourceEvent } from '../../events';
 import { CancellationTokenResourceEvent, ExecuteInitResourceEvent, ExecuteInitResourceEventArgs } from '../../events/internal';
 import { BaseActiveRecord, ResourceError,  } from '../../fw';
@@ -37,7 +37,7 @@ const BUSY_CHANGED = Symbol('BUSY CHANGED');
  */
 function emitEvent(event: ResourceEvent): void {
   const pData = privateDict.get(event.resource);
-  const ar = DS.getCtrl(event.resource);
+  const ar = DAO.getCtrl(event.resource);
 
   // emitter might face race issues with micro tasks, make sure busy state is sync at all times.
   if (ar.busy === false && event.type === 'ActionStart') {
@@ -208,7 +208,7 @@ export class ResourceControl<T> {
         break;
     }
 
-    Promise.all(arr.map( a => DS.getCtrl(a).busy ? DS.getCtrl(a).next().catch(catcher) : Promise.resolve() ))
+    Promise.all(arr.map( a => DAO.getCtrl(a).busy ? DAO.getCtrl(a).next().catch(catcher) : Promise.resolve() ))
       .then( () => {
         this.busy = false;
         this.replay();
