@@ -1,6 +1,6 @@
 import { Tixin } from '@tdm/tixin';
 import { isPrimitive } from '@tdm/transformation';
-import { ActiveRecordCollection, ActionMethodType, BaseActiveRecord, IdentityValueType, ExecuteContext } from '@tdm/core';
+import { TDMCollection, ActionMethodType, TDMModel, IdentityValueType, ExecuteContext } from '@tdm/core';
 
 import { MockActionOptions } from './core/interfaces';
 import { MockAction, MockActionMetadata } from './metadata';
@@ -44,7 +44,7 @@ export class BaseMockResource {
     collInstance: true,
     validation: 'incoming' as 'incoming'
   })
-  static query: (options?: MockActionOptions) => ActiveRecordCollection<any>;
+  static query: (options?: MockActionOptions) => TDMCollection<any>;
 
   @MockAction({
     method: ActionMethodType.READ,
@@ -109,9 +109,9 @@ export class BaseMockResource {
 }
 
 export interface BaseMockResourceStatic<T> {
-  find(id: IdentityValueType, options?: MockActionOptions): Tixin<T, BaseActiveRecord<T> & BaseMockResource>;
-  query(options?: MockActionOptions): ActiveRecordCollection<Tixin<T, BaseActiveRecord<T> & BaseMockResource>>;
-  create(data: Partial<T>, options?: MockActionOptions): Tixin<T, BaseActiveRecord<T> & BaseMockResource>;
-  update(data: Partial<T>, options?: MockActionOptions): Tixin<T, BaseActiveRecord<T> & BaseMockResource>;
-  remove(id: IdentityValueType, options?: MockActionOptions): Tixin<T, BaseActiveRecord<T> & BaseMockResource>;
+  find(id: IdentityValueType, options?: MockActionOptions): Tixin<T, TDMModel<T> & BaseMockResource>;
+  query(options?: MockActionOptions): TDMCollection<Tixin<T, TDMModel<T> & BaseMockResource>>;
+  create(data: Partial<T>, options?: MockActionOptions): Tixin<T, TDMModel<T> & BaseMockResource>;
+  update(data: Partial<T>, options?: MockActionOptions): Tixin<T, TDMModel<T> & BaseMockResource>;
+  remove(id: IdentityValueType, options?: MockActionOptions): Tixin<T, TDMModel<T> & BaseMockResource>;
 }

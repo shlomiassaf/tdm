@@ -20,7 +20,7 @@
 
 
 import { Injectable } from '@angular/core';
-import { Hook, BeforeHook, AfterHook, ActiveRecordCollection, Prop, Exclude, ExecuteResponse, Identity } from '@tdm/core';
+import { Hook, BeforeHook, AfterHook, TDMCollection, Prop, Exclude, ExecuteResponse, Identity } from '@tdm/core';
 import { ARMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/angular-http';
 
 export class User_ implements   BeforeHook<'bfRef', HttpActionOptions>,
@@ -75,7 +75,7 @@ export class User_ implements   BeforeHook<'bfRef', HttpActionOptions>,
   static num: number;
 
   @Hook({event: 'before', action: 'query'})
-  static bfQuery(this: ActiveRecordCollection<ARMixin<User_>>) {
+  static bfQuery(this: TDMCollection<ARMixin<User_>>) {
     this.$ar.next()
       .then( coll => {
         console.log(`BeforeQuery-AfterQuery: got ${coll.length}`)
@@ -84,7 +84,7 @@ export class User_ implements   BeforeHook<'bfRef', HttpActionOptions>,
   }
 
   @Hook({event: 'after', action: 'query'})
-  static afQuery(this: ActiveRecordCollection<ARMixin<User_>>) {
+  static afQuery(this: TDMCollection<ARMixin<User_>>) {
     console.log('AfterQuery');
     console.log(`AfterQuery: got ${this.length}`)
   }

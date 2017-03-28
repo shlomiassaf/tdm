@@ -16,14 +16,7 @@ export {
 export { HttpAction, UrlParam, HttpResource } from './decorators';
 
 // TODO: solve this circular dependency hell
-import { HttpDao } from './core/http-dao';
-import { targetStore } from '@tdm/transformation/metadata';
-import { HttpAdapter } from './core';
-import { HttpActionMetadata } from './metadata';
-targetStore.registerAdapter(HttpAdapter, {
-  actionMetaClass: HttpActionMetadata,
-  daoClass: HttpDao
-});
+import './register';
 
 export { httpDefaultConfig, HttpDefaultConfig } from './http-default-config';
 export { HttpResourceModule } from './module';

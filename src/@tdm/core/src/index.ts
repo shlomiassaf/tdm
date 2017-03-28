@@ -43,7 +43,6 @@ export * from './core';
 export { validators } from './core-validators';
 
 export {
-  BaseActiveRecord,
   ActiveRecord,
   IdentityValueType,
   ExecuteContext,
@@ -51,7 +50,10 @@ export {
   Adapter,
   ActionOptions,
   plugins,
-  PluginStore
+  PluginStore,
+  TDMModel,
+  TDMModelBase,
+  TDMCollection
 } from './fw';
 
 export {
@@ -63,7 +65,7 @@ export {
   eventFactory
 } from './events';
 
-export { ActiveRecordCollection } from './active-record';
+export {  } from './active-record';
 
 export {
   findProp,
@@ -75,4 +77,4 @@ export {
 
 export { Constructor } from '@tdm/transformation';
 
-export { DAO, AdapterDAO } from './dao';
+export { DAO, AdapterDAO, TargetDAO } from './dao';

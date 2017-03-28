@@ -10,13 +10,12 @@ import 'rxjs/add/operator/share'; // TODO: move to no-side effect implementation
 import { DAO } from '../../dao';
 import { events$, ResourceEvent, ResourceEventType, ActionErrorResourceEvent } from '../../events';
 import { CancellationTokenResourceEvent, ExecuteInitResourceEvent, ExecuteInitResourceEventArgs } from '../../events/internal';
-import { BaseActiveRecord, ResourceError,  } from '../../fw';
+import { TDMModel, ResourceError, TDMCollection } from '../../fw';
 import { promiser } from '../../utils';
-import { ActiveRecordCollection } from '../../active-record';
 
 // Weak map for private emitter
 // TODO: check perf, maybe symbols are "less" private but more performant
-const privateDict = new WeakMap<BaseActiveRecord<any>, {
+const privateDict = new WeakMap<TDMModel<any>, {
   emitter: Subject<ResourceEvent>,
   actionCancel: Subscription,
   lastExecute: ExecuteInitResourceEventArgs
@@ -134,7 +133,7 @@ export class ResourceControl<T> {
   private _busy$: Observable<boolean>;
   private _self$: Observable<T>;
 
-  constructor(public parent: BaseActiveRecord<T>) {
+  constructor(public parent: TDMModel<T>) {
 
     privateDict.set(parent, {
       emitter: new Subject<ResourceEvent>(),
@@ -160,10 +159,10 @@ export class ResourceControl<T> {
     }
 
     const last = pData.lastExecute;
-    if (ActiveRecordCollection.instanceOf(this.parent)) {
+    if (TDMCollection.instanceOf(this.parent)) {
       this.parent.splice(0, this.parent.length);
     }
-    last.adapterMeta.actionController.createExecFactory(last.action)(this.parent, last.async, ...last.args);
+    last.ac.createExecFactory(last.action)(this.parent, last.async, ...last.args);
   }
 
   /**
@@ -175,7 +174,7 @@ export class ResourceControl<T> {
    * some: Execute the reply operation if at least one item did not throw.
    * never: Don't execute the reply operation if at least one item threw.
    */
-  replayAfter(resources: BaseActiveRecord<any> | Array<BaseActiveRecord<any>>, ignoreError: 'always' | 'some' | 'never' = 'never'): void {
+  replayAfter(resources: TDMModel<any> | Array<TDMModel<any>>, ignoreError: 'always' | 'some' | 'never' = 'never'): void {
     if (this.busy) {
       throw new ResourceError(this.parent, `Can not replay while busy.`);
     }
@@ -191,7 +190,7 @@ export class ResourceControl<T> {
     }
 
     //TODO: make sure next() rejects on cancel or this is a memory leak.
-    const arr: Array<BaseActiveRecord<any>> = Array.isArray(resources) ? resources.slice() : [resources];
+    const arr: Array<TDMModel<any>> = Array.isArray(resources) ? resources.slice() : [resources];
 
 
     let catcher: (err?: Error) => any | void;

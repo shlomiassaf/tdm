@@ -1,8 +1,8 @@
-import { BaseActiveRecord, Constructor } from "@tdm/core";
+import { TDMModel, Constructor } from "@tdm/core";
 
 export function bucketFactory() {
-  const bucket: BaseActiveRecord<any>[] = [];
-  const create = <T extends BaseActiveRecord<any>>(type: Constructor<T>, ...args: any[]): T => {
+  const bucket: TDMModel<any>[] = [];
+  const create = <T extends TDMModel<any>>(type: Constructor<T>, ...args: any[]): T => {
     const t = new type(...args);
     bucket.push(t);
     return t;

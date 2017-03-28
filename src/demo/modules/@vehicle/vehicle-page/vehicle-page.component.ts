@@ -5,7 +5,7 @@ import 'rxjs/add/operator/debounceTime';
 
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { ActiveRecordCollection } from "@tdm/core";
+import { TDMCollection } from "@tdm/core";
 
 import { UiBlockService, UiBlock } from '@shared';
 import { Model, Make } from '../models';
@@ -18,7 +18,7 @@ import { Model, Make } from '../models';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class VehiclePageComponent {
-  makes: ActiveRecordCollection<Make>;
+  makes: TDMCollection<Make>;
 
   models: any;
   filtered$: Observable<Make[]>;

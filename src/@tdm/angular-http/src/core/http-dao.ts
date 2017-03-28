@@ -1,19 +1,19 @@
 import { Observable } from 'rxjs/Observable';
 import { isPrimitive } from '@tdm/transformation';
-import { ActiveRecordCollection as ARecordColl, AdapterDAO, IdentityValueType, ExecuteContext } from '@tdm/core';
+import { TDMCollection as ARecordColl, TargetDAO, IdentityValueType, ExecuteContext } from '@tdm/core';
 
 import { HttpActionOptions } from './interfaces';
 import { HttpActionMetadata, HttpActionMethodType } from '../metadata';
 import { HttpAction } from '../decorators';
 
-export class HttpDao implements AdapterDAO<HttpActionOptions> {
+export class HttpDao<T> implements TargetDAO<T, HttpActionOptions> {
   @HttpAction({
     method: HttpActionMethodType.Get,
     isCollection: true,
     collInstance: true,
     validation: 'incoming' as 'incoming'
   })
-  query: <T>(options?: HttpActionOptions) => Observable<ARecordColl<T>>;
+  query: (options?: HttpActionOptions) => Observable<ARecordColl<T>>;
 
   @HttpAction({
     method: HttpActionMethodType.Get,
@@ -23,7 +23,7 @@ export class HttpDao implements AdapterDAO<HttpActionOptions> {
       return options;
     }
   })
-  find: (id: IdentityValueType, options?: HttpActionOptions) => any;
+  find: (id: IdentityValueType, options?: HttpActionOptions) => Observable<T>;
 
   @HttpAction({
     method: HttpActionMethodType.Post,
@@ -40,7 +40,7 @@ export class HttpDao implements AdapterDAO<HttpActionOptions> {
       return options;
     }
   })
-  create: <T>(data: T | Partial<T>, options?: HttpActionOptions) => Observable<T | void>;
+  create: (data: T | Partial<T>, options?: HttpActionOptions) => Observable<T | void>;
 
   @HttpAction({
     method: HttpActionMethodType.Put,
@@ -57,7 +57,7 @@ export class HttpDao implements AdapterDAO<HttpActionOptions> {
       return options;
     }
   })
-  update: <T>(data: T | Partial<T>, options?: HttpActionOptions) => Observable<T | void>;
+  update: (data: T | Partial<T>, options?: HttpActionOptions) => Observable<T | void>;
 
   @HttpAction({
     method: HttpActionMethodType.Delete,
@@ -75,7 +75,6 @@ export class HttpDao implements AdapterDAO<HttpActionOptions> {
       return options;
     }
   })
-  remove: ( (id: IdentityValueType, options?: HttpActionOptions) => Observable<void> )
-          | ( <T>(id: T, options?: HttpActionOptions) => Observable<void> );
+  remove: ( (id: IdentityValueType | T, options?: HttpActionOptions) => Observable<void> );
 
 }

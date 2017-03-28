@@ -1,3 +1,5 @@
+import { DAOMethods, TDMModel } from '../fw';
+
 /**
  * String enumeration of active record object methods
  */
@@ -8,13 +10,7 @@ export const ARMethods = {
   $refresh: '$refresh' as '$refresh',
 };
 
-export const ARFactoryMethods = {
-  find: 'find' as 'find',
-  query: 'query' as 'query',
-  create: 'create' as 'create',
-  update: 'update' as 'update',
-  remove: 'remove' as 'remove',
-};
+export const ARFactoryMethods = DAOMethods;
 
 export type ARHookableMethods = keyof typeof ARMethods | keyof typeof ARFactoryMethods;
 
@@ -34,11 +30,7 @@ export const ARHooks: { [P in ARHookableMethods]: ARHookRule } = {
   remove: { type: 'static'},
 };
 
-
-export interface BaseActiveRecord<T> {
-}
-
-export type ActiveRecord<T, Z> = BaseActiveRecord<T> & {
+export type ActiveRecord<T, Z> = TDMModel<T> & {
   [P in keyof typeof ARMethods]: (options?: Z) => T;
 };
 

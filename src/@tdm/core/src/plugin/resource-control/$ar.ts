@@ -1,10 +1,16 @@
-import { BaseActiveRecord } from '../../fw';
-import { ActiveRecordCollection } from '../../active-record';
+import { TDMModel, TDMCollection } from '../../fw';
 import { ResourceControl } from './resource-control';
 
 
-declare module '../../active-record/interfaces' {
-  interface BaseActiveRecord<T> {
+declare module '../../fw/tdm-model' {
+  interface TDMModel<T> {
+    /**
+     * @extension '@tdm/core/add/resource-control'
+     */
+    readonly $ar: ResourceControl<T>;
+  }
+
+  interface TDMModelBase<T> {
     /**
      * @extension '@tdm/core/add/resource-control'
      */
@@ -13,10 +19,10 @@ declare module '../../active-record/interfaces' {
 }
 
 
-export interface StatefulActiveRecordCollection<T> extends ActiveRecordCollection<T>, BaseActiveRecord<StatefulActiveRecordCollection<T>> { }
+export interface StatefulActiveRecordCollection<T> extends TDMCollection<T>, TDMModel<StatefulActiveRecordCollection<T>> { }
 
-declare module '../../active-record/active-record-collection' {
-  interface ActiveRecordCollection<T> {
+declare module '../../fw/tdm-collection' {
+  interface TDMCollection<T> {
     /**
      * @extension '@tdm/core/add/resource-control'
      */

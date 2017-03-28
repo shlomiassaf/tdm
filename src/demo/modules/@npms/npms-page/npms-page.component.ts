@@ -1,7 +1,7 @@
 import { Observable } from "rxjs/Observable";
 import { Component, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
-import { ActiveRecordCollection } from "@tdm/core";
+import { TDMCollection } from "@tdm/core";
 
 import { UiBlockService, UiBlock } from '@shared';
 import { Package } from '../models';
@@ -14,7 +14,7 @@ import { Package } from '../models';
 })
 export class NpmsPageComponent {
   package: Package;
-  packages: ActiveRecordCollection<Package>;
+  packages: TDMCollection<Package>;
 
   columns: any;
 

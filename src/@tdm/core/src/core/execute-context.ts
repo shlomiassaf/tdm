@@ -7,12 +7,9 @@ import {
   IdentityValueType,
   ExecuteContext,
   ResourceError,
-  BaseActiveRecord,
+  TDMModel,
+  TDMCollection
 } from '../fw';
-
-import { ActiveRecordCollection } from '../active-record';
-
-
 
 export interface ExecuteParams {
   async?: boolean;
@@ -24,7 +21,7 @@ export class ExtendedContext implements ExecuteContext<any> {
     return this.meta;
   }
 
-  get instance(): BaseActiveRecord<any> | ActiveRecordCollection<any> {
+  get instance(): TDMModel<any> | TDMCollection<any> {
     if (!this._instance) {
       this._instance = this.meta.factory(this.action.isCollection);
     }
@@ -32,7 +29,7 @@ export class ExtendedContext implements ExecuteContext<any> {
     return this._instance;
   }
 
-  set instance(value: BaseActiveRecord<any> | ActiveRecordCollection<any>) {
+  set instance(value: TDMModel<any> | TDMCollection<any>) {
     if (this._instance) {
       throw new Error('Instance exists');
     }
@@ -44,7 +41,7 @@ export class ExtendedContext implements ExecuteContext<any> {
     this._instance = value;
   }
 
-  private _instance: BaseActiveRecord<any> | ActiveRecordCollection<any>;
+  private _instance: TDMModel<any> | TDMCollection<any>;
   private mapper: MapperFactory;
 
 
@@ -54,7 +51,7 @@ export class ExtendedContext implements ExecuteContext<any> {
 
   instanceOf(obj: any): boolean {
     return this.action.isCollection
-      ? ActiveRecordCollection.instanceOf(obj)
+      ? TDMCollection.instanceOf(obj)
       : obj instanceof this.meta.target
       ;
   }
@@ -84,7 +81,7 @@ export class ExtendedContext implements ExecuteContext<any> {
     }
   }
 
-  clone(instance?: BaseActiveRecord<any> | ActiveRecordCollection<any>): ExtendedContext {
+  clone(instance?: TDMModel<any> | TDMCollection<any>): ExtendedContext {
     const ctx = new ExtendedContext(this.meta, this.action);
     if (instance) {
       ctx.instance = instance;

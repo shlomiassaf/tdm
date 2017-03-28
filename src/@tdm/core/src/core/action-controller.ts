@@ -4,29 +4,29 @@ import { async as asyncScheduler } from 'rxjs/scheduler/async';
 import { fromPromise } from 'rxjs/observable/fromPromise';
 
 //TODO: dont add
+import 'rxjs/add/operator/first';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/switchMap';
 
-import { TargetMetadata, isFunction, MapperFactory, Constructor } from '@tdm/transformation';
+import { targetStore, TargetMetadata, isFunction, MapperFactory } from '@tdm/transformation';
 import { emitEvent, eventFactory } from '../events';
 import { CancellationTokenResourceEvent, ExecuteInitResourceEvent } from '../events/internal';
 import { defaultConfig } from '../default-config';
 import { findProp, noop  } from '../utils';
-import { ActionMetadata, ValidationSchedule } from '../metadata';
+import { AdapterMetadata, ActionMetadata, ValidationSchedule } from '../metadata';
 import {
+  AdapterStatic,
   ActionOptions,
   Adapter,
   ExecuteResponse,
   ResourceValidationError,
   ResourceError,
-  BaseActiveRecord,
-  ARHookableMethods
+  ARHookableMethods,
+  TDMCollection
 } from '../fw';
 
-import { ActiveRecordCollection } from '../active-record';
 import { DAO } from '../dao';
-import { TargetAdapterMetadataStore } from '../metadata/target-adapter-metadata-store';
 import { ExtendedContext, ExecuteParams } from './execute-context';
 
 function validateIncoming(validation: ValidationSchedule) {
@@ -41,47 +41,19 @@ const noopPromise = () => Promise.resolve();
 
 export class ActionController {
   public target: any;
-
   public adapter: Adapter<ActionMetadata, ActionOptions>;
   public mapper: MapperFactory;
+  readonly adapterMeta: AdapterMetadata;
 
-
-  constructor(public adapterStore: TargetAdapterMetadataStore, public targetMetadata: TargetMetadata) {
+  constructor(public targetMetadata: TargetMetadata, public adapterClass: AdapterStatic<any, any>) {
     this.target = targetMetadata.target;
     // TODO: adapter can be shared for all targets
-    this.adapter = new adapterStore.adapterClass();
+    this.adapter = new adapterClass();
     this.mapper = findProp('mapper', defaultConfig, targetMetadata);
+
+    this.adapterMeta = targetStore.getAdapter(adapterClass);
   }
 
-  commit(): void {
-    this.registerDAO();
-  }
-
-  registerDAO() {
-    const daoClass = this.adapterStore.adapterMeta.daoClass;
-    const actions = this.adapterStore.adapterMeta.getActions(daoClass);
-
-    const runtimeDAO = class RuntimeDAO extends (daoClass as Constructor<{}>) {};
-
-    // creating DAO for this target
-    // TODO: each RuntimeDAO creates a new handler for global daoClass handlers.
-    // find a way to register once, then provide targetMeta every time.
-
-    actions.forEach(action => {
-      if (action.decoratorInfo.isStatic) {
-        throw new Error('DAO can define static actions.');
-      }
-
-      const ctx = new ExtendedContext(this.targetMetadata, action);
-      const self = this;
-
-      runtimeDAO.prototype[action.name] = function (this: BaseActiveRecord<any>, ...args: any[]) {
-        return self.execute(ctx.clone(), { async: true, args }, 'obs$');
-      };
-    });
-
-    this.targetMetadata.daoClass = runtimeDAO;
-  }
 
   createExecFactory<T>(action: ActionMetadata, ret: 'obs$'): (self: T, async: boolean, ...args: any[]) => Observable<T>;
   createExecFactory<T>(action: ActionMetadata, ret?: 'instance'): (self: T, async: boolean, ...args: any[]) => T;
@@ -101,16 +73,18 @@ export class ActionController {
 
     const options = isFunction(action.pre) ? action.pre(ctx, ...args) : args[0];
 
-    const state = DAO.getCtrl && DAO.getCtrl(ctx.instance);
+    // TODO:  this state.busy test is part of "resource-control" plugin, need to create mechanism to
+    //        send pre-init event and get reflect exception from that. this will allow handling the busy check in resource-control
+    const state = (<any>DAO).getCtrl && (<any>DAO).getCtrl(ctx.instance);
     if (state && state.busy) { // TODO: Should throw or error?
       emitEvent(eventFactory.error(ctx.instance, new Error('An action is already running')));
       return;
-    } else if (!!action.isCollection !== ActiveRecordCollection.instanceOf(ctx.instance)) {
+    } else if (!!action.isCollection !== TDMCollection.instanceOf(ctx.instance)) {
       emitEvent(eventFactory.error(ctx.instance, ResourceError.coll_obj(ctx.instance, action.isCollection)));
       return;
     }
 
-    emitEvent(new ExecuteInitResourceEvent(ctx.instance, {adapterMeta: this.adapterStore, action, async, args}));
+    emitEvent(new ExecuteInitResourceEvent(ctx.instance, {ac: this, action, async, args}));
     emitEvent(eventFactory.actionStart(ctx.instance));
 
     const validator = action.validation === 'skip'
@@ -178,7 +152,7 @@ export class ActionController {
   }
 
   private fireHook(action: ARHookableMethods, event: 'before' | 'after', self: any, options: ActionOptions, ...args: any[]): Promise<void> {
-    const hookMetadata = this.adapterStore.findHookEvent(action, event);
+    const hookMetadata = this.targetMetadata.findHookEvent(action, event);
 
     const fn = hookMetadata
       ? hookMetadata.decoratorInfo.isStatic ? this.target[hookMetadata.name] : self[hookMetadata.name]

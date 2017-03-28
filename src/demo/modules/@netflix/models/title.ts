@@ -1,7 +1,6 @@
 import { camelCase, snakeCase } from 'voca';
-import { ExtendAction, ExecuteContext, Identity } from '@tdm/core';
+import { ExtendAction, ExecuteContext, Identity, TDMCollection } from '@tdm/core';
 import { ARMixin, HttpResource, UrlParam, HttpActionOptions } from '@tdm/angular-http';
-import { ActiveRecordCollection } from "@tdm/core/active-record";
 
 /**
  * This resource wraps a single endpoint REST API which means it is not resource oriented.
@@ -86,4 +85,4 @@ export class Title {
   static query: (filter: 'director' | 'year' | 'actor', value: string, options?: HttpActionOptions) => TitleCollection;
 }
 
-export type TitleCollection = (ActiveRecordCollection<ARMixin<Title>> & { query: typeof Title.query });
+export type TitleCollection = (TDMCollection<ARMixin<Title>> & { query: typeof Title.query });

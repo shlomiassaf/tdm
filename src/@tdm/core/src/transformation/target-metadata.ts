@@ -1,15 +1,15 @@
 import { Tixin } from '@tdm/tixin';
-import { targetStore, DecoratorInfo, TargetMetadata, stringify, LazyInit, Constructor } from '@tdm/transformation';
+import { targetStore, DecoratorInfo, TargetMetadata, stringify, LazyInit, Constructor, SetExt, fireEvents } from '@tdm/transformation';
 
-import { ActiveRecordCollection } from '../active-record/active-record-collection';
-import { AdapterError, AdapterStatic, ARHookableMethods } from '../fw';
-import { TargetAdapterMetadataStore, ExtendActionMetadata, HookMetadata, ResourceMetadataArgs, ValidationError } from '../metadata';
+import { AdapterError, AdapterStatic, ARHookableMethods, TDMCollection } from '../fw';
+import { getProtoChain } from '../utils';
+import { ExtendActionMetadata, HookMetadata, ResourceMetadataArgs, ValidationError } from '../metadata';
+import { ActionController } from '../core/action-controller';
 import { TargetValidator } from '../core/target-validator';
 
 class CoreTargetMetadata extends TargetMetadata {
 
-  collectionClass: typeof ActiveRecordCollection & Constructor<ActiveRecordCollection<any>>;
-  daoClass: Constructor<any>;
+  collectionClass: typeof TDMCollection & Constructor<TDMCollection<any>>;
 
   get activeAdapter(): AdapterStatic<any, any> | undefined {
     return this._activeAdapter;
@@ -20,10 +20,10 @@ class CoreTargetMetadata extends TargetMetadata {
   })
   protected validator: TargetValidator;
 
-  @LazyInit(function(this: CoreTargetMetadata): Map<AdapterStatic<any, any>, TargetAdapterMetadataStore>{
-    return  new Map<AdapterStatic<any, any>, TargetAdapterMetadataStore>();
+  @LazyInit(function(this: CoreTargetMetadata): Map<AdapterStatic<any, any>, ActionController>{
+    return  new Map<AdapterStatic<any, any>, ActionController>();
   })
-  protected adapters: Map<AdapterStatic<any, any>, TargetAdapterMetadataStore>;
+  protected adapters: Map<AdapterStatic<any, any>, ActionController>;
 
   private _activeAdapter: AdapterStatic<any, any>;
 
@@ -50,14 +50,13 @@ class CoreTargetMetadata extends TargetMetadata {
     return this.adapters.has(adapterClass);
   }
 
-  getAdapterMeta(): TargetAdapterMetadataStore | undefined;
-  getAdapterMeta<T extends AdapterStatic<any, any>>(adapterClass: T, create?: boolean): TargetAdapterMetadataStore | undefined;
-  getAdapterMeta<T extends AdapterStatic<any, any>>(adapterClass?: T, create: boolean = true): TargetAdapterMetadataStore | undefined {
-    if (arguments.length === 0) {
-      return this.activeAdapter && this.adapters.get(this.activeAdapter);
-    } else {
-      return this.adapters.get(adapterClass) || (create ? this.registerAdapter(adapterClass) : undefined);
+  getAC(): ActionController | undefined;
+  getAC(adapterClass: AdapterStatic<any, any>, create?: boolean): ActionController | undefined;
+  getAC(adapterClass?: AdapterStatic<any, any>, create: boolean = true): ActionController | undefined {
+    if (!adapterClass) {
+      adapterClass = this.activeAdapter;
     }
+    return this.adapters.get(adapterClass) || (create ? this.registerAdapter(adapterClass) : undefined);
   }
 
   getExtendingAction(info: DecoratorInfo): ExtendActionMetadata | undefined {
@@ -68,40 +67,59 @@ class CoreTargetMetadata extends TargetMetadata {
   }
 
   setActiveAdapter(adapter: AdapterStatic<any, any>): void {
-    const adapterMeta = this.getAdapterMeta(adapter);
     this._activeAdapter = adapter;
-    adapterMeta.build();
+
+    this.getProtoChainWithMixins(this.target, adapter)
+      .forEach( proto => {
+        if (this.target !== proto && targetStore.hasTarget(proto)) {
+          targetStore.extend(proto, this.target);
+        }
+      });
+
+    fireEvents('onBuildMetadata', this.target);
   }
 
   private createCollection() {
     return this.collectionClass
       ? new this.collectionClass()
-      : new ActiveRecordCollection()
+      : new TDMCollection()
     ;
   }
 
-  private registerAdapter(adapterClass: AdapterStatic<any, any>): TargetAdapterMetadataStore {
+
+  private getProtoChainWithMixins(target: Constructor<any>, adapterClass: AdapterStatic<any, any>): Set<Constructor<any>> {
+    return getProtoChain(target)
+      .reduce( (protoSet, proto) => {
+        protoSet.add(proto);
+        SetExt.combine(protoSet, targetStore.getMixins(proto, adapterClass));
+        return protoSet;
+      }, new Set<Constructor<any>>());
+  }
+
+  private registerAdapter(adapterClass: AdapterStatic<any, any>): ActionController {
     if (!targetStore.hasAdapter(adapterClass)) {
       throw AdapterError.notRegistered(adapterClass)
     } else if (this.adapters.has(adapterClass)) {
       throw AdapterError.registered(adapterClass, stringify(this.target))
     } else {
-      return this.adapters.set(adapterClass, new TargetAdapterMetadataStore(this, adapterClass)).get(adapterClass);
+      return this.adapters.set(adapterClass, new ActionController(this, adapterClass)).get(adapterClass);
     }
   }
 }
 
-CoreTargetMetadata.prototype.factory = function targetFactory(isColl: boolean): any {
-  return isColl
-    ? this.createCollection()
-    : new this.target()
-  ;
-};
+// @tdm/core does not allow a 'factory' for @tdm/transformation @Transformable, it uses it's own factory.
+Object.defineProperty(CoreTargetMetadata.prototype, 'factory', {
+  value: function targetFactory(isColl: boolean): any {
+    return isColl
+      ? this.createCollection()
+      : new this.target()
+      ;
+  }
+});
 
 declare module '@tdm/transformation/metadata/target-metadata' {
   interface TargetMetadata {
-    collectionClass: typeof ActiveRecordCollection & Constructor<ActiveRecordCollection<any>>;
-    daoClass: Constructor<any>;
+    collectionClass: typeof TDMCollection & Constructor<TDMCollection<any>>;
 
     validate(instance: any): Promise<ValidationError[]>;
 
@@ -113,13 +131,13 @@ declare module '@tdm/transformation/metadata/target-metadata' {
     hasAdapter(adapterClass: AdapterStatic<any, any>): boolean;
 
     /**
-     * Returns the metadata of the current (active) adapter on this target.
+     * Returns the action controller of the current (active) adapter on this target.
      */
-    getAdapterMeta(): TargetAdapterMetadataStore | undefined;
+    getAC(): ActionController | undefined;
     /**
-     * Returns the metadata of an adapter on this target.
+     * Returns the  action controller of an adapter on this target.
      */
-    getAdapterMeta<T extends AdapterStatic<any, any>>(adapterClass: T, create?: boolean): TargetAdapterMetadataStore | undefined;
+    getAC(adapterClass: AdapterStatic<any, any>, create?: boolean): ActionController | undefined;
 
     getExtendingAction(info: DecoratorInfo): ExtendActionMetadata | undefined;
 

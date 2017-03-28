@@ -1,7 +1,6 @@
 import { isFunction, targetStore, PropMetadata } from '@tdm/transformation';
-import { AdapterStatic, AdapterError } from '../fw';
+import { AdapterStatic, TDMModelBase } from '../fw';
 import { ResourceMetadataArgs } from './meta-types';
-import { activeRecordClassFactory, ActiveRecordCollection } from '../active-record';
 
 /**
  * A Factory for Resource class decorators, the returned decorator will automatically register the
@@ -11,7 +10,7 @@ import { activeRecordClassFactory, ActiveRecordCollection } from '../active-reco
 export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterStatic<any, any>): (def: T) => ClassDecorator {
   return function ResourceDecorator(def: T) {
     return (target: any) => {
-      const TDModel = activeRecordClassFactory(target as any);
+      const TDModel = TDMModelBase.factory(target);
 
       // TODO: this needs to move outside of core
       // add a hook to `resource` so dev can do stuff before returning.

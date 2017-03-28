@@ -1,9 +1,6 @@
 import { registerEvent, Constructor } from '@tdm/transformation';
-
-import { PluginStore } from '../../fw';
-import { ActiveRecordCollection } from '../../active-record';
+import { PluginStore, TDMCollection, DAO, TDMModelBase } from '@tdm/core';
 import { ResourceControl } from './resource-control';
-import { DAO } from '../../dao';
 
 const privateDict = new WeakMap<any, ResourceControl<any>>();
 
@@ -13,16 +10,16 @@ function getCtrl<T>(instance: T): ResourceControl<T> | undefined {
 }
 
 function attachToResource(propertyName: string = '$ar'): void {
-
   function getThisCtrl() { return getCtrl(this); }
-  function onBuildMetadata(target: Constructor<any>) {
-    Object.defineProperty(target.prototype, propertyName, { configurable: true, get: getThisCtrl });
-  }
-  registerEvent('onBuildMetadata', onBuildMetadata);
 
+  // extend TDMModel
+  Object.defineProperty(TDMModelBase.prototype, propertyName, { configurable: true, get: getThisCtrl });
+
+
+  // extend TDMCollection
   function StatefulActiveRecordCollection() { }
   Object.defineProperty(StatefulActiveRecordCollection.prototype, propertyName, { get: getThisCtrl });
-  ActiveRecordCollection.extend(StatefulActiveRecordCollection);
+  TDMCollection.extend(StatefulActiveRecordCollection);
 }
 
 export class ResourceControlPlugin {

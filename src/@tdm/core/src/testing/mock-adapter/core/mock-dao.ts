@@ -1,9 +1,9 @@
 import { isPrimitive } from '@tdm/transformation';
-import { ActiveRecordCollection as ARecordColl, IdentityValueType, ExecuteContext, ActionMethodType } from '@tdm/core';
+import { TDMCollection as ARecordColl, IdentityValueType, ExecuteContext, ActionMethodType } from '@tdm/core';
 
 import { MockActionOptions } from './interfaces';
 import { MockActionMetadata } from '../metadata';
-import { MockAction } from '../decorators';
+import { MockAction } from '../metadata/decorators';
 
 export class MockDao {
   @MockAction({

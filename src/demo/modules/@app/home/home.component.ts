@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 
+import { DAO } from '@tdm/core';
 
-import { UserBaseClass, UserConst, UsersInterface } from '../resource';
+import { UserBaseClass, UserConst, UsersInterface, UserDAO } from '../resource';
 
 const User = UserConst;
 type User = UserConst;
@@ -16,6 +17,10 @@ export class HomeComponent {
   public user: User;
 
   constructor() {
+    DAO.angularHttp(UserDAO).find(5)
+      .subscribe( user => {
+        console.log(user);
+      }, err => alert(err));
     // this.user = new User();
     this.user = User.find(5);
 

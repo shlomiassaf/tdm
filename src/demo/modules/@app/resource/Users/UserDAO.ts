@@ -27,27 +27,17 @@ import { ARMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpAct
   endpoint: '/api/users/:id?',
   urlParams: {
     limit: '5'
-  },
-  noBuild: true
+  }
 })
 @Injectable()
-class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
+export class UserDAO implements  BeforeHook<'bfRef', HttpActionOptions>,
                         AfterHook<'afRef', HttpActionOptions> {
 
   @Identity()
   @UrlParam() id: number = 2; // this will go into the "endpoint" from the instance!
 
   @Prop({
-    alias: 'username',
-    validation: {
-      name: 'test-validator',
-      validate(ctx) {
-        return false;
-      },
-      errorMessage(ctx) {
-        return 'validation error';
-      }
-    }
+    alias: 'username'
   })
   username__: string;
 
@@ -72,27 +62,27 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
 
   @HttpAction({
     method: HttpActionMethodType.Get,
-    post: User_.prototype.postDeserializedHandler
+    post: UserDAO.prototype.postDeserializedHandler
   })
-  postDeserialized: (options?: HttpActionOptions) => ARMixin<User_>;
+  postDeserialized: (options?: HttpActionOptions) => ARMixin<UserDAO>;
   private postDeserializedHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
   }
 
   @HttpAction({
     method: HttpActionMethodType.Get,
     post: {
-      handler: User_.prototype.postHandler,
+      handler: UserDAO.prototype.postHandler,
       skipDeserialize: true
     }
   })
-  raw: (options?: HttpActionOptions) => ARMixin<User_>;
+  raw: (options?: HttpActionOptions) => ARMixin<UserDAO>;
   private postHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
   }
 
   static num: number;
 
   @Hook({event: 'before', action: 'query'})
-  static bfQuery(this: TDMCollection<ARMixin<User_>>) {
+  static bfQuery(this: TDMCollection<ARMixin<UserDAO>>) {
     this.$ar.next()
       .then( coll => {
         console.log(`BeforeQuery-AfterQuery: got ${coll.length}`)
@@ -101,7 +91,7 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
   }
 
   @Hook({event: 'after', action: 'query'})
-  static afQuery(this: TDMCollection<ARMixin<User_>>) {
+  static afQuery(this: TDMCollection<ARMixin<UserDAO>>) {
     console.log('AfterQuery');
     console.log(`AfterQuery: got ${this.length}`)
   }
@@ -112,20 +102,5 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
       return options;
     }
   })
-  static find: (id: IdentityValueType, a:number, b: number, options?: HttpActionOptions) => ARMixin<User_>;
+  static find: (id: IdentityValueType, a:number, b: number, options?: HttpActionOptions) => ARMixin<UserDAO>;
 }
-
-export const UserConst = ARMixin(User_);
-export type UserConst = ARMixin<User_>;
-
-// UserConst.find(2, 3, 4).username__;                              // OK
-// UserConst.find(2, 3, 4).usernam23e;                              // SHOULD ERROR
-// UserConst.num;                                                   // OK
-// new UserConst().$refresh().username__;                           // OK
-// const user: UserConst = new UserConst();                         // OK
-// user.$refresh().username__;                                      // OK
-// user.$refresh().abcd;                                            // SHOULD ERROR
-// user.$ar.next().then( u => u.id );                               // OK
-// user.$ar.next().then( u => u.f34 );                              // SHOULD ERROR
-// UserConst.query().$ar.next().then(coll => coll );     // OK
-// UserConst.query().$ar.next().then(coll => coll.sdfd );           // SHOULD ERROR

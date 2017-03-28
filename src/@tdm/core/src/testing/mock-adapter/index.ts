@@ -18,7 +18,7 @@ import { MockAdapter } from './core';
 import { MockActionMetadata } from './metadata';
 targetStore.registerAdapter(MockAdapter, {
   actionMetaClass: MockActionMetadata,
-  daoClass: MockDao
+  DAOClass: MockDao
 });
 
 

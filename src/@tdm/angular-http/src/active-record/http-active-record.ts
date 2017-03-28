@@ -1,6 +1,6 @@
 import { Tixin } from '@tdm/tixin';
 import { isPrimitive } from '@tdm/transformation';
-import { ActiveRecordCollection as ARecordColl, BaseActiveRecord, IdentityValueType, ExecuteContext } from '@tdm/core';
+import { TDMCollection as ARecordColl, TDMModel, IdentityValueType, ExecuteContext } from '@tdm/core';
 
 import { HttpActionOptions } from '../core/interfaces';
 import { HttpActionMetadata, HttpActionMethodType } from '../metadata';
@@ -112,15 +112,15 @@ export class HttpActiveRecord {
 
 export const ActiveRecordCollection = ARecordColl;
 export type ActiveRecordCollection<T> =
-  ARecordColl<Tixin<T, BaseActiveRecord<T> & HttpActiveRecord>>
+  ARecordColl<Tixin<T, TDMModel<T> & HttpActiveRecord>>
     & { query: ActiveRecordCollection<T> };
 
 export interface HttpActiveRecordStatic<T> {
-  find(id: IdentityValueType, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & HttpActiveRecord>;
+  find(id: IdentityValueType, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
   query(options?: HttpActionOptions): ActiveRecordCollection<T>;
-  create(data: T, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & HttpActiveRecord>;
-  update(data: Partial<T>, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & HttpActiveRecord>;
-  remove(id: IdentityValueType | T, options?: HttpActionOptions): Tixin<T, BaseActiveRecord<T> & HttpActiveRecord>;
+  create(data: T, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
+  update(data: Partial<T>, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
+  remove(id: IdentityValueType | T, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
 }
 
 

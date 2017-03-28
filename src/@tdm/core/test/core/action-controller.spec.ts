@@ -1,7 +1,7 @@
 import 'rxjs';
 import '@tdm/core/add/resource-control'
 import { MockMixin, MockResource, MockActionOptions, MockAction, MockDeserializer, bucketFactory } from '@tdm/core/testing';
-import { Hook, ActiveRecordCollection, ActionMethodType, ExecuteResponse } from '@tdm/core';
+import { Hook, TDMCollection, ActionMethodType, ExecuteResponse } from '@tdm/core';
 
 const localMockDeserializer = new MockDeserializer();
 
@@ -36,10 +36,10 @@ class User_ {
 
 
   @Hook({event: 'before', action: 'query'})
-  static beforeQuery(this: ActiveRecordCollection<MockMixin<User_>>) { }
+  static beforeQuery(this: TDMCollection<MockMixin<User_>>) { }
 
   @Hook({event: 'after', action: 'query'})
-  static afterQuery(this: ActiveRecordCollection<MockMixin<User_>>) { }
+  static afterQuery(this: TDMCollection<MockMixin<User_>>) { }
 
 }
 
@@ -98,8 +98,8 @@ describe('CORE', () => {
           bucket.bucket.push(data)
           expect(SUser.beforeQuery).toHaveBeenCalledTimes(1);
           expect(SUser.afterQuery).toHaveBeenCalledTimes(1);
-          expect(SUser.beforeQuery.calls.mostRecent().object instanceof ActiveRecordCollection).toBe(true);
-          expect(SUser.afterQuery.calls.mostRecent().object instanceof ActiveRecordCollection).toBe(true);
+          expect(SUser.beforeQuery.calls.mostRecent().object instanceof TDMCollection).toBe(true);
+          expect(SUser.afterQuery.calls.mostRecent().object instanceof TDMCollection).toBe(true);
 
           expect(data).toBe(SUser.afterQuery.calls.mostRecent().object);
 

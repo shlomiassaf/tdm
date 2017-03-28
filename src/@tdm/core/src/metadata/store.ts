@@ -1,5 +1,5 @@
 import { TransformDir, Constructor, targetStore, SerializeMapper, DeserializeMapper } from '@tdm/transformation';
-import { AdapterStatic, BaseActiveRecord } from '../fw';
+import { AdapterStatic, TDMModel } from '../fw';
 
 /**
  *
@@ -26,7 +26,7 @@ export class Store {
    * @param mapper
    * @returns {any}
    */
-  deserialize(mapper: DeserializeMapper): BaseActiveRecord<any> | BaseActiveRecord<any>[] | undefined {
+  deserialize(mapper: DeserializeMapper): TDMModel<any> | TDMModel<any>[] | undefined {
     return targetStore.deserialize(mapper);
   }
 

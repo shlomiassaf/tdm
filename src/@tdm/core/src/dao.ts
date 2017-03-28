@@ -1,6 +1,24 @@
 import { Observable } from 'rxjs/Observable';
 import { Constructor, isFunction, targetStore } from '@tdm/transformation';
-import { ActiveRecordCollection as ARecordColl, ActionOptions, IdentityValueType } from '@tdm/core';
+
+import { AdapterStatic, ActionOptions, IdentityValueType, DAOMethods, DAOTarget, DAOAdapter, TargetError } from './fw'
+
+
+
+export interface TargetDAO<T, Options extends ActionOptions> {
+  find(id: IdentityValueType, options?: Options): Observable<T>;
+
+  query(options?: Options): Observable<T[]>
+
+  create(instance: T, options?: Options): Observable<T | void>;
+  create(obj: Partial<T>, options?: Options): Observable<T | void>;
+
+  update(instance: T, options?: Options): Observable<T | void>;
+  update<T>(obj: Partial<T>, options?: Options): Observable<T | void>;
+
+  remove(instance: T, options?: Options): Observable<void>;
+  remove(id: IdentityValueType, options?: Options): Observable<void>;
+}
 
 export interface AdapterDAO<Options extends ActionOptions> {
   find<T>(id: IdentityValueType, options?: Options): Observable<T>;
@@ -75,19 +93,31 @@ export class DAO {
     return Observable.throw(new Error('Invalid input'));
   }
 
-  private run(target: Constructor<any>, cmd: keyof DAO, ...args: any[]): any {
+  private run(target: Constructor<any>, cmd: keyof typeof DAOMethods, ...args: any[]): any {
     if (!targetStore.hasTarget(target)) {
       // TODO: normalize error.
       return Observable.throw(new Error('Target does not exist'));
     }
-    const fn = targetStore.getTargetMeta(target).daoClass.prototype['cmd'];
 
-    if (!isFunction(fn)) {
-      // TODO: normalize error.
-      return Observable.throw(new Error(`DAO does not support action ${cmd}`));
+    const meta = targetStore.getTargetMeta(target);
+    if (!meta.activeAdapter) {
+      return Observable.throw(TargetError.noActiveAdapter(target));
     }
 
-    return fn(...args);
+    const action = targetStore.getAdapter(meta.activeAdapter).getDAOAction(cmd);
+
+    return targetStore.getAC(target, meta.activeAdapter)
+      .createExecFactory(action, 'obs$')(undefined, true, ...args);
+  }
+
+  /**
+   * Returns the DAO of an adapter, attached to a target.
+   * @param adapterClass
+   * @param target
+   * @returns {any}
+   */
+  static of<T, Z, Options>(adapterClass: AdapterStatic<any, Options>, target: Z &  Constructor<T>): TargetDAO<T, Options> {
+    const clz = targetStore.getAdapter(adapterClass).DAOClass;
+    return Object.create(clz.prototype, { [DAOTarget]: { value: target }, [DAOAdapter]: { value: adapterClass } });
   }
 }
-

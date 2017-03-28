@@ -1,5 +1,6 @@
 import { stringify } from '@tdm/transformation';
-import { AdapterStatic, BaseActiveRecord, ValidationError } from './interfaces';
+import { AdapterStatic, ValidationError } from './interfaces';
+import { TDMModel } from './tdm-model';
 
 
 function getErrorName(type: Function): string {
@@ -67,15 +68,19 @@ export class TargetError extends TDMError {
   static built(target: any, adapterClass: AdapterStatic<any, any>): TargetError {
     return new TargetError(target, `Target/Adapter ${stringify(target)}/${stringify(adapterClass)} is already built`);
   }
+
+  static noActiveAdapter(target: any): TargetError {
+    return new TargetError(target, `Target ${stringify(target)} has no active adapter registered.`);
+  }
 }
 
 export class ResourceError extends TDMError {
-  constructor(public readonly ar: BaseActiveRecord<any>, message?: string) {
+  constructor(public readonly ar: TDMModel<any>, message?: string) {
     super(message)
     this.name = getErrorName(ResourceError);
   }
 
-  static coll_obj(ar: BaseActiveRecord<any>, expectedCol: boolean): ResourceError {
+  static coll_obj(ar: TDMModel<any>, expectedCol: boolean): ResourceError {
     return new ResourceError(null, expectedCol
       ? `Expected a collection but got an object`
       : `Expected an object but got a collection`
@@ -84,7 +89,7 @@ export class ResourceError extends TDMError {
 }
 
 export class ResourceValidationError extends ResourceError {
-  constructor(ar: BaseActiveRecord<any>, public readonly validationErrors: ValidationError[]) {
+  constructor(ar: TDMModel<any>, public readonly validationErrors: ValidationError[]) {
     super(ar)
   }
 }

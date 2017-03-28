@@ -1,6 +1,7 @@
 import { Subscription } from 'rxjs/Subscription';
 import { ResourceEvent } from './events';
-import { ActionMetadata, TargetAdapterMetadataStore } from '../metadata';
+import { ActionController } from '../core';
+import { ActionMetadata } from '../metadata';
 
 /**
  * @internal
@@ -12,7 +13,7 @@ export class CancellationTokenResourceEvent extends ResourceEvent {
 }
 
 export interface ExecuteInitResourceEventArgs {
-  adapterMeta: TargetAdapterMetadataStore;
+  ac: ActionController;
   action: ActionMetadata;
   async: boolean;
   args: any[]

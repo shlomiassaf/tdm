@@ -1,11 +1,10 @@
 import { targetStore, registerEvent, Constructor, isFunction, SetExt, MapExt } from '@tdm/transformation';
 
-import { PluginStore, ActiveRecordCollection, ActionMetadata, BaseActiveRecord } from '@tdm/core';
+import { PluginStore, TDMCollection, ActionMetadata, TDMModel } from '@tdm/core';
 import { getProtoChain } from '../../utils';
 import { ExtendedContext } from '../../core/execute-context';
 import { AdapterStatic } from '../../fw';
-import { ActionController } from '../..//core';
-import { collectionClassFactory } from '../../active-record';
+import { ActionController } from '../../core';
 
 /**
  * Returns all of the actions registered for a target going through the proto chain and all
@@ -24,10 +23,12 @@ function getActions(target: Constructor<any>, adapterClass: AdapterStatic<any, a
 
   for (let i=0, len=chain.length; i<len; i++) {
     if (targetStore.hasTarget(chain[i])) {
-      const protoAdapterStore = targetStore.getAdapterMeta(chain[i], adapterClass);
+      const adapterMeta =  targetStore.getAdapter(adapterClass);
       const mixins = SetExt.asArray(targetStore.getMixins(chain[i], adapterClass));
-      const protoActions = protoAdapterStore.adapterMeta.getActions(chain[i], ...mixins);
-      MapExt.fromArray(protoActions, (v) => v.name, actions, true);
+      if (adapterMeta) {
+        const protoActions = adapterMeta.getActions(chain[i], ...mixins);
+        MapExt.fromArray(protoActions, (v) => v.name, actions, true);
+      }
     }
   }
 
@@ -49,7 +50,7 @@ function registerAction(this: ActionController, action: ActionMetadata, collProt
     if (action.decoratorInfo.isStatic) {
 
       if (action.isCollection && action.collInstance) {
-        collProto[action.name] = function (this: ActiveRecordCollection<any>, ...args: any[]): any {
+        collProto[action.name] = function (this: TDMCollection<any>, ...args: any[]): any {
           this.splice(0, this.length);
           return self.execute(ctx.clone(this), {async: true, args});
         };
@@ -59,7 +60,7 @@ function registerAction(this: ActionController, action: ActionMetadata, collProt
         return self.execute(ctx.clone(), { async: true, args});
       };
     } else {
-      this.target.prototype[action.name] = function (this: BaseActiveRecord<any>, ...args: any[]) {
+      this.target.prototype[action.name] = function (this: TDMModel<any>, ...args: any[]) {
         return self.execute(ctx.clone(this), {async: true, args});
       };
     }
@@ -68,26 +69,26 @@ function registerAction(this: ActionController, action: ActionMetadata, collProt
 
 
 function activeRecord(target: Constructor<any>): void {
-  const meta = targetStore.getAdapterMeta(target);
+  const ac = targetStore.getAC(target);
   const collProto: any = {};
 
   // build actions on the target type for the currently active adapter.
-  if (meta) {
-    getActions(target, meta.adapterClass).forEach( a => {
+  if (ac) {
+    getActions(target, ac.adapterClass).forEach( a => {
       // TODO check action instance of ActionMetadata + in ActionMetadata verify using DecoratorInfo
       const extAction = targetStore.getTargetMeta(target).getExtendingAction(a.decoratorInfo);
       if (extAction) {
         const metaArgs = Object.assign({}, a.metaArgs, extAction);
-        a = meta.adapterMeta.actionMetaClass.metaFactory(metaArgs, target, extAction.decoratorInfo.name).metaValue;
+        a = ac.adapterMeta.actionMetaClass.metaFactory(metaArgs, target, extAction.decoratorInfo.name).metaValue;
       }
 
-      registerAction.call(meta.actionController, a, collProto, true )
+      registerAction.call(ac, a, collProto, true )
     });
   }
 
   // creating collection type for this target
   if (Object.keys(collProto).length > 0) {
-    meta.parent.collectionClass = collectionClassFactory(collProto);
+    ac.targetMetadata.collectionClass = TDMCollection.factory(collProto);
   }
 }
 

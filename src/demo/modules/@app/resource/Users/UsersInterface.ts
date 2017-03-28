@@ -20,13 +20,13 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Hook, BeforeHook, AfterHook, ActiveRecord, ActiveRecordCollection, Constructor, Prop, Exclude, ExecuteResponse, Identity } from '@tdm/core';
+import { Hook, BeforeHook, AfterHook, ActiveRecord, TDMCollection, Constructor, Prop, Exclude, ExecuteResponse, Identity } from '@tdm/core';
 import { ARMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/angular-http';
 
 
 export interface IUserInterfaceStatic extends Constructor<IUserInterface> {
-  bfQuery(this: ActiveRecordCollection<ARMixin<IUserInterface>>);
-  afQuery(this: ActiveRecordCollection<ARMixin<IUserInterface>>);
+  bfQuery(this: TDMCollection<ARMixin<IUserInterface>>);
+  afQuery(this: TDMCollection<ARMixin<IUserInterface>>);
 }
 
 export interface IUserInterface extends ActiveRecord<IUserInterface, HttpActionOptions> {
@@ -100,7 +100,7 @@ export class UsersInterface extends ARMixin<IUserInterface, IUserInterfaceStatic
   static num: number;
 
   @Hook({event: 'before', action: 'query'})
-  static bfQuery(this: ActiveRecordCollection<ARMixin<UsersInterface>>) {
+  static bfQuery(this: TDMCollection<ARMixin<UsersInterface>>) {
     this.$ar.next()
       .then( coll => {
         console.log(`BeforeQuery-AfterQuery: got ${coll.length}`)
@@ -109,7 +109,7 @@ export class UsersInterface extends ARMixin<IUserInterface, IUserInterfaceStatic
   }
 
   @Hook({event: 'after', action: 'query'})
-  static afQuery(this: ActiveRecordCollection<ARMixin<UsersInterface>>) {
+  static afQuery(this: TDMCollection<ARMixin<UsersInterface>>) {
     console.log('AfterQuery');
     console.log(`AfterQuery: got ${this.length}`)
   }

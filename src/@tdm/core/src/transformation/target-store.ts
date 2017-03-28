@@ -2,7 +2,8 @@ import { Tixin } from '@tdm/tixin';
 import { TargetStore, LazyInit, Constructor, TargetStoreEvents } from '@tdm/transformation';
 
 import { AdapterStatic } from '../fw';
-import { TargetAdapterMetadataStore, AdapterMetadata, AdapterMetadataArgs } from '../metadata';
+import { ActionController } from '../core/action-controller';
+import { AdapterMetadata, AdapterMetadataArgs } from '../metadata';
 
 class CoreTargetStore extends TargetStore {
 
@@ -42,16 +43,13 @@ class CoreTargetStore extends TargetStore {
     return false;
   }
 
-  /**
-   * Returns the metadata of the current (active) adapter on this target.
-   */
-  getAdapterMeta(target: Constructor<any>): TargetAdapterMetadataStore | undefined;
-  getAdapterMeta<T extends AdapterStatic<any, any>>(target: Constructor<any>, adapterClass: T): TargetAdapterMetadataStore | undefined;
-  getAdapterMeta<T extends AdapterStatic<any, any>>(target: Constructor<any>, adapterClass?: T): TargetAdapterMetadataStore | undefined {
+  getAC(target: Constructor<any>): ActionController | undefined;
+  getAC<T extends AdapterStatic<any, any>>(target: Constructor<any>, adapterClass: T): ActionController | undefined;
+  getAC<T extends AdapterStatic<any, any>>(target: Constructor<any>, adapterClass?: T): ActionController | undefined {
     if (this.hasTarget(target)) {
       return adapterClass
-        ? this.getTargetMeta(target).getAdapterMeta(adapterClass)
-        : this.getTargetMeta(target).getAdapterMeta()
+        ? this.getTargetMeta(target).getAC(adapterClass)
+        : this.getTargetMeta(target).getAC()
       ;
     }
   }
@@ -75,11 +73,14 @@ declare module '@tdm/transformation/metadata/target-store' {
     buildIfReady(target: any, adapterClass: AdapterStatic<any, any>): boolean;
 
     /**
-     * Returns the metadata of an adapter for a given target.
+     * Returns the action controller of the current (active) adapter on this target.
      */
+    getAC(target: Constructor<any>): ActionController | undefined;
 
-    getAdapterMeta(target: Constructor<any>): TargetAdapterMetadataStore | undefined;
-    getAdapterMeta(target: Constructor<any>, adapterClass: AdapterStatic<any, any>): TargetAdapterMetadataStore | undefined;
+    /**
+     * Returns the  action controller of an adapter on this target.
+     */
+    getAC(target: Constructor<any>, adapterClass: AdapterStatic<any, any>): ActionController | undefined;
   }
 }
 Tixin(TargetStore as any, CoreTargetStore as any);
