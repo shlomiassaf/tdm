@@ -4,11 +4,11 @@
     "version": "1.0.0-alpha.2"
   },
   "angular-http": {
-    "commit": "41de7a91031c23a1f0bc15d43807764a963f3933",
+    "commit": "7a9fda0a343a6774fd02e84884d7797c72c6e068",
     "version": "1.0.0-alpha.12"
   },
   "core": {
-    "commit": "41de7a91031c23a1f0bc15d43807764a963f3933",
+    "commit": "7a9fda0a343a6774fd02e84884d7797c72c6e068",
     "version": "1.0.0-alpha.13"
   },
   "json-api-mapper": {
