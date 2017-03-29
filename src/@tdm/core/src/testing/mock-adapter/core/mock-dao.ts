@@ -32,7 +32,7 @@ export class MockDao {
       if (isPrimitive(id)) {
         ctx.setIdentity(id);
       } else if (ctx.instanceOf(id)) {
-        ctx.instance = id;
+        ctx.setInstance(id);
       } else {
         ctx.deserialize(id);
       }
@@ -47,7 +47,7 @@ export class MockDao {
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<MockActionMetadata>, data: any, options?: MockActionOptions) => {
       if (ctx.instanceOf(data)) {
-        ctx.instance = data;
+        ctx.setInstance(data);
       } else {
         ctx.deserialize(data);
       }
@@ -64,7 +64,7 @@ export class MockDao {
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<MockActionMetadata>, data: any, options?: MockActionOptions) => {
       if (ctx.instanceOf(data)) {
-        ctx.instance = data;
+        ctx.setInstance(data);
       } else {
         ctx.deserialize(data);
       }

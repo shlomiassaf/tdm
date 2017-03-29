@@ -2,7 +2,7 @@ import { targetStore, registerEvent, Constructor, isFunction, SetExt, MapExt } f
 
 import { PluginStore, TDMCollection, ActionMetadata, TDMModel } from '@tdm/core';
 import { getProtoChain } from '../../utils';
-import { ExtendedContext } from '../../core/execute-context';
+import { ExecuteContext } from '../../core/execute-context';
 import { AdapterStatic } from '../../fw';
 import { ActionController } from '../../core';
 
@@ -44,7 +44,7 @@ function registerAction(this: ActionController, action: ActionMetadata, collProt
       throw new Error('An action with a collection response must be a static level member');
     }
 
-    const ctx = new ExtendedContext(this.targetMetadata, action);
+    const ctx = new ExecuteContext(this.targetMetadata, action);
     const self = this;
 
     if (action.decoratorInfo.isStatic) {

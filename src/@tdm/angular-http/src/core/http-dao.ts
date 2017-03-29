@@ -30,7 +30,7 @@ export class HttpDao<T> implements TargetDAO<T, HttpActionOptions> {
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<HttpActionMetadata>, data: any, options?: HttpActionOptions) => {
       if (ctx.instanceOf(data)) {
-        ctx.instance = data;
+        ctx.setInstance(data);
       } else {
         ctx.deserialize(data);
       }
@@ -47,7 +47,7 @@ export class HttpDao<T> implements TargetDAO<T, HttpActionOptions> {
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<HttpActionMetadata>, data: any, options?: HttpActionOptions) => {
       if (ctx.instanceOf(data)) {
-        ctx.instance = data;
+        ctx.setInstance(data);
       } else {
         ctx.deserialize(data);
       }
@@ -67,7 +67,7 @@ export class HttpDao<T> implements TargetDAO<T, HttpActionOptions> {
       if (isPrimitive(id)) {
         ctx.setIdentity(id);
       } else if (ctx.instanceOf(id)) {
-        ctx.instance = id;
+        ctx.setInstance(id);
       } else {
         ctx.deserialize(id);
       }

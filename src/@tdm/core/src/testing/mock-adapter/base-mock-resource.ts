@@ -64,7 +64,7 @@ export class BaseMockResource {
       if (isPrimitive(id)) {
         ctx.setIdentity(id);
       } else if (ctx.instanceOf(id)) {
-        ctx.instance = id;
+        ctx.setInstance(id);
       } else {
         ctx.deserialize(id);
       }
@@ -78,7 +78,7 @@ export class BaseMockResource {
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<MockActionMetadata>, data: any, options?: MockActionOptions) => {
       if (ctx.instanceOf(data)) {
-        ctx.instance = data;
+        ctx.setInstance(data);
       } else {
         ctx.deserialize(data);
       }
@@ -95,7 +95,7 @@ export class BaseMockResource {
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<MockActionMetadata>, data: any, options?: MockActionOptions) => {
       if (ctx.instanceOf(data)) {
-        ctx.instance = data;
+        ctx.setInstance(data);
       } else {
         ctx.deserialize(data);
       }

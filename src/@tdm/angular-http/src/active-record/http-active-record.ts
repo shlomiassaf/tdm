@@ -65,7 +65,7 @@ export class HttpActiveRecord {
       if (isPrimitive(id)) {
         ctx.setIdentity(id);
       } else if (ctx.instanceOf(id)) {
-        ctx.instance = id;
+        ctx.setInstance(id);
       } else {
         ctx.deserialize(id);
       }
@@ -80,7 +80,7 @@ export class HttpActiveRecord {
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<HttpActionMetadata>, data: any, options?: HttpActionOptions) => {
       if (ctx.instanceOf(data)) {
-        ctx.instance = data;
+        ctx.setInstance(data);
       } else {
         ctx.deserialize(data);
       }
@@ -97,7 +97,7 @@ export class HttpActiveRecord {
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<HttpActionMetadata>, data: any, options?: HttpActionOptions) => {
       if (ctx.instanceOf(data)) {
-        ctx.instance = data;
+        ctx.setInstance(data);
       } else {
         ctx.deserialize(data);
       }

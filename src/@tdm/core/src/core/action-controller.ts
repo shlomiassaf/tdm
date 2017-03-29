@@ -27,7 +27,7 @@ import {
 } from '../fw';
 
 import { DAO } from '../dao';
-import { ExtendedContext, ExecuteParams } from './execute-context';
+import { ExecuteContext, ExecuteParams } from './execute-context';
 
 function validateIncoming(validation: ValidationSchedule) {
   return validation === 'incoming' || validation === 'both';
@@ -61,17 +61,21 @@ export class ActionController {
     const ac = this;
     return function (self: T, async: boolean, ...args: any[]) {
       return ac.execute(this.clone(self), {async,  args}, ret);
-    }.bind(new ExtendedContext(this.targetMetadata, action));
+    }.bind(new ExecuteContext(this.targetMetadata, action));
   }
 
-  execute(ctx: ExtendedContext, params: ExecuteParams, ret: 'obs$'): Observable<any>;
-  execute(ctx: ExtendedContext, params: ExecuteParams, ret?: 'instance'): any;
-  execute(ctx: ExtendedContext, params: ExecuteParams, ret?: 'instance' | 'obs$'): any {
+  execute(ctx: ExecuteContext<any>, params: ExecuteParams, ret: 'obs$'): Observable<any>;
+  execute(ctx: ExecuteContext<any>, params: ExecuteParams, ret?: 'instance'): any;
+  execute(ctx: ExecuteContext<any>, params: ExecuteParams, ret?: 'instance' | 'obs$'): any {
     const action = ctx.action;
     const args = params.args || [];
     let async = params.async;
 
     const options = isFunction(action.pre) ? action.pre(ctx, ...args) : args[0];
+
+    if (!ctx.instance) {
+      ctx.setInstance();
+    }
 
     // TODO:  this state.busy test is part of "resource-control" plugin, need to create mechanism to
     //        send pre-init event and get reflect exception from that. this will allow handling the busy check in resource-control
