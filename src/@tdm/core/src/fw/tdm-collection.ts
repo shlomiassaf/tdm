@@ -44,7 +44,7 @@ export class TDMCollection<T /* extends ActiveRecord<any, any> */> extends Array
   }
 
   static instanceOf(instance: any): instance is TDMCollection<any> {
-    return instance.hasOwnProperty(TDMCollectionMark);
+    return instance[TDMCollectionMark] === true;
   }
 
   /**

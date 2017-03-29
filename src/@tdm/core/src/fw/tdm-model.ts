@@ -16,7 +16,7 @@ export class TDMModelBase<T> implements TDMModel<T> {
 
 
   static instanceOf(instance: any): instance is TDMModelBase<any> {
-    return instance.hasOwnProperty(TDMModelMark);
+    return instance[TDMModelMark] === true;
   }
 
   static factory<T, Z>(model: Z & Constructor<T>): Z & Constructor<TDMModelBase<T>> {
