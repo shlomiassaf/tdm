@@ -1,6 +1,6 @@
 {
   "name": "@tdm/json-api-mapper",
-  "version": "1.0.0-alpha.11",
+  "version": "1.0.0-alpha.12",
   "description": "Typed data models (@tdm) json api mapper",
   "main": "bundle/tdm.json-api-mapper.umd.js",
   "module": "index.js",

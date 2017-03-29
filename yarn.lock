@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@angular/common@^2.4.7":
-  version "2.4.7"
-  resolved "https://registry.yarnpkg.com/@angular/common/-/common-2.4.7.tgz#9316daf90e353e67187d2e0afec5521c2001bd4b"
+"@angular/common@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@angular/common/-/common-4.0.0.tgz#ca18983222fdab4ecaa7a8b99eda6ff661e6dc92"
 
 "@angular/compiler-cli@^2.4.7":
   version "2.4.7"
@@ -14,47 +14,48 @@
     minimist "^1.2.0"
     reflect-metadata "^0.1.2"
 
-"@angular/compiler@^2.4.7":
-  version "2.4.7"
-  resolved "https://registry.yarnpkg.com/@angular/compiler/-/compiler-2.4.7.tgz#008c1f0d1409c46fbba215fe8ab0d886252c7ff0"
+"@angular/compiler@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@angular/compiler/-/compiler-4.0.0.tgz#e1aa061a6f8ef269f9748af1a7bc290f9d37ed6c"
 
-"@angular/core@^2.4.7":
-  version "2.4.7"
-  resolved "https://registry.yarnpkg.com/@angular/core/-/core-2.4.7.tgz#8bed9a2d37e81342bd41d189df88aa3e02393cfb"
+"@angular/core@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@angular/core/-/core-4.0.0.tgz#fd877e074b29dfa9c63b96a21995fc7556d423a3"
 
 "@angular/flex-layout@^2.0.0-rc.1":
   version "2.0.0-rc.1"
   resolved "https://registry.yarnpkg.com/@angular/flex-layout/-/flex-layout-2.0.0-rc.1.tgz#96fa7f85b2c4bacf2784913a2d607e2ed23dc7f1"
 
-"@angular/forms@^2.4.7":
-  version "2.4.7"
-  resolved "https://registry.yarnpkg.com/@angular/forms/-/forms-2.4.7.tgz#d34a36110e10f641aa1e1420b5c2df65987fd8bb"
+"@angular/forms@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@angular/forms/-/forms-4.0.0.tgz#03163047a2e84af42106270da2e1f47ab0fafc37"
 
-"@angular/http@^2.4.7":
-  version "2.4.7"
-  resolved "https://registry.yarnpkg.com/@angular/http/-/http-2.4.7.tgz#b024b2b49ae0234258d42309e46f65862a42070d"
+"@angular/http@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@angular/http/-/http-4.0.0.tgz#45a538eac42a0b13f3744c7e8bafeb17d58da31c"
 
 "@angular/material@^2.0.0-beta.2":
   version "2.0.0-beta.2"
   resolved "https://registry.yarnpkg.com/@angular/material/-/material-2.0.0-beta.2.tgz#65ee8733990347b7518b7f42113e02e069dc109b"
 
-"@angular/platform-browser-dynamic@^2.4.7":
-  version "2.4.7"
-  resolved "https://registry.yarnpkg.com/@angular/platform-browser-dynamic/-/platform-browser-dynamic-2.4.7.tgz#9632586f9ce596186be4c124c3ea0a4a74b27b46"
+"@angular/platform-browser-dynamic@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@angular/platform-browser-dynamic/-/platform-browser-dynamic-4.0.0.tgz#d1d9de80fe1e02735be89f512e0faf5a80d57fa5"
 
-"@angular/platform-browser@^2.4.7":
-  version "2.4.7"
-  resolved "https://registry.yarnpkg.com/@angular/platform-browser/-/platform-browser-2.4.7.tgz#19f7996a70f07b34ce8d6d0e255544e62cae75f1"
+"@angular/platform-browser@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@angular/platform-browser/-/platform-browser-4.0.0.tgz#512ae9ab19ccc25fa79027f44e291bcee236cd2b"
 
-"@angular/platform-server@^2.4.7":
-  version "2.4.7"
-  resolved "https://registry.yarnpkg.com/@angular/platform-server/-/platform-server-2.4.7.tgz#e2a9f283b4eb25b967ab085c83350c0a08927617"
+"@angular/platform-server@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@angular/platform-server/-/platform-server-4.0.0.tgz#d76d61787cd3be3ce8ed46043d6a8c82572f567d"
   dependencies:
-    parse5 "^2.2.1"
+    parse5 "^3.0.1"
+    xhr2 "^0.1.4"
 
-"@angular/router@^3.4.7":
-  version "3.4.7"
-  resolved "https://registry.yarnpkg.com/@angular/router/-/router-3.4.7.tgz#e9583eed5a1d50cc1628b2526244555444a746b8"
+"@angular/router@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@angular/router/-/router-4.0.0.tgz#f4a2dc83b44e023db1d6f2c12ca5a37a22c66afc"
 
 "@angular/tsc-wrapped@0.5.2":
   version "0.5.2"
@@ -78,9 +79,9 @@
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/@angularclass/hmr/-/hmr-1.2.2.tgz#46a18f89a1e94d05c268b83c9480e005f73fc265"
 
-"@swimlane/ngx-datatable@6.3.0":
-  version "6.3.0"
-  resolved "https://registry.yarnpkg.com/@swimlane/ngx-datatable/-/ngx-datatable-6.3.0.tgz#2a512b360c3e9309af8d64ee7b2cefc8c9dda53c"
+"@swimlane/ngx-datatable@^7.1.1":
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/@swimlane/ngx-datatable/-/ngx-datatable-7.1.1.tgz#b1bc46582609efde3e95b53131b0fb8cd741b9c7"
 
 "@types/deep-equal@^0.0.30":
   version "0.0.30"
@@ -3973,10 +3974,6 @@ parse-json@^2.1.0, parse-json@^2.2.0:
   dependencies:
     error-ex "^1.2.0"
 
-parse5@^2.2.1:
-  version "2.2.3"
-  resolved "https://registry.yarnpkg.com/parse5/-/parse5-2.2.3.tgz#0c4fc41c1000c5e6b93d48b03f8083837834e9f6"
-
 parse5@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/parse5/-/parse5-3.0.1.tgz#f59ceae1e0c74d0b1f6e51ca317c054cab484f79"
@@ -6013,6 +6010,10 @@ xdg-basedir@^2.0.0:
   resolved "https://registry.yarnpkg.com/xdg-basedir/-/xdg-basedir-2.0.0.tgz#edbc903cc385fc04523d966a335504b5504d1bd2"
   dependencies:
     os-homedir "^1.0.0"
+
+xhr2@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/xhr2/-/xhr2-0.1.4.tgz#7f87658847716db5026323812f818cadab387a5f"
 
 xml-char-classes@^1.0.0:
   version "1.0.0"
