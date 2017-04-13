@@ -1,4 +1,4 @@
-import { RestMixin, HttpResource } from '@tdm/angular-http';
+import { ARMixin, HttpResource } from '@tdm/angular-http';
 
 class User_ {
   id: number;
@@ -9,7 +9,7 @@ class User_ {
 @HttpResource({
   endpoint: '/api/users/:id?'
 })
-class User extends RestMixin(User_) { }
+class User extends ARMixin(User_) { }
 
 
 describe('NG-HTTP', () => {

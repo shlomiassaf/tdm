@@ -17,15 +17,15 @@ export interface ResourceMetadataArgs extends TransformableMetadataArgs {
    * **Registering the mixin INSIDE the class declaration (noBuild: false, or don't declare it):**
    * ```ts
    * @HttpResource({ endpoint: '/api/users/:id?' })
-   * export class UserBaseClass extends RestMixin(User_) { }
+   * export class UserBaseClass extends ARMixin(User_) { }
    *
    * **Registering the mixin OUTSIDE the class declaration (noBuild: true):**
    * ```ts
    * @HttpResource({ endpoint: '/api/users/:id?' })
    * export class UserConst_) { }
    *
-   * export const UserConst = RestMixin(UserConst_);
-   * export type UserConst = RestMixin<UserConst_>;
+   * export const UserConst = ARMixin(UserConst_);
+   * export type UserConst = ARMixin<UserConst_>;
    * ```
    *
    * @optional

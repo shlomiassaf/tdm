@@ -11,7 +11,7 @@ import {
 import { TestBed, async, fakeAsync, tick, inject } from '@angular/core/testing';
 import { MockBackend, MockConnection } from '@angular/http/testing';
 
-import { RestMixin, HttpResource, HttpAction, UrlParam, HttpResourceModule, HttpActionMethodType } from '@tdm/angular-http';
+import { ARMixin, HttpResource, HttpAction, UrlParam, HttpResourceModule, HttpActionMethodType } from '@tdm/angular-http';
 import { bucketFactory } from '@tdm/core/testing';
 
 describe('NG-HTTP', () => {
@@ -23,7 +23,7 @@ describe('NG-HTTP', () => {
       @HttpResource({
         endpoint: '/api/users/:id?'
       })
-      class User extends RestMixin(class { id: number; }) { }
+      class User extends ARMixin(class { id: number; }) { }
 
       let event;
       new User().$refresh().$ar.events$.first().subscribe( e => event = e, null, () => {
@@ -64,7 +64,7 @@ describe('NG-HTTP', () => {
           endpoint: '/api/users/',
           trailingSlashes: 'strip'
         })
-        class User extends RestMixin(class { id: number; }) { }
+        class User extends ARMixin(class { id: number; }) { }
 
         mockBackend.connections.subscribe( conn => {
           expect(conn.request.url).toBe('/api/users');
@@ -79,7 +79,7 @@ describe('NG-HTTP', () => {
           endpoint: '/api/users',
           trailingSlashes: 'force'
         })
-        class User extends RestMixin(class { id: number; }) { }
+        class User extends ARMixin(class { id: number; }) { }
 
         mockBackend.connections.subscribe( conn => {
           expect(conn.request.url).toBe('/api/users/');
@@ -94,7 +94,7 @@ describe('NG-HTTP', () => {
           endpoint: '/api/users/:id/:param',
           urlParams: { param: '99' }
         })
-        class User extends RestMixin(class { id: number; }) { }
+        class User extends ARMixin(class { id: number; }) { }
 
         mockBackend.connections.subscribe( conn => {
           expect(conn.request.url).toBe('/api/users/15/99');
@@ -109,7 +109,7 @@ describe('NG-HTTP', () => {
         @HttpResource({
           endpoint: '/api/users'
         })
-        class User extends RestMixin(class { id: number; }) { }
+        class User extends ARMixin(class { id: number; }) { }
 
         mockBackend.connections.subscribe( conn => {
           expect(conn.request.url).toBe('/api/users');
@@ -124,7 +124,7 @@ describe('NG-HTTP', () => {
         @HttpResource({
           endpoint: '/api/users/:id'
         })
-        class User extends RestMixin(class { id: number; }) { }
+        class User extends ARMixin(class { id: number; }) { }
 
         const EVENTS = ['ActionStart', 'ActionError'];
 
@@ -150,7 +150,7 @@ describe('NG-HTTP', () => {
           endpoint: '/api/users/:id/:param',
           urlParams: { param: '15' }
         })
-        class User extends RestMixin(User_) { }
+        class User extends ARMixin(User_) { }
 
         mockBackend.connections.subscribe( conn => {
           expect(conn.request.url).toBe('/api/users/15/99');
@@ -179,7 +179,7 @@ describe('NG-HTTP', () => {
         @HttpResource({
           endpoint: '/api/users/:id/:myId/:myId2'
         })
-        class User extends RestMixin(User_) { }
+        class User extends ARMixin(User_) { }
 
         mockBackend.connections.subscribe( conn => {
           const [path, qs] = conn.request.url.split('?');
@@ -237,7 +237,7 @@ describe('NG-HTTP', () => {
             myId: '5'
           }
         })
-        class User extends RestMixin(User_) { }
+        class User extends ARMixin(User_) { }
 
         mockBackend.connections.subscribe( conn => {
           const [path, qs] = conn.request.url.split('?');
@@ -264,7 +264,7 @@ describe('NG-HTTP', () => {
         @HttpResource({
           endpoint: '/api/users'
         })
-        class User extends RestMixin(User_) { }
+        class User extends ARMixin(User_) { }
 
         mockBackend.connections.subscribe( conn => {
           const qs = conn.request.url.split('?')[1];
@@ -293,7 +293,7 @@ describe('NG-HTTP', () => {
             qs2: 'param2',
           }
         })
-        class User extends RestMixin(User_) { }
+        class User extends ARMixin(User_) { }
 
         mockBackend.connections.subscribe( conn => {
           const qs = conn.request.url.split('?')[1];

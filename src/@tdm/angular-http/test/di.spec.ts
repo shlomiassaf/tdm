@@ -2,7 +2,7 @@ import 'rxjs';
 import { Injectable, Injector } from '@angular/core';
 
 import { TestBed, async, inject,  } from '@angular/core/testing';
-import { RestMixin, HttpResource } from '@tdm/angular-http';
+import { ARMixin, HttpResource } from '@tdm/angular-http';
 
 describe('NG-HTTP', () => {
   describe('Angular integration', () => {
@@ -21,8 +21,8 @@ describe('NG-HTTP', () => {
       }
       id: number;
     }
-    const User = RestMixin(User_);
-    type User = RestMixin<User_>;
+    const User = ARMixin(User_);
+    type User = ARMixin<User_>;
 
     beforeEach(() => {
       TestBed.configureTestingModule({
