@@ -1,9 +1,7 @@
 import '@tdm/core/add/resource-control'
-import { MockMixin, MockResource, MockDeserializer, bucketFactory } from '@tdm/core/testing';
+import { MockMixin, MockResource, bucketFactory } from '@tdm/core/testing';
 import { Prop, validators } from '@tdm/core';
 
-
-const localMockDeserializer = new MockDeserializer();
 
 describe('CORE', () => {
   describe('Core Validators', () => {
@@ -44,8 +42,7 @@ describe('CORE', () => {
       }
 
       @MockResource({
-        endpoint: '/api/users/:id?',
-        deserializer: () => localMockDeserializer
+        endpoint: '/api/users/:id?'
       })
       class User extends MockMixin(User_) { }
 
@@ -94,8 +91,7 @@ describe('CORE', () => {
       }
 
       @MockResource({
-        endpoint: '/api/users/:id?',
-        deserializer: () => localMockDeserializer
+        endpoint: '/api/users/:id?'
       })
       class User extends MockMixin(User_) { }
 

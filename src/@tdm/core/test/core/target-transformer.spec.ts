@@ -1,11 +1,9 @@
 import 'rxjs';
 import * as voca from 'voca';
 
-import { MockMixin, MockResource, MockDeserializer, bucketFactory } from '@tdm/core/testing';
+import { MockMixin, MockResource, bucketFactory } from '@tdm/core/testing';
 import { Prop, Resource } from '@tdm/core';
 
-
-const localMockDeserializer = new MockDeserializer();
 
 describe('CORE', () => {
   describe('Target Transformer', () => {
@@ -30,8 +28,7 @@ describe('CORE', () => {
       }
 
       @MockResource({
-        endpoint: '/api/users/:id?',
-        deserializer: () => localMockDeserializer
+        endpoint: '/api/users/:id?'
       })
       class User extends MockMixin(User_) { }
 
@@ -76,8 +73,7 @@ describe('CORE', () => {
         }
       })
       @MockResource({
-        endpoint: '/api/users/:id?',
-        deserializer: () => localMockDeserializer
+        endpoint: '/api/users/:id?'
       })
       class User extends MockMixin(class {}) { }
 

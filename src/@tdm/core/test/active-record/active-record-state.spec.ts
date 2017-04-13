@@ -1,12 +1,10 @@
 import 'rxjs';
 import '@tdm/core/add/resource-control';
-import { MockMixin, MockResource, MockDeserializer, bucketFactory } from '@tdm/core/testing';
+import { MockMixin, MockResource, bucketFactory } from '@tdm/core/testing';
 import { ActiveRecord, ActionEndResourceEvent, ResourceEvent, ResourceEventType } from "@tdm/core";
 import { ARMethods,  } from '@tdm/core/active-record';
 import { MockActionOptions } from "@tdm/core/testing";
 import { ActionErrorResourceEvent } from '@tdm/core/active-record/active-record-events';
-
-const localMockDeserializer = new MockDeserializer();
 
 class User_ {
   id: number;
@@ -14,8 +12,7 @@ class User_ {
 }
 
 @MockResource({
-  endpoint: '/api/users/:id?',
-  deserializer: () => localMockDeserializer
+  endpoint: '/api/users/:id?'
 })
 class User extends MockMixin(User_) { }
 
@@ -303,8 +300,7 @@ describe('CORE', () => {
 
     it('should emit busy$', (done) => {
       @MockResource({
-        endpoint: '/api/users/:id?',
-        deserializer: () => localMockDeserializer,
+        endpoint: '/api/users/:id?'
       })
       class User extends MockMixin(class {}) { }
       const user = bucket.create(User);
@@ -439,8 +435,7 @@ describe('CORE', () => {
 
     it('should disconnect', (done) => {
       @MockResource({
-        endpoint: '/api/users/:id?',
-        deserializer: () => localMockDeserializer,
+        endpoint: '/api/users/:id?'
       })
       class User extends MockMixin(class {}) { }
       const user = bucket.create(User);
@@ -462,8 +457,7 @@ describe('CORE', () => {
 
     it('should allow reconnect to busy$ after disconnect', (done) => {
       @MockResource({
-        endpoint: '/api/users/:id?',
-        deserializer: () => localMockDeserializer,
+        endpoint: '/api/users/:id?'
       })
       class User extends MockMixin(class {}) { }
       const user = bucket.create(User);

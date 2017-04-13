@@ -1,8 +1,6 @@
 import { targetStore } from '@tdm/transformation';
-import { MockMixin, MockResource, MockDeserializer, MockActionOptions, bucketFactory } from '@tdm/core/testing';
+import { MockMixin, MockResource, MockActionOptions, bucketFactory } from '@tdm/core/testing';
 import { ActiveRecord, Constructor, Prop, Resource } from '@tdm/core';
-
-const localMockDeserializer = new MockDeserializer();
 
 describe('CORE', () => {
   describe('Decorator Factories', () => {
@@ -18,7 +16,6 @@ describe('CORE', () => {
     it('should register resource using const/type (no inheritance)', (done) => {
       @MockResource({
         endpoint: '/api/users/:id?',
-        deserializer: () => localMockDeserializer,
         noBuild: true
       })
       class User_ {
@@ -53,8 +50,7 @@ describe('CORE', () => {
       }
 
       @MockResource({
-        endpoint: '/api/users/:id?',
-        deserializer: () => localMockDeserializer
+        endpoint: '/api/users/:id?'
       })
       class User extends MockMixin<IUser, IUserStatic>() {
         name: string;
@@ -83,8 +79,7 @@ describe('CORE', () => {
       }
 
       @MockResource({
-        endpoint: '/api/users/:id?',
-        deserializer: () => localMockDeserializer
+        endpoint: '/api/users/:id?'
       })
       class User extends MockMixin(User_) { }
 
@@ -108,8 +103,7 @@ describe('CORE', () => {
         name: 'TestUser'
       })
       @MockResource({
-        endpoint: '/api/users/:id?',
-        deserializer: () => localMockDeserializer
+        endpoint: '/api/users/:id?'
       })
       class User extends MockMixin(User_) { }
 

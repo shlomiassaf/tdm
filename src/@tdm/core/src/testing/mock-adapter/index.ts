@@ -23,4 +23,3 @@ targetStore.registerAdapter(MockAdapter, {
 
 
 export { MockMixin } from './mixin-factory';
-export * from './mock-deserializer';

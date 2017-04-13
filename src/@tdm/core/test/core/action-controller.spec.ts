@@ -1,9 +1,7 @@
 import 'rxjs';
 import '@tdm/core/add/resource-control'
-import { MockMixin, MockResource, MockActionOptions, MockAction, MockDeserializer, bucketFactory } from '@tdm/core/testing';
+import { MockMixin, MockResource, MockActionOptions, MockAction, bucketFactory } from '@tdm/core/testing';
 import { Hook, TDMCollection, ActionMethodType, ExecuteResponse } from '@tdm/core';
-
-const localMockDeserializer = new MockDeserializer();
 
 class User_ {
   id: number;
@@ -17,10 +15,7 @@ class User_ {
 
   @MockAction({
     method: ActionMethodType.READ,
-    raw: {
-      handler: User_.prototype.rawDeserializedHandler,
-      deserialize: true
-    }
+    post: User_.prototype.rawDeserializedHandler
   })
   rawDeserialized: (options?: MockActionOptions) => MockMixin<User_>;
   rawDeserializedHandler(resp: ExecuteResponse, options?: MockActionOptions) {
@@ -28,7 +23,10 @@ class User_ {
 
   @MockAction({
     method: ActionMethodType.READ,
-    raw: User_.prototype.rawHandler
+    post: {
+      handler: User_.prototype.rawHandler,
+      skipDeserialize: true
+    }
   })
   raw: (options?: MockActionOptions) => MockMixin<User_>;
   rawHandler(resp: ExecuteResponse, options?: MockActionOptions) {
@@ -44,8 +42,7 @@ class User_ {
 }
 
 @MockResource({
-  endpoint: '/api/users/:id?',
-  deserializer: () => localMockDeserializer
+  endpoint: '/api/users/:id?'
 })
 class User extends MockMixin(User_) { }
 
