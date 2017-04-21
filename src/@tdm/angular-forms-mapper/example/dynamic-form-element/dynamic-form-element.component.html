@@ -1,0 +1,27 @@
+<ng-container [formGroup]="parent" [ngSwitch]="item.type">
+  <md-checkbox *ngSwitchCase="'boolean'"
+               [formControlName]="item.name">{{ item.label }}</md-checkbox>
+
+  <md-slide-toggle *ngSwitchCase="'slideToggle'"
+                   [formControlName]="item.name">{{ item.label }}</md-slide-toggle>
+
+
+  <md-input-container *ngSwitchCase="'number'">
+    <input type="number" [formControlName]="item.name" mdInput [placeholder]="item.label">
+  </md-input-container>
+
+  <md-slider *ngSwitchCase="'slider'" [formControlName]="item.name" [min]="item.min" [max]="item.max">{{item.label}}</md-slider>
+
+
+  <md-input-container *ngSwitchCase="'text'">
+    <input type="text" [formControlName]="item.name" mdInput [placeholder]="item.label">
+  </md-input-container>
+
+  <md-input-container *ngSwitchCase="'password'">
+    <input type="password" [formControlName]="item.name" mdInput [placeholder]="item.label">
+  </md-input-container>
+
+  <md-input-container *ngSwitchCase="'textarea'">
+    <input type="textarea" [formControlName]="item.name" mdInput [placeholder]="item.label">
+  </md-input-container>
+</ng-container>

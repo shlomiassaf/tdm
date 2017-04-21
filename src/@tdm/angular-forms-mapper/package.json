@@ -1,6 +1,6 @@
 {
   "name": "@tdm/angular-forms-mapper",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "description": "Typed data models (@tdm) angular mapper.",
   "main": "bundle/tdm.angular-forms-mapper.umd.js",
   "module": "index.js",

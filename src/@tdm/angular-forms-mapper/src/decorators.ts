@@ -18,10 +18,14 @@ import {
 } from '@tdm/transformation';
 import '@tdm/core';
 
+import { RenderDef } from './tdm-model-form';
+
 export interface FormModelMetadataArgs {
   validator?: ValidatorFn;
   asyncValidator?: AsyncValidatorFn;
 }
+
+
 
 export interface FormPropMetadataArgs {
   /**
@@ -41,6 +45,15 @@ export interface FormPropMetadataArgs {
    */
   transform?: (value: any) => any;
 
+  /**
+   * Definition for element rendering.
+   * Set this if you want your models to automatically render into forms.
+   */
+  render?: RenderDef;
+
+  /**
+   * The default value
+   */
   defaultValue?: any;
 
   validators?: ValidatorFn | Array<ValidatorFn>;
@@ -58,9 +71,23 @@ export class FormModelMetadata {
   }
 
   addProp(prop: PropMetadata, metaArgs: FormPropMetadata) {
-    if (!metaArgs.exclude) {
-      this.props.set(prop.name as any, metaArgs);
+    if (!metaArgs.exclude && !metaArgs.render.type) {
+      switch (prop.type) {
+        case Boolean:
+          metaArgs.render.type = 'boolean';
+          break;
+        case String:
+          metaArgs.render.type = 'text';
+          break;
+        case Number:
+          metaArgs.render.type = 'number';
+          break;
+        default:
+          // TODO: throw an informative error
+          throw new Error('Invalid form type or type not set.');
+      }
     }
+    this.props.set(prop.name as any, metaArgs);
   }
 
   getProp(propertyKey: string): FormPropMetadata | undefined {
@@ -83,8 +110,9 @@ export class FormModelMetadata {
 
 export class FormPropMetadata extends BaseMetadata {
   transform: (value: any) => any;
-  defaultValue: any;
   exclude: boolean;
+  defaultValue: any;
+  render: RenderDef;
   validators: Array<ValidatorFn> | null;
   asyncValidators: Array<AsyncValidatorFn> | null;
 
@@ -92,10 +120,11 @@ export class FormPropMetadata extends BaseMetadata {
     super(info);
     if (metaArgs) {
       this.transform = metaArgs.transform;
-      this.defaultValue = metaArgs.defaultValue;
       this.exclude = metaArgs.exclude;
+      this.defaultValue = metaArgs.defaultValue;
       this.validators = this.normValidators(metaArgs.validators);
       this.asyncValidators = this.normValidators(metaArgs.asyncValidators);
+      this.render = !this.exclude && metaArgs.render ? metaArgs.render : {};
     }
   }
 
