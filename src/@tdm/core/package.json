@@ -1,6 +1,6 @@
 {
   "name": "@tdm/core",
-  "version": "1.0.0-alpha.14",
+  "version": "1.0.0-alpha.15",
   "description": "Typed data models (@tdm) core library",
   "main": "bundle/tdm.core.umd.js",
   "module": "index.js",
