@@ -83,13 +83,20 @@ export class TDMModelForm<T> {
 
   /**
    * Commit the form data into the model instance. (deserialize)
+   *
+   * Note that the response might be true even if the form was not dirty.
+   * The response is always true when onlyIfDirty === false.
+   * If onlyIfDirty is true and the form is NOT dirty, only then the response is false.
+   *
    * @param onlyIfDirty if true will commit only if the form is dirty
+   * @returns {boolean} Did it commit (deserialize)
    */
-  commitToModel(onlyIfDirty?: boolean): void {
+  commitToModel(onlyIfDirty?: boolean): boolean {
     if (onlyIfDirty === true && !this.form.dirty) {
-      return;
+      return false;
     }
     this.mapper.deserialize();
+    return true;
   }
 
   protected update(): void {
