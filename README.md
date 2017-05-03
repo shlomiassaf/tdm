@@ -1,7 +1,43 @@
 # TDM - Typed data models
 
-Data access object library for TypeScript, highly extensible, super typed.
+A TypeScript transformation framework. Highly extensible, super typed.
 
+Given a data structure, instructions and some logic we can do a lot.  
+Transform an object into an http request and and incoming payload into an object or maybe a model into a form?
+
+Transformation can be cosmetic or even 1:1 but can also completely change the way an object looks like.  
+
+TDM is is a collection of libraries that use Models, Meta-Programming and adapters to abstract away mundane by natively describing schematic rules that translate into operations. 
+
+
+```ts
+@Exclude()
+export class MyModel {
+ 
+  @Identity()
+  @Prop()
+  id: number;
+  
+  @Prop()
+  name: string;
+}
+```
+
+In words, the code above says:  
+There is a `data structure / Model` called **MyModel** that has 2 properties: `id` and `name`.  
+**MyModel** is strict (`@Exclude`) so only selected properties can play the transformation game.  
+The property **id** is also the identity (`@Identity()`).  
+
+Reviewing the opening statement:  
+> Given a data structure, instructions and some logic we can do a lot.  
+ 
+Our `data structure / Model` is the class.
+The `instructions / Meta-Programming` are part of the model defined via decorators.  
+
+We can now use logic units (adapters) to transform the model.  
+We can change the logic units or build custom logic.  
+We can extends the required instructions to supports more complex logic units.
+ 
 TDM is built on top of the low level libraries `@tdm/tixin`, `tdm/transformation`, `@tdm/core`.  
 
 TDM relays on adapters, currently the only adapter is for Angular 2.
@@ -36,7 +72,7 @@ Create custom mappers by implementing the required interface.
 `@tdm/transformation` comes with basic relationship (`@Relation`) support.
  
 ### @tdm/core
-Core library, extends `@tdm/transformation`  and the active record pattern.
+Core library, extends `@tdm/transformation`.
 `@tdm/core` comes with a lot of features...
 
   - Customizable Action based commands
@@ -47,7 +83,7 @@ Core library, extends `@tdm/transformation`  and the active record pattern.
   - Adapter architecture
   - Event stream (using observables)
   - DAO pattern
-  - Active records pattern with full Type support. (need to opt in)
+  - Active records pattern with full Type support. (plugin, need to opt in)
   - more..
 
 ### @tdm/angular-forms-mapper (name might change)

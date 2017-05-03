@@ -79,7 +79,11 @@ class CoreTargetMetadata extends TargetMetadata {
     fireEvents('onBuildMetadata', this.target);
   }
 
-  private createCollection() {
+  /**
+   * Create a new instance of the TDMCollection for this type.
+   * @returns {TDMCollection}
+   */
+  createCollection(): TDMCollection<any> {
     return this.collectionClass
       ? new this.collectionClass()
       : new TDMCollection()
@@ -138,6 +142,8 @@ declare module '@tdm/transformation/metadata/target-metadata' {
      * Returns the  action controller of an adapter on this target.
      */
     getAC(adapterClass: AdapterStatic<any, any>, create?: boolean): ActionController | undefined;
+
+    createCollection(): TDMCollection<any>;
 
     getExtendingAction(info: DecoratorInfo): ExtendActionMetadata | undefined;
 

@@ -1,5 +1,5 @@
 import { Tixin } from '@tdm/tixin';
-import { Constructor } from '@tdm/transformation';
+import { Constructor, targetStore } from '@tdm/transformation';
 
 const TDMCollectionMark = Symbol('TDMCollection instance mark');
 const NON_EXTENDABLE_PROPS = ['constructor'];
@@ -45,6 +45,20 @@ export class TDMCollection<T /* extends ActiveRecord<any, any> */> extends Array
 
   static instanceOf(instance: any): instance is TDMCollection<any> {
     return instance[TDMCollectionMark] === true;
+  }
+
+  /**
+   * Creates a new instance of TDMCollection.
+   * If a type is specified, returns the TDMCollection class for that type.
+   * It is recommended to use this method along with a type to ensure plugins functionality.
+   * @param type
+   */
+  static create<T>(type?: Constructor<T>): TDMCollection<T> {
+    if (!type) {
+      return new TDMCollection<any>();
+    } else {
+      targetStore.getTargetMeta(type).createCollection();
+    }
   }
 
   /**
