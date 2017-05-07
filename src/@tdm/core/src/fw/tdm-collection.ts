@@ -57,7 +57,7 @@ export class TDMCollection<T /* extends ActiveRecord<any, any> */> extends Array
     if (!type) {
       return new TDMCollection<any>();
     } else {
-      targetStore.getTargetMeta(type).createCollection();
+      return targetStore.getTargetMeta(type).createCollection();
     }
   }
 
