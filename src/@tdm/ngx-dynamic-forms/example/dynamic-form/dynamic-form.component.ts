@@ -1,10 +1,10 @@
 import { Component, Input } from '@angular/core';
 import { Constructor } from '@tdm/transformation';
-import { TDMModelForm, TDMModelFormService } from '@tdm/angular-forms-mapper';
+import { TDMModelForm, TDMModelFormService } from '@tdm/ngx-dynamic-forms';
 
 
 /**
- * Allow rendering a form using @tdm/angular-forms-mapper and DynamicFormElementComponent
+ * Allow rendering a form using @tdm/ngx-dynamic-forms and DynamicFormElementComponent
  *
  * <form [formGroup]="tdmForm.form" novalidate>
  *   <div *ngFor="let item of tdmForm.props; trackBy: tdmForm.trackBy" class="row">

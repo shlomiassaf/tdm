@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
-import { RenderInstruction, TDMModelForm, DynamicFormControlRenderer } from '@tdm/angular-forms-mapper';
+import { RenderInstruction, TDMModelForm, DynamicFormControlRenderer } from '@tdm/ngx-dynamic-forms';
 
 /**
- * Allow rendering a form element using @tdm/angular-forms-mapper
+ * Allow rendering a form element using @tdm/ngx-dynamic-forms
  *
  * <div #tdmForm="tdmModelForm" [tdmModelForm]="user">
  *   <form [formGroup]="tdmForm.form" novalidate>

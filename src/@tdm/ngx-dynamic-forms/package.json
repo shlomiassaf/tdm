@@ -1,8 +1,8 @@
 {
-  "name": "@tdm/angular-forms-mapper",
-  "version": "1.0.0-alpha.5",
+  "name": "@tdm/ngx-dynamic-forms",
+  "version": "1.0.0-alpha.1",
   "description": "Dynamic forms using Typed data models (@tdm).",
-  "main": "bundle/tdm.angular-forms-mapper.umd.js",
+  "main": "bundle/tdm.ngx-dynamic-forms.umd.js",
   "module": "index.js",
   "typings": "index.d.ts",
   "keywords": [

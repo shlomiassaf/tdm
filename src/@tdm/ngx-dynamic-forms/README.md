@@ -1,4 +1,4 @@
-# @tdm/angular-forms-mapper
+# @tdm/ngx-dynamic-forms
 
 Transform models into angular forms. 
 
@@ -21,7 +21,7 @@ Provides a mapper to transform a model into a form and vice versa, based on the 
  
 ```ts
 import { Prop, Exclude, Identity } from '@tdm/core';
-import { FormModel, FormProp } from '@tdm/angular-forms-mapper';
+import { FormModel, FormProp } from '@tdm/ngx-dynamic-forms';
 import { Validators } from '@angular/forms';
 
 
@@ -59,7 +59,7 @@ export class Pet {
 In your component:
 
 ```ts
-  import { NgFormsBoundMapper } from '@tdm/angular-forms-mapper';
+  import { NgFormsBoundMapper } from '@tdm/ngx-dynamic-forms';
 
   const user = new User();
   user.pets = [new Pet()];
@@ -88,7 +88,7 @@ A set of components and directives that support dynamic form creates based on a 
 
 The library is UI agnostic, same as `@angular/forms`, it provide tools and logic but not UI controls.  
 
-`@tdm/angular-forms-mapper` comes with built-in metadata helpers that provides the ability to create dynamic forms based on a model.
+`@tdm/ngx-dynamic-forms` comes with built-in metadata helpers that provides the ability to create dynamic forms based on a model.
 
 Note that the library does not provide a complete Form rendering component  
 This is by design since form elements are UI elements, each application requires different elements/styles.  
@@ -96,7 +96,7 @@ For example, one application might use the material design component library whi
 
 Instead, TDMModelForm exposes the metadata required to dynamically create forms as a template friendly api.  
 
-While element types supplied with `@tdm/angular-forms-mapper` are minimal new types can be added.
+While element types supplied with `@tdm/ngx-dynamic-forms` are minimal new types can be added.
 Each type (existing and added types) must be handled by the application.
  
 The common best practice is to create a dynamic element component that use's metadata to render an element.  
@@ -110,4 +110,4 @@ Additionally, a custom top-level form component can be used so creating a form s
 
 In most cases, you will use these components to render forms but you can still render them manually.
 
-See [the example directory](https://github.com/shlomiassaf/tdm/tree/master/src/%40tdm/angular-forms-mapper/example/README.md) for creating the above components, extending types and consuming it all.
+See [the example directory](https://github.com/shlomiassaf/tdm/tree/master/src/%40tdm/ngx-dynamic-forms/example/README.md) for creating the above components, extending types and consuming it all.

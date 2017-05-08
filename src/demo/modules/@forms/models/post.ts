@@ -1,5 +1,5 @@
 import { Prop, BelongsTo, Identity, Resource } from '@tdm/core';
-import { FormModel, FormProp } from '@tdm/angular-forms-mapper';
+import { FormModel, FormProp } from '@tdm/ngx-dynamic-forms';
 
 import { User } from './user';
 

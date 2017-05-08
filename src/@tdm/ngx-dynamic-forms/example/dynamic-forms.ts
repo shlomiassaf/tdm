@@ -1,9 +1,9 @@
-import { FormElementType } from '@tdm/angular-forms-mapper';
+import { FormElementType } from '@tdm/ngx-dynamic-forms';
 
 /*
   Adding custom types
  */
-declare module '@tdm/angular-forms-mapper/tdm-model-form/tdm-model-form.service' {
+declare module '@tdm/ngx-dynamic-forms/tdm-model-form/tdm-model-form.service' {
   interface FormElementType {
     password: 'password',
     slider: 'slider',
