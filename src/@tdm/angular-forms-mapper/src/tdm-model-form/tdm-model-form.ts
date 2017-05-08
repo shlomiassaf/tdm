@@ -1,6 +1,7 @@
+import { Type } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
-import { Constructor, targetStore } from '@tdm/transformation';
+import { targetStore } from '@tdm/transformation';
 
 import { NgFormsBoundMapper } from '../ng-forms-bound-mapper';
 import { FormModelMetadata } from '../decorators';
@@ -18,7 +19,7 @@ export class TDMModelForm<T> {
     return this._model;
   }
 
-  get type(): Constructor<T> {
+  get type(): Type<T> {
     return this._type;
   }
 
@@ -36,7 +37,7 @@ export class TDMModelForm<T> {
 
   private mapper: NgFormsBoundMapper<any>;
   private formMeta: FormModelMetadata;
-  private _type: Constructor<T>;
+  private _type: Type<T>;
   private _model: T;
   private _ready: boolean;
 
@@ -47,7 +48,7 @@ export class TDMModelForm<T> {
    * @param instance The TDModel instance
    * @param type The TDModel class, if not set instance.constructor is the default.
    */
-  setContext(instance: T, type?: Constructor<T>) {
+  setContext(instance: T, type?: Type<T>) {
     if (!type) {
       type = <any>instance.constructor;
     }

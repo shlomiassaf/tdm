@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { targetStore, PropMetadata, Constructor } from '@tdm/transformation';
+import { Injectable, Type } from '@angular/core';
+import { targetStore, PropMetadata } from '@tdm/transformation';
 import { TDMModelForm } from './tdm-model-form';
 
 export interface FormElementType {
@@ -50,8 +50,7 @@ export interface RenderDef {
   required?: boolean;
   min?: any;
   max?: any;
-  selections?: any[];
-
+  selections?: {value: any; label?: string;}[];
 }
 
 export interface RenderInstruction extends RenderDef {
@@ -79,7 +78,7 @@ export class TDMModelFormService {
       .filter( v => !!v);
   }
 
-  create<T>(instance: T, type?: Constructor<T>): TDMModelForm<T> {
+  create<T>(instance: T, type?: Type<T>): TDMModelForm<T> {
     const tdmModelForm = new TDMModelForm<T>(this);
     tdmModelForm.setContext(instance, type);
     return tdmModelForm;

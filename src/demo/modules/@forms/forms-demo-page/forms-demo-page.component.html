@@ -1,0 +1,38 @@
+<div>
+  <div>
+
+    <button md-mini-fab (click)="addUser()"><md-icon>add</md-icon></button>
+    <ngx-datatable
+            class="material"
+            [rows]="users"
+            [columns]="userColumns"
+            [columnMode]="'force'"
+            [headerHeight]="50"
+            [footerHeight]="50"
+            [rowHeight]="'auto'">
+    </ngx-datatable>
+
+    <button md-mini-fab (click)="addPost()"><md-icon>add</md-icon></button>
+    <ngx-datatable
+      class="material"
+      [rows]="posts"
+      [columns]="postColumns"
+      [columnMode]="'force'"
+      [headerHeight]="50"
+      [footerHeight]="50"
+      [rowHeight]="'auto'">
+    </ngx-datatable>
+  </div>
+</div>
+
+<ng-template #postTemplate>
+  <!--<dynamic-form #dyn [model]="posts[0]" (beforeRender)="beforeRenderPost($event)">-->
+  <dynamic-form #dyn [model]="posts[0]">
+    <div *dynamicFormOverride="'author'; let d" [formGroup]="d.formGroup">
+      <md-select formControlName="author" [placeholder]="d.meta.label">
+        <md-option *ngFor="let user of users" [value]="user">{{user.name}}</md-option>
+      </md-select>
+    </div>
+  </dynamic-form>
+
+</ng-template>

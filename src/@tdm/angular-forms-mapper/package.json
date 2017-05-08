@@ -1,7 +1,7 @@
 {
   "name": "@tdm/angular-forms-mapper",
-  "version": "1.0.0-alpha.4",
-  "description": "Typed data models (@tdm) angular mapper.",
+  "version": "1.0.0-alpha.5",
+  "description": "Dynamic forms using Typed data models (@tdm).",
   "main": "bundle/tdm.angular-forms-mapper.umd.js",
   "module": "index.js",
   "typings": "index.d.ts",
@@ -9,12 +9,14 @@
     "@tdm",
     "angular",
     "forms",
+    "dynamic",
     "mapper"
   ],
   "peerDependencies": {
     "rxjs": "^5.0.1",
-    "@angular/core": "^2.4.0",
-    "@angular/forms": "^2.4.0",
+    "@angular/core": "^4.0.0",
+    "@angular/common": "^4.0.0",
+    "@angular/forms": "^4.4.0",
     "@tdm/tixin": "*",
     "@tdm/transformation": "*",
     "@tdm/core": "*"

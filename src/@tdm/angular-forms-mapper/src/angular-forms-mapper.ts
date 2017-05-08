@@ -77,14 +77,16 @@ export class NgFormsSerializeMapper extends SerializeMapper {
       }
 
       let ctrl: AbstractControl;
-      if (targetStore.hasTarget(meta.type)) {
-        ctrl = this.serializeChild(meta, value);
-      } else {
-        if (isPrimitive(value)) {
-          ctrl = new FormControl(value || '');
+      if (formProp.childForm === true) {
+        if (targetStore.hasTarget(meta.type)) {
+          if (!value) return;
+          ctrl = this.serializeChild(meta, value);
+          ctrl.setParent(data);
         } else {
           ctrl = this.serializePlain(value);
         }
+      } else {
+        ctrl = new FormControl(value || '');
       }
 
       if (formProp.validators) {

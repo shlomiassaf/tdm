@@ -1,6 +1,4 @@
-import { Input, Directive } from '@angular/core';
-
-import { Constructor } from '@tdm/transformation';
+import { Type, Input, Directive } from '@angular/core';
 
 import { TDMModelFormService } from './tdm-model-form.service';
 import { TDMModelForm } from './tdm-model-form';
@@ -31,7 +29,7 @@ import { TDMModelForm } from './tdm-model-form';
 })
 export class TDMModelFormDirective<T> extends TDMModelForm<T> {
 
-  @Input() set tdmModelForm(value: T | [T, Constructor<T>]) {
+  @Input() set tdmModelForm(value: T | [T, Type<T>]) {
     const [instance, type] = Array.isArray(value) ? value : [value, <any>value.constructor];
     this.setContext(instance, type);
   }

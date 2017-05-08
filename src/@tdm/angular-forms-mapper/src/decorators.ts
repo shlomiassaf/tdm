@@ -52,6 +52,13 @@ export interface FormPropMetadataArgs {
   render?: RenderDef;
 
   /**
+   * Declares the property as a nested child form.
+   * The property type must a complex object.
+   * This is has no effect on UI rendering, only used by the mapper.
+   */
+  childForm?: boolean;
+
+  /**
    * The default value
    */
   defaultValue?: any;
@@ -115,6 +122,7 @@ export class FormPropMetadata extends BaseMetadata {
   render: RenderDef;
   validators: Array<ValidatorFn> | null;
   asyncValidators: Array<AsyncValidatorFn> | null;
+  childForm: boolean;
 
   constructor(metaArgs: FormPropMetadataArgs, info: DecoratorInfo) {
     super(info);
@@ -125,6 +133,7 @@ export class FormPropMetadata extends BaseMetadata {
       this.validators = this.normValidators(metaArgs.validators);
       this.asyncValidators = this.normValidators(metaArgs.asyncValidators);
       this.render = !this.exclude && metaArgs.render ? metaArgs.render : {};
+      this.childForm = metaArgs.childForm;
     }
   }
 

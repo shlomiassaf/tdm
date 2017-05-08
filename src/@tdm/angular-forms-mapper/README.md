@@ -1,7 +1,23 @@
 # @tdm/angular-forms-mapper
 
-Map a model into a `FormGroup` and vice versa.
-Use model metadata to dynamically render a form based on a model.
+Transform models into angular forms. 
+
+The library has 3 layers:
+
+  - **Transform layer**  
+    Metadata definition and model <---> form mapping.
+    
+  - **Service layer**
+    Convert metadata to rendering instruction and logic for mapping model <---> form.
+    
+  - **Component layer**
+    Angular components that use the service layer to render angular forms from a model.
+    
+Each layer is built on top of the previous one, extending functionality.  
+
+## Transform layer
+Defines the constructs used to define the relationships between properties of a model and form controls.  
+Provides a mapper to transform a model into a form and vice versa, based on the metadata definitions.  
  
 ```ts
 import { Prop, Exclude, Identity } from '@tdm/core';
@@ -68,6 +84,10 @@ In your component:
 ```
 
 ## Dynamic Forms
+A set of components and directives that support dynamic form creates based on a model.  
+
+The library is UI agnostic, same as `@angular/forms`, it provide tools and logic but not UI controls.  
+
 `@tdm/angular-forms-mapper` comes with built-in metadata helpers that provides the ability to create dynamic forms based on a model.
 
 Note that the library does not provide a complete Form rendering component  

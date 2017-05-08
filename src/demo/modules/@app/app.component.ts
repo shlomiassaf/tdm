@@ -20,18 +20,11 @@ import { AppState } from './app.service';
   ],
   template: `
     <nav>
-      <a [routerLink]=" ['./'] " routerLinkActive="active">
-        Index
-      </a>
-      <a [routerLink]=" ['./netflix'] " routerLinkActive="active">
-        Netflix Roulette
-      </a>
-      <a [routerLink]=" ['./vehicles'] " routerLinkActive="active">
-        Vehicles
-      </a>
-      <a [routerLink]=" ['./npms'] " routerLinkActive="active">
-        Npms
-      </a>
+      <a [routerLink]=" ['./'] " routerLinkActive="active">Home</a>
+      <a [routerLink]=" ['./netflix'] " routerLinkActive="active">Netflix Roulette</a>
+      <a [routerLink]=" ['./vehicles'] " routerLinkActive="active">Vehicles</a>
+      <a [routerLink]=" ['./npms'] " routerLinkActive="active">Npms</a>
+      <a [routerLink]=" ['./forms'] " routerLinkActive="active">@forms</a>
     </nav>
 
     <main>

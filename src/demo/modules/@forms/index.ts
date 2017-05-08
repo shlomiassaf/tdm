@@ -1,0 +1,1 @@
+export { FormsDemoModule } from './module';

@@ -11,5 +11,6 @@ export const ROUTES: Routes = [
   { path: 'netflix', loadChildren: '@netflix#NetflixModule' },
   { path: 'vehicles', loadChildren: '@vehicle#VehicleModule' },
   { path: 'npms', loadChildren: '@npms#NpmsModule' },
+  { path: 'forms', loadChildren: '@forms#FormsDemoModule' },
   { path: '**',    component: NoContentComponent },
 ];

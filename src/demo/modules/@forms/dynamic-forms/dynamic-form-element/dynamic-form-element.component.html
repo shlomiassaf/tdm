@@ -1,0 +1,39 @@
+<ng-container [formGroup]="tdmForm.form" [ngSwitch]="item.type">
+  <md-checkbox *ngSwitchCase="'boolean'"
+               [formControlName]="item.name">{{ item.label }}</md-checkbox>
+
+  <md-slide-toggle *ngSwitchCase="'slideToggle'"
+                   [formControlName]="item.name">{{ item.label }}</md-slide-toggle>
+
+
+  <md-input-container *ngSwitchCase="'number'">
+    <input type="number" [formControlName]="item.name" mdInput [placeholder]="item.label">
+  </md-input-container>
+
+  <md-slider *ngSwitchCase="'slider'" [formControlName]="item.name" [min]="item.min" [max]="item.max">{{item.label}}</md-slider>
+
+
+  <md-input-container *ngSwitchCase="'text'">
+    <input type="text" [formControlName]="item.name" mdInput [placeholder]="item.label">
+  </md-input-container>
+
+  <md-input-container *ngSwitchCase="'password'">
+    <input type="password" [formControlName]="item.name" mdInput [placeholder]="item.label">
+  </md-input-container>
+
+  <md-input-container *ngSwitchCase="'textarea'">
+    <input type="textarea" [formControlName]="item.name" mdInput [placeholder]="item.label">
+  </md-input-container>
+
+  <ng-container *ngSwitchCase="'childForm'">
+    <dynamic-form *ngIf="tdmForm.model[item.name]" [model]="tdmForm.model[item.name]"></dynamic-form>
+  </ng-container>
+
+  <md-select *ngSwitchCase="'select'"
+             [formControlName]="item.name"
+             [placeholder]="item.label">
+    <md-option *ngFor="let sel of item.selections" [value]="sel.value">{{sel.label || sel.value}}</md-option>
+  </md-select>
+
+
+</ng-container>
