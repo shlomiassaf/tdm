@@ -1,15 +1,15 @@
 {
   "angular-forms-mapper": {
-    "commit": "c9c6d36c7240eecb3c200f2d1e7beee3dc8d7dac",
-    "version": "1.0.0-alpha.3"
+    "commit": "c34da0026b994a8c7307868dab3bde00cb96501c",
+    "version": "1.0.0-alpha.5"
   },
   "angular-http": {
     "commit": "7a9fda0a343a6774fd02e84884d7797c72c6e068",
     "version": "1.0.0-alpha.12"
   },
   "core": {
-    "commit": "041dcd1976c8a07a05181cba65d47c8eb80f77c8",
-    "version": "1.0.0-alpha.14"
+    "commit": "e78abb22dc3ac120d09478bc5a9f8e610096f886",
+    "version": "1.0.0-alpha.15"
   },
   "json-api-mapper": {
     "commit": "b60e263490e0ced19fa81e53ef7abc713522e1e0",
