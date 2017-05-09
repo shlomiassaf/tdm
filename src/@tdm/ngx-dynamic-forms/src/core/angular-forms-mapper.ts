@@ -1,4 +1,4 @@
-import { FormGroup, FormControl, AbstractControl, Validators, FormArray } from '@angular/forms';
+import { FormGroup, FormControl, AbstractControl, Validators, FormArray, ValidatorFn } from '@angular/forms';
 
 import {
   MapperFactory,
@@ -81,20 +81,29 @@ export class NgFormsSerializeMapper extends SerializeMapper {
         if (targetStore.hasTarget(meta.type)) {
           if (!value) return;
           ctrl = this.serializeChild(meta, value);
-          ctrl.setParent(data);
         } else {
           ctrl = this.serializePlain(value);
         }
+        ctrl.setParent(data);
       } else {
         ctrl = new FormControl(value || '');
       }
 
-      if (formProp.validators) {
-        if (ctrl.validator) {
-          ctrl.setValidators(Validators.compose([...formProp.validators, ctrl.validator]))
-        } else {
-          ctrl.setValidators(formProp.validators);
-        }
+      const validators: ValidatorFn[] = formProp.validators
+        ? formProp.validators.slice()
+        : []
+      ;
+
+      if (formProp.render && formProp.render.required === true) {
+        validators.push(Validators.required);
+      }
+
+      if (ctrl.validator) {
+        validators.push(ctrl.validator);
+      }
+
+      if (validators.length > 0) {
+        ctrl.setValidators(Validators.compose(validators))
       }
 
       if (formProp.asyncValidators) {
