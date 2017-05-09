@@ -1,8 +1,4 @@
 {
-  "angular-forms-mapper": {
-    "commit": "c34da0026b994a8c7307868dab3bde00cb96501c",
-    "version": "1.0.0-alpha.5"
-  },
   "angular-http": {
     "commit": "7a9fda0a343a6774fd02e84884d7797c72c6e068",
     "version": "1.0.0-alpha.12"
@@ -14,6 +10,10 @@
   "json-api-mapper": {
     "commit": "b60e263490e0ced19fa81e53ef7abc713522e1e0",
     "version": "1.0.0-alpha.12"
+  },
+  "ngx-dynamic-forms": {
+    "commit": "c9cbd9b1525f554ffc0e015ea0282f63613255fe",
+    "version": "1.0.0-alpha.2"
   },
   "tixin": {
     "commit": "41de7a91031c23a1f0bc15d43807764a963f3933",
