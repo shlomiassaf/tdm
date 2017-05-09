@@ -10,7 +10,8 @@ import {
   InjectionToken
 } from '@angular/core';
 
-import { RenderInstruction, TDMModelForm } from '../tdm-model-form';
+import { RenderInstruction } from '../interfaces';
+import { TDMModelForm } from '../tdm-model-form';
 import { DynamicFormComponent } from './dynamic-form.component';
 
 export interface DynamicFormControlRenderer {

@@ -10,13 +10,14 @@ import {
   QueryList,
   AfterContentInit,
   OnDestroy,
+  Type,
   KeyValueDiffer,
   KeyValueDiffers,
   KeyValueChangeRecord
 } from '@angular/core';
 
-import { Constructor } from '@tdm/transformation';
-import { TDMModelForm, TDMModelFormService, RenderInstruction } from '../tdm-model-form';
+import { RenderInstruction } from '../interfaces';
+import { TDMModelForm, TDMModelFormService } from '../tdm-model-form';
 
 import { DynamicFormOverrideDirective } from './dynamic-form-override.directive';
 import { BeforeRenderEventHandler } from './before-render-event-handler';
@@ -71,7 +72,7 @@ export class DynamicFormComponent<T> implements AfterContentInit, OnDestroy {
    *
    * @param value {*|[*, *]}
    */
-  @Input() set model(value: T | [T, Constructor<T>]) {
+  @Input() set model(value: T | [T, Type<T>]) {
     const [instance, type] = Array.isArray(value) ? value : [value, <any>value.constructor];
     this.instance = instance;
     this.type = type;
@@ -163,7 +164,7 @@ export class DynamicFormComponent<T> implements AfterContentInit, OnDestroy {
   controls = new BehaviorSubject<LocalRenderInstruction[]>([]);
 
   private instance: T;
-  private type: Constructor<T>;
+  private type: Type<T>;
   private subscriptions: Subscription[] = [];
   private differ: KeyValueDiffer<string, any>;
   private filters = { exc: [] as string[], ow: [] as string[] };

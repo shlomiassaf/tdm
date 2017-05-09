@@ -18,13 +18,12 @@ import {
 } from '@tdm/transformation';
 import '@tdm/core';
 
-import { RenderDef } from './tdm-model-form';
+import { RenderDef } from '../interfaces';
 
 export interface FormModelMetadataArgs {
   validator?: ValidatorFn;
   asyncValidator?: AsyncValidatorFn;
 }
-
 
 
 export interface FormPropMetadataArgs {

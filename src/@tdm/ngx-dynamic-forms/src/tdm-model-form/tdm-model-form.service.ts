@@ -2,69 +2,33 @@ import { Injectable, Type } from '@angular/core';
 import { targetStore, PropMetadata } from '@tdm/transformation';
 import { TDMModelForm } from './tdm-model-form';
 
-export interface FormElementType {
-  /**
-   * A generic text type.
-   * This type is auto-assigned when no type is set and the property type is String
-   */
-  text: 'text';
-
-  /**
-   * A generic boolean type.
-   * This type is auto-assigned when no type is set and the property type is Boolean
-   */
-  boolean: 'boolean';
-
-  /**
-   * A generic number type.
-   * This type is auto-assigned when no type is set and the property type is Number
-   */
-  number: 'number';
-
-  /**
-   * A generic select type.
-   */
-  array: 'array';
-}
-
-/**
- * Represents render definitions for an element
- */
-export interface RenderDef {
-  /**
-   * The order
-   */
-  ordinal?: number;
-
-  /**
-   * The label to display (i.e. placeholder)
-   */
-  label?: string;
-
-  /**
-   * The type of the element.
-   * If none set the library will try to assign a primitive (string, number or boolean)
-   */
-  type?: keyof FormElementType;
-
-  required?: boolean;
-  min?: any;
-  max?: any;
-  selections?: {value: any; label?: string;}[];
-}
-
-export interface RenderInstruction extends RenderDef {
-  name: string;
-}
+import { FormModelMetadata } from '../core';
+import { RenderInstruction } from '../interfaces';
 
 /**
  * A service for creating new instances of TDMModelForm
  */
 @Injectable()
 export class TDMModelFormService {
+  private cache = new Map<Type<any>, RenderInstruction[]>();
 
-  getInstructions(type: any): RenderInstruction[] {
-    // TODO: cache
+  getMeta(type: Type<any>): FormModelMetadata {
+    return type
+      ? targetStore.getClassProp(type, 'formModel')
+      : undefined
+  }
+
+  getInstructions(type: Type<any>): RenderInstruction[] {
+    return this.cache.get(type) || this._getInstructions(type);
+  }
+
+  create<T>(instance: T, type?: Type<T>): TDMModelForm<T> {
+    const tdmModelForm = new TDMModelForm<T>(this);
+    tdmModelForm.setContext(instance, type);
+    return tdmModelForm;
+  }
+
+  private _getInstructions(type: Type<any>): RenderInstruction[] {
     const props = targetStore.getTargetMeta(type).getValues(PropMetadata);
     const formMeta = targetStore.getClassProp(type, 'formModel');
     return props.map( p => {
@@ -76,11 +40,5 @@ export class TDMModelFormService {
       }
     })
       .filter( v => !!v);
-  }
-
-  create<T>(instance: T, type?: Type<T>): TDMModelForm<T> {
-    const tdmModelForm = new TDMModelForm<T>(this);
-    tdmModelForm.setContext(instance, type);
-    return tdmModelForm;
   }
 }

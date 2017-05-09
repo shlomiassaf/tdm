@@ -4,11 +4,11 @@ Transform models into angular forms.
 
 The library has 3 layers:
 
-  - **Transform layer**  
-    Metadata definition and model <---> form mapping.
+  - **Transform layer (core)**  
+    Metadata definition (decorators) and model <---> form mapping.
     
   - **Service layer**
-    Convert metadata to rendering instruction and logic for mapping model <---> form.
+    Workflow and logic to bind a model to a form.
     
   - **Component layer**
     Angular components that use the service layer to render angular forms from a model.

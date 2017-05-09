@@ -25,11 +25,11 @@
     ],
     "baseUrl": "./src",
     "paths": {
-      "@tdm/angular-forms-mapper": [
-        "@tdm/angular-forms-mapper/src/index.ts"
+      "@tdm/ngx-dynamic-forms": [
+        "@tdm/ngx-dynamic-forms/src/index.ts"
       ],
-      "@tdm/angular-forms-mapper/*": [
-        "@tdm/angular-forms-mapper/src/*"
+      "@tdm/ngx-dynamic-forms/*": [
+        "@tdm/ngx-dynamic-forms/src/*"
       ],
       "@tdm/angular-http": [
         "@tdm/angular-http/src/index.ts"

@@ -1,15 +1,17 @@
 import { Type } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
-import { targetStore } from '@tdm/transformation';
-
-import { NgFormsBoundMapper } from '../ng-forms-bound-mapper';
-import { FormModelMetadata } from '../decorators';
-import { TDMModelFormService, RenderInstruction } from './tdm-model-form.service';
+import { FormModelMetadata, NgFormsBoundMapper } from '../core';
+import { TDMModelFormService } from './tdm-model-form.service';
+import { RenderInstruction } from '../interfaces';
 
 /**
- * Represents form metadata for a model.
- * Use instances of this class to dynamically render models as forms.
+ * A container that binds a model instance and and a `FormGroup` instance.
+ *
+ * This class is a facade, it simplifies the logic and low level operations required to bind a model
+ * and a form:
+ *   - mapping between model and form (serialization and deserialization)
+ *   - exposing rendering instructions for a model (the instructions are used to render form elements)
  */
 export class TDMModelForm<T> {
 
@@ -58,10 +60,7 @@ export class TDMModelForm<T> {
     }
 
     if (this._type !== type) {
-      this.formMeta = type
-        ? targetStore.getClassProp(type, 'formModel')
-        : undefined
-      ;
+      this.formMeta = this.modelFormService.getMeta(type);
       this._type = type;
     }
 

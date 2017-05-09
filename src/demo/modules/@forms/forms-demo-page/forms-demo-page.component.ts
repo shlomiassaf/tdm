@@ -2,7 +2,7 @@ import { Component, ViewChild, TemplateRef } from '@angular/core';
 import { MdDialog } from '@angular/material';
 
 import { TDMCollection } from '@tdm/core';
-import { RenderInstruction, BeforeRenderEventHandler } from '@tdm/ngx-dynamic-forms';
+import { BeforeRenderEventHandler } from '@tdm/ngx-dynamic-forms';
 
 import { DynamicFormContainerComponent } from './dynamic-form-container/dynamic-form-container.component';
 import { User, Post } from '../models';
@@ -58,7 +58,7 @@ export class FormsDemoPageComponent {
 
     if (event.instruction.name === 'author') {
       event.instruction.type = 'select';
-      event.instruction.selections = this.users.map( u => ({ value: u, label: u.name}) );
+      event.instruction.data = { selections: this.users.map( u => ({ value: u, label: u.name}) ) };
     }
 
     // setTimeout(() => resolve(), 1000);

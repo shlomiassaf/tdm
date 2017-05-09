@@ -1,6 +1,6 @@
 import { FormElementType } from '@tdm/ngx-dynamic-forms';
 
-declare module '@tdm/ngx-dynamic-forms/tdm-model-form/tdm-model-form.service' {
+declare module '@tdm/ngx-dynamic-forms/interfaces' {
   interface FormElementType {
     select: 'select',
     password: 'password',

@@ -10,7 +10,7 @@
     <input type="number" [formControlName]="item.name" mdInput [placeholder]="item.label">
   </md-input-container>
 
-  <md-slider *ngSwitchCase="'slider'" [formControlName]="item.name" [min]="item.min" [max]="item.max">{{item.label}}</md-slider>
+  <md-slider *ngSwitchCase="'slider'" [formControlName]="item.name" [min]="item.data.min" [max]="item.data.max">{{item.label}}</md-slider>
 
 
   <md-input-container *ngSwitchCase="'text'">
@@ -32,7 +32,7 @@
   <md-select *ngSwitchCase="'select'"
              [formControlName]="item.name"
              [placeholder]="item.label">
-    <md-option *ngFor="let sel of item.selections" [value]="sel.value">{{sel.label || sel.value}}</md-option>
+    <md-option *ngFor="let sel of item.data.selections" [value]="sel.value">{{sel.label || sel.value}}</md-option>
   </md-select>
 
 

@@ -1,14 +1,22 @@
-export { FormModel, FormProp, FormModelMetadataArgs, FormPropMetadataArgs } from './decorators';
-export { ngFormsMapper } from './angular-forms-mapper';
-export { NgFormsBoundMapper } from './ng-forms-bound-mapper';
+export {
+  FormElementType,
+  RenderDef,
+  RenderInstruction
+} from './interfaces';
+
+export {
+  FormModel,
+  FormProp,
+  FormModelMetadataArgs,
+  FormPropMetadataArgs,
+  ngFormsMapper,
+  NgFormsBoundMapper
+} from './core';
 
 export {
   TDMModelFormDirective,
   TDMModelFormService,
-  TDMModelForm,
-  FormElementType,
-  RenderDef,
-  RenderInstruction
+  TDMModelForm
 } from './tdm-model-form';
 
 export * from './dynamic-forms';

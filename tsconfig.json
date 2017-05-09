@@ -24,6 +24,13 @@
     ],
     "baseUrl": "./src",
     "paths": {
+      "@tdm/ngx-dynamic-forms": [
+        "@tdm/ngx-dynamic-forms/src/index.ts"
+      ],
+      "@tdm/ngx-dynamic-forms/*": [
+        "@tdm/ngx-dynamic-forms/src/*"
+      ],
+      
       "@tdm/tixin": ["@tdm/tixin/src/index.ts"],
       "@tdm/tixin/*": ["@tdm/tixin/src/*"],
 
