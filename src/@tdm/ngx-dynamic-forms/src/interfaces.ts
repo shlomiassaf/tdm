@@ -45,7 +45,7 @@ export interface RenderDef<T = any> {
    * If no type is set the library will try to assign a primitive (string, number or boolean) based
    * on the type information. If no primitive was matched an error is thrown.
    */
-    type?: keyof FormElementType;
+  type?: keyof FormElementType;
 
   required?: boolean;
 

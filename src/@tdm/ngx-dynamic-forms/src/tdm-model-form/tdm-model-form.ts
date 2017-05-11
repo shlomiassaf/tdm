@@ -1,5 +1,5 @@
 import { Type } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { AbstractControl, FormGroup } from '@angular/forms';
 
 import { FormModelMetadata, NgFormsBoundMapper } from '../core';
 import { TDMModelFormService } from './tdm-model-form.service';
@@ -45,6 +45,18 @@ export class TDMModelForm<T> {
 
   constructor(protected modelFormService: TDMModelFormService) { }
 
+  /**
+   * Returns the control for a given key
+   * @param key
+   * @returns {AbstractControl|null}
+   */
+  get(key: keyof T): AbstractControl | null {
+    return this.form.get(key);
+  }
+
+  hasError(errorCode: string, path: keyof T): boolean {
+    return this.form.hasError(errorCode, path as any);
+  }
   /**
    * Set the context for this the form.
    * @param instance The TDModel instance

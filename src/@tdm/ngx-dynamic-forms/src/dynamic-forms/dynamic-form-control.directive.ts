@@ -25,7 +25,14 @@ export interface DynamicFormControlRenderer {
  */
 export const FORM_CONTROL_COMPONENT = new InjectionToken<DynamicFormControlRenderer>('DynamicFormControlRenderer');
 
-
+/**
+ * An container/wrapper used to project the user-define renderer.
+ * DynamicFormControlDirective is much like `NgComponentOutlet`, they both do the same job.
+ *
+ * DynamicFormControlDirective is more specific to the use case, it accepts {@link RenderInstruction}
+ * as input and renders a component that it get's from the DI.
+ * @internal
+ */
 @Directive({
   selector: '[dynamicFormControl]'
 })

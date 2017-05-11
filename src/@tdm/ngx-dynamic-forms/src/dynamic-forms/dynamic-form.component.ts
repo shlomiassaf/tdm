@@ -11,10 +11,14 @@ import {
   AfterContentInit,
   OnDestroy,
   Type,
+  IterableChanges,
+  IterableDiffer,
+  IterableDiffers,
   KeyValueDiffer,
   KeyValueDiffers,
-  KeyValueChangeRecord
+  KeyValueChangeRecord, ElementRef, ViewChild, Renderer2, AfterViewInit, DoCheck, OnChanges, SimpleChanges
 } from '@angular/core';
+import { AbstractControl } from '@angular/forms';
 
 import { RenderInstruction } from '../interfaces';
 import { TDMModelForm, TDMModelFormService } from '../tdm-model-form';
@@ -27,6 +31,12 @@ export interface LocalRenderInstruction extends RenderInstruction {
    * If set, indicates that the instruction is overridden by a user-defined content template.
    */
   override: DynamicFormOverrideDirective | undefined;
+
+  /**
+   * User to show/hide controls
+   * @internal
+   */
+  display: 'none' | undefined;
 }
 
 
@@ -42,8 +52,8 @@ export interface LocalRenderInstruction extends RenderInstruction {
 @Component({
   selector: 'dynamic-form',
   template:
-`<form [formGroup]="tdmForm.form" novalidate>
-  <div *ngFor="let item of controls | async; trackBy: tdmForm.trackBy" class="row">
+`<form #formElRef [formGroup]="tdmForm.form">
+  <div *ngFor="let item of controls | async; trackBy: tdmForm.trackBy" [style.display]="item.display">
     <ng-container *ngIf="!item.override; else override">
       <ng-container *dynamicFormControl="item"></ng-container>
     </ng-container>
@@ -56,10 +66,25 @@ export interface LocalRenderInstruction extends RenderInstruction {
   <ng-content></ng-content>
 </form>`
 })
-export class DynamicFormComponent<T> implements AfterContentInit, OnDestroy {
+export class DynamicFormComponent<T> implements AfterContentInit, AfterViewInit, OnChanges, DoCheck, OnDestroy {
   tdmForm: TDMModelForm<any>;
 
   @ContentChildren(DynamicFormOverrideDirective) overrides: QueryList<DynamicFormOverrideDirective>;
+
+  @ViewChild('formElRef') formElRef: ElementRef;
+
+  /**
+   * Pass through for @angular/forms `ngNativeValidate` attribute that enables native browser validation
+   *
+   */
+  @Input() get ngNativeValidate(): any { return this._ngNativeValidate };
+  set ngNativeValidate(value: any) {
+    const native = value != null && `${value}` !== 'false';
+    if (this._ngNativeValidate !== native) {
+      this._ngNativeValidate = native;
+      this.setNativeValidation();
+    }
+  };
 
   /**
    * The instance and type (class) to dynamically render as form.
@@ -77,7 +102,7 @@ export class DynamicFormComponent<T> implements AfterContentInit, OnDestroy {
     this.instance = instance;
     this.type = type;
 
-    this.differ = undefined;
+    this.valueDiffer = undefined;
 
     if (!this.tdmForm) {
       this.tdmForm = this.tdmModelFormService.create(this.instance, this.type);
@@ -92,6 +117,16 @@ export class DynamicFormComponent<T> implements AfterContentInit, OnDestroy {
     this.filters.exc = value;
     this.update();
   }
+
+  /**
+   * An array of form control names, each name in this array will be disabled.
+   */
+  @Input() disabledState: Array<keyof T>;
+
+  /**
+   * An array of form control names, each name in this array will be hidden.
+   */
+  @Input() hiddenState: Array<keyof T>;
 
   /**
    * Event emitted when a form value changes.
@@ -161,20 +196,65 @@ export class DynamicFormComponent<T> implements AfterContentInit, OnDestroy {
    */
   @Output() renderState: Observable<boolean>;
 
+  /**
+   * The instructions to render
+   * @internal
+   */
   controls = new BehaviorSubject<LocalRenderInstruction[]>([]);
 
   private instance: T;
   private type: Type<T>;
   private subscriptions: Subscription[] = [];
-  private differ: KeyValueDiffer<string, any>;
+  private valueDiffer: KeyValueDiffer<string, any>;
+  private stateDiffer: { disabled?: IterableDiffer<keyof T>; hidden?: IterableDiffer<keyof T>; } = {};
   private filters = { exc: [] as string[], ow: [] as string[] };
   private afterInit: boolean;
   private rendering$ = new BehaviorSubject<boolean>(false);
+  private _ngNativeValidate: any = false;
 
-  constructor(private tdmModelFormService: TDMModelFormService, private differs: KeyValueDiffers) {
+  constructor(private tdmModelFormService: TDMModelFormService,
+              private kvDiffers: KeyValueDiffers,
+              private itDiffers: IterableDiffers,
+              private renderer: Renderer2) {
     this.renderState = this.rendering$.asObservable();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+
+    if (changes.disabledState) {
+      const disabled = changes.disabledState;
+      if (!disabled.currentValue && this.stateDiffer.disabled) {
+        const diff = this.stateDiffer.disabled.diff([]);
+        diff && this.handleDiff('disabled', diff);
+        this.stateDiffer.disabled = undefined;
+      } else if (!disabled.previousValue && disabled.currentValue) {
+        this.stateDiffer.disabled = this.itDiffers.find(disabled.currentValue).create();
+      }
+    }
+
+    if (changes.hiddenState) {
+      const hidden = changes.hiddenState;
+      if (!hidden.currentValue && this.stateDiffer.hidden) {
+        const diff = this.stateDiffer.hidden.diff([]);
+        diff && this.handleDiff('hidden', diff);
+        this.stateDiffer.hidden = undefined;
+      } else if (!hidden.previousValue && hidden.currentValue) {
+        this.stateDiffer.hidden = this.itDiffers.find(hidden.currentValue).create();
+      }
+    }
+  }
+
+  ngDoCheck() {
+    if (this.disabledState && this.stateDiffer.disabled) {
+      const diff = this.stateDiffer.disabled.diff(this.disabledState);
+      diff && this.handleDiff('disabled', diff);
+    }
+
+    if (this.hiddenState && this.stateDiffer.hidden) {
+      const diff = this.stateDiffer.hidden.diff(this.hiddenState);
+      diff && this.handleDiff('hidden', diff);
+    }
+  }
 
   ngAfterContentInit(): void {
     this.afterInit = true;
@@ -184,6 +264,12 @@ export class DynamicFormComponent<T> implements AfterContentInit, OnDestroy {
     this.subscriptions.push(s);
   }
 
+  ngAfterViewInit(): void {
+    if (this._ngNativeValidate === true) {
+      this.setNativeValidation();
+    }
+  }
+
   ngOnDestroy(): void {
     let subs: Subscription;
     while (subs = this.subscriptions.pop()) {
@@ -191,6 +277,15 @@ export class DynamicFormComponent<T> implements AfterContentInit, OnDestroy {
     }
     this.beforeRender.complete();
     this.valueChanges.complete();
+  }
+
+  /**
+   * Returns the form control for a given key
+   * @param key
+   * @returns {AbstractControl|null}
+   */
+  getControl(key: keyof T): AbstractControl | null {
+    return this.tdmForm.get(key);
   }
 
   private updateOverrides(): void {
@@ -214,6 +309,12 @@ export class DynamicFormComponent<T> implements AfterContentInit, OnDestroy {
 
         const renderEvent = new BeforeRenderEventHandler(localRd, controlsPromiseSetter);
         this.beforeRender.emit(renderEvent);
+
+        // update hidden state of each item
+        if (this.hiddenState && this.hiddenState.indexOf(<any>localRd.name) > -1) {
+          localRd.display = 'none';
+        }
+
         controls.push(localRd);
       }
     });
@@ -231,14 +332,13 @@ export class DynamicFormComponent<T> implements AfterContentInit, OnDestroy {
       });
   }
 
-
   private applyFormListener(): void {
     const s = this.tdmForm.form.valueChanges.subscribe(formValue => {
-      if (!this.differ) {
-        this.differ = this.differs.find(formValue).create();
+      if (!this.valueDiffer) {
+        this.valueDiffer = this.kvDiffers.find(formValue).create();
       } else {
         const arr: KeyValueChangeRecord<string, any>[] = [];
-        const diff = this.differ.diff(formValue);
+        const diff = this.valueDiffer.diff(formValue);
         if (diff) {
           diff.forEachChangedItem(change => arr.push(change));
           this.valueChanges.next(arr);
@@ -249,4 +349,33 @@ export class DynamicFormComponent<T> implements AfterContentInit, OnDestroy {
     this.subscriptions.push(s);
   }
 
+  private setNativeValidation(): void {
+    if (this.formElRef) {
+      if (this._ngNativeValidate === true) {
+        this.renderer.removeAttribute(this.formElRef.nativeElement, 'novalidate');
+      } else {
+        this.renderer.setAttribute(this.formElRef.nativeElement, 'novalidate', '');
+      }
+    }
+  }
+
+  private handleDiff(type: 'disabled' | 'hidden', diff: IterableChanges<keyof T>): void {
+    switch (type) {
+      case 'disabled':
+        diff.forEachAddedItem( record => this.getControl(record.item).disable());
+        diff.forEachRemovedItem( record => this.getControl(record.item).enable());
+        break;
+      case 'hidden':
+        diff.forEachAddedItem( record => {
+          const item = this.controls.value.find( c => c.name === record.item);
+          if (item) {
+            item.display = 'none';
+          }
+        });
+        diff.forEachRemovedItem( record => {
+          this.controls.value.find( c => c.name === record.item).display = undefined;
+        });
+        break;
+    }
+  }
 }

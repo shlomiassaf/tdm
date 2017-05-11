@@ -1,4 +1,12 @@
-import { FormGroup, FormControl, AbstractControl, Validators, FormArray, ValidatorFn } from '@angular/forms';
+import {
+  FormGroup,
+  FormControl,
+  AbstractControl,
+  Validators,
+  FormArray,
+  ValidatorFn,
+  AsyncValidatorFn
+} from '@angular/forms';
 
 import {
   MapperFactory,
@@ -41,7 +49,7 @@ export class NgFormsSerializeMapper extends SerializeMapper {
     }
   }
 
-  protected serializeObject(obj: any, container: PropertyContainer): FormGroup  {
+  protected serializeObject(obj: any, container: PropertyContainer): FormGroup {
     const formModel = targetStore.getClassProp(container.target, 'formModel');
 
     if (!formModel) {
@@ -54,8 +62,8 @@ export class NgFormsSerializeMapper extends SerializeMapper {
       const meta = prop.prop;
 
       /*
-        Decorated by @Prop, @FormProp or both.
-        FormPropMetadataArgs.exclude is not true.
+       Decorated by @Prop, @FormProp or both.
+       FormPropMetadataArgs.exclude is not true.
        */
       if (!meta) {
         return;
@@ -77,42 +85,18 @@ export class NgFormsSerializeMapper extends SerializeMapper {
       }
 
       let ctrl: AbstractControl;
-      if (formProp.childForm === true) {
-        if (targetStore.hasTarget(meta.type)) {
-          if (!value) return;
-          ctrl = this.serializeChild(meta, value);
-        } else {
-          ctrl = this.serializePlain(value);
-        }
-        ctrl.setParent(data);
+      if (formProp.childForm === true && value) {
+        ctrl = targetStore.hasTarget(meta.type)
+          ? this.serializeChild(meta, value)
+          : this.serializePlain(value)
+        ;
       } else {
         ctrl = new FormControl(value || '');
       }
 
-      const validators: ValidatorFn[] = formProp.validators
-        ? formProp.validators.slice()
-        : []
-      ;
-
-      if (formProp.render && formProp.render.required === true) {
-        validators.push(Validators.required);
-      }
-
-      if (ctrl.validator) {
-        validators.push(ctrl.validator);
-      }
-
-      if (validators.length > 0) {
-        ctrl.setValidators(Validators.compose(validators))
-      }
-
-      if (formProp.asyncValidators) {
-        if (ctrl.asyncValidator) {
-          ctrl.setValidators(Validators.compose([...formProp.asyncValidators, ctrl.asyncValidator]))
-        } else {
-          ctrl.setAsyncValidators(formProp.asyncValidators);
-        }
-      }
+      const validators = this.getValidators(formProp);
+      validators[0] && ctrl.setValidators(validators[0]);
+      validators[1] && ctrl.setAsyncValidators(validators[1]);
 
       data.addControl(prop.obj, ctrl);
 
@@ -130,32 +114,51 @@ export class NgFormsSerializeMapper extends SerializeMapper {
     return data;
   }
 
+  protected getValidators(formProp: FormPropMetadata): [ValidatorFn | null, AsyncValidatorFn | null] {
+    const sync: ValidatorFn[] = formProp.validators
+      ? formProp.validators.slice()
+      : []
+    ;
+
+    if (formProp.render && formProp.render.required === true) {
+      sync.push(Validators.required);
+    }
+
+    const async = formProp.asyncValidators &&  formProp.asyncValidators.length > 0
+      ? Validators.composeAsync(formProp.asyncValidators)
+      : null
+    ;
+
+    return [sync.length > 0 ? Validators.compose(sync) : null, async];
+  }
+
   protected serializeChild(meta: PropMetadata, obj: any): FormGroup | FormArray {
     return targetStore.serialize(meta.type as any, new NgFormsChildSerializeMapper(obj, this.cache));
   }
 
   protected serializePlain(obj: any): FormGroup | FormArray {
+    let data: FormGroup | FormArray;
     if (Array.isArray(obj)) {
-      return new FormArray(obj.map( o => this.serializePlain(o)));
+      data = new FormArray(obj.map(o => this.serializePlain(o)));
+    } else {
+      data = new FormGroup({});
+      const serialized = this.plainSer.serialize(obj);
+
+      Object.keys(serialized)
+        .forEach(key => {
+          const value = serialized[key];
+          let ctrl = isPrimitive(value)
+            ? new FormControl(value || '')
+            : this.serializePlain(value)
+          ;
+          (data as FormGroup).addControl(key, ctrl);
+        });
     }
-    const data: FormGroup = new FormGroup({});
-    const serialized = this.plainSer.serialize(obj);
-
-    Object.keys(serialized)
-      .forEach( key => {
-        const value = serialized[key];
-        if (isPrimitive(value)) {
-          data.addControl(key, new FormControl(value || ''));
-        } else {
-          data.addControl(key, this.serializePlain(value));
-        }
-      });
-
     return data;
   }
 
   protected serializeCollection(arr: any[], container: PropertyContainer): FormArray {
-    return new FormArray(arr.map( s => this.serializeObject(s, container)));
+    return new FormArray(arr.map(s => this.serializeObject(s, container)));
   }
 
 }
@@ -165,7 +168,6 @@ export class NgFormsChildSerializeMapper extends NgFormsSerializeMapper {
     super(source);
   }
 }
-
 
 
 export const ngFormsMapper: MapperFactory = {
