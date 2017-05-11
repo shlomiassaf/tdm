@@ -16,7 +16,6 @@ import {
   BaseMetadata,
   PropMetadata
 } from '@tdm/core';
-import '@tdm/data';
 
 import { RenderDef } from '../interfaces';
 
@@ -172,7 +171,7 @@ export function FormModel(metaArgs?: FormModelMetadataArgs) {
  */
 export const FormProp = decoratorFactory<FormPropMetadataArgs>(FormPropMetadata, true);
 
-function onBuildMetadata(target: Constructor<any>) {
+function onProcessType(target: Constructor<any>) {
   const modelProps = targetStore.getMetaFor(target, FormPropMetadata);
   if (modelProps) {
     let formModel = targetStore.getClassProp(target, 'formModel');
@@ -188,7 +187,7 @@ function onBuildMetadata(target: Constructor<any>) {
       });
   }
 }
-registerEvent('onBuildMetadata', onBuildMetadata);
+registerEvent('onProcessType', onProcessType);
 
 declare module '@tdm/core/metadata/target-metadata' {
   interface TargetMetadata {

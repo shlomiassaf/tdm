@@ -79,7 +79,9 @@ export function LazyInit(getter: Function): PropertyDecorator {
   };
 }
 
-
+/**
+ * @pluginApi
+ */
 export const array = function() {
   const findRemove = <T>(arr: Array<T>, predicate: (value: T) => boolean, thisArg?: any): T | undefined => {
     const idx = arr.findIndex(predicate, thisArg);
@@ -93,3 +95,20 @@ export const array = function() {
   }
 }();
 
+
+/**
+ * Returns the chain of prototypes up to Object (not included)
+ * @pluginApi
+ * @param cls
+ * @returns {Array}
+ */
+export function getProtoChain(cls: Constructor<any>): Constructor<any>[] {
+  const classes = [];
+  while (cls && cls !== Object) {
+    classes.push(cls);
+
+    const proto = Object.getPrototypeOf(cls.prototype);
+    cls = isFunction(proto) || !proto ? proto : proto.constructor;
+  }
+  return classes;
+}

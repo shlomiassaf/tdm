@@ -1,5 +1,5 @@
 import { TixinFree } from '@tdm/tixin';
-import { Constructor } from '@tdm/core';
+import { Constructor } from '../fw';
 
 const TDMModelMark = Symbol('TDMModel instance mark');
 
@@ -26,6 +26,11 @@ export class TDMModelBase<T> implements TDMModel<T> {
     Object.defineProperty(TDModel, Symbol.hasInstance, { value: TDMModelBase.instanceOf });
 
     TixinFree(TDModel, TDMModelBase, 'proto');
+
+    // TODO: copy other TS reflection info
+    const paramTypes = (Reflect as any).getOwnMetadata('design:paramtypes', model);
+    (Reflect as any).defineMetadata('design:paramtypes', paramTypes, TDModel);
+
 
     return TDModel as any;
   }

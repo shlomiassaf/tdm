@@ -25,6 +25,7 @@ import { AppState } from './app.service';
       <a [routerLink]=" ['./vehicles'] " routerLinkActive="active">Vehicles</a>
       <a [routerLink]=" ['./npms'] " routerLinkActive="active">Npms</a>
       <a [routerLink]=" ['./forms'] " routerLinkActive="active">@forms</a>
+        <a [routerLink]=" ['./playground'] " routerLinkActive="active">Playground</a>
     </nav>
 
     <main>

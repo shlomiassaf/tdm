@@ -1,6 +1,6 @@
 import * as voca from 'voca';
 
-import { Transformable, directMapper } from '@tdm/core';
+import { Model, directMapper } from '@tdm/core';
 import { targetStore } from '@tdm/core/ext';
 import { TargetMetaModifier } from '@tdm/core/testing';
 
@@ -16,7 +16,7 @@ class User { }
 
 describe('@tdm/core', () => {
   describe('decorators', () => {
-    describe('@Transformable()', () => {
+    describe('@Model()', () => {
       const userModifier = TargetMetaModifier.create(User);
       const data = {
         my_property1: 1,
@@ -24,8 +24,8 @@ describe('@tdm/core', () => {
         myProperty3: 3
       };
 
-      xit('should register @Transformable decorator', () => {
-        @Transformable({
+      xit('should register @Model decorator', () => {
+        @Model({
           transformNameStrategy
         })
         class UserTest { }

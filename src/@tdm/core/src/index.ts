@@ -10,7 +10,7 @@ export {
   PropMetadataArgs,
   RelationMetadataArgs,
   ExcludeMetadataArgs,
-  TransformableMetadataArgs
+  ModelMetadataArgs
 } from './metadata';
 
 
@@ -19,7 +19,7 @@ export {
 export * from './ext';
 
 // import/export order is important to prevent null on circular dependencies.
-export { Transformable } from './add/transformable';
+export { Model } from './add/model';
 import './add/target-store';
 
 export { directMapper, TransformationError, DirectSerializeMapper, DirectDeserializeMapper } from './mapping';
@@ -31,7 +31,7 @@ import { Constructor } from './fw';
 import { MapperFactory } from './mapping';
 import { targetStore } from './metadata';
 
-
+export { TDMCollection, TDMModel, TDMModelBase } from './model';
 /**
  * Serialize a class instance into a plain object.
  * @param mapper

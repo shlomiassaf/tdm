@@ -22,7 +22,8 @@ export {
   fireEvents,
   registerEvent,
   TargetStoreEvents,
-  lazyRef
+  lazyRef,
+  getProtoChain
 } from './fw';
 
 export {

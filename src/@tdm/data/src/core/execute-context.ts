@@ -1,14 +1,9 @@
-import { TargetMetadata, MapperFactory } from "@tdm/core";
+import { TargetMetadata, MapperFactory, TDMModel, TDMCollection } from "@tdm/core";
 
 import { findProp } from '../utils';
 import { defaultConfig } from '../default-config';
 import { ActionMetadata } from '../metadata';
-import {
-  IdentityValueType,
-  ResourceError,
-  TDMModel,
-  TDMCollection
-} from '../fw';
+import { IdentityValueType, ResourceError } from '../fw';
 
 export interface ExecuteParams {
   async?: boolean;

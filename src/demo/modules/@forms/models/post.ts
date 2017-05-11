@@ -1,12 +1,10 @@
-import { Prop, BelongsTo, Identity, Resource } from '@tdm/data';
+import { Prop, Relation, Identity, Model } from '@tdm/core';
 import { Validators } from '@angular/forms';
 import { FormModel, FormProp } from '@tdm/ngx-dynamic-forms';
 
 import { User } from './user';
 
-
-
-@Resource({ })
+@Model()
 @FormModel()
 export class Post {
 
@@ -72,7 +70,7 @@ export class Post {
   audience: 'Adult' | 'Teenage' | 'Kids';
 
   @Prop()
-  @BelongsTo()
+  @Relation()
   @FormProp({
     render: {
       ordinal: 2,

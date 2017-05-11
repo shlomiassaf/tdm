@@ -13,7 +13,7 @@ import {
 import * as decoratorFactories from '../metadata/decorator-factories';
 import { Adapter } from '../fw';
 
-// TODO: this is a workaround to allow registering Models with no adapter so `onBuildMetadata` event
+// TODO: this is a workaround to allow registering Models with no adapter so `onProcessType` event
 // fires, need to fire the build event even if no adapter is set, this requires refactoring.
 export class NoopAdapter implements Adapter<any, any> {
   execute(ctx: any, options: any): any { }

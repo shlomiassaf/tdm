@@ -5,7 +5,13 @@ import { MetaFactoryStatic, MetaFactoryInstance } from '../fw/interfaces';
 import { ClassMetadata } from './class-metadata';
 import { TargetMetadata } from './target-metadata';
 
-
+/**
+ * The global type registry.
+ *
+ * Hold {@link TargetMetadata} for models.
+ *
+ * @pluginApi
+ */
 export class TargetStore {
   /**
    * Storage for local, non target specific, data.

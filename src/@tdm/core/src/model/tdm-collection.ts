@@ -1,5 +1,6 @@
 import { Tixin } from '@tdm/tixin';
-import { Constructor, targetStore } from '@tdm/core';
+import { targetStore } from '../metadata/target-store';
+import { Constructor } from '../fw';
 
 const TDMCollectionMark = Symbol('TDMCollection instance mark');
 const NON_EXTENDABLE_PROPS = ['constructor'];

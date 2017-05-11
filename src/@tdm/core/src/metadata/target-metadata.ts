@@ -2,7 +2,6 @@ import {
   Constructor,
   DualKeyMap,
   BaseMetadata,
-  TransformDir,
   TransformStrategy,
   NamingStrategyConfig,
   isString,
@@ -12,11 +11,20 @@ import {
 } from '../fw';
 import { ClassMetadata } from './class-metadata';
 import { PropMetadata } from './prop';
+import { TDMCollection } from '../model';
 
 import { Prop } from '../decorators';
 
 const defaultCollFactory = () => [];
 
+/**
+ * The metadata store for a target.
+ *
+ * Each target in the {@link TargetStore} has a matching TargetMetadata instance.
+ * Each instance holds all the metadata data registered under that target.
+ *
+ * @pluginApi
+ */
 export class TargetMetadata implements ClassMetadata {
   name: string;
   factory: (isColl: boolean) => any;
@@ -70,6 +78,17 @@ export class TargetMetadata implements ClassMetadata {
     if (meta) {
       return meta.get(name);
     }
+  }
+
+  /**
+   * Create a new instance of the TDMCollection for this type.
+   * @returns {TDMCollection}
+   */
+  createCollection(): TDMCollection<any> {
+    return this.collectionClass
+      ? new this.collectionClass()
+      : new TDMCollection()
+      ;
   }
 
   protected get<T, Z, P extends keyof T>(type: T & Constructor<Z>, key: P): Z {

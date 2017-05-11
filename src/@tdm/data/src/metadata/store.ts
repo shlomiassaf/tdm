@@ -1,5 +1,5 @@
-import { TransformDir, Constructor, targetStore, SerializeMapper, DeserializeMapper } from '@tdm/core';
-import { AdapterStatic, TDMModel } from '../fw';
+import { TDMModel, TransformDir, Constructor, targetStore, SerializeMapper, DeserializeMapper } from '@tdm/core';
+import { AdapterStatic } from '../fw';
 
 /**
  *
