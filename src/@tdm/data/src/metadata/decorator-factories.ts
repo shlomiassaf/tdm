@@ -1,5 +1,5 @@
-import { isFunction, targetStore, PropMetadata } from '@tdm/core';
-import { AdapterStatic, TDMModelBase } from '../fw';
+import { isFunction, targetStore, PropMetadata, TDMModelBase } from '@tdm/core';
+import { AdapterStatic } from '../fw';
 import { ResourceMetadataArgs } from './meta-types';
 
 /**

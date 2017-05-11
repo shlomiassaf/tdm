@@ -1,6 +1,6 @@
-import { targetStore, registerEvent, Constructor, isFunction, SetExt, MapExt } from '@tdm/core';
+import { TDMModel, targetStore, registerEvent, Constructor, isFunction, SetExt, MapExt } from '@tdm/core';
 
-import { PluginStore, TDMCollection, ActionMetadata, TDMModel } from '@tdm/data';
+import { PluginStore, TDMCollection, ActionMetadata } from '@tdm/data';
 import { getProtoChain } from '../../utils';
 import { ExecuteContext } from '../../core/execute-context';
 import { AdapterStatic } from '../../fw';

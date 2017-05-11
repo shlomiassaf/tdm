@@ -1,4 +1,5 @@
-import { DAOMethods, TDMModel } from '../fw';
+import { TDMModel } from '@tdm/core';
+import { DAOMethods } from '../fw';
 
 /**
  * String enumeration of active record object methods

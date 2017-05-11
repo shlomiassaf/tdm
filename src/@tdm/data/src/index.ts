@@ -49,10 +49,7 @@ export {
   Adapter,
   ActionOptions,
   plugins,
-  PluginStore,
-  TDMModel,
-  TDMModelBase,
-  TDMCollection
+  PluginStore
 } from './fw';
 
 export {
@@ -72,6 +69,12 @@ export {
   promiser,
 } from './utils';
 
-export { Constructor } from '@tdm/core';
+// re-export common types from core
+export {
+  Constructor,
+  TDMModel,
+  TDMModelBase,
+  TDMCollection
+} from '@tdm/core';
 
 export { DAO, AdapterDAO, TargetDAO } from './dao';

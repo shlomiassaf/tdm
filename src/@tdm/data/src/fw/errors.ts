@@ -1,7 +1,5 @@
-import { stringify } from '@tdm/core';
+import { stringify, TDMModel } from '@tdm/core';
 import { AdapterStatic, ValidationError } from './interfaces';
-import { TDMModel } from './tdm-model';
-
 
 function getErrorName(type: Function): string {
   return `TDM${type.name}`;

@@ -9,7 +9,7 @@ import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/switchMap';
 
-import { targetStore, TargetMetadata, isFunction, MapperFactory } from '@tdm/core';
+import { targetStore, TargetMetadata, isFunction, MapperFactory, TDMCollection } from '@tdm/core';
 import { emitEvent, eventFactory } from '../events';
 import { CancellationTokenResourceEvent, ExecuteInitResourceEvent } from '../events/internal';
 import { defaultConfig } from '../default-config';
@@ -22,8 +22,7 @@ import {
   ExecuteResponse,
   ResourceValidationError,
   ResourceError,
-  ARHookableMethods,
-  TDMCollection
+  ARHookableMethods
 } from '../fw';
 
 import { DAO } from '../dao';

@@ -1,4 +1,4 @@
-import { LazyInit } from '@tdm/core';
+import { LazyInit, TDMModel, TDMCollection } from '@tdm/core';
 import { Observable } from 'rxjs/Observable'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import { Subscription } from 'rxjs/Subscription'
@@ -10,7 +10,7 @@ import 'rxjs/add/operator/share'; // TODO: move to no-side effect implementation
 import { DAO } from '../../dao';
 import { events$, ResourceEvent, ResourceEventType, ActionErrorResourceEvent } from '../../events';
 import { CancellationTokenResourceEvent, ExecuteInitResourceEvent, ExecuteInitResourceEventArgs } from '../../events/internal';
-import { TDMModel, ResourceError, TDMCollection } from '../../fw';
+import { ResourceError } from '../../fw';
 import { promiser } from '../../utils';
 
 // Weak map for private emitter

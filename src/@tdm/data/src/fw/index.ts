@@ -1,8 +1,7 @@
 export * from './interfaces';
 export * from './errors';
 export * from './plugin';
-export * from './tdm-collection';
-export * from './tdm-model';
+
 
 /**
  * @internal

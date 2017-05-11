@@ -1,5 +1,5 @@
 import { TixinFree } from '@tdm/tixin';
-import { Constructor } from '@tdm/core';
+import { Constructor } from '../fw';
 
 const TDMModelMark = Symbol('TDMModel instance mark');
 

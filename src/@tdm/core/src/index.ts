@@ -31,7 +31,7 @@ import { Constructor } from './fw';
 import { MapperFactory } from './mapping';
 import { targetStore } from './metadata';
 
-
+export { TDMCollection, TDMModel, TDMModelBase } from './model';
 /**
  * Serialize a class instance into a plain object.
  * @param mapper

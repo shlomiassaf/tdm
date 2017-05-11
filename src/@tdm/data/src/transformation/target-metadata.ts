@@ -1,7 +1,7 @@
 import { Tixin } from '@tdm/tixin';
-import { targetStore, DecoratorInfo, TargetMetadata, stringify, LazyInit, Constructor, SetExt, fireEvents } from '@tdm/core';
+import { TDMCollection, targetStore, DecoratorInfo, TargetMetadata, stringify, LazyInit, Constructor, SetExt, fireEvents } from '@tdm/core';
 
-import { AdapterError, AdapterStatic, ARHookableMethods, TDMCollection } from '../fw';
+import { AdapterError, AdapterStatic, ARHookableMethods } from '../fw';
 import { getProtoChain } from '../utils';
 import { ExtendActionMetadata, HookMetadata, ResourceMetadataArgs, ValidationError } from '../metadata';
 import { ActionController } from '../core/action-controller';

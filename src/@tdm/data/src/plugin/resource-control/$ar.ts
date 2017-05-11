@@ -1,8 +1,8 @@
-import { TDMModel, TDMCollection } from '../../fw';
+import { TDMModel, TDMCollection } from '@tdm/core';
 import { ResourceControl } from './resource-control';
 
 
-declare module '../../fw/tdm-model' {
+declare module '@tdm/core/model/tdm-model' {
   interface TDMModel<T> {
     /**
      * @extension '@tdm/data/add/resource-control'
@@ -21,7 +21,7 @@ declare module '../../fw/tdm-model' {
 
 export interface StatefulActiveRecordCollection<T> extends TDMCollection<T>, TDMModel<StatefulActiveRecordCollection<T>> { }
 
-declare module '../../fw/tdm-collection' {
+declare module '@tdm/core/model/tdm-collection' {
   interface TDMCollection<T> {
     /**
      * @extension '@tdm/data/add/resource-control'
