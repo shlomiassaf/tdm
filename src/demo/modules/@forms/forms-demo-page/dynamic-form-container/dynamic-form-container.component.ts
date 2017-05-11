@@ -10,7 +10,8 @@ export interface DynamicFormContainerData<T> {
 
 @Component({
   selector: 'dynamic-form-container',
-  template: '<dynamic-form [model]="model"></dynamic-form>'
+  template: '<dynamic-form [model]="model"></dynamic-form>',
+  styleUrls: [ './dynamic-form-container.component.scss' ]
 })
 export class DynamicFormContainerComponent<T> {
 

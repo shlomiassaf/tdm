@@ -53,7 +53,7 @@ export interface LocalRenderInstruction extends RenderInstruction {
   selector: 'dynamic-form',
   template:
 `<form #formElRef [formGroup]="tdmForm.form">
-  <div *ngFor="let item of controls | async; trackBy: tdmForm.trackBy" [style.display]="item.display">
+  <div *ngFor="let item of controls | async; trackBy: tdmForm.trackBy" [ngClass]="controlClass" [style.display]="item.display">
     <ng-container *ngIf="!item.override; else override">
       <ng-container *dynamicFormControl="item"></ng-container>
     </ng-container>
@@ -72,6 +72,15 @@ export class DynamicFormComponent<T> implements AfterContentInit, AfterViewInit,
   @ContentChildren(DynamicFormOverrideDirective) overrides: QueryList<DynamicFormOverrideDirective>;
 
   @ViewChild('formElRef') formElRef: ElementRef;
+
+  /**
+   * A expression to apply on the form control container class.
+   *
+   * Use as if this was an `ngClass` directive.
+   *
+   * > The class will apply on the container that wraps the rendered control and not on the control itself.
+   */
+  @Input() controlClass: string|string[]|Set<string>|{[klass: string]: any};
 
   /**
    * Pass through for @angular/forms `ngNativeValidate` attribute that enables native browser validation

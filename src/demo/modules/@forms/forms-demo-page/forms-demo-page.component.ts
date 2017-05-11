@@ -68,7 +68,7 @@ export class FormsDemoPageComponent {
     let resolve, p = new Promise<void>( res => { resolve = res });
 
     // faking async server call
-    event.async(p);
+    // event.async(p);
 
     if (event.instruction.name === 'author') {
       event.instruction.type = 'select';

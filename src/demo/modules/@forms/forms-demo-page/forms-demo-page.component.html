@@ -28,6 +28,7 @@
 <ng-template #postTemplate>
   <dynamic-form #dyn
                 [model]="posts[0]"
+                [controlClass]="'dynamic-control-container'"
                 (beforeRender)="beforeRenderPost($event)"
                 [disabledState]="controlState.disabled" [hiddenState]="controlState.hidden">
     <div *dynamicFormOverride="'author'; let d" [formGroup]="d.formGroup">
