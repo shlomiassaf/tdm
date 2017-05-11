@@ -5,7 +5,7 @@ import 'rxjs/add/operator/debounceTime';
 
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { TDMCollection } from "@tdm/core";
+import { TDMCollection } from "@tdm/data";
 
 import { UiBlockService, UiBlock } from '@shared';
 import { Model, Make } from '../models';

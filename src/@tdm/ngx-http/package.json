@@ -1,0 +1,21 @@
+{
+  "name": "@tdm/ngx-http",
+  "version": "1.0.1-alpha.1",
+  "description": "Angular http adapter for typed data models.",
+  "main": "bundle/tdm.ngx-http.umd.js",
+  "module": "index.js",
+  "typings": "index.d.ts",
+  "keywords": [
+    "@tdm",
+    "adapter"
+  ],
+  "peerDependencies": {
+    "rxjs": "^5.0.1",
+    "@angular/core": "^4.0.0",
+    "@angular/http": "^4.0.0",
+    "path-to-regexp": "^1.7.0",
+    "@tdm/tixin": "*",
+    "@tdm/core": "*",
+    "@tdm/data": "*"
+  }
+}

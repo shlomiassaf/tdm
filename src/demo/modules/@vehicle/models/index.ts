@@ -1,4 +1,4 @@
-import { ARMixin } from '@tdm/angular-http';
+import { ARMixin } from '@tdm/ngx-http';
 import * as models from './models';
 
 

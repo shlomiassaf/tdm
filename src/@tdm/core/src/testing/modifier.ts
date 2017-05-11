@@ -1,110 +1,244 @@
-import { targetStore as _targetStore, TargetStore as _TargetStore, Constructor, isString, PropMetadata } from '@tdm/transformation';
-import { TargetMetaModifier as _TargetMetaModifier } from '@tdm/transformation/testing';
-import { TestTargetMetadata as _TestTargetMetadata } from '@tdm/transformation/testing/modifier';
-import { Resource, Hook, Owns, BelongsTo, ResourceMetadataArgs } from '@tdm/core';
 import {
-  OwnsMetadataArgs,
-  BelongsToMetadataArgs,
-  OwnsMetadata,
-  BelongsToMetadata,
-  HookMetadataArgs, HookMetadata
-} from '../metadata/meta-types';
-import { ARHookableMethods, ARHooks } from '@tdm/core/active-record/interfaces';
+  Constructor,
+  Prop,
+  PropMetadataArgs,
+  Exclude,
+  ExcludeMetadataArgs,
+  Relation,
+  RelationMetadataArgs
+} from '@tdm/core';
 
-const targetStore: TestTargetStore = _targetStore;
+import {
+  ClassMetadata,
+  PropMetadata,
+  ExcludeMetadata,
+  RelationMetadata,
+  TargetStore,
+  TargetMetadata,
+  targetStore as targetStore_,
+  isFunction
+} from '@tdm/core/ext';
+import { TransformableMetadataArgs } from "@tdm/core/metadata";
 
-class TestTargetStore extends _TargetStore {
+const targetStore: TestTargetStore = targetStore_;
 
-  static remove(type: typeof OwnsMetadata | typeof BelongsToMetadata, target: any, key: string): void {
-    if (targetStore.hasTarget(target)) {
-      switch (type) {
-        case OwnsMetadata:
-        case BelongsToMetadata:
-          if (targetStore.targets.get(target).delete(type, key)) {
-            const prop = targetStore.getMetaFor(target, PropMetadata, key);
-            prop.rel = prop.relation = undefined;
-          }
-          break;
-      }
+function getTargetMetaStore(target: any): TestTargetMetadata {
+  return targetStore.getTargetMeta(target) as any;
+}
+
+class TestTargetStore extends TargetStore {
+
+  static getTargetMeta(target: any): TestTargetMetadata | undefined {
+    return targetStore.builtTargets.get(target);
+  }
+
+  static clear(target: any): void {
+    const meta = targetStore.builtTargets.get(target);
+    if (meta) {
+      targetStore.namedTargets.delete(meta.name);
+      targetStore.builtTargets.delete(target);
+      targetStore.targets.get(target).clear();
+
     }
   }
 
-  static hook(target: any, key: ARHookableMethods, meta: HookMetadataArgs | 'before' | 'after' | false): void {
-    if (targetStore.hasTarget(target)) {
-      const dkm = targetStore.targets.get(target);
-      const hook = targetStore.getMetaFor(target, HookMetadata, key);
-
-      if (meta === false && hook) {
-        dkm.delete(HookMetadata, key);
-      } else if (isString(meta) && hook) {
-        delete hook[meta];
-        if (Object.keys(hook).length === 0) {
-          dkm.delete(HookMetadata, key);
-        }
-      } else if (meta) {
-        const type = ARHooks[key] ? ARHooks[key].type : 'static';
-        // if !ARHooks[key] Hook will throw, let it manage that.
-        Hook(meta as any)(type === 'instance' ? target.prototype : target, key, null);
-      }
+  static removeClassProp(target: Constructor<any>, key: keyof ClassMetadata) {
+    if (targetStore.builtTargets.has(target)) {
+      delete targetStore.builtTargets.get(target)[key];
     }
-  }
 
-  static addOwns(target: any, key: string, meta?: OwnsMetadataArgs<any>): void {
-    Owns(meta)(target.prototype, key);
-  }
-
-  static addBelongsTo(target: any, key: string, meta?: BelongsToMetadataArgs): void {
-    BelongsTo(meta)(target.prototype, key);
+    if (targetStore.targets.has(target)) {
+      return targetStore.targets.get(target).delete(ClassMetadata, key);
+    }
   }
 }
 
-export class TargetMetaModifier<T, Z> extends _TargetMetaModifier<T, Z> {
+export class TestTargetMetadata extends TargetMetadata {
+  static getFactory<T, Z>(type: Z & Constructor<T>): (target: any, key: any) => T | undefined {
+    return (target: any, key: string) => {
+      const t = getTargetMetaStore(target);
+      if (t) {
+        return t.config.get(type, key);
+      }
+    }
+  }
 
+  static removeFactory<T, Z>(type: Z & Constructor<T>): (target: any, key: any) => boolean {
+    return (target: any, key: string) => {
+      const t = TestTargetStore.getTargetMeta(target);
+      if (t) {
+        return t.config.delete(type, key);
+      }
+    }
+  }
 
-  updateResource(resource: ResourceMetadataArgs): this {
-    targetStore.setResource(resource, this.target);
+  static getRelation = TestTargetMetadata.getFactory(RelationMetadata);
+  static getProp = TestTargetMetadata.getFactory(PropMetadata);
+  static getExclude = TestTargetMetadata.getFactory(ExcludeMetadata);
+
+  static removeRelation = TestTargetMetadata.removeFactory(RelationMetadata);
+  static removeProp = TestTargetMetadata.removeFactory(PropMetadata);
+  static removeExclude = TestTargetMetadata.removeFactory(ExcludeMetadata);
+
+  static getClassProp<P extends keyof ClassMetadata>(target: Constructor<any>, propName: keyof ClassMetadata): ClassMetadata[P] {
+    const t = getTargetMetaStore(target);
+    if (t) {
+      return t[propName];
+    }
+  }
+
+  static removeClassProp(target: Constructor<any>, propName: keyof ClassMetadata): boolean {
+    return TestTargetStore.removeClassProp(target, propName);
+  }
+
+  static setClassProp<P extends keyof ClassMetadata>(target: Constructor<any>, propName: P, value: ClassMetadata[P]): void {
+    targetStore.setClassProp(target, propName, value);
+  }
+
+  static addRelation(target: Constructor<any>, key: string, meta?: RelationMetadataArgs): void {
+    Relation(meta)(target.prototype, key);
+  }
+
+  static addProp(target: Constructor<any>, key: string, meta?: PropMetadataArgs): void {
+    Prop(meta)(target.prototype, key);
+  }
+
+  static setExcludeClass(target: Constructor<any>): void {
+    Exclude()(target);
+  }
+
+  static addExclude(target: Constructor<any>, key: string, meta?: ExcludeMetadataArgs): void {
+    Exclude(meta)(target.prototype, key);
+  }
+
+}
+
+export class TargetMetaModifier<T, Z> {
+  constructor(public target: Z & Constructor<T>) {
+  }
+
+  clear(): this {
+    TestTargetStore.clear(this.target);
+    return this;
+  }
+
+  updateResource(resource: TransformableMetadataArgs): this {
+    targetStore.setTransformable(resource, this.target);
     return this;
   }
 
 
   /**
-   * Add/Remove/Replace a hook
-   * If meta is false remove all hooks from method
-   * If meta is 'before' or 'after' remove that hook only
-   * otherwise replace the hook
+   * Set/Update the identity field.
+   * If key is empty will set to default name
    * @param key
-   * @param meta
    * @returns {TargetMetaModifier}
    */
-  hook(key: ARHookableMethods, meta: HookMetadataArgs | 'before' | 'after' | false): this {
-    TestTargetStore.hook(this.target, key, meta);
+  setName(name?: string): this {
+    TestTargetMetadata.setClassProp(this.target, 'name', name);
     return this;
   }
 
-  owns(key: string, meta?: OwnsMetadataArgs<any> | false): this {
-    TestTargetStore.remove(OwnsMetadata, this.target, key);
+  /**
+   * Set/Update/Remove the identity field.
+   * If key is empty will remove identity.
+   * @param key
+   * @returns {TargetMetaModifier}
+   */
+  setIdentity(key?: keyof T): this {
+    TestTargetMetadata.setClassProp(this.target, 'identity', key);
+    return this;
+  }
 
-    if (meta === false) return;
+  /**
+   * Set exclusion/inclusion at the class level
+   * @param exclude
+   * @returns {TargetMetaModifier}
+   */
+  setExclude(exclude: boolean): this {
+    if (!exclude) {
+      TestTargetMetadata.removeClassProp(this.target, 'transformStrategy');
+    } else {
+      TestTargetMetadata.setExcludeClass(this.target);
+    }
+    return this;
+  }
 
-    if (!targetStore.getMetaFor(this.target, PropMetadata, key)) {
-      throw new Error('TestTargetMetadataStore does not support adding relations without Prop, please set a Prop first');
+  getProp<P extends keyof T>(key: P): PropMetadata {
+    return TestTargetMetadata.getProp(this.target, key);
+  }
+
+  getRelation<P extends keyof T>(key: P): RelationMetadata {
+    return TestTargetMetadata.getRelation(this.target, key);
+  }
+
+  getExclude<P extends keyof T>(key: P): ExcludeMetadata {
+    return TestTargetMetadata.getExclude(this.target, key);
+  }
+
+  getClassProp<P extends keyof ClassMetadata>(key: P): ClassMetadata[P] {
+    return TestTargetMetadata.getClassProp(this.target, key);
+  }
+
+  classProp<P extends keyof ClassMetadata>(key: P, value?: ClassMetadata[P] | false): this {
+    TestTargetMetadata.removeClassProp(this.target, key);
+    if (typeof value !== 'boolean') {
+      TestTargetMetadata.setClassProp(this.target, key, value);
+    }
+    return this;
+  }
+
+  relation(key: keyof T, meta?: RelationMetadataArgs | false): this {
+    TestTargetMetadata.removeRelation(this.target, key);
+
+    if (typeof meta !== 'boolean') {
+      TestTargetMetadata.addRelation(this.target, key, meta);
     }
 
-    TestTargetStore.addOwns(this.target, key, meta);
     return this;
   }
 
-  belongsTo(key: string, meta?: BelongsToMetadataArgs | false): this {
-    TestTargetStore.remove(BelongsToMetadata, this.target, key);
-    if (meta === false) return;
+  /**
+   * Add or remove prop, to remove set meta to false
+   * @param key
+   * @param meta
+   * @param type
+   * @returns {any}
+   */
+  prop(key: keyof T, meta?: PropMetadataArgs | false | Function, type?: Function): this {
+    TestTargetMetadata.removeProp(this.target, key);
 
-    if (!targetStore.getMetaFor(this.target, PropMetadata, key)) {
-      throw new Error('TestTargetMetadataStore does not support adding relations without Prop, please set a Prop first');
+    if (typeof meta !== 'boolean' && !isFunction(meta)) {
+      TestTargetMetadata.addProp(this.target, key, meta);
+    } else if (isFunction(meta)) {
+      type = meta;
     }
-    TestTargetStore.addBelongsTo(this.target, key, meta);
+
+    if (isFunction(type)) {
+      (Reflect as any).defineMetadata("design:type", type, this.target.prototype, key);
+    }
+
     return this;
   }
 
+  props(...args: Array<keyof T>): this {
+    args.forEach(a => this.prop(a));
+    return this;
+  }
+
+  /**
+   * Add or remove exclude, to remove set meta to false
+   * @param key
+   * @param meta
+   * @returns {any}
+   */
+  exclude(key: keyof T, meta?: ExcludeMetadataArgs | false): this {
+    TestTargetMetadata.removeExclude(this.target, key);
+    if (typeof meta !== 'boolean') {
+      TestTargetMetadata.addExclude(this.target, key, meta);
+    }
+    return this;
+  }
 
   static create<T, Z>(target: Z & Constructor<T>): TargetMetaModifier<T, Z> {
     return new TargetMetaModifier(target);

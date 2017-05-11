@@ -20,7 +20,7 @@ Defines the constructs used to define the relationships between properties of a 
 Provides a mapper to transform a model into a form and vice versa, based on the metadata definitions.  
  
 ```ts
-import { Prop, Exclude, Identity } from '@tdm/core';
+import { Prop, Exclude, Identity } from '@tdm/data';
 import { FormModel, FormProp } from '@tdm/ngx-dynamic-forms';
 import { Validators } from '@angular/forms';
 

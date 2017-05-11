@@ -1,17 +1,19 @@
 {
   "name": "@tdm/core",
-  "version": "1.0.0-alpha.15",
-  "description": "Typed data models (@tdm) core library",
+  "version": "1.0.1-alpha.1",
+  "description": "Typed data models (@tdm) main morph/transformation module",
   "main": "bundle/tdm.core.umd.js",
   "module": "index.js",
   "typings": "bundle.d.ts",
   "keywords": [
     "@tdm",
-    "core"
+    "json",
+    "api",
+    "more",
+    "transformation",
+    "mapper"
   ],
   "peerDependencies": {
-    "rxjs": "^5.0.1",
-    "@tdm/tixin": "*",
-    "@tdm/transformation": "*"
+    "@tdm/tixin": "*"
   }
 }

@@ -7,8 +7,8 @@ import {
   directMapper,
   targetStore,
   TargetMetadata
-} from '@tdm/transformation';
-import '@tdm/transformation/add/mapping';
+} from '@tdm/core';
+import '@tdm/core/add/mapping';
 
 import { NgFormsSerializeMapper, NgFormsDeserializeMapper } from './angular-forms-mapper';
 

@@ -1,6 +1,6 @@
 import { camelCase, snakeCase } from 'voca';
-import { ExtendAction, ExecuteContext, Identity, TDMCollection } from '@tdm/core';
-import { ARMixin, HttpResource, UrlParam, HttpActionOptions } from '@tdm/angular-http';
+import { ExtendAction, ExecuteContext, Identity, TDMCollection } from '@tdm/data';
+import { ARMixin, HttpResource, UrlParam, HttpActionOptions } from '@tdm/ngx-http';
 
 /**
  * This resource wraps a single endpoint REST API which means it is not resource oriented.

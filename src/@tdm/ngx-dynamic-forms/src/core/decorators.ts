@@ -15,8 +15,8 @@ import {
   DecoratorInfo,
   BaseMetadata,
   PropMetadata
-} from '@tdm/transformation';
-import '@tdm/core';
+} from '@tdm/core';
+import '@tdm/data';
 
 import { RenderDef } from '../interfaces';
 
@@ -190,13 +190,13 @@ function onBuildMetadata(target: Constructor<any>) {
 }
 registerEvent('onBuildMetadata', onBuildMetadata);
 
-declare module '@tdm/transformation/metadata/target-metadata' {
+declare module '@tdm/core/metadata/target-metadata' {
   interface TargetMetadata {
     formModel: FormModelMetadata;
   }
 }
 
-declare module '@tdm/transformation/metadata/class-metadata' {
+declare module '@tdm/core/metadata/class-metadata' {
   interface ClassMetadata {
     formModel: FormModelMetadata;
   }

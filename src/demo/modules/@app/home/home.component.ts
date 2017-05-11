@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { DAO } from '@tdm/core';
+import { DAO } from '@tdm/data';
 
 import { UserBaseClass, UserConst, UsersInterface, UserDAO } from '../resource';
 

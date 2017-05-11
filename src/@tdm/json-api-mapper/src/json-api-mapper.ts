@@ -8,9 +8,9 @@ import {
   PropMetadata,
   PlainSerializer,
   targetStore
-} from '@tdm/transformation';
+} from '@tdm/core';
 
-import '@tdm/transformation/add/mapping';
+import '@tdm/core/add/mapping';
 
 import { TopLevel, ResourceObject, ResourceIdentifierObject } from './json-api';
 import * as japiUtils from './json-api-utils';

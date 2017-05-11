@@ -1,5 +1,5 @@
-import { Prop, ExtendAction, ExecuteContext, Identity, Exclude } from '@tdm/core';
-import { ARMixin, HttpResource, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/angular-http';
+import { Prop, ExtendAction, ExecuteContext, Identity, Exclude } from '@tdm/data';
+import { ARMixin, HttpResource, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/ngx-http';
 
 import { packageMapper } from '../mapper';
 

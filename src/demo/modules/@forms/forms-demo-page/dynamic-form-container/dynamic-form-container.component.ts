@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MdDialogRef, MD_DIALOG_DATA } from '@angular/material';
 
-import { Constructor } from '@tdm/transformation';
+import { Constructor } from '@tdm/core';
 
 export interface DynamicFormContainerData<T> {
   instance: T;

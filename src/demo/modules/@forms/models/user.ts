@@ -1,4 +1,4 @@
-import { Prop, Identity, Resource } from '@tdm/core';
+import { Prop, Identity, Resource } from '@tdm/data';
 import { FormModel, FormProp } from '@tdm/ngx-dynamic-forms';
 
 @Resource({ })

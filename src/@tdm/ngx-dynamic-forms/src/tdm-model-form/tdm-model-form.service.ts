@@ -1,5 +1,5 @@
 import { Injectable, Type } from '@angular/core';
-import { targetStore, PropMetadata } from '@tdm/transformation';
+import { targetStore, PropMetadata } from '@tdm/core';
 import { TDMModelForm } from './tdm-model-form';
 
 import { FormModelMetadata } from '../core';

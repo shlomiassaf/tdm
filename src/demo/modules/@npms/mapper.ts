@@ -3,7 +3,7 @@ import {
   DeserializeMapper,
   SerializeMapper,
   directMapper
-} from '@tdm/transformation';
+} from '@tdm/core';
 
 
 export const packageMapper: MapperFactory = {

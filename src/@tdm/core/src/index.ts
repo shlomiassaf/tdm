@@ -1,77 +1,55 @@
-import '@tdm/transformation/add/mapping';
-
 export {
-  ActionMetadata,
-  ActionMetadataArgs,
-  ActionMethodType,
-  AdapterMetadata,
-  AdapterMetadataArgs,
-  AfterHook,
-  BeforeHook,
-  BelongsTo,
-  BelongsToMetadata,
-  BelongsToMetadataArgs,
-  decoratorFactories,
-  Exclude,
-  ExtendAction,
-  ExtendActionMetadata,
-  Hook,
-  HookMetadata,
-  HookMetadataArgs,
-  Identity,
-  Owns,
-  OwnsMetadata,
-  OwnsMetadataArgs,
-  Prop,
-  PostActionHandler,
-  PostActionMetadata,
-  Relationship,
-  RelationshipType,
-  Resource,
-  ResourceMetadataArgs,
-  ValidationContext,
-  ValidationError,
-  ValidationMetadataArgs,
-  ValidationSchedule,
-  Validator,
-  store
-} from './metadata';
-
-import './transformation'; // extending @tdm/transformation
-export * from './core';
-
-export { validators } from './core-validators';
-
-export {
-  ActiveRecord,
-  IdentityValueType,
-  ExecuteResponse,
-  Adapter,
-  ActionOptions,
-  plugins,
-  PluginStore,
-  TDMModel,
-  TDMModelBase,
-  TDMCollection
+  Constructor,
+  TransformDir,
+  TransformFn,
+  TransformStrategy,
+  NamingStrategyConfig
 } from './fw';
 
 export {
-  events$,
-  ResourceEvent,
-  ResourceEventType,
-  ActionErrorResourceEvent,
-  ActionEndResourceEvent,
-  eventFactory
-} from './events';
+  PropMetadataArgs,
+  RelationMetadataArgs,
+  ExcludeMetadataArgs,
+  TransformableMetadataArgs
+} from './metadata';
 
-export {
-  findProp,
-  PlainSerializer,
-  isSymbol,
-  isPropertyKey,
-  promiser,
-} from './utils';
 
-export { Constructor } from '@tdm/transformation';
+// TODO: this is for node support, since esm can be used on node (cant require @tdm/core/ext)
+//        this introduces noise to the main import...
+export * from './ext';
 
-export { DAO, AdapterDAO, TargetDAO } from './dao';
+// import/export order is important to prevent null on circular dependencies.
+export { Transformable } from './add/transformable';
+import './add/target-store';
+
+export { directMapper, TransformationError, DirectSerializeMapper, DirectDeserializeMapper } from './mapping';
+
+export { Prop, Exclude, Relation, Identity } from './decorators';
+
+// public serialize / deserialize functions
+import { Constructor } from './fw';
+import { MapperFactory } from './mapping';
+import { targetStore } from './metadata';
+
+
+/**
+ * Serialize a class instance into a plain object.
+ * @param mapper
+ * @param instance
+ * @param type optional, if not set taken from instance.constructor
+ * @returns {any}
+ */
+export function serialize<T, Z>(mapper: MapperFactory, instance: T, type?: Z & Constructor<T>): any {
+  return targetStore.serialize(type || instance.constructor as any, mapper.serializer(instance));
+}
+
+/**
+ * De-serialize a plain object into a new instance of a type
+ * @param mapper
+ * @param plainObject
+ * @param type
+ * @returns {any|any[]|undefined}
+ */
+export function deserialize<T, Z>(mapper: MapperFactory, plainObject: any, type: Z & Constructor<T>): T {
+  return targetStore.deserialize(mapper.deserializer(plainObject, type));
+}

@@ -1,4 +1,4 @@
-import { Prop, BelongsTo, Identity, Resource } from '@tdm/core';
+import { Prop, BelongsTo, Identity, Resource } from '@tdm/data';
 import { Validators } from '@angular/forms';
 import { FormModel, FormProp } from '@tdm/ngx-dynamic-forms';
 

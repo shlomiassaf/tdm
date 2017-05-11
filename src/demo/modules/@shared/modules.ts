@@ -4,7 +4,7 @@ import { FlexLayoutModule } from "@angular/flex-layout";
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { MaterialModule } from '@angular/material';
-import { HttpResourceModule } from '@tdm/angular-http';
+import { HttpResourceModule } from '@tdm/ngx-http';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 export const ROOT_MODULES: any = [

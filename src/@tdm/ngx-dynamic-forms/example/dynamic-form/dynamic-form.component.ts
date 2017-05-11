@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Constructor } from '@tdm/transformation';
+import { Constructor } from '@tdm/core';
 import { TDMModelForm, TDMModelFormService } from '@tdm/ngx-dynamic-forms';
 
 

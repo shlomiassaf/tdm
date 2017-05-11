@@ -1,4 +1,4 @@
-import { ARMixin } from '@tdm/angular-http';
+import { ARMixin } from '@tdm/ngx-http';
 import { Package as Package_ } from './package';
 
 

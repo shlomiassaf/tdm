@@ -1,7 +1,7 @@
 import { Component, ViewChild, TemplateRef } from '@angular/core';
 import { MdDialog } from '@angular/material';
 
-import { TDMCollection } from '@tdm/core';
+import { TDMCollection } from '@tdm/data';
 import { BeforeRenderEventHandler } from '@tdm/ngx-dynamic-forms';
 
 import { DynamicFormContainerComponent } from './dynamic-form-container/dynamic-form-container.component';
