@@ -74,6 +74,20 @@ export class DynamicFormComponent<T> implements AfterContentInit, AfterViewInit,
   @ViewChild('formElRef') formElRef: ElementRef;
 
   /**
+   * Real time binding between the form and the model.
+   *
+   * When true, every value change event emitted from the from will trigger and update to the model.
+   *
+   * When false (default) the form data model and the model instance are not bound, to update the model
+   * you need to invoke the TDMModelForm.commitToModel
+   *
+   * > A hot bind is one way, from form update to the model.
+   *
+   * @default false
+   */
+  @Input() hotBind: boolean;
+
+  /**
    * A expression to apply on the form control container class.
    *
    * Use as if this was an `ngClass` directive.
@@ -345,11 +359,17 @@ export class DynamicFormComponent<T> implements AfterContentInit, AfterViewInit,
     const s = this.tdmForm.form.valueChanges.subscribe(formValue => {
       if (!this.valueDiffer) {
         this.valueDiffer = this.kvDiffers.find(formValue).create();
+        this.valueDiffer.diff(formValue); // for some reason objects do not commit the 1st time
       } else {
         const arr: KeyValueChangeRecord<string, any>[] = [];
         const diff = this.valueDiffer.diff(formValue);
         if (diff) {
-          diff.forEachChangedItem(change => arr.push(change));
+          diff.forEachChangedItem(change => {
+            if (this.hotBind === true) {
+              this.instance[change.key] = change.currentValue;
+            }
+            arr.push(change);
+          });
           this.valueChanges.next(arr);
         }
 

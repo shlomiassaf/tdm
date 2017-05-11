@@ -29,6 +29,7 @@
   <dynamic-form #dyn
                 [model]="posts[0]"
                 [controlClass]="'dynamic-control-container'"
+                [hotBind]="hotBind"
                 (beforeRender)="beforeRenderPost($event)"
                 [disabledState]="controlState.disabled" [hiddenState]="controlState.hidden">
     <div *dynamicFormOverride="'author'; let d" [formGroup]="d.formGroup">
@@ -44,6 +45,7 @@
   <ng-template #state>
     <hr>
 
+    <md-checkbox [value]="hotBind" (change)="hotBind = $event.checked">Hot binding</md-checkbox>
     <div style="font-size: 14px">
       <span style="display: inline-block; width: 30%"></span>
       <span style="display: inline-block; width: 35%">Disabled</span>

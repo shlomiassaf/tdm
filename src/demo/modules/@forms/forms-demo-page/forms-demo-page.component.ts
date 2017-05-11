@@ -16,6 +16,8 @@ import { posts, users } from '../db';
   templateUrl: './forms-demo-page.component.html'
 })
 export class FormsDemoPageComponent {
+  hotBind: boolean;
+
   postColumns: any;
   userColumns: any;
 
@@ -44,7 +46,7 @@ export class FormsDemoPageComponent {
       { prop: 'title' },
       { prop: 'tldr' },
       { prop: 'content' },
-      { prop: 'author' }
+      { name: 'author', prop: 'author.name' }
     ];
     this.userColumns = [
       { prop: 'id' },
