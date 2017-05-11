@@ -22,6 +22,8 @@ post.id = 1;
 post.title = 'Title 1';
 post.tldr = 'tldr 1';
 post.content = 'text 1';
+post.level = 3;
+post.audience = 'Adult';
 post.author = user;
 
 posts.push(post);

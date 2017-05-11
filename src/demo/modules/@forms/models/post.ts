@@ -1,4 +1,5 @@
 import { Prop, BelongsTo, Identity, Resource } from '@tdm/core';
+import { Validators } from '@angular/forms';
 import { FormModel, FormProp } from '@tdm/ngx-dynamic-forms';
 
 import { User } from './user';
@@ -15,7 +16,8 @@ export class Post {
       ordinal: 1,
       type: 'number',
       label: 'Post ID',
-      required: true
+      required: true,
+      data: { min: 1 }
     }
   })
   id: number;
@@ -49,6 +51,25 @@ export class Post {
   })
   tldr: string;
 
+  @FormProp({
+    render: {
+      ordinal: 6,
+      type: 'slider',
+      label: 'Level',
+      data: { min: 1, max: 5}
+    }
+  })
+  level: number;
+
+  @FormProp({
+    render: {
+      ordinal: 6,
+      type: 'radio',
+      label: 'Audience',
+      data: { selections: [ { value: 'Adult' }, { value: 'Teenage' }, { value: 'Kids' }] }
+    }
+  })
+  audience: 'Adult' | 'Teenage' | 'Kids';
 
   @Prop()
   @BelongsTo()

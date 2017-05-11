@@ -3,6 +3,7 @@ import { FormElementType } from '@tdm/ngx-dynamic-forms';
 declare module '@tdm/ngx-dynamic-forms/interfaces' {
   interface FormElementType {
     select: 'select',
+    radio: 'radio',
     password: 'password',
     slider: 'slider',
     slideToggle: 'slideToggle',

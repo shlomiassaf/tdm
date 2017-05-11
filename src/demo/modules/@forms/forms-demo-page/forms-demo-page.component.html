@@ -26,13 +26,37 @@
 </div>
 
 <ng-template #postTemplate>
-  <!--<dynamic-form #dyn [model]="posts[0]" (beforeRender)="beforeRenderPost($event)">-->
-  <dynamic-form #dyn [model]="posts[0]">
+  <dynamic-form #dyn
+                [model]="posts[0]"
+                (beforeRender)="beforeRenderPost($event)"
+                [disabledState]="controlState.disabled" [hiddenState]="controlState.hidden">
     <div *dynamicFormOverride="'author'; let d" [formGroup]="d.formGroup">
       <md-select formControlName="author" [placeholder]="d.meta.label">
         <md-option *ngFor="let user of users" [value]="user">{{user.name}}</md-option>
       </md-select>
     </div>
   </dynamic-form>
+
+  <div *ngIf="dyn.renderState | async; else state">
+    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+  </div>
+  <ng-template #state>
+    <hr>
+
+    <div style="font-size: 14px">
+      <span style="display: inline-block; width: 30%"></span>
+      <span style="display: inline-block; width: 35%">Disabled</span>
+      <span style="display: inline-block">Hidden</span>
+      <div *ngFor="let prop of ['id', 'title', 'tldr', 'content', 'level', 'audience', 'author']">
+        <span style="display: inline-block; width: 30%">{{prop}}</span>
+        <md-checkbox style="display: inline-block; width: 35%"
+                     [checked]="controlState.disabled.indexOf(prop) > -1"
+                     (click)="handleControlState('disabled', prop)"></md-checkbox>
+        <md-checkbox style="display: inline-block"
+                     [checked]="controlState.hidden.indexOf(prop) > -1"
+                     (click)="handleControlState('hidden', prop)"></md-checkbox>
+      </div>
+    </div>
+  </ng-template>
 
 </ng-template>

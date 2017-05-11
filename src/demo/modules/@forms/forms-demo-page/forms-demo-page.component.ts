@@ -22,6 +22,8 @@ export class FormsDemoPageComponent {
   posts: TDMCollection<Post> = posts;
   users: TDMCollection<User> = users;
 
+  controlState = { disabled: ['id'], hidden: ['title'] };
+
   @ViewChild('postTemplate') postTemplate: TemplateRef<any>;
   constructor(public dialog: MdDialog) {}
 
@@ -51,16 +53,28 @@ export class FormsDemoPageComponent {
     ];
   }
 
+  handleControlState(stateKey: 'disabled' | 'hidden', name: string): void {
+    setTimeout(() => {
+      const idx = this.controlState[stateKey].indexOf(name);
+      if (idx === -1) {
+        this.controlState[stateKey].push(name);
+      } else {
+        this.controlState[stateKey].splice(idx, 1);
+      }
+    });
+  }
+
   beforeRenderPost(event: BeforeRenderEventHandler) {
     let resolve, p = new Promise<void>( res => { resolve = res });
 
-    // event.async(p);
+    // faking async server call
+    event.async(p);
 
     if (event.instruction.name === 'author') {
       event.instruction.type = 'select';
       event.instruction.data = { selections: this.users.map( u => ({ value: u, label: u.name}) ) };
     }
 
-    // setTimeout(() => resolve(), 1000);
+    setTimeout(() => resolve(), 1000);
   }
 }

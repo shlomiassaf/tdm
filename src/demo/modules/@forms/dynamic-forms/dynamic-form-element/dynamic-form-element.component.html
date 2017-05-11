@@ -6,28 +6,26 @@
                    [formControlName]="item.name">{{ item.label }}</md-slide-toggle>
 
 
-  <md-input-container *ngSwitchCase="'number'">
-    <input type="number" [formControlName]="item.name" mdInput [placeholder]="item.label">
-  </md-input-container>
+  <ng-container *ngSwitchCase="'slider'">
+    <span>{{item.label}}</span>
+    <md-slider [formControlName]="item.name"
+               thumbLabel="true"
+               [tickInterval]="1"
+               [min]="item.data?.min" [max]="item.data?.max"></md-slider>
+  </ng-container>
 
-  <md-slider *ngSwitchCase="'slider'" [formControlName]="item.name" [min]="item.data.min" [max]="item.data.max">{{item.label}}</md-slider>
-
-
-  <md-input-container *ngSwitchCase="'text'">
-    <input type="text" [formControlName]="item.name" mdInput [placeholder]="item.label">
-  </md-input-container>
-
-  <md-input-container *ngSwitchCase="'password'">
-    <input type="password" [formControlName]="item.name" mdInput [placeholder]="item.label">
-  </md-input-container>
-
-  <md-input-container *ngSwitchCase="'textarea'">
-    <input type="textarea" [formControlName]="item.name" mdInput [placeholder]="item.label">
-  </md-input-container>
 
   <ng-container *ngSwitchCase="'childForm'">
     <dynamic-form *ngIf="tdmForm.model[item.name]" [model]="tdmForm.model[item.name]"></dynamic-form>
   </ng-container>
+
+  <ng-container *ngSwitchCase="'radio'">
+    <span>{{item.label}}</span>
+    <md-radio-group *ngSwitchCase="'radio'" [formControlName]="item.name">
+      <md-radio-button *ngFor="let sel of item.data.selections" [value]="sel.value">{{sel.label || sel.value}}</md-radio-button>
+    </md-radio-group>
+  </ng-container>
+
 
   <md-select *ngSwitchCase="'select'"
              [formControlName]="item.name"
@@ -35,5 +33,13 @@
     <md-option *ngFor="let sel of item.data.selections" [value]="sel.value">{{sel.label || sel.value}}</md-option>
   </md-select>
 
+  <md-input-container *ngSwitchDefault>
+    <input mdInput
+           [type]="item.type"
+           [formControlName]="item.name"
+           [placeholder]="item.label"
+           [min]="item.data?.min" [max]="item.data?.max">
+    <md-error *ngIf="tdmForm.hasError('required', item.name)">Required</md-error>
+  </md-input-container>
 
 </ng-container>
