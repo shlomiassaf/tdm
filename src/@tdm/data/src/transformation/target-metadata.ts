@@ -79,18 +79,6 @@ class CoreTargetMetadata extends TargetMetadata {
     fireEvents('onBuildMetadata', this.target);
   }
 
-  /**
-   * Create a new instance of the TDMCollection for this type.
-   * @returns {TDMCollection}
-   */
-  createCollection(): TDMCollection<any> {
-    return this.collectionClass
-      ? new this.collectionClass()
-      : new TDMCollection()
-    ;
-  }
-
-
   private getProtoChainWithMixins(target: Constructor<any>, adapterClass: AdapterStatic<any, any>): Set<Constructor<any>> {
     return getProtoChain(target)
       .reduce( (protoSet, proto) => {
@@ -142,8 +130,6 @@ declare module '@tdm/core/metadata/target-metadata' {
      * Returns the  action controller of an adapter on this target.
      */
     getAC(adapterClass: AdapterStatic<any, any>, create?: boolean): ActionController | undefined;
-
-    createCollection(): TDMCollection<any>;
 
     getExtendingAction(info: DecoratorInfo): ExtendActionMetadata | undefined;
 

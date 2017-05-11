@@ -12,6 +12,7 @@ import {
 } from '../fw';
 import { ClassMetadata } from './class-metadata';
 import { PropMetadata } from './prop';
+import { TDMCollection } from '../model';
 
 import { Prop } from '../decorators';
 
@@ -70,6 +71,17 @@ export class TargetMetadata implements ClassMetadata {
     if (meta) {
       return meta.get(name);
     }
+  }
+
+  /**
+   * Create a new instance of the TDMCollection for this type.
+   * @returns {TDMCollection}
+   */
+  createCollection(): TDMCollection<any> {
+    return this.collectionClass
+      ? new this.collectionClass()
+      : new TDMCollection()
+      ;
   }
 
   protected get<T, Z, P extends keyof T>(type: T & Constructor<Z>, key: P): Z {
