@@ -14,7 +14,7 @@ export function Model(metaArgs?: ModelMetadataArgs): Function {
   return (target: any) => {
     if (metaArgs) {
       Object.keys(metaArgs)
-        .forEach( key => this.setClassProp(target, key, metaArgs[key]) );
+        .forEach( key => targetStore.setClassProp(target, <any>key, metaArgs[key]) );
     }
 
     getProtoChain(target)
