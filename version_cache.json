@@ -1,26 +1,26 @@
 {
-  "angular-http": {
-    "commit": "7a9fda0a343a6774fd02e84884d7797c72c6e068",
-    "version": "1.0.0-alpha.12"
-  },
   "core": {
-    "commit": "e78abb22dc3ac120d09478bc5a9f8e610096f886",
-    "version": "1.0.0-alpha.15"
+    "commit": "68af9296bb66fedff68b222d81863c2365daf73c",
+    "version": "1.0.1-alpha.2"
+  },
+  "data": {
+    "commit": "68af9296bb66fedff68b222d81863c2365daf73c",
+    "version": "1.0.1-alpha.2"
   },
   "json-api-mapper": {
-    "commit": "b60e263490e0ced19fa81e53ef7abc713522e1e0",
-    "version": "1.0.0-alpha.12"
+    "commit": "50185b2d96e8541accea3dbb274f4830b666b932",
+    "version": "1.0.1-alpha.2"
   },
   "ngx-dynamic-forms": {
-    "commit": "11d0a0578a8ae9944afe180004a9146bebc713cd",
-    "version": "1.0.0-alpha.3"
+    "commit": "39dd51a02bfbd178ea46e7930cad4ab13a0a2279",
+    "version": "1.0.1-alpha.2"
+  },
+  "ngx-http": {
+    "commit": "50185b2d96e8541accea3dbb274f4830b666b932",
+    "version": "1.0.1-alpha.2"
   },
   "tixin": {
     "commit": "41de7a91031c23a1f0bc15d43807764a963f3933",
-    "version": "1.0.0-alpha.12"
-  },
-  "transformation": {
-    "commit": "bceff7f02b21fa094a9bd4197f829dc2ecf3eb2c",
-    "version": "1.0.0-alpha.14"
+    "version": "1.0.1-alpha.2"
   }
 }
