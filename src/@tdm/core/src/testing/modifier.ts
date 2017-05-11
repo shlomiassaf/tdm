@@ -18,7 +18,7 @@ import {
   targetStore as targetStore_,
   isFunction
 } from '@tdm/core/ext';
-import { TransformableMetadataArgs } from "@tdm/core/metadata";
+import { ModelMetadataArgs } from "@tdm/core/metadata";
 
 const targetStore: TestTargetStore = targetStore_;
 
@@ -122,8 +122,8 @@ export class TargetMetaModifier<T, Z> {
     return this;
   }
 
-  updateResource(resource: TransformableMetadataArgs): this {
-    targetStore.setTransformable(resource, this.target);
+  updateResource(resource: ModelMetadataArgs): this {
+    targetStore.setModel(resource, this.target);
     return this;
   }
 

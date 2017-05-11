@@ -46,22 +46,6 @@ export function promiser<T>(): { resolve: (result?: T) => void, reject: (error: 
   return { resolve, reject, promise };
 }
 
-/**
- * Returns the chain of prototypes up to Object (not included)
- * @param cls
- * @returns {Array}
- */
-export function getProtoChain(cls: Constructor<any>): Constructor<any>[] {
-  const classes = [];
-  while (cls && cls !== Object) {
-    classes.push(cls);
-
-    const proto = Object.getPrototypeOf(cls.prototype);
-    cls = isFunction(proto) || !proto ? proto : proto.constructor;
-  }
-  return classes;
-}
-
 export const array = function() {
   const scalar = v => !Array.isArray(v);
 

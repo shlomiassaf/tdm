@@ -1,6 +1,6 @@
-import { TransformableMetadataArgs, MapperFactory } from '@tdm/core';
+import { ModelMetadataArgs, MapperFactory } from '@tdm/core';
 
-export interface ResourceMetadataArgs extends TransformableMetadataArgs {
+export interface ResourceMetadataArgs extends ModelMetadataArgs {
   /**
    * A name for the resource.
    * Depending on your setup, this property might be used to identify resource from deserialized data. (e.g. JSONAPI)

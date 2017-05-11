@@ -1,9 +1,24 @@
 import { Tixin } from '@tdm/tixin';
-import { TDMCollection, targetStore, DecoratorInfo, TargetMetadata, stringify, LazyInit, Constructor, SetExt, fireEvents } from '@tdm/core';
+import {
+  TDMCollection,
+  targetStore,
+  DecoratorInfo,
+  TargetMetadata,
+  stringify,
+  LazyInit,
+  getProtoChain,
+  Constructor,
+  SetExt,
+  fireEvents
+} from '@tdm/core';
 
 import { AdapterError, AdapterStatic, ARHookableMethods } from '../fw';
-import { getProtoChain } from '../utils';
-import { ExtendActionMetadata, HookMetadata, ResourceMetadataArgs, ValidationError } from '../metadata';
+import {
+  ExtendActionMetadata,
+  HookMetadata,
+  ResourceMetadataArgs,
+  ValidationError
+} from '../metadata';
 import { ActionController } from '../core/action-controller';
 import { TargetValidator } from '../core/target-validator';
 
@@ -20,8 +35,8 @@ class CoreTargetMetadata extends TargetMetadata {
   })
   protected validator: TargetValidator;
 
-  @LazyInit(function(this: CoreTargetMetadata): Map<AdapterStatic<any, any>, ActionController>{
-    return  new Map<AdapterStatic<any, any>, ActionController>();
+  @LazyInit(function (this: CoreTargetMetadata): Map<AdapterStatic<any, any>, ActionController> {
+    return new Map<AdapterStatic<any, any>, ActionController>();
   })
   protected adapters: Map<AdapterStatic<any, any>, ActionController>;
 
@@ -35,7 +50,7 @@ class CoreTargetMetadata extends TargetMetadata {
     targetStore.setResource(meta, this.target);
   }
 
-  findHook(action: ARHookableMethods): {before: HookMetadata, after: HookMetadata} | undefined {
+  findHook(action: ARHookableMethods): { before: HookMetadata, after: HookMetadata } | undefined {
     return this.config.get(HookMetadata, action);
   }
 
@@ -70,18 +85,18 @@ class CoreTargetMetadata extends TargetMetadata {
     this._activeAdapter = adapter;
 
     this.getProtoChainWithMixins(this.target, adapter)
-      .forEach( proto => {
+      .forEach(proto => {
         if (this.target !== proto && targetStore.hasTarget(proto)) {
           targetStore.extend(proto, this.target);
         }
       });
 
-    fireEvents('onBuildMetadata', this.target);
+    fireEvents('onProcessType', this.target);
   }
 
   private getProtoChainWithMixins(target: Constructor<any>, adapterClass: AdapterStatic<any, any>): Set<Constructor<any>> {
     return getProtoChain(target)
-      .reduce( (protoSet, proto) => {
+      .reduce((protoSet, proto) => {
         protoSet.add(proto);
         SetExt.combine(protoSet, targetStore.getMixins(proto, adapterClass));
         return protoSet;
@@ -99,7 +114,7 @@ class CoreTargetMetadata extends TargetMetadata {
   }
 }
 
-// @tdm/data does not allow a 'factory' for @tdm/core @Transformable, it uses it's own factory.
+// @tdm/data does not allow a 'factory' for @tdm/core @Model, it uses it's own factory.
 Object.defineProperty(CoreTargetMetadata.prototype, 'factory', {
   value: function targetFactory(isColl: boolean): any {
     return isColl
@@ -117,7 +132,7 @@ declare module '@tdm/core/metadata/target-metadata' {
 
     setResource(meta: ResourceMetadataArgs): void;
 
-    findHook(action: ARHookableMethods): {before: HookMetadata, after: HookMetadata} | undefined;
+    findHook(action: ARHookableMethods): { before: HookMetadata, after: HookMetadata } | undefined;
     findHookEvent(action: ARHookableMethods, event: 'before' | 'after'): HookMetadata | undefined;
 
     hasAdapter(adapterClass: AdapterStatic<any, any>): boolean;

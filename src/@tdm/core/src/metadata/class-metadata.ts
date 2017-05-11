@@ -1,6 +1,6 @@
 import { TransformStrategy, NamingStrategyConfig } from '../fw';
 
-export interface TransformableMetadataArgs {
+export interface ModelMetadataArgs {
   /**
    * A Factory for creating new instances of the target and or collection.
    * If not set, collection is [], target is a new instance of the type.

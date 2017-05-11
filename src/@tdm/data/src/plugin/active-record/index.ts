@@ -1,7 +1,15 @@
-import { TDMModel, targetStore, registerEvent, Constructor, isFunction, SetExt, MapExt } from '@tdm/core';
+import {
+  TDMModel,
+  targetStore,
+  registerEvent,
+  Constructor,
+  isFunction,
+  getProtoChain,
+  SetExt,
+  MapExt
+} from '@tdm/core';
 
 import { PluginStore, TDMCollection, ActionMetadata } from '@tdm/data';
-import { getProtoChain } from '../../utils';
 import { ExecuteContext } from '../../core/execute-context';
 import { AdapterStatic } from '../../fw';
 import { ActionController } from '../../core';
@@ -21,9 +29,9 @@ function getActions(target: Constructor<any>, adapterClass: AdapterStatic<any, a
   const chain = getProtoChain(target);
   const actions = new Map<PropertyKey, ActionMetadata>();
 
-  for (let i=0, len=chain.length; i<len; i++) {
+  for (let i = 0, len = chain.length; i < len; i++) {
     if (targetStore.hasTarget(chain[i])) {
-      const adapterMeta =  targetStore.getAdapter(adapterClass);
+      const adapterMeta = targetStore.getAdapter(adapterClass);
       const mixins = SetExt.asArray(targetStore.getMixins(chain[i], adapterClass));
       if (adapterMeta) {
         const protoActions = adapterMeta.getActions(chain[i], ...mixins);
@@ -57,7 +65,7 @@ function registerAction(this: ActionController, action: ActionMetadata, collProt
       }
 
       this.target[action.name] = function (this: AdapterStatic<any, any>, ...args: any[]) {
-        return self.execute(ctx.clone(), { async: true, args});
+        return self.execute(ctx.clone(), {async: true, args});
       };
     } else {
       this.target.prototype[action.name] = function (this: TDMModel<any>, ...args: any[]) {
@@ -74,7 +82,7 @@ function activeRecord(target: Constructor<any>): void {
 
   // build actions on the target type for the currently active adapter.
   if (ac) {
-    getActions(target, ac.adapterClass).forEach( a => {
+    getActions(target, ac.adapterClass).forEach(a => {
       // TODO check action instance of ActionMetadata + in ActionMetadata verify using DecoratorInfo
       const extAction = targetStore.getTargetMeta(target).getExtendingAction(a.decoratorInfo);
       if (extAction) {
@@ -82,7 +90,7 @@ function activeRecord(target: Constructor<any>): void {
         a = ac.adapterMeta.actionMetaClass.metaFactory(metaArgs, target, extAction.decoratorInfo.name).metaValue;
       }
 
-      registerAction.call(ac, a, collProto, true )
+      registerAction.call(ac, a, collProto, true)
     });
   }
 
@@ -94,7 +102,7 @@ function activeRecord(target: Constructor<any>): void {
 
 export class ActiveRecordPlugin {
   init(): void {
-    registerEvent('onBuildMetadata', activeRecord);
+    registerEvent('onProcessType', activeRecord);
   }
 }
 

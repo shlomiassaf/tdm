@@ -3,13 +3,9 @@ import { ResourceMetadataArgs } from '../metadata';
 
 declare module '@tdm/core/metadata/target-store' {
   interface TargetStore {
-    setResource(def: ResourceMetadataArgs, target: Function): void;
+    setResource(metaArgs: ResourceMetadataArgs, target: Function): void;
   }
 }
-
-TargetStore.prototype.setTransformable = <any>function(): void {
-  throw new Error('@Transformable is not supported, use adapter specific decorators or @Resource')
-};
 
 TargetStore.prototype.setResource = function(metaArgs: ResourceMetadataArgs, target: Function): void {
   Object.keys(metaArgs)

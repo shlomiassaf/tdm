@@ -1,4 +1,4 @@
-import { TDMCollection } from '@tdm/data';
+import { TDMCollection } from '@tdm/core';
 
 import { User, Post } from './models';
 

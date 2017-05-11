@@ -7,23 +7,18 @@ import { ResourceMetadataArgs } from './meta-types';
  * target & adapterType with the resource.
  * @param adapterClass
  */
-export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterStatic<any, any>): (def: T) => ClassDecorator {
-  return function ResourceDecorator(def: T) {
+export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterStatic<any, any>): (metaArgs: T) => ClassDecorator {
+  return function ResourceDecorator(metaArgs: T) {
     return (target: any) => {
-      const TDModel = TDMModelBase.factory(target);
 
-      // TODO: this needs to move outside of core
-      // add a hook to `resource` so dev can do stuff before returning.
-      // this is temp here to support angular CD
-      const paramTypes = (Reflect as any).getOwnMetadata('design:paramtypes', target);
-      (Reflect as any).defineMetadata('design:paramtypes', paramTypes, TDModel);
-
-      if (def.factory) {
-        console.warn('Transformable#factory can not be set in @tdm/data');
-        delete def.factory;
+      if (metaArgs.factory) {
+        console.warn('Model#factory can not be set in @tdm/data');
+        delete metaArgs.factory;
       }
 
-      targetStore.setResource(def, target);
+      const TDMModel = TDMModelBase.factory(target);
+
+      targetStore.setResource(metaArgs, target);
 
       // check for properties that set the type to self (same class)
       // the class will point to the base class (target) that TDModel extends.
@@ -34,24 +29,23 @@ export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterSt
           const desc = Object.getOwnPropertyDescriptor(p, 'type');
 
           if (desc && desc.configurable && isFunction(desc.get) && desc.get() === target) {
-            Object.defineProperty(p, 'type', { configurable: true, value: TDModel });
+            Object.defineProperty(p, 'type', { configurable: true, value: TDMModel });
           }
         });
 
+      targetStore.registerTarget(TDMModel);
 
-      targetStore.registerTarget(TDModel);
-
-      if (def.noBuild !== true) {
-        const tMeta = targetStore.getTargetMeta(TDModel);
+      if (metaArgs.noBuild !== true) {
+        const tMeta = targetStore.getTargetMeta(TDMModel);
         // default behaviour, register the first adapter, if multiple...
         if (!tMeta.activeAdapter) {
           tMeta.setActiveAdapter(adapterClass);
         }
       } else {
-        targetStore.setReadyToBuild(TDModel);
+        targetStore.setReadyToBuild(TDMModel);
       }
 
-      return TDModel;
+      return TDMModel;
     };
   }
 }

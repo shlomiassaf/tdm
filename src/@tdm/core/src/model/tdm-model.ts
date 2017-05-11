@@ -27,6 +27,11 @@ export class TDMModelBase<T> implements TDMModel<T> {
 
     TixinFree(TDModel, TDMModelBase, 'proto');
 
+    // TODO: copy other TS reflection info
+    const paramTypes = (Reflect as any).getOwnMetadata('design:paramtypes', model);
+    (Reflect as any).defineMetadata('design:paramtypes', paramTypes, TDModel);
+
+
     return TDModel as any;
   }
 }

@@ -56,13 +56,6 @@ class CoreTargetStore extends TargetStore {
 
 }
 
-
-declare module '@tdm/core/fw/events' {
-  interface TargetStoreEvents {
-    onBuildMetadata: 'onBuildMetadata'
-  }
-}
-
 declare module '@tdm/core/metadata/target-store' {
   interface TargetStore {
     getAdapter(adapterClass: AdapterStatic<any, any>): AdapterMetadata | undefined;

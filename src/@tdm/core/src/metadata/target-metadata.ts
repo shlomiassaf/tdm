@@ -2,7 +2,6 @@ import {
   Constructor,
   DualKeyMap,
   BaseMetadata,
-  TransformDir,
   TransformStrategy,
   NamingStrategyConfig,
   isString,
@@ -18,6 +17,14 @@ import { Prop } from '../decorators';
 
 const defaultCollFactory = () => [];
 
+/**
+ * The metadata store for a target.
+ *
+ * Each target in the {@link TargetStore} has a matching TargetMetadata instance.
+ * Each instance holds all the metadata data registered under that target.
+ *
+ * @pluginApi
+ */
 export class TargetMetadata implements ClassMetadata {
   name: string;
   factory: (isColl: boolean) => any;

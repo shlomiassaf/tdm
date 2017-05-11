@@ -5,7 +5,7 @@ const emptyIterator = {
   [Symbol.iterator]() { return emptyIterator }
 };
 
-// TODO: move to separate package along with other utils on @tdm/data
+// TODO: move to separate package along with other utils on @tdm/core
 
 /**
  * A dual map, key->key->value
