@@ -85,10 +85,7 @@ export class TargetMetadata implements ClassMetadata {
    * @returns {TDMCollection}
    */
   createCollection(): TDMCollection<any> {
-    return this.collectionClass
-      ? new this.collectionClass()
-      : new TDMCollection()
-      ;
+    return new TDMCollection();
   }
 
   protected get<T, Z, P extends keyof T>(type: T & Constructor<Z>, key: P): Z {

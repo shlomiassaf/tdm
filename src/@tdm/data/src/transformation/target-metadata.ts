@@ -157,3 +157,10 @@ declare module '@tdm/core/metadata/target-metadata' {
 
 Tixin(TargetMetadata, CoreTargetMetadata);
 
+// override core implementation to support type specific collection class
+TargetMetadata.prototype.createCollection = function(): TDMCollection<any> {
+  return this.collectionClass
+    ? new this.collectionClass()
+    : new TDMCollection()
+    ;
+};
