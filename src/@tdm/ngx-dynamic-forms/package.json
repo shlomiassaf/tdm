@@ -1,6 +1,6 @@
 {
   "name": "@tdm/ngx-dynamic-forms",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "description": "Dynamic forms using Typed data models (@tdm).",
   "main": "bundle/tdm.ngx-dynamic-forms.umd.js",
   "module": "index.js",
