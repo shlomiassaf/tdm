@@ -1,7 +1,7 @@
-import { registerEvent, Constructor } from '@tdm/core';
-import { PluginStore, TDMCollection, DAO, TDMModelBase } from '@tdm/data';
+import { TDMCollection, TDMModelBase, registerEvent, Constructor } from '@tdm/core';
+import { PluginStore} from '../../fw';
+import { DAO } from '../../dao';
 import { ResourceControl } from './resource-control';
-
 const privateDict = new WeakMap<any, ResourceControl<any>>();
 
 function getCtrl<T>(instance: T): ResourceControl<T> | undefined {

@@ -1,6 +1,7 @@
 import {
   TDMModel,
   TDMModelBase,
+  TDMCollection,
   targetStore,
   registerEvent,
   Constructor,
@@ -10,9 +11,9 @@ import {
   MapExt
 } from '@tdm/core';
 
-import { PluginStore, TDMCollection, ActionMetadata } from '@tdm/data';
+import { ActionMetadata } from '../../metadata'
 import { ExecuteContext } from '../../core/execute-context';
-import { AdapterStatic } from '../../fw';
+import { AdapterStatic, PluginStore } from '../../fw';
 import { ActionController } from '../../core';
 
 /**

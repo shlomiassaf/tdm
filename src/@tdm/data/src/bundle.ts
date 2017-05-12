@@ -1,6 +1,6 @@
 export * from './index';
 
-import { plugins } from '@tdm/data';
+import { plugins } from './fw/plugin';
 import './plugin/active-record';
 import './plugin/resource-control';
 import './plugin/resource-control/$ar';
