@@ -1,4 +1,6 @@
 const fs = require('fs-extra');
+const uglify = require('uglify-js');
+const zlib = require('zlib');
 const spawn = require('child_process').execSync;
 const webpack = require('webpack');
 const jsonfile = require('jsonfile');
@@ -31,6 +33,28 @@ function runWebpack(config, ...args) {
   }
 }
 
+function minifyAndGzip(destDir, meta) {
+  const unminified = fs.readFileSync(path.join(destDir, 'bundle', `${meta.umd}.umd.js`)).toString();
+  const minified = uglify.minify(unminified);
+  const gzipBuffer = zlib.gzipSync(Buffer.from(minified.code));
+
+  fs.writeFileSync(path.join(destDir, 'bundle', `${meta.umd}.umd.min.js`), minified.code, 'utf-8');
+  const zipStream = fs.createWriteStream(path.join(destDir, 'bundle', `${meta.umd}.umd.js.gz`));
+  zipStream.write(gzipBuffer);
+  zipStream.end();
+
+  const pct = num => 100 * Math.round(10000 * (1-num)) / 10000;
+
+  console.log(`
+          --------------------------------------
+          UMD Bundle info:
+          --------------------------------------
+          unminified: \t${unminified.length / 1000} KB
+          minified: \t${minified.code.length / 1000} KB \t(${pct(minified.code.length / unminified.length)} %)
+          gzipped: \t${gzipBuffer.length / 1000} KB \t(${pct(gzipBuffer.length / unminified.length)}) %, ${pct(gzipBuffer.length / minified.code.length)} %)
+          --------------------------------------
+        `);
+}
 
 const metadata = require('./lib_build_config');
 
@@ -65,6 +89,8 @@ function runMeta() {
 
         spawn(`mv ${from}/* ${to}`);
         spawn(`rm -rf ${path.resolve(p, '..')}`);
+
+        minifyAndGzip(to, meta);
 
       })
       .then(() => {
