@@ -1,5 +1,6 @@
 import {
   TDMModel,
+  TDMModelBase,
   targetStore,
   registerEvent,
   Constructor,
@@ -77,6 +78,10 @@ function registerAction(this: ActionController, action: ActionMetadata, collProt
 
 
 function activeRecord(target: Constructor<any>): void {
+  // don't apply active record on non TDMModel targets (i.e. @Model targets)
+  // TODO: the event should be specific to `@tdm/data` and not onProcessType
+  if (!TDMModelBase.instanceOf(target.prototype)) { return; }
+
   const ac = targetStore.getAC(target);
   const collProto: any = {};
 

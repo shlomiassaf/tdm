@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
-import { TDMFormsModule, FORM_CONTROL_COMPONENT } from '@tdm/ngx-dynamic-forms';
+import { TDMFormsModule } from '@tdm/ngx-dynamic-forms';
 import { SharedModule } from '@shared';
 import { DynamicFormElementComponent } from './dynamic-forms';
 import { FormsDemoPageComponent, DynamicFormContainerComponent } from './forms-demo-page';
