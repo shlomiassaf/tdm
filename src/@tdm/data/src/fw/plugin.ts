@@ -7,7 +7,7 @@ export interface PluginStatic extends Constructor<Plugin> {
 
 export interface Plugin {
 
-  init(): void;
+  init(options?: any): void;
 }
 
 export class PluginStore {

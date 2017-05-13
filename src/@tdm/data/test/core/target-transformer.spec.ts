@@ -4,7 +4,6 @@ import * as voca from 'voca';
 import { MockMixin, MockResource, bucketFactory } from '@tdm/data/testing';
 import { Prop, Resource } from '@tdm/data';
 
-
 describe('CORE', () => {
   describe('Target Transformer', () => {
     const bucket = bucketFactory();

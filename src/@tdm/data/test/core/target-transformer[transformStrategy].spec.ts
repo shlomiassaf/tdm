@@ -3,7 +3,6 @@ import 'rxjs';
 import { MockMixin, MockResource, bucketFactory } from '@tdm/data/testing';
 import { Prop, Exclude, Resource } from '@tdm/data';
 
-
 class User_ {
   id: number;
 

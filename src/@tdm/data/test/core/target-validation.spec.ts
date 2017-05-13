@@ -1,10 +1,7 @@
 import 'rxjs';
 
-import { MockMixin, MockResource, MockDeserializer, bucketFactory } from '@tdm/data/testing';
+import { MockMixin, MockResource, bucketFactory } from '@tdm/data/testing';
 import { Prop, ValidationContext } from '@tdm/data';
-
-
-const localMockDeserializer = new MockDeserializer();
 
 describe('CORE', () => {
   describe('Target Validation', () => {
@@ -28,8 +25,7 @@ describe('CORE', () => {
       }
 
       @MockResource({
-        endpoint: '/api/users/:id?',
-        deserializer: () => localMockDeserializer
+        endpoint: '/api/users/:id?'
       })
       class User extends MockMixin(User_) { }
 

@@ -1,7 +1,8 @@
-import * as deepEqual from 'deep-equal';
+import deepEqual from 'deep-equal';
 
 import { directMapper } from '@tdm/core';
 import { targetStore } from '@tdm/core/ext';
+import '@tdm/core/add/mapping';
 import { TargetMetaModifier } from '@tdm/core/testing';
 
 

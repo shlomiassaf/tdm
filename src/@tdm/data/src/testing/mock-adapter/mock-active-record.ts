@@ -5,7 +5,7 @@ import { TDMCollection, ActionMethodType, TDMModel, IdentityValueType, ExecuteCo
 import { MockActionOptions } from './core/interfaces';
 import { MockAction, MockActionMetadata } from './metadata';
 
-export class BaseMockResource {
+export class MockActiveRecord {
   @MockAction({
     method: ActionMethodType.CREATE,
     validation: 'both' as 'both',
@@ -108,10 +108,10 @@ export class BaseMockResource {
   static update: (data: any, options?: MockActionOptions) => any;
 }
 
-export interface BaseMockResourceStatic<T> {
-  find(id: IdentityValueType, options?: MockActionOptions): Tixin<T, TDMModel<T> & BaseMockResource>;
-  query(options?: MockActionOptions): TDMCollection<Tixin<T, TDMModel<T> & BaseMockResource>>;
-  create(data: Partial<T>, options?: MockActionOptions): Tixin<T, TDMModel<T> & BaseMockResource>;
-  update(data: Partial<T>, options?: MockActionOptions): Tixin<T, TDMModel<T> & BaseMockResource>;
-  remove(id: IdentityValueType, options?: MockActionOptions): Tixin<T, TDMModel<T> & BaseMockResource>;
+export interface MockActiveRecordStatic<T> {
+  find(id: IdentityValueType, options?: MockActionOptions): Tixin<T, TDMModel<T> & MockActiveRecord>;
+  query(options?: MockActionOptions): TDMCollection<Tixin<T, TDMModel<T> & MockActiveRecord>>;
+  create(data: Partial<T>, options?: MockActionOptions): Tixin<T, TDMModel<T> & MockActiveRecord>;
+  update(data: Partial<T>, options?: MockActionOptions): Tixin<T, TDMModel<T> & MockActiveRecord>;
+  remove(id: IdentityValueType, options?: MockActionOptions): Tixin<T, TDMModel<T> & MockActiveRecord>;
 }

@@ -23,7 +23,7 @@ import { plugins } from '@tdm/data';
 // and should be set with `import '@tdm/data/plugin/resource-control/$ar';` or typescript will complain.
 // it accepts a string value, the property name that defaults to '$ar'.
 // if a different property is set a different implementation of `import '@tdm/data/plugin/resource-control/$ar';` is required.
-plugins.ResourceControl.attachToResource().init();
+plugins.ResourceControl.init();
 
 
 plugins.ActiveRecord.init();

@@ -1,7 +1,5 @@
-import '@tdm/data/add/resource-control'
 import { MockMixin, MockResource, bucketFactory } from '@tdm/data/testing';
 import { Prop, validators } from '@tdm/data';
-
 
 describe('CORE', () => {
   describe('Core Validators', () => {

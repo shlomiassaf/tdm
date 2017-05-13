@@ -50,7 +50,8 @@
     "server": "npm run server:dev",
     "start:hmr": "npm run server:dev:hmr",
     "start": "npm run server:dev",
-    "test": "karma start",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "tslint": "tslint",
     "typedoc": "typedoc",
     "version": "npm run build",
@@ -96,7 +97,7 @@
     "@angularclass/hmr-loader": "~3.0.2",
     "@types/deep-equal": "^0.0.30",
     "@types/hammerjs": "^2.0.33",
-    "@types/jasmine": "^2.5.42",
+    "@types/jest": "^19.2.3",
     "@types/node": "^7.0.5",
     "@types/path-to-regexp": "^1.0.29",
     "@types/selenium-webdriver": "^2.53.39",
@@ -124,6 +125,8 @@
     "imports-loader": "^0.7.0",
     "istanbul-instrumenter-loader": "1.2.0",
     "jasmine-core": "^2.5.2",
+    "jest": "^20.0.1",
+    "jest-preset-angular": "^2.0.2",
     "json-loader": "^0.5.4",
     "json-server": "^0.9.5",
     "json-server-init": "^0.2.4",
@@ -168,5 +171,48 @@
   "engines": {
     "node": ">= 4.2.1",
     "npm": ">= 3"
+  },
+  "jest": {
+    "setupTestFrameworkScriptFile": "<rootDir>/src/setupJest.ts",
+
+    "globals": {
+      "__TS_CONFIG__": "tsconfig.spec.json",
+      "__TRANSFORM_HTML__": true
+    },
+    "transform": {
+      "^.+\\.(ts|js|html)$": "<rootDir>/node_modules/jest-preset-angular/preprocessor.js"
+    },
+    "testRegex": "@tdm\\/.+\\.spec\\.ts$",
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "html",
+      "json"
+    ],
+    "mapCoverage": true,
+    "moduleNameMapper": {
+      "^@tdm/tixin$": "<rootDir>/src/@tdm/tixin/src",
+      "^@tdm/tixin/(.*)": "<rootDir>/src/@tdm/tixin/src/$1",
+
+      "^@tdm/core$": "<rootDir>/src/@tdm/core/src",
+      "^@tdm/core/(.*)": "<rootDir>/src/@tdm/core/src/$1",
+
+      "^@tdm/data$": "<rootDir>/src/@tdm/data/src",
+      "^@tdm/data/(.*)": "<rootDir>/src/@tdm/data/src/$1",
+
+      "^@tdm/ngx-http$": "<rootDir>/src/@tdm/ngx-http/src",
+      "^@tdm/ngx-http/(.*)": "<rootDir>/src/@tdm/ngx-http/src/$1",
+
+      "^@tdm/ngx-dynamic-forms$": "<rootDir>/src/@tdm/ngx-dynamic-forms/src",
+      "^@tdm/ngx-dynamic-forms/(.*)": "<rootDir>/src/@tdm/ngx-dynamic-forms/src/$1",
+
+      "^@tdm/json-api-mapper$": "<rootDir>/src/@tdm/json-api-mapper/src",
+      "^@tdm/json-api-mapper/(.*)": "<rootDir>/src/@tdm/json-api-mapper/src/$1",
+
+      "(.*)": "<rootDir>/src/$1"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!@ngrx)"
+    ]
   }
 }

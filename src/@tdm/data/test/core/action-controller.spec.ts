@@ -1,5 +1,5 @@
 import 'rxjs';
-import '@tdm/data/add/resource-control'
+
 import { MockMixin, MockResource, MockActionOptions, MockAction, bucketFactory } from '@tdm/data/testing';
 import { Hook, TDMCollection, ActionMethodType, ExecuteResponse } from '@tdm/data';
 

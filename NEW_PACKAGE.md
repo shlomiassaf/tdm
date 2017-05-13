@@ -24,7 +24,9 @@ In the future, the `external` list will be build from that (see below)
 An optional `bundle.ts` files can be set that, if exists, is used by webpack to create the UMD bundle.  
 This is useful if you have extensions that might be added by the user, in ESM mode (like rxjs)
 
-### in `tsconfig.json`, `tsconfig.package.json`, `tsconfig.webpack.json` add:
+## in `package.json` -> jest.moduleNameMapper add accordingly.
+
+### in `tsconfig.json` add:
 ```
   "@tdm/DIR_NAME": ["@tdm/DIR_NAME/src/index.ts"],
   "@tdm/DIR_NAME/*": ["@tdm/DIR_NAME/src/*"],

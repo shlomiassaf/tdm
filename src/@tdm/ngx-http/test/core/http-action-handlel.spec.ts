@@ -1,5 +1,5 @@
 import 'rxjs';
-import '@tdm/data/add/resource-control';
+
 import {
   BaseRequestOptions,
   HttpModule,

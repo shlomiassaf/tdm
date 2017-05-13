@@ -23,18 +23,17 @@ function attachToResource(propertyName: string = '$ar'): void {
 }
 
 export class ResourceControlPlugin {
-  private attach: string;
 
-  attachToResource(propertyName: string = '$ar'): this {
-    this.attach = propertyName;
-    return this;
-  }
-
-  init(): void {
-    DAO.getCtrl = getCtrl;
-    if (this.attach) {
-      attachToResource(this.attach);
+  /**
+   * Init the plugin
+   * @param propertyName {string} ['@ar'] Optional, the property name to attach to the each model
+   */
+  init(propertyName: string = '$ar'): void {
+    if (!propertyName) {
+      throw new Error('Invalid ResourceControl property name');
     }
+    DAO.getCtrl = getCtrl;
+    attachToResource(propertyName);
   }
 }
 PluginStore.register('ResourceControl', ResourceControlPlugin);

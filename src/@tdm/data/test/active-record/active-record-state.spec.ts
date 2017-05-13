@@ -1,8 +1,8 @@
 import 'rxjs';
-import '@tdm/data/add/resource-control';
+
 import { MockMixin, MockResource, bucketFactory } from '@tdm/data/testing';
 import { ActiveRecord, ActionEndResourceEvent, ResourceEvent, ResourceEventType } from "@tdm/data";
-import { ARMethods,  } from '@tdm/data/active-record';
+import { ARMethods } from '@tdm/data/active-record';
 import { MockActionOptions } from "@tdm/data/testing";
 import { ActionErrorResourceEvent } from '@tdm/data/active-record/active-record-events';
 
@@ -184,28 +184,9 @@ describe('CORE', () => {
 
     });
 
-    it('should reject the next action if no action is running', (done) => {
-
-      const spies = {
-        streamCb: () => {},
-        errCb: err => expect(err.toString()).toBe('Error: Call to next() while not in an active action.')
-      };
-
-      spyOn(spies, 'streamCb');
-      spyOn(spies, 'errCb').and.callThrough();
-
-      const myDone = () => {
-        setTimeout(() => {
-          expect(spies.streamCb).toHaveBeenCalledTimes(0);
-          expect(spies.errCb).toHaveBeenCalledTimes(1);
-          done();
-        }, 0);
-      };
-
-      bucket.create(User).$ar.next()
-        .then(spies.streamCb)
-        .catch(spies.errCb)
-        .then(myDone);
+    it('should reject the next action if no action is running', () => {
+      return expect(bucket.create(User).$ar.next().catch( err => err.message ))
+        .resolves.toEqual('Call to next() while not in an active action.');
     });
 
     it('should reject the next action on error', (done) => {
