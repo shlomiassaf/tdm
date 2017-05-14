@@ -1,19 +1,8 @@
-import { Observable } from 'rxjs/Observable';
-import { subscribeOn } from 'rxjs/operator/subscribeOn';
-import { async as asyncScheduler } from 'rxjs/scheduler/async';
-import { fromPromise } from 'rxjs/observable/fromPromise';
-
-//TODO: dont add
-import 'rxjs/add/operator/first';
-import 'rxjs/add/operator/do';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/switchMap';
-
 import { targetStore, TargetMetadata, isFunction, MapperFactory, TDMCollection } from '@tdm/core';
 import { emitEvent, eventFactory } from '../events';
 import { CancellationTokenResourceEvent, ExecuteInitResourceEvent } from '../events/internal';
 import { defaultConfig } from '../default-config';
-import { findProp, noop  } from '../utils';
+import { findProp, noop } from '../utils';
 import { AdapterMetadata, ActionMetadata, ValidationSchedule } from '../metadata';
 import {
   AdapterStatic,
@@ -28,15 +17,10 @@ import {
 import { DAO } from '../dao';
 import { ExecuteContext, ExecuteParams } from './execute-context';
 
-function validateIncoming(validation: ValidationSchedule) {
-  return validation === 'incoming' || validation === 'both';
+interface ExecuteState {
+  id?: any;
+  cancelled?: boolean;
 }
-
-function validateOutgoing(validation: ValidationSchedule) {
-  return validation === 'outgoing' || validation === 'both';
-}
-
-const noopPromise = () => Promise.resolve();
 
 export class ActionController {
   public target: any;
@@ -54,18 +38,18 @@ export class ActionController {
   }
 
 
-  createExecFactory<T>(action: ActionMetadata, ret: 'obs$'): (self: T, async: boolean, ...args: any[]) => Observable<T>;
+  createExecFactory<T>(action: ActionMetadata, ret: 'promise'): (self: T, async: boolean, ...args: any[]) => Promise<T>;
   createExecFactory<T>(action: ActionMetadata, ret?: 'instance'): (self: T, async: boolean, ...args: any[]) => T;
-  createExecFactory<T>(action: ActionMetadata, ret?: any): (self: T, async: boolean, ...args: any[]) => T | Observable<T> {
+  createExecFactory<T>(action: ActionMetadata, ret?: 'instance' | 'promise'): (self: T, async: boolean, ...args: any[]) => T | Promise<T> {
     const ac = this;
     return function (self: T, async: boolean, ...args: any[]) {
-      return ac.execute(this.clone(self), {async,  args}, ret);
+      return ac.execute(this.clone(self), {async, args}, <any>ret);
     }.bind(new ExecuteContext(this.targetMetadata, action));
   }
 
-  execute(ctx: ExecuteContext<any>, params: ExecuteParams, ret: 'obs$'): Observable<any>;
+  execute(ctx: ExecuteContext<any>, params: ExecuteParams, ret: 'promise'): Promise<any>;
   execute(ctx: ExecuteContext<any>, params: ExecuteParams, ret?: 'instance'): any;
-  execute(ctx: ExecuteContext<any>, params: ExecuteParams, ret?: 'instance' | 'obs$'): any {
+  execute(ctx: ExecuteContext<any>, params: ExecuteParams, ret?: 'instance' | 'promise'): any {
     const action = ctx.action;
     const args = params.args || [];
     let async = params.async;
@@ -79,79 +63,101 @@ export class ActionController {
     // TODO:  this state.busy test is part of "resource-control" plugin, need to create mechanism to
     //        send pre-init event and get reflect exception from that. this will allow handling the busy check in resource-control
     const state = (<any>DAO).getCtrl && (<any>DAO).getCtrl(ctx.instance);
-    if (state && state.busy) { // TODO: Should throw or error?
-      emitEvent(eventFactory.error(ctx.instance, new Error('An action is already running')));
-      return;
+    if (state && state.busy) {
+      const err = eventFactory.error(ctx.instance, new Error('An action is already running'));
+      return ret === 'promise' ? Promise.reject(err) : emitEvent(err);
     } else if (!!action.isCollection !== TDMCollection.instanceOf(ctx.instance)) {
-      emitEvent(eventFactory.error(ctx.instance, ResourceError.coll_obj(ctx.instance, action.isCollection)));
-      return;
+      const err = eventFactory.error(ctx.instance, ResourceError.coll_obj(ctx.instance, action.isCollection));
+      return ret === 'promise' ? Promise.reject(err) : emitEvent(err);
     }
 
     emitEvent(new ExecuteInitResourceEvent(ctx.instance, {ac: this, action, async, args}));
     emitEvent(eventFactory.actionStart(ctx.instance));
 
-    const validator = action.validation === 'skip'
-        ? undefined
-        : () => this.targetMetadata.validate(ctx.instance).then( (validationErrors: any) => {
-          if (validationErrors.length > 0) {
-            throw new ResourceValidationError(ctx.instance, validationErrors);
-          }
-        })
-      ;
+    const eState: ExecuteState = {};
+
+    if (this.adapter.supports.cancel) {
+      emitEvent(new CancellationTokenResourceEvent(ctx.instance, () => this.cancel(eState, ctx)))
+    }
+
+
 
     // TODO:  fireEvent uses member name as Hook matcher, this requires member name to be one of
     //        "ARHookableMethods", let user set the action method in ActionMetadata or something
     //        - Also applied to fireEvent "after" below.
-    const startingPromise = this.fireHook(action.name as any, 'before', ctx.instance, options)
-      .then(validateOutgoing(action.validation) ? validator : noopPromise);
-
-    if (action.post) {
-      async = true;
-    }
-
-    const endingPromise = (resp: ExecuteResponse) => (!action.isCollection && validateIncoming(action.validation) ? validator() : noopPromise())
-      .then(() => this.fireHook(action.name as any, 'after', ctx.instance, options, resp));
-
-    let obs$: Observable<any | void> = fromPromise(startingPromise)
-      .switchMap(() => this.adapter.execute(ctx, options))
-      .do( response => {
-        if (!action.post || !action.post.skipDeserialize) {
-          ctx.deserialize(response.data);
+    const promise = new Promise( resolve => setTimeout(resolve, 5) )
+      .then( () => this.fireHook(action.name as any, 'before', ctx.instance, options) )
+      .then( () => this.validate('outgoing', action.validation, ctx) )
+      .then(() => {
+        if (eState.cancelled === true) {
+          // this error will be omitted, its here to skip all the then's.
+          throw new Error('Cancelled');
         }
+
+        const adapterResponse = this.adapter.execute(ctx, options);
+
+        eState.id = adapterResponse.id;
+
         if (action.post) {
-          action.post.handler.apply(ctx.instance, [response, options])
+          async = true;
         }
+
+        // TODO: If user cancelled and the adapter does not throw an error on cancellation
+        //       this means that the promise chain will continue, need to fix it.
+        //       Need to create a promise flow where steps can be skipped
+        //       this also applies on the first 2 steps
+        return adapterResponse.response
+          .then((response: ExecuteResponse) => {
+            if (!action.post || !action.post.skipDeserialize) {
+              ctx.deserialize(response.data);
+            }
+            if (action.post) {
+              action.post.handler.apply(ctx.instance, [response, options])
+            }
+
+            return (action.isCollection ? Promise.resolve() : this.validate('incoming', action.validation, ctx))
+              .then( () => this.fireHook(action.name as any, 'after', ctx.instance, options, response) )
+          });
       })
-      .switchMap(resp => fromPromise<void>(endingPromise(resp)));
+      .then(() => emitEvent(eventFactory.success(ctx.instance)))
+      .then(() => emitEvent(eventFactory.actionEnd(ctx.instance, 'success')))
+      .then( () => ctx.instance )
+      .catch(err => {
+        if (eState.cancelled !== true) {
+          emitEvent(eventFactory.error(ctx.instance, err));
+          if (ret === 'promise') { // rethrow if the user handles the promise
+            throw err;
+          }
+        }
+      });
 
-    obs$ = subscribeOn.call(obs$, async ? asyncScheduler : null);
+    // TODO: implement timeout to protect from stale promises?
 
-    let response: any;
-    if (ret === 'obs$') {
-      obs$ = obs$.share();
-      response = obs$.first().map( () => ctx.instance)
-    } else {
-      response = ctx.instance;
-    }
+    return ret === 'promise' ? promise : ctx.instance;
+  }
 
-    const subs = obs$.subscribe(
-      _ => emitEvent(eventFactory.success(ctx.instance)),
-      err => emitEvent(eventFactory.error(ctx.instance, err)),
-      () => emitEvent(eventFactory.actionEnd(ctx.instance, 'success'))
-      // TODO: protect from never ending observables in this chain?
-      // maybe first()? take()? are there handlers that emit multiple values?
-    );
-
-    const subscription = Object.create(subs);
-    subscription.unsubscribe = () => {
-      subs.unsubscribe();
+  private cancel(eState: ExecuteState, ctx: ExecuteContext<any>): void {
+    if (!eState.cancelled) {
+      eState.cancelled = true;
       emitEvent(eventFactory.cancel(ctx.instance));
+      if (eState.id) {
+        this.adapter.cancel(eState.id);
+      }
       emitEvent(eventFactory.actionEnd(ctx.instance, 'cancel'));
-    };
+    }
+  }
 
-    emitEvent(new CancellationTokenResourceEvent(ctx.instance, subscription));
-
-    return response;
+  private validate(type: 'incoming' | 'outgoing', validation: ValidationSchedule, ctx: ExecuteContext<any>): Promise<void> {
+    if (type === validation || validation === 'both') {
+      return this.targetMetadata.validate(ctx.instance)
+        .then((validationErrors: any) => {
+          if (validationErrors.length > 0) {
+            throw new ResourceValidationError(ctx.instance, validationErrors);
+          }
+        });
+    } else {
+      return Promise.resolve();
+    }
   }
 
   private fireHook(action: ARHookableMethods, event: 'before' | 'after', self: any, options: ActionOptions, ...args: any[]): Promise<void> {

@@ -17,7 +17,7 @@ import { promiser } from '../../utils';
 // TODO: check perf, maybe symbols are "less" private but more performant
 const privateDict = new WeakMap<TDMModel<any>, {
   emitter: Subject<ResourceEvent>,
-  actionCancel: Subscription,
+  actionCancel: () => void,
   lastExecute: ExecuteInitResourceEventArgs
 }>();
 
@@ -50,7 +50,7 @@ function emitEvent(event: ResourceEvent): void {
 
   if (event.internal === true) {
     if (event instanceof CancellationTokenResourceEvent) {
-      privateDict.get(event.resource).actionCancel = event.token;
+      privateDict.get(event.resource).actionCancel = event.cancel;
     } else if (event instanceof ExecuteInitResourceEvent) {
       privateDict.get(event.resource).lastExecute = event.data;
     }
@@ -258,9 +258,9 @@ export class ResourceControl<T> {
    */
   cancel(): void {
     const pData = privateDict.get(this.parent);
-    if (this.busy && pData.actionCancel && !pData.actionCancel.closed) {
+    if (this.busy && pData.actionCancel) {
       this.busy = false;
-      pData.actionCancel.unsubscribe();
+      pData.actionCancel();
       pData.actionCancel = undefined;
     }
   }

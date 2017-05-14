@@ -1,4 +1,3 @@
-import { Observable } from 'rxjs/Observable';
 import { isPrimitive } from '@tdm/core';
 import { TDMCollection as ARecordColl, TargetDAO, IdentityValueType, ExecuteContext } from '@tdm/data';
 
@@ -13,7 +12,7 @@ export class HttpDao<T> implements TargetDAO<T, HttpActionOptions> {
     collInstance: true,
     validation: 'incoming' as 'incoming'
   })
-  query: (options?: HttpActionOptions) => Observable<ARecordColl<T>>;
+  query: (options?: HttpActionOptions) => Promise<ARecordColl<T>>;
 
   @HttpAction({
     method: HttpActionMethodType.Get,
@@ -23,7 +22,7 @@ export class HttpDao<T> implements TargetDAO<T, HttpActionOptions> {
       return options;
     }
   })
-  find: (id: IdentityValueType, options?: HttpActionOptions) => Observable<T>;
+  find: (id: IdentityValueType, options?: HttpActionOptions) => Promise<T>;
 
   @HttpAction({
     method: HttpActionMethodType.Post,
@@ -40,7 +39,7 @@ export class HttpDao<T> implements TargetDAO<T, HttpActionOptions> {
       return options;
     }
   })
-  create: (data: T | Partial<T>, options?: HttpActionOptions) => Observable<T | void>;
+  create: (data: T | Partial<T>, options?: HttpActionOptions) => Promise<T | void>;
 
   @HttpAction({
     method: HttpActionMethodType.Put,
@@ -57,7 +56,7 @@ export class HttpDao<T> implements TargetDAO<T, HttpActionOptions> {
       return options;
     }
   })
-  update: (data: T | Partial<T>, options?: HttpActionOptions) => Observable<T | void>;
+  update: (data: T | Partial<T>, options?: HttpActionOptions) => Promise<T | void>;
 
   @HttpAction({
     method: HttpActionMethodType.Delete,
@@ -75,6 +74,6 @@ export class HttpDao<T> implements TargetDAO<T, HttpActionOptions> {
       return options;
     }
   })
-  remove: ( (id: IdentityValueType | T, options?: HttpActionOptions) => Observable<void> );
+  remove: ( (id: IdentityValueType | T, options?: HttpActionOptions) => Promise<void> );
 
 }

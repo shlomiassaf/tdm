@@ -4,7 +4,7 @@ let ngHttpService: Http;
 
 export function getHttp(): Http {
   if (!ngHttpService) {
-    throw new Error('Http service not preset. Make sure you registered the provider and you are not invoking actions before angular bootstrapped.');
+    throw new Error('Http service not present. Make sure you registered the provider and you are not invoking actions before angular bootstrapped.');
   } else {
     return ngHttpService;
   }

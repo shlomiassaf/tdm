@@ -1,4 +1,3 @@
-import { Observable } from 'rxjs/Observable';
 import { metaFactoryFactory, MetaFactoryStatic, targetStore, MetaFactoryInstance, Constructor } from '@tdm/core';
 import { ActionMetadata } from './action';
 import { array } from '../../utils';
@@ -6,7 +5,7 @@ import { DAOMethods, DAOAdapter, DAOTarget } from '../../fw';
 
 function unsupportedDAOCmd() {
   // TODO: normalize error.
-  return Observable.throw(new Error(`DAO does not support this action`));
+  return Promise.reject(new Error(`DAO does not support this action`));
 }
 
 export interface AdapterMetadataArgs {
@@ -55,7 +54,7 @@ export class AdapterMetadata {
 
       daoProto[action.name] = function (...args: any[]) {
         return targetStore.getAC(this[DAOTarget], this[DAOAdapter])
-          .createExecFactory(action, 'obs$')(undefined, true, ...args);
+          .createExecFactory(action, 'promise')(undefined, true, ...args);
       };
     });
 

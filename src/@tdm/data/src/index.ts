@@ -45,6 +45,7 @@ export { validators } from './core-validators';
 export {
   ActiveRecord,
   IdentityValueType,
+  AdapterResponse,
   ExecuteResponse,
   Adapter,
   ActionOptions,

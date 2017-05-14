@@ -7,7 +7,7 @@ import { ActionMetadata } from '../metadata';
  * @internal
  */
 export class CancellationTokenResourceEvent extends ResourceEvent {
-  constructor(public readonly resource: any, public readonly token: Subscription) {
+  constructor(public readonly resource: any, public readonly cancel: () => void) {
     super(resource, '$CancellationToken', true);
   }
 }

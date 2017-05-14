@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 import { RequestOptions, Response, URLSearchParams, Headers } from '@angular/http';
 import { isUndefined, stringify, TargetMetadata } from '@tdm/core';
 
@@ -6,6 +6,7 @@ import {
   Adapter,
   findProp,
   ExecuteContext,
+  AdapterResponse,
   ExecuteResponse
 } from '@tdm/data';
 
@@ -20,38 +21,73 @@ import { getHttp } from '../providers';
 const EMPTY_META: TargetMetadata = <any>{};
 
 export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOptions> {
+  readonly supports = { cancel: true };
 
-  execute(ctx: ExecuteContext<HttpActionMetadata>, options: HttpActionOptions): Observable<ExecuteResponse> {
-    const http = getHttp();
+  private executing = new Map<number, Subscription>();
 
-    if (!options) options = {} as any;
-    let {action} = ctx;
-    let resource = ctx.targetMeta || EMPTY_META;
+  private idCount = 1;
 
-    const url = findProp('endpoint', resource, action);
-    if (!url) {
-      // TODO: move to @tdm error with more info.
-      throw new Error('Invalid endpoint, no endpoint found.')
+  execute(ctx: ExecuteContext<HttpActionMetadata>, options: HttpActionOptions): AdapterResponse {
+    const id = this.idCount++;
+    try {
+      const http = getHttp();
+
+      if (!options) options = {} as any;
+      let {action} = ctx;
+      let resource = ctx.targetMeta || EMPTY_META;
+
+      const url = findProp('endpoint', resource, action);
+      if (!url) {
+        // TODO: move to @tdm error with more info.
+        throw new Error('Invalid endpoint, no endpoint found.')
+      }
+
+      const withCredentials = findProp('withCredentials', httpDefaultConfig, resource, action, options);
+      const strip = findProp('trailingSlashes', httpDefaultConfig, resource, action, options);
+
+      const urlParams = this.getParams(ctx, resource, options);
+
+      const {path, query} = this.splitParams(url, urlParams);
+
+      const requestOptions = new RequestOptions({
+        url: processUrl(this.parseUrl(url, path), strip),
+        method: action.methodInfo.source as any,
+        search: this.paramsToSearchParams(query),
+        headers: this.getHeaders(ctx, resource, options),
+        body: ctx.body,
+        withCredentials
+      });
+
+      const response = new Promise<ExecuteResponse>((resolve, reject) => {
+        let value: ExecuteResponse;
+
+        const subscription = http.request(requestOptions.url, requestOptions)
+          .map(response => ({data: response.json(), response, request: requestOptions}))
+          .subscribe(
+            v => value = v,
+            err => {
+              this.executing.delete(id);
+              reject(err);
+            },
+            () => {
+              this.executing.delete(id);
+              resolve(value);
+            }
+          );
+
+        this.executing.set(id, subscription);
+      });
+      return { id, response };
+    } catch (err) {
+      return { id, response: Promise.reject(err) };
     }
+  }
 
-    const withCredentials = findProp('withCredentials', httpDefaultConfig, resource, action, options);
-    const strip = findProp('trailingSlashes', httpDefaultConfig, resource, action, options);
-
-    const urlParams = this.getParams(ctx, resource, options);
-
-    const {path, query} = this.splitParams(url, urlParams);
-
-    const requestOptions = new RequestOptions({
-      url: processUrl(this.parseUrl(url, path), strip),
-      method: action.methodInfo.source as any,
-      search: this.paramsToSearchParams(query),
-      headers: this.getHeaders(ctx, resource, options),
-      body: ctx.body,
-      withCredentials
-    });
-
-    return http.request(requestOptions.url, requestOptions)
-      .map(response => ({data: response.json(), response, request: requestOptions}));
+  cancel(id: number): void {
+    const sub = this.executing.get(id);
+    if (sub && !sub.closed) {
+      sub.unsubscribe();
+    }
   }
 
   protected getHeaders(ctx: ExecuteContext<HttpActionMetadata>, meta: TargetMetadata, options: HttpActionOptions): Headers {

@@ -18,7 +18,7 @@ export class PlaygroundPageComponent {
 
   constructor() {
     DAO.angularHttp(UserDAO).find(5)
-      .subscribe( user => {
+      .then( user => {
         console.log(user);
       }, err => alert(err));
     // this.user = new User();

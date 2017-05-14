@@ -21,6 +21,5 @@ import { plugins } from '@tdm/data';
 import '@tdm/data/plugin/active-record';
 import '@tdm/data/plugin/resource-control';
 
-
 plugins.ActiveRecord.init();
 plugins.ResourceControl.init();

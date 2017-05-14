@@ -1,5 +1,6 @@
 import 'rxjs';
 
+import { Identity } from '@tdm/core';
 import {
   BaseRequestOptions,
   HttpModule,
@@ -12,26 +13,28 @@ import { TestBed, async, fakeAsync, tick, inject } from '@angular/core/testing';
 import { MockBackend, MockConnection } from '@angular/http/testing';
 
 import { ARMixin, HttpResource, HttpAction, UrlParam, HttpResourceModule, HttpActionMethodType } from '@tdm/ngx-http';
-import { bucketFactory } from '@tdm/data/testing';
+import { bucketFactory, eventConsumer } from '@tdm/data/testing';
 
 describe('NG-HTTP', () => {
   describe('HTTP Resource Action Handler', () => {
     const bucket = bucketFactory();
     afterEach(() => bucket.clear() );
 
-    it('should throw if Http service not set (or action invoked before ng bootstrapped)', (done) => {
+    it('should throw if Http service not set (or action invoked before ng bootstrapped)', () => {
       @HttpResource({
         endpoint: '/api/users/:id?'
       })
       class User extends ARMixin(class { id: number; }) { }
 
-      let event;
-      new User().$refresh().$ar.events$.first().subscribe( e => event = e, null, () => {
-        expect(event).toBeTruthy;
-        expect(event.type).toEqual('ActionError');
-        expect(event['error'].toString()).toEqual('Error: Http service not preset. Make sure you registered the provider and you are not invoking actions before angular bootstrapped.');
-        done();
-      });
+      return eventConsumer(new User())
+        .events('ActionStart', 'ActionError')
+        .loose(true)
+        .onEvent( event => {
+          if (event.type === 'ActionError') {
+            expect(event['error'].toString()).toEqual('Error: Http service not present. Make sure you registered the provider and you are not invoking actions before angular bootstrapped.');
+          }
+        })
+        .run( ec => ec.ar.$refresh() );
     });
 
 
@@ -90,11 +93,16 @@ describe('NG-HTTP', () => {
       }));
 
       it('should build resource with default param ',  fakeAsync(() => {
+        class UserBase {
+          @Identity()
+          @UrlParam() id: number;
+        }
+
         @HttpResource({
           endpoint: '/api/users/:id/:param',
           urlParams: { param: '99' }
         })
-        class User extends ARMixin(class { id: number; }) { }
+        class User extends ARMixin(UserBase) { }
 
         mockBackend.connections.subscribe( conn => {
           expect(conn.request.url).toBe('/api/users/15/99');
@@ -109,7 +117,10 @@ describe('NG-HTTP', () => {
         @HttpResource({
           endpoint: '/api/users'
         })
-        class User extends ARMixin(class { id: number; }) { }
+        class User extends ARMixin(class {
+          @Identity()
+          @UrlParam() id: number;
+        }) { }
 
         mockBackend.connections.subscribe( conn => {
           expect(conn.request.url).toBe('/api/users');
@@ -124,13 +135,15 @@ describe('NG-HTTP', () => {
         @HttpResource({
           endpoint: '/api/users/:id'
         })
-        class User extends ARMixin(class { id: number; }) { }
+        class User extends ARMixin(class {
+          @Identity()
+          @UrlParam() id: number;
+        }) { }
 
         const EVENTS = ['ActionStart', 'ActionError'];
 
         let event;
         new User().$refresh().$ar.events$.first().subscribe( e => event = e, null, () => {
-          expect(event).toBeTruthy;
 
           expect(event.type).toEqual(EVENTS.shift());
           if (event.type === 'ActionError') {
@@ -142,7 +155,8 @@ describe('NG-HTTP', () => {
 
       it('should build resource with bound param', fakeAsync(() => {
         class User_ {
-          id: number;
+          @Identity()
+          @UrlParam() id: number;
           @UrlParam() param: number = 99;
         }
 
@@ -162,7 +176,8 @@ describe('NG-HTTP', () => {
 
       it('should use urlTemplateParamName, if defined',  fakeAsync(() => {
         class User_ {
-          id: number;
+          @Identity()
+          @UrlParam() id: number;
 
           @UrlParam('myId') someId = 1;
           @UrlParam('onQS') qs1 = 2;
@@ -198,7 +213,8 @@ describe('NG-HTTP', () => {
 
       it('should apply method filter, if set.',  fakeAsync(() => {
         class User_ {
-          id: number;
+          @Identity()
+          @UrlParam() id: number;
 
           @UrlParam({
             urlTemplateParamName: 'myId',

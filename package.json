@@ -190,6 +190,8 @@
       "json"
     ],
     "mapCoverage": true,
+    "moduleDirectories": ["node_modules", "src"],
+    "testPathIgnorePatterns": ["/node_modules/"],
     "moduleNameMapper": {
       "^@tdm/tixin$": "<rootDir>/src/@tdm/tixin/src",
       "^@tdm/tixin/(.*)": "<rootDir>/src/@tdm/tixin/src/$1",
