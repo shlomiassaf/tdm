@@ -1,5 +1,7 @@
 import { Subscription } from 'rxjs/Subscription';
-import { RequestOptions, Response, URLSearchParams, Headers } from '@angular/http';
+import { map } from 'rxjs/operator/map';
+
+import { RequestOptions, URLSearchParams, Headers } from '@angular/http';
 import { isUndefined, stringify, TargetMetadata } from '@tdm/core';
 
 import {
@@ -61,8 +63,9 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
       const response = new Promise<ExecuteResponse>((resolve, reject) => {
         let value: ExecuteResponse;
 
-        const subscription = http.request(requestOptions.url, requestOptions)
-          .map(response => ({data: response.json(), response, request: requestOptions}))
+        const subscription = map.call(
+          http.request(requestOptions.url, requestOptions),
+          response => ({data: response.json(), response, request: requestOptions}))
           .subscribe(
             v => value = v,
             err => {
@@ -73,7 +76,7 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
               this.executing.delete(id);
               resolve(value);
             }
-          );
+        );
 
         this.executing.set(id, subscription);
       });
