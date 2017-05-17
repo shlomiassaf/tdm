@@ -1,5 +1,5 @@
 import { Tixin } from '@tdm/tixin';
-import { TargetStore, LazyInit, Constructor, TargetStoreEvents } from '@tdm/core';
+import { TargetStore, LazyInit, Constructor } from '@tdm/core';
 
 import { AdapterStatic } from '../fw';
 import { ActionController } from '../core/action-controller';

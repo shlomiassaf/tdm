@@ -15,7 +15,7 @@ class User_ {
 })
 class User extends MockMixin(User_) { }
 
-describe('CORE', () => {
+describe('@tdm/data', () => {
   describe('Active Record State', () => {
     const bucket = bucketFactory();
 

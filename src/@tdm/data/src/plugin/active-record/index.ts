@@ -3,7 +3,6 @@ import {
   TDMModelBase,
   TDMCollection,
   targetStore,
-  registerEvent,
   Constructor,
   isFunction,
   getProtoChain,
@@ -183,7 +182,7 @@ export class ActiveRecordPlugin {
     }
 
     if (options.hasOwnProperty('enableActions') === false || options.enableActions === true) {
-      registerEvent('onProcessType', activeRecord);
+      targetStore.on.processType(activeRecord);
     }
   }
 }

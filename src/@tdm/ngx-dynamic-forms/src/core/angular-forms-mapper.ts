@@ -65,7 +65,7 @@ export class NgFormsSerializeMapper extends SerializeMapper {
        Decorated by @Prop, @FormProp or both.
        FormPropMetadataArgs.exclude is not true.
        */
-      if (!meta) {
+      if (!meta || prop.exclude) {
         return;
       }
 
@@ -120,7 +120,7 @@ export class NgFormsSerializeMapper extends SerializeMapper {
       : []
     ;
 
-    if (formProp.render && formProp.render.required === true) {
+    if (formProp.required === true) {
       sync.push(Validators.required);
     }
 

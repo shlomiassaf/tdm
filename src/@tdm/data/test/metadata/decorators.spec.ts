@@ -2,7 +2,7 @@ import { MockMixin, MockResource, MockDeserializer, MockActionOptions, MockAdapt
 import { ActiveRecord, Constructor, Prop } from '@tdm/data';
 import { internalMetadataStore } from '../../src/metadata/reflection/internal-metadata-store';
 
-describe('CORE', () => {
+describe('@tdm/data', () => {
   describe('Decorators', () => {
     const bucket = bucketFactory();
     afterEach(() => bucket.clear() );

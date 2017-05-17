@@ -12,6 +12,9 @@ import { targetStore, TargetStore, ModelMetadataArgs } from '../metadata';
  */
 export function Model(metaArgs?: ModelMetadataArgs): Function {
   return (target: any) => {
+    // register manually, if metaArgs is empty, no keys etc..
+    targetStore.registerTarget(target);
+
     if (metaArgs) {
       Object.keys(metaArgs)
         .forEach( key => targetStore.setClassProp(target, <any>key, metaArgs[key]) );
@@ -24,7 +27,7 @@ export function Model(metaArgs?: ModelMetadataArgs): Function {
         }
       });
 
-    fireEvents('onProcessType', target);
+    fireEvents('processType', target);
   };
 }
 

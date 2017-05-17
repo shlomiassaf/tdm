@@ -91,7 +91,7 @@ class CoreTargetMetadata extends TargetMetadata {
         }
       });
 
-    fireEvents('onProcessType', this.target);
+    fireEvents('processType', this.target);
   }
 
   private getProtoChainWithMixins(target: Constructor<any>, adapterClass: AdapterStatic<any, any>): Set<Constructor<any>> {

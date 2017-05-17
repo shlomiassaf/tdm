@@ -1,1 +1,1 @@
-export { TargetMetaModifier } from './modifier';
+export { TestTargetStore, TargetMetaModifier } from './modifier';

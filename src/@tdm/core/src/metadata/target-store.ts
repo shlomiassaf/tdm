@@ -1,6 +1,7 @@
 import { Constructor, isUndefined, isFunction, ensureTargetIsType } from '../fw/utils';
 import { KeySet, SetExt, MapExt,DualKeyMap } from '../fw/set-map-ext';
 import { MetaFactoryStatic, MetaFactoryInstance } from '../fw/interfaces';
+import { targetEvents, TargetEvents } from '../fw/events'
 
 import { ClassMetadata } from './class-metadata';
 import { TargetMetadata } from './target-metadata';
@@ -11,8 +12,19 @@ import { TargetMetadata } from './target-metadata';
  * Hold {@link TargetMetadata} for models.
  *
  * @pluginApi
+ * @mixable
+ * @singleton
  */
 export class TargetStore {
+
+  /**
+   * register listeners for metadata lifecycle events on a target.
+   * @returns {TargetEvents}
+   */
+  get on(): TargetEvents {
+    return targetEvents;
+  }
+
   /**
    * Storage for local, non target specific, data.
    */
@@ -22,6 +34,7 @@ export class TargetStore {
   protected builtTargets: Map<Constructor<any>, TargetMetadata>;
 
   protected constructor() {
+    // support for post instantiation mixins on the prototype (plugins) - don't use new.
     TargetStore.create(this);
   }
 

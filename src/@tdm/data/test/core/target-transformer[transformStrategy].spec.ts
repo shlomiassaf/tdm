@@ -71,7 +71,7 @@ const returnValue = {
   aliasedAlwaysExcluded: 'aliasedAlwaysExcluded'
 };
 
-describe('CORE', () => {
+describe('@tdm/data', () => {
   describe('Target Transformer', () => {
 
     const bucket = bucketFactory();

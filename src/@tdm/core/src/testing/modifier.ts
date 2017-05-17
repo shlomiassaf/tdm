@@ -26,10 +26,17 @@ function getTargetMetaStore(target: any): TestTargetMetadata {
   return targetStore.getTargetMeta(target) as any;
 }
 
-class TestTargetStore extends TargetStore {
+export class TestTargetStore extends TargetStore {
 
   static getTargetMeta(target: any): TestTargetMetadata | undefined {
     return targetStore.builtTargets.get(target);
+  }
+
+  static clearAll(): void {
+    targetStore.namedTargets.clear();
+    targetStore.builtTargets.clear();
+    targetStore.targets.clear();
+    targetStore.locals.clear();
   }
 
   static clear(target: any): void {

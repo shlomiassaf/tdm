@@ -7,7 +7,6 @@ import {
   targetStore,
   metaFactoryFactory,
   registerFactory,
-  registerEvent,
   MapExt,
   ClassMetadata,
   MetaFactoryInstance,
@@ -50,6 +49,11 @@ export interface FormPropMetadataArgs {
   render?: RenderDef;
 
   /**
+   * Sugar for adding a required validator
+   */
+  required?: boolean;
+
+  /**
    * Declares the property as a nested child form.
    * The property type must a complex object.
    * This is has no effect on UI rendering, only used by the mapper.
@@ -70,9 +74,11 @@ export class FormModelMetadata {
   asyncValidator: AsyncValidatorFn | null;
   props = new Map<string, FormPropMetadata>();
 
-  constructor(metaArgs: FormModelMetadataArgs | undefined) {
-    this.validator = metaArgs.validator || null;
-    this.asyncValidator = metaArgs.asyncValidator || null;
+  constructor(metaArgs?: FormModelMetadataArgs | undefined) {
+    if (metaArgs) {
+      this.validator = metaArgs.validator || null;
+      this.asyncValidator = metaArgs.asyncValidator || null;
+    }
   }
 
   addProp(prop: PropMetadata, metaArgs: FormPropMetadata) {
@@ -116,6 +122,7 @@ export class FormModelMetadata {
 export class FormPropMetadata extends BaseMetadata {
   transform: (value: any) => any;
   exclude: boolean;
+  required: boolean;
   defaultValue: any;
   render: RenderDef;
   validators: Array<ValidatorFn> | null;
@@ -129,9 +136,12 @@ export class FormPropMetadata extends BaseMetadata {
       this.exclude = metaArgs.exclude;
       this.defaultValue = metaArgs.defaultValue;
       this.validators = this.normValidators(metaArgs.validators);
+      this.required = metaArgs.required;
       this.asyncValidators = this.normValidators(metaArgs.asyncValidators);
       this.render = !this.exclude && metaArgs.render ? metaArgs.render : {};
       this.childForm = metaArgs.childForm;
+    } else {
+      this.render = {};
     }
   }
 
@@ -171,23 +181,23 @@ export function FormModel(metaArgs?: FormModelMetadataArgs) {
  */
 export const FormProp = decoratorFactory<FormPropMetadataArgs>(FormPropMetadata, true);
 
-function onProcessType(target: Constructor<any>) {
-  const modelProps = targetStore.getMetaFor(target, FormPropMetadata);
-  if (modelProps) {
-    let formModel = targetStore.getClassProp(target, 'formModel');
-    if (!formModel) {
-      formModel = new FormModelMetadata(undefined);
-      targetStore.setClassProp(target, 'formModel', formModel);
-    }
+targetStore.on
+  .processType((target: Constructor<any>) => {
+    const modelProps = targetStore.getMetaFor(target, FormPropMetadata);
+    if (modelProps) {
+      let formModel = targetStore.getClassProp(target, 'formModel');
+      if (!formModel) {
+        formModel = new FormModelMetadata(undefined);
+        targetStore.setClassProp(target, 'formModel', formModel);
+      }
 
-    const meta = targetStore.getTargetMeta(target);
-    MapExt.asKeyValArray(modelProps)
-      .forEach( ([k, v]) => {
-        formModel.addProp(meta.getCreateProp(k as any), v);
-      });
-  }
-}
-registerEvent('onProcessType', onProcessType);
+      const meta = targetStore.getTargetMeta(target);
+      MapExt.asKeyValArray(modelProps)
+        .forEach( ([k, v]) => {
+          formModel.addProp(meta.getCreateProp(k as any), v);
+        });
+    }
+});
 
 declare module '@tdm/core/metadata/target-metadata' {
   interface TargetMetadata {

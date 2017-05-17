@@ -48,7 +48,7 @@ class User extends MockMixin(User_) { }
 
 type Spify<T> = { [P in keyof T]: jasmine.Spy}
 
-describe('CORE', () => {
+describe('@tdm/data', () => {
   const PUser: Spify<User> = <any>User.prototype;
   const SUser: Spify<typeof User> = User as any;
 

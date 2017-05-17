@@ -47,8 +47,6 @@ export interface RenderDef<T = any> {
    */
   type?: keyof FormElementType;
 
-  required?: boolean;
-
   /**
    * Extra data to be used by the renderer.
    *

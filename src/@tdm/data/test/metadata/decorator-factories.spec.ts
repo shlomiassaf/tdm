@@ -1,11 +1,48 @@
-import { targetStore } from '@tdm/core';
+import { targetStore, TargetMetadata } from '@tdm/core';
 import { MockMixin, MockResource, MockActionOptions, bucketFactory } from '@tdm/data/testing';
 import { ActiveRecord, Constructor, Prop, Resource } from '@tdm/data';
 
-describe('CORE', () => {
+describe('@tdm/data', () => {
   describe('Decorator Factories', () => {
     const bucket = bucketFactory();
     afterEach(() => bucket.clear() );
+
+    it('should register target and fire events using an adapter decorator', () => {
+      const createMetadata = jasmine.createSpy('createMetadata');
+      const processType = jasmine.createSpy('processType');
+      targetStore.on.createMetadata(createMetadata);
+      targetStore.on.processType(processType);
+
+
+      @MockResource({ endpoint: '/api/users/:id?' }) class User { }
+
+      expect(targetStore.getTargetMeta(User)).toBeInstanceOf(TargetMetadata);
+
+      expect(createMetadata).toHaveBeenCalledTimes(2); // 1st: User, 2nd: TDMModel of User
+      expect(createMetadata).toHaveBeenLastCalledWith(User);
+
+
+      expect(processType).toHaveBeenCalledTimes(1);
+      expect(processType).toHaveBeenLastCalledWith(User);
+    });
+
+    it('should not build the TDMModel if instructed so', () => {
+      const createMetadata = jasmine.createSpy('createMetadata');
+      const processType = jasmine.createSpy('processType');
+      targetStore.on.createMetadata(createMetadata);
+      targetStore.on.processType(processType);
+
+
+      @MockResource({ endpoint: '/api/users/:id?', noBuild: true }) class User { }
+
+      expect(targetStore.getTargetMeta(User)).toBeInstanceOf(TargetMetadata);
+
+      expect(createMetadata).toHaveBeenCalledTimes(2); // 1st: User, 2nd: TDMModel of User
+      expect(createMetadata).toHaveBeenLastCalledWith(User);
+
+
+      expect(processType).not.toHaveBeenCalled();
+    });
 
     const returnValue = {
       name: 'test',

@@ -1,7 +1,7 @@
 import { MockMixin, MockResource, bucketFactory } from '@tdm/data/testing';
 import { Prop, validators } from '@tdm/data';
 
-describe('CORE', () => {
+describe('@tdm/data', () => {
   describe('Core Validators', () => {
     const bucket = bucketFactory();
     afterEach(() => bucket.clear() );

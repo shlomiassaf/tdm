@@ -1,6 +1,6 @@
 import * as voca from 'voca';
 
-import { Model, directMapper } from '@tdm/core';
+import { Model, directMapper, TargetMetadata } from '@tdm/core';
 import { targetStore } from '@tdm/core/ext';
 import '@tdm/core/add/mapping';
 import { TargetMetaModifier } from '@tdm/core/testing';
@@ -25,16 +25,23 @@ describe('@tdm/core', () => {
         myProperty3: 3
       };
 
-      xit('should register @Model decorator', () => {
-        @Model({
-          transformNameStrategy
-        })
-        class UserTest { }
-        const userTestModifier = TargetMetaModifier.create(UserTest);
+      it('should register target and fire events using @Model decorator', () => {
+        const createMetadata = jasmine.createSpy('createMetadata');
+        const processType = jasmine.createSpy('processType');
+        targetStore.on.createMetadata(createMetadata);
+        targetStore.on.processType(processType);
 
-        const nameStrategy = userTestModifier.getClassProp('transformNameStrategy');
-        expect(nameStrategy).toBe(transformNameStrategy);
 
+        @Model() class User { }
+
+        expect(targetStore.getTargetMeta(User)).toBeInstanceOf(TargetMetadata);
+
+        expect(createMetadata).toHaveBeenCalledTimes(1);
+        expect(createMetadata).toHaveBeenLastCalledWith(User);
+
+
+        expect(processType).toHaveBeenCalledTimes(1);
+        expect(processType).toHaveBeenLastCalledWith(User);
       });
 
       beforeEach( () => userModifier.clear() );

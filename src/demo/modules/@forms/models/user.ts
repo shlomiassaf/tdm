@@ -7,19 +7,19 @@ export class User {
 
   @Identity()
   @FormProp({
+    required: true,
     render: {
       type: 'number',
-      label: 'User ID',
-      required: true
+      label: 'User ID'
     }
   })
   id: number;
 
   @FormProp({
+    required: true,
     render: {
       type: 'text',
-      label: 'User Name',
-      required: true
+      label: 'User Name'
     }
   })
   name: string;

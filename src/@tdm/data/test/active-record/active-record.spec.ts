@@ -3,7 +3,7 @@ import 'rxjs';
 import { TDMModelBase } from '@tdm/core';
 import { ResourceControl } from '@tdm/data';
 
-describe('CORE', () => {
+describe('@tdm/data', () => {
   describe('Active Record', () => {
 
 

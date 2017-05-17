@@ -3,7 +3,7 @@ import 'rxjs';
 import { MockMixin, MockResource, bucketFactory } from '@tdm/data/testing';
 import { Prop, ValidationContext } from '@tdm/data';
 
-describe('CORE', () => {
+describe('@tdm/data', () => {
   describe('Target Validation', () => {
     const bucket = bucketFactory();
     afterEach(() => bucket.clear() );

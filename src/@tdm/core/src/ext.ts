@@ -20,8 +20,7 @@ export {
   decoratorInfo,
   metaFactoryFactory,
   fireEvents,
-  registerEvent,
-  TargetStoreEvents,
+  TargetEvents,
   lazyRef,
   getProtoChain
 } from './fw';
