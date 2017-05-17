@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { DAO } from '@tdm/data';
+import { NgDAO } from '@tdm/ngx-http';
 
 import { UserBaseClass, UserConst, UsersInterface, UserDAO } from '../models';
 
@@ -16,7 +17,12 @@ type User = UserConst;
 export class PlaygroundPageComponent {
   public user: User;
 
-  constructor() {
+  constructor(ngDAO: NgDAO) {
+    ngDAO.get(UserDAO).find(6)
+      .then( user => {
+        console.log(user);
+      }, err => alert(err));
+
     DAO.angularHttp(UserDAO).find(5)
       .then( user => {
         console.log(user);

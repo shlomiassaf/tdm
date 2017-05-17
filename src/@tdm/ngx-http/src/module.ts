@@ -2,6 +2,8 @@ import { NgModule, ModuleWithProviders } from '@angular/core';
 import { HttpModule, Http } from '@angular/http';
 import { runAfterBootstrap } from './providers';
 
+import { NgDAO } from './register';
+
 @NgModule({
   imports: [ HttpModule ]
 })
@@ -17,7 +19,7 @@ export class HttpResourceModule {
   static forRoot(): ModuleWithProviders {
     return {
       ngModule: HttpResourceModuleForRoot,
-      providers: []
+      providers: [{ provide: NgDAO, useValue: new NgDAO() }]
     }
   }
 }

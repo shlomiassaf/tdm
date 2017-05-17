@@ -10,10 +10,16 @@ targetStore.registerAdapter(HttpAdapter, {
   DAOClass: HttpDao
 });
 
+/**
+ * An HttpDAO factory based for a target.
+ */
+export class NgDAO {
+  get<T, Z>(target: Z & Constructor<T>): HttpDao<T> {
+    return DAO.of(HttpAdapter, target);
+  }
+}
 
-DAO.angularHttp = function angularHttp<T, Z>(target: Z & Constructor<T>): HttpDao<T> {
-  return DAO.of(HttpAdapter, target);
-};
+DAO.angularHttp = NgDAO.prototype.get;
 
 declare module '@tdm/data/dao' {
   module DAO {

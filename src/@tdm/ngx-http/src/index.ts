@@ -16,7 +16,7 @@ export {
 export { HttpAction, UrlParam, HttpResource } from './decorators';
 
 // TODO: solve this circular dependency hell
-import './register';
+export { NgDAO } from './register';
 
 export { httpDefaultConfig, HttpDefaultConfig } from './http-default-config';
 export { HttpResourceModule } from './module';
