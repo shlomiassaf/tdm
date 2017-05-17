@@ -2,8 +2,6 @@ import { Constructor, isFunction, targetStore } from '@tdm/core';
 
 import { AdapterStatic, ActionOptions, IdentityValueType, DAOMethods, DAOTarget, DAOAdapter, TargetError } from './fw'
 
-
-
 export interface TargetDAO<T, Options extends ActionOptions> {
   find(id: IdentityValueType, options?: Options): Promise<T>;
 
@@ -91,6 +89,7 @@ export class DAO {
     // TODO: normalize error.
     return Promise.reject(new Error('Invalid input'));
   }
+
 
   private run(target: Constructor<any>, cmd: keyof typeof DAOMethods, ...args: any[]): any {
     if (!targetStore.hasTarget(target)) {

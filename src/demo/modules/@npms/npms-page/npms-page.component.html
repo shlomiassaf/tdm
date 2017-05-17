@@ -18,7 +18,7 @@
     <ngx-datatable #table
       class="material"
       [rows]="obs$ | async"
-      [loadingIndicator]="(packages || package)?.$ar.busy$ | async"
+      [loadingIndicator]="(packages || package)?.$rc.busy$ | async"
       [columns]="columns"
       [columnMode]="'force'"
       [headerHeight]="50"

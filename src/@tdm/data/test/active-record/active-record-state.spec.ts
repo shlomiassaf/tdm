@@ -37,24 +37,24 @@ describe('CORE', () => {
     });
 
     it('should resolve the next action result', () => {
-      return bucket.create(User).$refresh({ returnValue: {username: 'test'} }).$ar.next()
+      return bucket.create(User).$refresh({ returnValue: {username: 'test'} }).$rc.next()
         .then( instance => expect(instance.username).toBe('test') )
     });
 
     it('should reject the next action if no action is running', () => {
-      return bucket.create(User).$ar.next()
+      return bucket.create(User).$rc.next()
         .catch( err => expect(err.message).toEqual('Call to next() while not in an active action.') );
     });
 
     it('should reject the next action on error', () => {
-      return bucket.create(User).$refresh({ throwError: new Error('testError') }).$ar.next()
+      return bucket.create(User).$refresh({ throwError: new Error('testError') }).$rc.next()
         .catch(err => expect(err.toString()).toEqual('Error: testError') );
     });
 
     it('should reflect busy status', () => {
       const user = bucket.create(User);
 
-      expect(user.$ar.busy).toBe(false);
+      expect(user.$rc.busy).toBe(false);
 
       return eventConsumer(user)
         .events('ActionStart', 'ActionSuccess', 'ActionEnd')
@@ -62,10 +62,10 @@ describe('CORE', () => {
         .onEvent( event => {
           switch(event.type) {
             case 'ActionStart':
-              expect(user.$ar.busy).toBe(true);
+              expect(user.$rc.busy).toBe(true);
               break;
             case 'ActionEnd':
-              expect(user.$ar.busy).toBe(false);
+              expect(user.$rc.busy).toBe(false);
               break;
           }
         })
@@ -77,20 +77,20 @@ describe('CORE', () => {
             .onEvent( event => {
               switch(event.type) {
                 case 'ActionStart':
-                  expect(user.$ar.busy).toBe(true);
+                  expect(user.$rc.busy).toBe(true);
                   break;
                 case 'ActionCancel':
-                  expect(user.$ar.busy).toBe(false);
+                  expect(user.$rc.busy).toBe(false);
                   break;
                 case 'ActionEnd':
                   expect( (event as ActionEndResourceEvent).result).toBe('cancel');
-                  expect(user.$ar.busy).toBe(false);
+                  expect(user.$rc.busy).toBe(false);
                   break;
               }
             })
             .run( ec => {
               ec.ar.$refresh({ timeout: 100 });
-              setTimeout(() => ec.ar.$ar.cancel(), 20);
+              setTimeout(() => ec.ar.$rc.cancel(), 20);
             });
         });
     });
@@ -105,7 +105,7 @@ describe('CORE', () => {
       const busyStates = [true, false];
 
 
-      user.$refresh().$ar.busy$.subscribe(
+      user.$refresh().$rc.busy$.subscribe(
         busy => {
           expect(typeof busy).toBe('boolean');
           expect(busy).toBe(busyStates.shift());
@@ -145,7 +145,7 @@ describe('CORE', () => {
             })
             .run( ec => {
               ec.ar.$refresh({ timeout: 100 });
-              setTimeout(() => ec.ar.$ar.cancel(), 20);
+              setTimeout(() => ec.ar.$rc.cancel(), 20);
             });
         })
         .then( () => {
@@ -165,8 +165,8 @@ describe('CORE', () => {
 
     it('busy status should update even if events not subscribed.', () => {
       const user = bucket.create(User);
-      expect(user.$ar.busy).toBe(false);
-      expect(user.$refresh().$ar.busy).toBe(true);
+      expect(user.$rc.busy).toBe(false);
+      expect(user.$refresh().$rc.busy).toBe(true);
     });
 
     it('should apply the response', () => {
@@ -193,7 +193,7 @@ describe('CORE', () => {
         })
         .run( ec => {
           ec.ar.$refresh({ returnValue: { username: 'test' }, timeout: 100 });
-          setTimeout(() => ec.ar.$ar.cancel(), 20);
+          setTimeout(() => ec.ar.$rc.cancel(), 20);
         })
         .then( () => expect(user.username).toBeUndefined() );
     });
@@ -203,7 +203,7 @@ describe('CORE', () => {
 
       let count = 0;
       let next: Promise<User>;
-      user.$ar.self$.subscribe( () => count++ );
+      user.$rc.self$.subscribe( () => count++ );
 
       return eventConsumer(user)
         .events('ActionStart')
@@ -211,7 +211,7 @@ describe('CORE', () => {
         .onEvent( event => {
           switch(event.type) {
             case 'ActionStart':
-              user.$ar.disconnect();
+              user.$rc.disconnect();
               expect(count).toEqual(1);
               break;
             default:
@@ -221,7 +221,7 @@ describe('CORE', () => {
         })
         .run( ec => {
           ec.ar.$refresh({ returnValue: { username: 'test' } });
-          next = ec.ar.$ar.next();
+          next = ec.ar.$rc.next();
         })
         .then( () => next )
         .then( data => {
@@ -239,7 +239,7 @@ describe('CORE', () => {
 
       const run = (onDone: (err?: any) => void) => {
         const busyStates = [true, false];
-        user.$refresh().$ar.busy$.subscribe(
+        user.$refresh().$rc.busy$.subscribe(
           busy => {
             expect(typeof busy).toBe('boolean');
             expect(busy).toBe(busyStates.shift());
@@ -255,7 +255,7 @@ describe('CORE', () => {
         if (err) {
           return done.fail(err);
         }
-        user.$ar.disconnect();
+        user.$rc.disconnect();
         run((err1) => err1 ? done.fail(err1) : done() );
       });
     });

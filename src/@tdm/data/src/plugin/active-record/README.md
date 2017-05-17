@@ -1,0 +1,1 @@
+A plugin for `@tdm/data` that adds the active record pattern to models.

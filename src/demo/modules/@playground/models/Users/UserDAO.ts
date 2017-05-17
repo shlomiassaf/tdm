@@ -83,7 +83,7 @@ export class UserDAO implements  BeforeHook<'bfRef', HttpActionOptions>,
 
   @Hook({event: 'before', action: 'query'})
   static bfQuery(this: TDMCollection<ARMixin<UserDAO>>) {
-    this.$ar.next()
+    this.$rc.next()
       .then( coll => {
         console.log(`BeforeQuery-AfterQuery: got ${coll.length}`)
       });

@@ -93,7 +93,7 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
 
   @Hook({event: 'before', action: 'query'})
   static bfQuery(this: TDMCollection<ARMixin<User_>>) {
-    this.$ar.next()
+    this.$rc.next()
       .then( coll => {
         console.log(`BeforeQuery-AfterQuery: got ${coll.length}`)
       });
@@ -125,7 +125,7 @@ export type UserConst = ARMixin<User_>;
 // const user: UserConst = new UserConst();                         // OK
 // user.$refresh().username__;                                      // OK
 // user.$refresh().abcd;                                            // SHOULD ERROR
-// user.$ar.next().then( u => u.id );                               // OK
-// user.$ar.next().then( u => u.f34 );                              // SHOULD ERROR
-// UserConst.query().$ar.next().then(coll => coll );     // OK
-// UserConst.query().$ar.next().then(coll => coll.sdfd );           // SHOULD ERROR
+// user.$rc.next().then( u => u.id );                               // OK
+// user.$rc.next().then( u => u.f34 );                              // SHOULD ERROR
+// UserConst.query().$rc.next().then(coll => coll );     // OK
+// UserConst.query().$rc.next().then(coll => coll.sdfd );           // SHOULD ERROR

@@ -12,7 +12,7 @@ export function bucketFactory() {
     create,
     clear() {
       while(bucket.length > 0) {
-        bucket.pop().$ar.disconnect();
+        bucket.pop().$rc.disconnect();
       }
     }
   }

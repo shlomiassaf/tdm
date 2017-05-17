@@ -101,7 +101,7 @@ export class UsersInterface extends ARMixin<IUserInterface, IUserInterfaceStatic
 
   @Hook({event: 'before', action: 'query'})
   static bfQuery(this: TDMCollection<ARMixin<UsersInterface>>) {
-    this.$ar.next()
+    this.$rc.next()
       .then( coll => {
         console.log(`BeforeQuery-AfterQuery: got ${coll.length}`)
       });
@@ -122,8 +122,8 @@ export class UsersInterface extends ARMixin<IUserInterface, IUserInterfaceStatic
 // const user: UsersInterface = new UsersInterface();                   // OK
 // user.$refresh().username__;                                          // OK
 // user.$refresh().abcd;                                                // SHOULD ERROR
-// user.$ar.next().then( u => u.id );                                   // OK
-// user.$ar.next().then( u => u.f34 );                                  // SHOULD ERROR
-// UsersInterface.query().$ar.next().then( coll => coll );   // OK
-// UsersInterface.query().$ar.next().then( coll => coll.sdfd );         // SHOULD ERROR
+// user.$rc.next().then( u => u.id );                                   // OK
+// user.$rc.next().then( u => u.f34 );                                  // SHOULD ERROR
+// UsersInterface.query().$rc.next().then( coll => coll );   // OK
+// UsersInterface.query().$rc.next().then( coll => coll.sdfd );         // SHOULD ERROR
 

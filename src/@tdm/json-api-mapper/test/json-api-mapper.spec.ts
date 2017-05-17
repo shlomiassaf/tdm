@@ -384,7 +384,7 @@ describe('JSONAPIMapper', () => {
       expect(deepEqual(ser, included.payload)).toBe(false);
 
       // check that the serialization for plain objects is working and not just setting ref.
-      expect(ser.data.attributes.freestyle.$ar).toBeUndefined();
+      expect(ser.data.attributes.freestyle.$rc).toBeUndefined();
 
       // The payload has a "freestyle" object with defined relationship and an included freestyle resource.
       // With Deserialization the deserializer is smart enough to convert it to a plain object even although there

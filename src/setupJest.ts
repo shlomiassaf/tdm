@@ -19,7 +19,8 @@ Object.defineProperty(window, 'getComputedStyle', {
 
 import { plugins } from '@tdm/data';
 import '@tdm/data/plugin/active-record';
-import '@tdm/data/plugin/resource-control';
+import '@tdm/data/plugin/active-record/$rc';
+import '@tdm/data/plugin/rx-resource-control';
 
-plugins.ActiveRecord.init();
-plugins.ResourceControl.init();
+plugins.ActiveRecord.init({ resourceControl: '$rc' });
+plugins.RxResourceControl.init();

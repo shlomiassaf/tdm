@@ -25,13 +25,13 @@ export class PlaygroundPageComponent {
     this.user = User.find(5);
 
 
-    // this.user.rawDeserialized({trailingSlashes: 'force'}).$ar.next()
-    //   .then( () => this.user.raw({withCredentials: true}).$ar.next() )
+    // this.user.rawDeserialized({trailingSlashes: 'force'}).$rc.next()
+    //   .then( () => this.user.raw({withCredentials: true}).$rc.next() )
     //   .then( () => this.gogo());
 
 
     // this.user.id = 5;
-    // this.user.$refresh().$ar.next()
+    // this.user.$refresh().$rc.next()
     //   .then(() => {
     //
     //   })
@@ -42,15 +42,15 @@ export class PlaygroundPageComponent {
 
     // this.gogo();
 
-    // UserConst.query().$ar.next()
+    // UserConst.query().$rc.next()
     //   .then( coll => {
     //   })
   }
 
   gogo() {
 
-    let $ar = this.user.$ar;
-    let subs = $ar.events$.subscribe(e => {
+    let $rc = this.user.$rc;
+    let subs = $rc.events$.subscribe(e => {
       console.log(e.type);
       if (e.type === 'ActionError') {
         console.log(e['error'])
@@ -58,7 +58,7 @@ export class PlaygroundPageComponent {
         setTimeout(() => {
           this.user.id--;
           if (this.user.id === 0) {
-            $ar.disconnect();
+            $rc.disconnect();
           } else {
             this.user.$refresh();
           }

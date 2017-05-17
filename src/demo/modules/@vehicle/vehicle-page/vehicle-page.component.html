@@ -15,7 +15,7 @@
   </button>
 
   <ul>
-    <li *ngFor="let model of models?.$ar.self$ | async">
+    <li *ngFor="let model of models?.$rc.self$ | async">
       {{model.modelName}}
     </li>
   </ul>

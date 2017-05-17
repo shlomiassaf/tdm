@@ -1,6 +1,5 @@
 import { targetStore, TargetMetadata, isFunction, MapperFactory, TDMCollection } from '@tdm/core';
-import { emitEvent, eventFactory } from '../events';
-import { CancellationTokenResourceEvent, ExecuteInitResourceEvent } from '../events/internal';
+import { dispatchEvent, eventFactory, CancellationTokenResourceEvent, ExecuteInitResourceEvent } from '../events';
 import { defaultConfig } from '../default-config';
 import { findProp, noop } from '../utils';
 import { AdapterMetadata, ActionMetadata, ValidationSchedule } from '../metadata';
@@ -14,7 +13,7 @@ import {
   ARHookableMethods
 } from '../fw';
 
-import { DAO } from '../dao';
+import { ResourceControl } from '../resource-control';
 import { ExecuteContext, ExecuteParams } from './execute-context';
 
 interface ExecuteState {
@@ -60,27 +59,31 @@ export class ActionController {
       ctx.setInstance();
     }
 
-    // TODO:  this state.busy test is part of "resource-control" plugin, need to create mechanism to
-    //        send pre-init event and get reflect exception from that. this will allow handling the busy check in resource-control
-    const state = (<any>DAO).getCtrl && (<any>DAO).getCtrl(ctx.instance);
+    const state = ResourceControl.get(ctx.instance);
+
     if (state && state.busy) {
       const err = eventFactory.error(ctx.instance, new Error('An action is already running'));
-      return ret === 'promise' ? Promise.reject(err) : emitEvent(err);
+      return ret === 'promise' ? Promise.reject(err) : dispatchEvent(err);
     } else if (!!action.isCollection !== TDMCollection.instanceOf(ctx.instance)) {
       const err = eventFactory.error(ctx.instance, ResourceError.coll_obj(ctx.instance, action.isCollection));
-      return ret === 'promise' ? Promise.reject(err) : emitEvent(err);
+      return ret === 'promise' ? Promise.reject(err) : dispatchEvent(err);
     }
 
-    emitEvent(new ExecuteInitResourceEvent(ctx.instance, {ac: this, action, async, args}));
-    emitEvent(eventFactory.actionStart(ctx.instance));
+    state.set('busy', true);
+
+    dispatchEvent(new ExecuteInitResourceEvent(ctx.instance, {ac: this, action, async, args}));
+    dispatchEvent(eventFactory.actionStart(ctx.instance));
 
     const eState: ExecuteState = {};
 
     if (this.adapter.supports.cancel) {
-      emitEvent(new CancellationTokenResourceEvent(ctx.instance, () => this.cancel(eState, ctx)))
+      dispatchEvent(new CancellationTokenResourceEvent(ctx.instance, () => this.cancel(eState, ctx)))
     }
 
-
+    // TODO: move this to be part of the promise flow
+    const doFinally = () => {
+      state.set('busy', false);
+    };
 
     // TODO:  fireEvent uses member name as Hook matcher, this requires member name to be one of
     //        "ARHookableMethods", let user set the action method in ActionMetadata or something
@@ -119,16 +122,19 @@ export class ActionController {
               .then( () => this.fireHook(action.name as any, 'after', ctx.instance, options, response) )
           });
       })
-      .then(() => emitEvent(eventFactory.success(ctx.instance)))
-      .then(() => emitEvent(eventFactory.actionEnd(ctx.instance, 'success')))
-      .then( () => ctx.instance )
+      .then(() => dispatchEvent(eventFactory.success(ctx.instance)))
+      .then(() => doFinally() )
+      .then(() => dispatchEvent(eventFactory.actionEnd(ctx.instance, 'success')))
+      .then(() => ctx.instance )
       .catch(err => {
         if (eState.cancelled !== true) {
-          emitEvent(eventFactory.error(ctx.instance, err));
+          dispatchEvent(eventFactory.error(ctx.instance, err));
           if (ret === 'promise') { // rethrow if the user handles the promise
+            doFinally();
             throw err;
           }
         }
+        doFinally();
       });
 
     // TODO: implement timeout to protect from stale promises?
@@ -139,11 +145,11 @@ export class ActionController {
   private cancel(eState: ExecuteState, ctx: ExecuteContext<any>): void {
     if (!eState.cancelled) {
       eState.cancelled = true;
-      emitEvent(eventFactory.cancel(ctx.instance));
+      dispatchEvent(eventFactory.cancel(ctx.instance));
       if (eState.id) {
         this.adapter.cancel(eState.id);
       }
-      emitEvent(eventFactory.actionEnd(ctx.instance, 'cancel'));
+      dispatchEvent(eventFactory.actionEnd(ctx.instance, 'cancel'));
     }
   }
 

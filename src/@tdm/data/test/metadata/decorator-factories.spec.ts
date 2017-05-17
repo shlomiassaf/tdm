@@ -27,7 +27,7 @@ describe('CORE', () => {
       type User = MockMixin<User_>;
 
       const user: User = bucket.create<any>(User);
-      user.$refresh({returnValue}).$ar.next()
+      user.$refresh({returnValue}).$rc.next()
         .then( data => {
           expect(targetStore.getClassProp(User, 'name')).toBe('User_');
           expect(user.name).toBe('test');
@@ -59,7 +59,7 @@ describe('CORE', () => {
 
 
       const user = bucket.create(User);
-      user.$refresh({returnValue}).$ar.next()
+      user.$refresh({returnValue}).$rc.next()
         .then( data => {
           expect(targetStore.getClassProp(User, 'name')).toBe('User');
           expect(user.name).toBe('test');
@@ -84,7 +84,7 @@ describe('CORE', () => {
       class User extends MockMixin(User_) { }
 
       const user = bucket.create(User);
-      user.$refresh({returnValue}).$ar.next()
+      user.$refresh({returnValue}).$rc.next()
         .then( data => {
           expect(targetStore.getClassProp(User, 'name')).toBe('User');
           expect(user.name).toBe('test');

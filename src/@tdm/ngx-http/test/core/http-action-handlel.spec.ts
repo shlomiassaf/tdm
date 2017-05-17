@@ -142,12 +142,11 @@ describe('NG-HTTP', () => {
 
         const EVENTS = ['ActionStart', 'ActionError'];
 
-        let event;
-        new User().$refresh().$ar.events$.first().subscribe( e => event = e, null, () => {
-
+        const unsub = new User().$refresh().$rc.events$.subscribe( event => {
           expect(event.type).toEqual(EVENTS.shift());
           if (event.type === 'ActionError') {
             expect(event['error'].toString()).toEqual('Error: URL Parameter Error in HttpAdapter: Expected "id" to be defined');
+            unsub.unsubscribe();
           }
         });
         tick();

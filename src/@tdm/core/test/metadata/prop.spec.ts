@@ -1,5 +1,3 @@
-import 'rxjs';
-
 import { Prop, Relation } from '@tdm/core';
 import { PropMetadata } from '@tdm/core/ext';
 import { TargetMetaModifier } from '@tdm/core/testing';

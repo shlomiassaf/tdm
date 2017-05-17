@@ -54,7 +54,7 @@ describe('CORE', () => {
 
       const user = bucket.create(User);
 
-      user.$refresh({returnValue}).$ar.next()
+      user.$refresh({returnValue}).$rc.next()
         .then( data => done.fail(new Error('Validation not triggered')) )
         .catch( err => {
           expect(err.validationErrors.length).toBe(6);
@@ -108,7 +108,7 @@ describe('CORE', () => {
       let user = bucket.create(User);
 
       const unique = {};
-      user.$refresh({returnValue: returnValuePass}).$ar.next()
+      user.$refresh({returnValue: returnValuePass}).$rc.next()
         .catch( (err) => {
           done.fail(err);
           return unique;
@@ -116,7 +116,7 @@ describe('CORE', () => {
         .then( hasError => {
           if (hasError !== unique) {
             user = bucket.create(User);
-            user.$refresh({returnValue: returnValueFail}).$ar.next()
+            user.$refresh({returnValue: returnValueFail}).$rc.next()
               .then( data => done.fail(new Error('Validation not triggered')) )
               .catch( err => {
                 expect(err.validationErrors.length).toBe(4);

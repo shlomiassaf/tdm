@@ -46,7 +46,7 @@ export class EventConsumer<T extends ActiveRecord<any, any>> {
         }
       }, data.timeout);
 
-      const subs = this.ar['$ar'].events$.subscribe( event => {
+      const subs = this.ar.$rc.events$.subscribe( event => {
         try {
           collectedEvents.push(event);
           expect(events.length).toBeGreaterThan(0);

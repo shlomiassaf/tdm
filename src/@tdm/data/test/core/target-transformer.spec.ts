@@ -54,12 +54,12 @@ describe('CORE', () => {
         expect(payload['transformed2']).toBe(expected.outgoing.transformed2);
       };
 
-      user.$refresh({returnValue}).$ar.next()
+      user.$refresh({returnValue}).$rc.next()
         .then( data => {
           expect(user.transformed1).toBe(expected.incoming.transformed1);
           expect(user.transformed2).toBe(expected.incoming.transformed2);
         })
-        .then( () => user.$update({payloadInspect}).$ar.next() )
+        .then( () => user.$update({payloadInspect}).$rc.next() )
         .then( data => done() )
         .catch( err => done.fail(err) );
     });
@@ -94,7 +94,7 @@ describe('CORE', () => {
         expect(payload['my_property_3']).toBe(returnValue.myProperty3);
       };
 
-      user.$refresh({returnValue}).$ar.next()
+      user.$refresh({returnValue}).$rc.next()
         .then( data => {
           expect(user['my_property_1']).toBeUndefined();
           expect(user['myProperty1']).toBe(returnValue.my_property1);
@@ -104,7 +104,7 @@ describe('CORE', () => {
 
           expect(user['myProperty3']).toBe(returnValue.myProperty3);
         })
-        .then( () => user.$update({payloadInspect}).$ar.next() )
+        .then( () => user.$update({payloadInspect}).$rc.next() )
         .then( data => done() )
         .catch( err => done.fail(err) );
 

@@ -15,6 +15,7 @@ import { ActionMetadata } from '../../metadata'
 import { ExecuteContext } from '../../core/execute-context';
 import { AdapterStatic, PluginStore } from '../../fw';
 import { ActionController } from '../../core';
+import { ResourceControl } from '../../resource-control';
 
 /**
  * Returns all of the actions registered for a target going through the proto chain and all
@@ -106,9 +107,84 @@ function activeRecord(target: Constructor<any>): void {
   }
 }
 
+function attachResourceControl(propertyName: string): void {
+  function getThisCtrl() { return ResourceControl.get(this); }
+
+  // extend TDMModel
+  Object.defineProperty(TDMModelBase.prototype, propertyName, { configurable: true, get: getThisCtrl });
+
+
+  // extend TDMCollection
+  function StatefulActiveRecordCollection() { }
+  Object.defineProperty(StatefulActiveRecordCollection.prototype, propertyName, { get: getThisCtrl });
+  TDMCollection.extend(StatefulActiveRecordCollection);
+}
+
+export interface ActiveRecordOptions {
+  /**
+   * On each model, defines a property name that reference the {@link ResourceControl}
+   * instance for that model.
+   *
+   * Note that the string value is the property name on the model instance at runtime.
+   * At design time this property is not known to the type system (TypeScript), to attach the
+   * property to the type system extend {@link TDMModel} and {@link TDMModelCollection}.
+   *
+   * For example, attaching the property name '$rc', use a module to init the plugin:
+   * ```ts
+   * import { TDMModel, TDMCollection } from '@tdm/core';
+   * import { ResourceControl, plugins } from '@tdm/data';
+   * import '@tdm/data/plugin/active-record';
+   *
+   * plugins.ActiveRecord.init({ resourceControl: '$rc' });
+   *
+   * // Now, teach TypeScript about the new property:
+   * declare module '@tdm/core/model/tdm-model' {
+   *   interface TDMModel<T> {
+   *     readonly $rc: ResourceControl<T>;
+   *   }
+   *
+   *   interface TDMModelBase<T> {
+   *     readonly $rc: ResourceControl<T>;
+   *   }
+   * }
+   *
+   * export interface StatefulActiveRecordCollection<T> extends TDMCollection<T>, TDMModel<StatefulActiveRecordCollection<T>> { }
+   *
+   * declare module '@tdm/core/model/tdm-collection' {
+   *   interface TDMCollection<T> {
+   *     readonly $rc: ResourceControl<StatefulActiveRecordCollection<T>>;
+   *   }
+   * }
+   * ```
+   *
+   * If not set (falsy expression) the resource control instance can not be accessed directly from the model instance.
+   * > It is still accessible through ResourceControl.get(modelInstance);
+   *
+   * @default undefined
+   */
+  resourceControl?: string | false | undefined | null;
+
+  /**
+   * Enable active record actions on each model (save, delete, update etc..)
+   *
+   * @default true
+   */
+  enableActions?: boolean;
+}
+
 export class ActiveRecordPlugin {
-  init(): void {
-    registerEvent('onProcessType', activeRecord);
+  /**
+   * Init the plugin
+   * @param options ActiveRecordOptions
+   */
+  init(options: ActiveRecordOptions): void {
+    if (options.resourceControl) {
+      attachResourceControl(options.resourceControl)
+    }
+
+    if (options.hasOwnProperty('enableActions') === false || options.enableActions === true) {
+      registerEvent('onProcessType', activeRecord);
+    }
   }
 }
 

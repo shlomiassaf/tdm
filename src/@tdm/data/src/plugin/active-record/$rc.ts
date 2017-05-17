@@ -1,20 +1,20 @@
 import { TDMModel, TDMCollection } from '@tdm/core';
-import { ResourceControl } from './resource-control';
+import { ResourceControl } from '../../resource-control';
 
 
 declare module '@tdm/core/model/tdm-model' {
   interface TDMModel<T> {
     /**
-     * @extension '@tdm/data/plugin/resource-control'
+     * @extension '@tdm/data/plugin/active-record'
      */
-    readonly $ar: ResourceControl<T>;
+    readonly $rc: ResourceControl<T>;
   }
 
   interface TDMModelBase<T> {
     /**
-     * @extension '@tdm/data/plugin/resource-control'
+     * @extension '@tdm/data/plugin/active-record'
      */
-    readonly $ar: ResourceControl<T>;
+    readonly $rc: ResourceControl<T>;
   }
 }
 
@@ -24,8 +24,8 @@ export interface StatefulActiveRecordCollection<T> extends TDMCollection<T>, TDM
 declare module '@tdm/core/model/tdm-collection' {
   interface TDMCollection<T> {
     /**
-     * @extension '@tdm/data/plugin/resource-control'
+     * @extension '@tdm/data/plugin/active-record'
      */
-    readonly $ar: ResourceControl<StatefulActiveRecordCollection<T>>;
+    readonly $rc: ResourceControl<StatefulActiveRecordCollection<T>>;
   }
 }

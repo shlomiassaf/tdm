@@ -26,7 +26,7 @@
     <ngx-datatable
       class="material"
       [rows]="obs$ | async"
-      [loadingIndicator]="(titles || title)?.$ar.busy$ | async"
+      [loadingIndicator]="(titles || title)?.$rc.busy$ | async"
       [columns]="columns"
       [columnMode]="'force'"
       [headerHeight]="50"

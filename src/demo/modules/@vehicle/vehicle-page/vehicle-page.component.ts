@@ -27,7 +27,7 @@ export class VehiclePageComponent {
 
   constructor(public uiBlock: UiBlockService) {
     this.makes = Make.query();
-    this.uiBlock.closeWithPromise(this.makes.$ar.next()).open(UiBlock);
+    this.uiBlock.closeWithPromise(this.makes.$rc.next()).open(UiBlock);
 
     const filterCtrl$ = this.makerCtrl.valueChanges
       .distinctUntilChanged()
@@ -35,7 +35,7 @@ export class VehiclePageComponent {
       .filter( value => value && value.length > 1);
 
 
-    this.filtered$ = this.makes.$ar.self$
+    this.filtered$ = this.makes.$rc.self$
       .combineLatest(filterCtrl$, (v1, v2) => ([v1, v2]))
       .map(combined => this.filterMakes(combined[0], combined[1]));
   }
@@ -58,7 +58,7 @@ export class VehiclePageComponent {
 
     if (maker && maker.hasOwnProperty('makeId')) {
       this.models = Model.query(maker.makeId);
-      this.uiBlock.closeWithPromise(this.models.$ar.next()).open(UiBlock);
+      this.uiBlock.closeWithPromise(this.models.$rc.next()).open(UiBlock);
     }
   }
 

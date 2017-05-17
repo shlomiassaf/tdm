@@ -94,7 +94,7 @@ describe('CORE', () => {
         expect(payload['freeSpirit']).toBe(true);
       };
 
-      user.$refresh({returnValue}).$ar.next()
+      user.$refresh({returnValue}).$rc.next()
         .then( data => {
           expect(user.age).toBe(returnValue.age);
 
@@ -117,7 +117,7 @@ describe('CORE', () => {
 
           user['freeSpirit'] = true;
         })
-        .then( () => user.$update({payloadInspect}).$ar.next() )
+        .then( () => user.$update({payloadInspect}).$rc.next() )
         .then( data => done() )
         .catch( err => done.fail(err) );
     });
@@ -125,7 +125,7 @@ describe('CORE', () => {
     it('should include only marked properties when strategy === "exclusive" except explicitly excluded properties', (done) => {
       const user = bucket.create(UserExc);
 
-      user.$refresh({returnValue}).$ar.next()
+      user.$refresh({returnValue}).$rc.next()
         .then( data => {
           expect(user.age).toBe(returnValue.age);
 
@@ -156,7 +156,7 @@ describe('CORE', () => {
       const users = UserInc.query({ returnValue: data });
       bucket.bucket.push(users);
 
-      users.$ar.next()
+      users.$rc.next()
         .then( data => {
           expect(users.length).toBe(3);
 

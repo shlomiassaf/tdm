@@ -35,7 +35,7 @@ describe('CORE', () => {
 
       const user = bucket.create(User);
 
-      user.$refresh({returnValue}).$ar.next()
+      user.$refresh({returnValue}).$rc.next()
         .then( data => done.fail(new Error('Validation not triggered')) )
         .catch( err => {
           expect(err.validationErrors[0].errors['test-validator']).toBe('error');

@@ -1,7 +1,7 @@
 import 'rxjs';
 
 import { TDMModelBase } from '@tdm/core';
-import { ResourceControl } from '@tdm/data/plugin/resource-control/resource-control';
+import { ResourceControl } from '@tdm/data';
 
 describe('CORE', () => {
   describe('Active Record', () => {
@@ -15,7 +15,7 @@ describe('CORE', () => {
     it('should have an active record state', () => {
       const User = TDMModelBase.factory(class User { });
       const user = new User();
-      expect(user['$ar'] instanceof ResourceControl).toBe(true);
+      expect(user['$rc'] instanceof ResourceControl).toBe(true);
     });
 
 

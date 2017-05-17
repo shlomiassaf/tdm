@@ -2,10 +2,11 @@ export * from './index';
 
 import { plugins } from './fw/plugin';
 import './plugin/active-record';
-import './plugin/resource-control';
-import './plugin/resource-control/$ar';
+import './plugin/active-record/$rc';
 
-plugins.ResourceControl.init();
-plugins.ActiveRecord.init();
+// import './plugin/resource-control';
+// plugins.RxResourceControl.init();
+
+plugins.ActiveRecord.init({ resourceControl: '$rc' });
 
 

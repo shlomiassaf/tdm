@@ -25,9 +25,9 @@ export class NetflixPageComponent {
 
   get obs$(): Observable<any> {
     if (this.titles) {
-      return this.titles.$ar.self$;
+      return this.titles.$rc.self$;
     } else if (this.title) {
-      return this.title.$ar.self$.map( v => [v]);
+      return this.title.$rc.self$.map( v => [v]);
     }
   }
   constructor(fb: FormBuilder, public uiBlock: UiBlockService) {
@@ -80,7 +80,7 @@ export class NetflixPageComponent {
     if (type === 'title') {
       this.titles = undefined;
       this.title = Title.find(value);
-      this.uiBlock.closeWithPromise(this.title.$ar.next()).open(UiBlock);
+      this.uiBlock.closeWithPromise(this.title.$rc.next()).open(UiBlock);
     } else {
       if (!this.titles) {
         this.titles = Title.query(type, value);
@@ -88,7 +88,7 @@ export class NetflixPageComponent {
         this.titles.query(type, value);
       }
 
-      this.uiBlock.closeWithPromise(this.titles.$ar.next()).open(UiBlock);
+      this.uiBlock.closeWithPromise(this.titles.$rc.next()).open(UiBlock);
     }
   }
 }

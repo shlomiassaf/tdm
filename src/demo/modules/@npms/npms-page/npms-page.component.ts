@@ -26,9 +26,9 @@ export class NpmsPageComponent {
 
   get obs$(): Observable<any> {
     if (this.packages) {
-      return this.packages.$ar.self$;
+      return this.packages.$rc.self$;
     } else if (this.package) {
-      return this.package.$ar.self$.map( v => [v]);
+      return this.package.$rc.self$.map( v => [v]);
     }
   }
   constructor(fb: FormBuilder, public uiBlock: UiBlockService) {
@@ -58,11 +58,11 @@ export class NpmsPageComponent {
     if (value.length === 1) {
       this.packages = undefined;
       this.package = <any>Package.find(value[0]);
-      this.uiBlock.closeWithPromise(this.package.$ar.next()).open(UiBlock);
-      this.package.$ar.next().then( self => self.name = value[0] );
+      this.uiBlock.closeWithPromise(this.package.$rc.next()).open(UiBlock);
+      this.package.$rc.next().then( self => self.name = value[0] );
     } else {
       this.packages = <any>Package.query(value);
-      this.uiBlock.closeWithPromise(this.packages.$ar.next()).open(UiBlock);
+      this.uiBlock.closeWithPromise(this.packages.$rc.next()).open(UiBlock);
     }
   }
 }

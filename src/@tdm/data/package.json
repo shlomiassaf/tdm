@@ -9,7 +9,6 @@
     "@tdm"
   ],
   "peerDependencies": {
-    "rxjs": "^5.0.1",
     "@tdm/tixin": "*",
     "@tdm/core": "*"
   }

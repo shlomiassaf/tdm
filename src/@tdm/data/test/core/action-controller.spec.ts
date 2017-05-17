@@ -78,7 +78,7 @@ describe('CORE', () => {
 
     it('should call instance level hooks', (done) => {
       const user = bucket.create(User);
-      user.$refresh().$ar.next()
+      user.$refresh().$rc.next()
         .then( data => {
           expect(PUser.beforeRefresh).toHaveBeenCalledTimes(1);
           expect(PUser.afterRefresh).toHaveBeenCalledTimes(1);
@@ -90,7 +90,7 @@ describe('CORE', () => {
     });
 
     it('should call static level hooks', (done) => {
-      User.query({ returnValue: [ { username: '1' }, { username: '2' }, { username: '3' } ] }).$ar.next()
+      User.query({ returnValue: [ { username: '1' }, { username: '2' }, { username: '3' } ] }).$rc.next()
         .then( data => {
           bucket.bucket.push(data)
           expect(SUser.beforeQuery).toHaveBeenCalledTimes(1);

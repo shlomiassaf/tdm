@@ -55,6 +55,8 @@ export {
 
 export {
   events$,
+  ResourceEventEmitter,
+  ResourceEventDispatcher,
   ResourceEvent,
   ResourceEventType,
   ActionErrorResourceEvent,
@@ -79,3 +81,5 @@ export {
 } from '@tdm/core';
 
 export { DAO, AdapterDAO, TargetDAO } from './dao';
+
+export { ResourceControl } from './resource-control';
