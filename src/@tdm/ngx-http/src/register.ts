@@ -1,7 +1,6 @@
-import { Constructor } from '@tdm/core';
+import { Constructor, targetStore } from '@tdm/core';
 import { DAO } from '@tdm/data';
 import { HttpDao } from './core/http-dao';
-import { targetStore } from '@tdm/core/metadata';
 import { HttpAdapter } from './core';
 import { HttpActionMetadata } from './metadata';
 
