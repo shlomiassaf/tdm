@@ -36,7 +36,7 @@ function titleCamelCase(value) {
 
 function getExternals(packageJson) {
   const deps = Object.assign({}, packageJson.dependencies || {}, packageJson.peerDependencies || {});
-  return Object.keys(deps)
+  return [packageJson.name, ...Object.keys(deps)]
     .reduce( (arr, name) => {
       arr.push(new RegExp('^' + name.replace(`\\`, '\/')));
       return arr;
@@ -44,12 +44,23 @@ function getExternals(packageJson) {
 }
 
 function createPkgConfig(dirName) {
-  const externals = getExternals(PACKAGE_JSONS[dirName]);
+  const pkgJson = PACKAGE_JSONS[dirName];
+  const externals = getExternals(pkgJson);
 
   const packageSrcPath = path.join(PACKAGE_DIR, dirName, 'src');
 
-  const isFlatStructure = externals.length === 0 && !fs.readdirSync(packageSrcPath)
+  // externals.length === 1 , own name is always added
+  const isFlatStructure = externals.length === 1 && !fs.readdirSync(packageSrcPath)
     .some( fsItem => fs.statSync(path.join(packageSrcPath, fsItem)).isDirectory() );
+
+    const umdPlugins = Array.isArray(pkgJson.umdPlugins)
+      ? pkgJson.umdPlugins.map( p => {
+        p.umd = `tdm.${p.name}`;
+        p.name = `tdm${titleCamelCase(p.name)}`;
+        return p;
+      })
+      : undefined
+    ;
 
   return {
     versions: VERSIONS,
@@ -57,6 +68,7 @@ function createPkgConfig(dirName) {
     dir: dirName,
     umd: `tdm.${dirName}`,
     externals: GLOBAL_EXTERNALS.concat(externals),
+    umdPlugins,
     tsConfigUpdate(config) {
 
       if (!config.compilerOptions.outDir.endsWith('/')) {

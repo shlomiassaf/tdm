@@ -33,13 +33,13 @@ function runWebpack(config, ...args) {
   }
 }
 
-function minifyAndGzip(destDir, meta) {
-  const unminified = fs.readFileSync(path.join(destDir, 'bundle', `${meta.umd}.umd.js`)).toString();
+function minifyAndGzip(destDir, umd) {
+  const unminified = fs.readFileSync(path.join(destDir, 'bundle', `${umd}.umd.js`)).toString();
   const minified = uglify.minify(unminified);
   const gzipBuffer = zlib.gzipSync(Buffer.from(minified.code));
 
-  fs.writeFileSync(path.join(destDir, 'bundle', `${meta.umd}.umd.min.js`), minified.code, 'utf-8');
-  const zipStream = fs.createWriteStream(path.join(destDir, 'bundle', `${meta.umd}.umd.js.gz`));
+  fs.writeFileSync(path.join(destDir, 'bundle', `${umd}.umd.min.js`), minified.code, 'utf-8');
+  const zipStream = fs.createWriteStream(path.join(destDir, 'bundle', `${umd}.umd.js.gz`));
   zipStream.write(gzipBuffer);
   zipStream.end();
 
@@ -47,7 +47,7 @@ function minifyAndGzip(destDir, meta) {
 
   console.log(`
           --------------------------------------
-          UMD Bundle info:
+          UMD Bundle info: ${umd}
           --------------------------------------
           unminified: \t${unminified.length / 1000} KB
           minified: \t${minified.code.length / 1000} KB \t(${pct(minified.code.length / unminified.length)} %)
@@ -90,7 +90,12 @@ function runMeta() {
         spawn(`mv ${from}/* ${to}`);
         spawn(`rm -rf ${path.resolve(p, '..')}`);
 
-        minifyAndGzip(to, meta);
+        minifyAndGzip(to, meta.umd);
+        if (Array.isArray(meta.umdPlugins)) {
+          meta.umdPlugins.forEach(u => {
+            minifyAndGzip(to, u.umd);
+          });
+        }
 
       })
       .then(() => {

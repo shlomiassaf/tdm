@@ -3,6 +3,8 @@ import { ActionController } from '../core';
 import { ActionMetadata } from '../metadata';
 
 /**
+ * Sends the cancellation token (function) so the listener (resource control) can cancel.
+ *
  * @internal
  */
 export class CancellationTokenResourceEvent extends ResourceEvent {
@@ -11,6 +13,10 @@ export class CancellationTokenResourceEvent extends ResourceEvent {
   }
 }
 
+/**
+ *
+ * @internal
+ */
 export interface ExecuteInitResourceEventArgs {
   ac: ActionController;
   action: ActionMetadata;

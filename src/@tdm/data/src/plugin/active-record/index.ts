@@ -10,11 +10,14 @@ import {
   MapExt
 } from '@tdm/core';
 
-import { ActionMetadata } from '../../metadata'
-import { ExecuteContext } from '../../core/execute-context';
-import { AdapterStatic, PluginStore } from '../../fw';
-import { ActionController } from '../../core';
-import { ResourceControl } from '../../resource-control';
+import {
+  ActionMetadata,
+  ExecuteContext,
+  AdapterStatic,
+  PluginStore,
+  ActionController,
+  ResourceControl
+} from '@tdm/data';
 
 /**
  * Returns all of the actions registered for a target going through the proto chain and all

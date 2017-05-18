@@ -29,10 +29,15 @@ module.exports = function(metadata) {
   // will see type extensions that are not really there until import is done to the extension...
   const bundleMode = fs.existsSync(helpers.root(`src/@tdm/${metadata.dir}/src/bundle.ts`));
 
-  const entry = bundleMode
-    ? helpers.root(`src/@tdm/${metadata.dir}/src/bundle.ts`)
-    : helpers.root(`src/@tdm/${metadata.dir}/src/index.ts`)
-  ;
+  const entry = {
+    [metadata.umd]: helpers.root(`src/@tdm/${metadata.dir}/src/${bundleMode ? 'bundle' : 'index'}.ts`)
+  };
+
+  if (Array.isArray(metadata.umdPlugins)) {
+    metadata.umdPlugins.forEach(p => {
+      entry[p.umd] = helpers.root('src/@tdm', metadata.dir, 'src', p.entry)
+    });
+  }
 
   return {
     devtool: 'source-map',
@@ -50,7 +55,7 @@ module.exports = function(metadata) {
     output: {
       path: helpers.root('.'),
       publicPath: '/',
-      filename: `dist_package/@tdm/${metadata.dir}/bundle/${metadata.umd}.umd.js`,
+      filename: `dist_package/@tdm/${metadata.dir}/bundle/[name].umd.js`,
       libraryTarget: 'umd',
       library: metadata.name
     },
@@ -101,6 +106,8 @@ module.exports = function(metadata) {
             jsonfile.readFileSync(helpers.root('src/@tdm', 'package.json')),
             jsonfile.readFileSync(helpers.root('src/@tdm/', metadata.dir, 'package.json'))
           );
+
+          delete merged.umdPlugins;
 
           // update versions of @tdm packages that this package depends on.
           ['dependencies', 'peerDependencies']

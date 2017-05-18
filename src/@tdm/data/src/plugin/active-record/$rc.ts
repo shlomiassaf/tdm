@@ -1,6 +1,5 @@
 import { TDMModel, TDMCollection } from '@tdm/core';
-import { ResourceControl } from '../../resource-control';
-
+import { ResourceControl } from '@tdm/data';
 
 declare module '@tdm/core/model/tdm-model' {
   interface TDMModel<T> {

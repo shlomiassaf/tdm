@@ -4,16 +4,13 @@ import { share } from 'rxjs/operator/share'
 
 import { TixinFree } from '@tdm/tixin';
 import { LazyInit } from '@tdm/core';
-import { ResourceEvent, ResourceEventType, StateChangeResourceEvent } from '../../events';
-import { ResourceControl } from '../../resource-control'
+import {
+  ResourceEvent,
+  ResourceEventType,
+  StateChangeResourceEvent,
+  ResourceControl
+} from '@tdm/data';
 
-declare module '@tdm/data/resource-control' {
-  interface ResourceControl<T> {
-    busy$: Observable<boolean>;
-    self$: Observable<T>;
-    disconnect(): void;
-  }
-}
 
 /**
  *

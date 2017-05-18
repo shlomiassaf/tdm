@@ -48,6 +48,7 @@ export {
   AdapterResponse,
   ExecuteResponse,
   Adapter,
+  AdapterStatic,
   ActionOptions,
   plugins,
   PluginStore
@@ -61,7 +62,8 @@ export {
   ResourceEventType,
   ActionErrorResourceEvent,
   ActionEndResourceEvent,
-  eventFactory
+  eventFactory,
+  StateChangeResourceEvent
 } from './events';
 
 export {

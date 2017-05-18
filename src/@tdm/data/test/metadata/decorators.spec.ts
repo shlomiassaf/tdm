@@ -1,4 +1,4 @@
-import { MockMixin, MockResource, MockDeserializer, MockActionOptions, MockAdapter, bucketFactory } from '@tdm/data/testing';
+import { MockMixin, MockResource, MockActionOptions, MockAdapter, bucketFactory } from '@tdm/data/testing';
 import { ActiveRecord, Constructor, Prop } from '@tdm/data';
 import { internalMetadataStore } from '../../src/metadata/reflection/internal-metadata-store';
 

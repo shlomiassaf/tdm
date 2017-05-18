@@ -1,6 +1,16 @@
-import{ PluginStore} from '../../fw';
+import { Observable } from 'rxjs/Observable'
+import{ PluginStore } from '@tdm/data';
 
 import { init } from './rc-ext';
+
+declare module '@tdm/data/resource-control' {
+  interface ResourceControl<T> {
+    busy$: Observable<boolean>;
+    self$: Observable<T>;
+    disconnect(): void;
+  }
+}
+
 
 export class RxResourceControlPlugin {
 
