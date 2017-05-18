@@ -1,6 +1,6 @@
 {
   "name": "@tdm/ngx-http",
-  "version": "1.0.1-alpha.2",
+  "version": "1.0.1-alpha.3",
   "description": "Angular http adapter for typed data models.",
   "main": "bundle/tdm.ngx-http.umd.js",
   "module": "index.js",
