@@ -1,23 +1,23 @@
 {
   "core": {
-    "commit": "1e14a08e77b0e1b53fe43265382ba3c092e21e81",
-    "version": "1.0.1-alpha.2"
+    "commit": "cdf8ed6a56f383572ff1b953f8120f2120c55d6d",
+    "version": "1.0.1-alpha.3"
   },
   "data": {
-    "commit": "f5fc5402f64840f45286c301f768afb6f46e4d45",
-    "version": "1.0.1-alpha.4"
+    "commit": "0f51b8dd15019b5527e81ded982125f33458d5b8",
+    "version": "1.0.1-alpha.5"
   },
   "json-api-mapper": {
     "commit": "50185b2d96e8541accea3dbb274f4830b666b932",
     "version": "1.0.1-alpha.2"
   },
   "ngx-dynamic-forms": {
-    "commit": "39dd51a02bfbd178ea46e7930cad4ab13a0a2279",
-    "version": "1.0.1-alpha.2"
+    "commit": "cdf8ed6a56f383572ff1b953f8120f2120c55d6d",
+    "version": "1.0.1-alpha.3"
   },
   "ngx-http": {
-    "commit": "50185b2d96e8541accea3dbb274f4830b666b932",
-    "version": "1.0.1-alpha.2"
+    "commit": "d7285f048c5a0780e911b888161d5bde3172165c",
+    "version": "1.0.1-alpha.3"
   },
   "tixin": {
     "commit": "41de7a91031c23a1f0bc15d43807764a963f3933",
