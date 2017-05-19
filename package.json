@@ -88,6 +88,8 @@
     "path-to-regexp": "^1.7.0",
     "reflect-metadata": "^0.1.9",
     "rxjs": "^5.3.1",
+    "sequelize": "^3.30.4",
+    "sqlite3": "^3.1.8",
     "voca": "^1.3.0",
     "zone.js": "^0.8.10"
   },
@@ -98,9 +100,11 @@
     "@types/deep-equal": "^0.0.30",
     "@types/hammerjs": "^2.0.33",
     "@types/jest": "^19.2.3",
+    "@types/lodash": "^4.14.64",
     "@types/node": "^7.0.5",
     "@types/path-to-regexp": "^1.0.29",
     "@types/selenium-webdriver": "^2.53.39",
+    "@types/sequelize": "^4.0.54",
     "@types/source-map": "^0.5.0",
     "@types/uglify-js": "^2.0.27",
     "@types/voca": "^1.2.0",
@@ -174,7 +178,6 @@
   },
   "jest": {
     "setupTestFrameworkScriptFile": "<rootDir>/src/setupJest.ts",
-
     "globals": {
       "__TS_CONFIG__": "tsconfig.spec.json",
       "__TRANSFORM_HTML__": true
@@ -190,27 +193,28 @@
       "json"
     ],
     "mapCoverage": true,
-    "moduleDirectories": ["node_modules", "src"],
-    "testPathIgnorePatterns": ["/node_modules/"],
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ],
     "moduleNameMapper": {
       "^@tdm/tixin$": "<rootDir>/src/@tdm/tixin/src",
       "^@tdm/tixin/(.*)": "<rootDir>/src/@tdm/tixin/src/$1",
-
       "^@tdm/core$": "<rootDir>/src/@tdm/core/src",
       "^@tdm/core/(.*)": "<rootDir>/src/@tdm/core/src/$1",
-
       "^@tdm/data$": "<rootDir>/src/@tdm/data/src",
       "^@tdm/data/(.*)": "<rootDir>/src/@tdm/data/src/$1",
-
       "^@tdm/ngx-http$": "<rootDir>/src/@tdm/ngx-http/src",
       "^@tdm/ngx-http/(.*)": "<rootDir>/src/@tdm/ngx-http/src/$1",
-
       "^@tdm/ngx-dynamic-forms$": "<rootDir>/src/@tdm/ngx-dynamic-forms/src",
       "^@tdm/ngx-dynamic-forms/(.*)": "<rootDir>/src/@tdm/ngx-dynamic-forms/src/$1",
-
       "^@tdm/json-api-mapper$": "<rootDir>/src/@tdm/json-api-mapper/src",
       "^@tdm/json-api-mapper/(.*)": "<rootDir>/src/@tdm/json-api-mapper/src/$1",
-
+      "^@tdm/sequelize$": "<rootDir>/src/@tdm/sequelize/src",
+      "^@tdm/sequelize/(.*)": "<rootDir>/src/@tdm/sequelize/src/$1",
       "(.*)": "<rootDir>/src/$1"
     },
     "transformIgnorePatterns": [

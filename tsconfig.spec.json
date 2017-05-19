@@ -43,7 +43,14 @@
       "@tdm/ngx-http/*": ["@tdm/ngx-http/src/*"],
 
       "@tdm/json-api-mapper": ["@tdm/json-api-mapper/src/index.ts"],
-      "@tdm/json-api-mapper/*": ["@tdm/json-api-mapper/src/*"]
+      "@tdm/json-api-mapper/*": ["@tdm/json-api-mapper/src/*"],
+
+      "@tdm/sequelize": [
+        "@tdm/sequelize/src/index.ts"
+      ],
+      "@tdm/sequelize/*": [
+        "@tdm/sequelize/src/*"
+      ]
 
     }
   },

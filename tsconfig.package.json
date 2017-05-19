@@ -60,6 +60,12 @@
       ],
       "@tdm/core/*": [
         "@tdm/core/src/*"
+      ],
+      "@tdm/sequelize": [
+        "@tdm/sequelize/src/index.ts"
+      ],
+      "@tdm/sequelize/*": [
+        "@tdm/sequelize/src/*"
       ]
     },
 
