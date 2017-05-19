@@ -8,8 +8,12 @@ declare module '@tdm/core/metadata/target-store' {
 }
 
 TargetStore.prototype.setResource = function(metaArgs: ResourceMetadataArgs, target: Function): void {
-  Object.keys(metaArgs)
-    .forEach( key => this.setClassProp(target, key, metaArgs[key]) );
+  this.setModel(metaArgs, target);
+
+  if (metaArgs) {
+    ['name', 'noBuild', 'mapper']
+      .forEach( k => metaArgs.hasOwnProperty(k) && this.setClassProp(target, k, metaArgs[k]) );
+  }
 };
 
 declare module '@tdm/core/metadata/target-metadata' {

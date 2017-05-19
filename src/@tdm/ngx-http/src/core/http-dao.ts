@@ -5,26 +5,35 @@ import { HttpActionOptions } from './interfaces';
 import { HttpActionMetadata, HttpActionMethodType } from '../metadata';
 import { HttpAction } from '../decorators';
 
-export class HttpDao<T> implements TargetDAO<T, HttpActionOptions> {
-  @HttpAction({
+// export type X = {
+//   [P in keyof TargetDAO<any, any>]?: PropertyDecorator
+// }
+
+export const HttpDAOActions = {
+  query: HttpAction({
     method: HttpActionMethodType.Get,
     isCollection: true,
     collInstance: true,
-    validation: 'incoming' as 'incoming'
-  })
-  query: (options?: HttpActionOptions) => Promise<ARecordColl<T>>;
+    validation: 'incoming' as 'incoming',
+    alias: 'findAll'
+  }),
 
-  @HttpAction({
+  findById: HttpAction({
     method: HttpActionMethodType.Get,
     validation: 'incoming' as 'incoming',
     pre: (ctx: ExecuteContext<HttpActionMetadata>, id: IdentityValueType, options?: HttpActionOptions) => {
       ctx.setIdentity(id);
       return options;
     }
-  })
-  find: (id: IdentityValueType, options?: HttpActionOptions) => Promise<T>;
+  }),
 
-  @HttpAction({
+  find: HttpAction({
+    method: HttpActionMethodType.Get,
+    validation: 'incoming' as 'incoming',
+    alias: 'findOne'
+  }),
+
+  create: HttpAction({
     method: HttpActionMethodType.Post,
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<HttpActionMetadata>, data: any, options?: HttpActionOptions) => {
@@ -38,10 +47,9 @@ export class HttpDao<T> implements TargetDAO<T, HttpActionOptions> {
 
       return options;
     }
-  })
-  create: (data: T | Partial<T>, options?: HttpActionOptions) => Promise<T | void>;
+  }),
 
-  @HttpAction({
+  update: HttpAction({
     method: HttpActionMethodType.Put,
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<HttpActionMetadata>, data: any, options?: HttpActionOptions) => {
@@ -55,10 +63,9 @@ export class HttpDao<T> implements TargetDAO<T, HttpActionOptions> {
 
       return options;
     }
-  })
-  update: (data: T | Partial<T>, options?: HttpActionOptions) => Promise<T | void>;
+  }),
 
-  @HttpAction({
+  remove: HttpAction({
     method: HttpActionMethodType.Delete,
     validation: 'skip' as 'skip',
     pre: (ctx: ExecuteContext<HttpActionMetadata>, id: IdentityValueType | any, options?: HttpActionOptions) => {
@@ -74,6 +81,26 @@ export class HttpDao<T> implements TargetDAO<T, HttpActionOptions> {
       return options;
     }
   })
-  remove: ( (id: IdentityValueType | T, options?: HttpActionOptions) => Promise<void> );
+};
 
+export class HttpDao<T> implements TargetDAO<T, HttpActionOptions> {
+  @HttpDAOActions.query
+  query: (options?: HttpActionOptions) => Promise<ARecordColl<T>>;
+  findAll: (options?: HttpActionOptions) => Promise<ARecordColl<T>>;
+
+  @HttpDAOActions.findById
+  findById: (id: IdentityValueType, options?: HttpActionOptions) => Promise<T>;
+
+  @HttpDAOActions.find
+  find: (options: HttpActionOptions) => Promise<T>;
+  findOne: (options: HttpActionOptions) => Promise<T>;
+
+  @HttpDAOActions.create
+  create: (data: T | Partial<T>, options?: HttpActionOptions) => Promise<T | void>;
+
+  @HttpDAOActions.update
+  update: (data: T | Partial<T>, options?: HttpActionOptions) => Promise<T | void>;
+
+  @HttpDAOActions.remove
+  remove: ( (id: IdentityValueType | T, options?: HttpActionOptions) => Promise<void> );
 }

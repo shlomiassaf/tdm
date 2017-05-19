@@ -12,7 +12,7 @@ import {
   ExecuteResponse
 } from '@tdm/data';
 
-import { HttpActionMetadata, UrlParamMetadata } from '../metadata';
+import { HttpResourceMetadata, HttpActionMetadata, UrlParamMetadata } from '../metadata';
 
 import { HttpActionOptions, TrailingSlashesStrategy } from './interfaces';
 import { httpDefaultConfig } from '../http-default-config';
@@ -20,7 +20,7 @@ import { Params, getParamNames, formatPattern } from '../utils/match-pattern';
 
 import { getHttp } from '../providers';
 
-const EMPTY_META: TargetMetadata = <any>{};
+const EMPTY_META: HttpResourceMetadata = <any>{};
 
 export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOptions> {
   readonly supports = { cancel: true };
@@ -29,14 +29,14 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
 
   private idCount = 1;
 
-  execute(ctx: ExecuteContext<HttpActionMetadata>, options: HttpActionOptions): AdapterResponse {
+  execute(ctx: ExecuteContext<HttpActionMetadata>, options: HttpActionOptions, args: any[]): AdapterResponse {
     const id = this.idCount++;
     try {
       const http = getHttp();
 
       if (!options) options = {} as any;
       let {action} = ctx;
-      let resource = ctx.targetMeta || EMPTY_META;
+      let resource = ctx.targetMeta.ngxHttpResource || EMPTY_META;
 
       const url = findProp('endpoint', resource, action);
       if (!url) {
@@ -47,7 +47,7 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
       const withCredentials = findProp('withCredentials', httpDefaultConfig, resource, action, options);
       const strip = findProp('trailingSlashes', httpDefaultConfig, resource, action, options);
 
-      const urlParams = this.getParams(ctx, resource, options);
+      const urlParams = this.getParams(ctx, ctx.targetMeta, options);
 
       const {path, query} = this.splitParams(url, urlParams);
 
@@ -93,8 +93,8 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
     }
   }
 
-  protected getHeaders(ctx: ExecuteContext<HttpActionMetadata>, meta: TargetMetadata, options: HttpActionOptions): Headers {
-    const headers = new Headers(findProp('headers', httpDefaultConfig, meta, ctx.action));
+  protected getHeaders(ctx: ExecuteContext<HttpActionMetadata>, resource: HttpResourceMetadata, options: HttpActionOptions): Headers {
+    const headers = new Headers(findProp('headers', httpDefaultConfig, resource, ctx.action));
     if (options.headers) {
       Object.keys(options.headers).forEach(k => {
         if (isUndefined(options.headers[k])) {
@@ -108,7 +108,7 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
   }
 
   protected getParams(ctx: ExecuteContext<HttpActionMetadata>, meta: TargetMetadata, options: HttpActionOptions): Params {
-    const params = Object.assign({}, findProp('urlParams', httpDefaultConfig, meta, ctx.action));
+    const params = Object.assign({}, findProp('urlParams', httpDefaultConfig, meta.ngxHttpResource, ctx.action));
 
     if (meta !== EMPTY_META && ctx.instance) {
       // we don't care about the keys (properties) UrlParam is on...

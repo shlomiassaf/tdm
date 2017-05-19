@@ -4,8 +4,9 @@ import { TDMCollection, ActionMethodType, TDMModel, IdentityValueType, ExecuteCo
 
 import { MockActionOptions } from './core/interfaces';
 import { MockAction, MockActionMetadata } from './metadata';
+import { MockDao } from './core/mock-dao'
 
-export class MockActiveRecord {
+export class MockActiveRecord extends MockDao<any> {
   @MockAction({
     method: ActionMethodType.CREATE,
     validation: 'both' as 'both',
@@ -42,19 +43,28 @@ export class MockActiveRecord {
     method: ActionMethodType.READ,
     isCollection: true,
     collInstance: true,
-    validation: 'incoming' as 'incoming'
+    validation: 'incoming' as 'incoming',
+    alias: 'findAll'
   })
   static query: (options?: MockActionOptions) => TDMCollection<any>;
+  static findAll: (options?: MockActionOptions) => TDMCollection<any>;
 
   @MockAction({
     method: ActionMethodType.READ,
     validation: 'incoming' as 'incoming',
-    pre: (ctx: ExecuteContext<MockActionMetadata>, id: IdentityValueType, options: MockActionOptions) => {
+    pre: (ctx: ExecuteContext<MockActionMetadata>, id: IdentityValueType, options?: MockActionOptions) => {
       ctx.setIdentity(id);
       return options;
     }
   })
-  static find: (id: IdentityValueType, options?: MockActionOptions) => any;
+  static findById: (id: IdentityValueType, options?: MockActionOptions) => any;
+
+  @MockAction({
+    method: ActionMethodType.READ,
+    validation: 'incoming' as 'incoming'
+  })
+  static find: (options: MockActionOptions) => any;
+  static findOne: (options: MockActionOptions) => any;
 
   @MockAction({
     method: ActionMethodType.DELETE,
@@ -109,7 +119,10 @@ export class MockActiveRecord {
 }
 
 export interface MockActiveRecordStatic<T> {
+  findById(options: MockActionOptions): Tixin<T, TDMModel<T> & MockActiveRecord>;
   find(id: IdentityValueType, options?: MockActionOptions): Tixin<T, TDMModel<T> & MockActiveRecord>;
+  findOne(id: IdentityValueType, options?: MockActionOptions): Tixin<T, TDMModel<T> & MockActiveRecord>;
+
   query(options?: MockActionOptions): TDMCollection<Tixin<T, TDMModel<T> & MockActiveRecord>>;
   create(data: Partial<T>, options?: MockActionOptions): Tixin<T, TDMModel<T> & MockActiveRecord>;
   update(data: Partial<T>, options?: MockActionOptions): Tixin<T, TDMModel<T> & MockActiveRecord>;

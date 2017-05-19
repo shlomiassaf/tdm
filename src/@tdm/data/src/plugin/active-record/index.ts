@@ -48,34 +48,39 @@ function getActions(target: Constructor<any>, adapterClass: AdapterStatic<any, a
   return MapExt.asValArray(actions);
 }
 
-function registerAction(this: ActionController, action: ActionMetadata, collProto: any, override: boolean = false): void {
-  if (override || !isFunction(this.target.prototype[action.name])) {
+function composeAction(obj: any, action: ActionMetadata, fn: (...args: any[]) => any): void {
+  obj[action.name] = fn;
+  if (action.alias) {
+    action.alias.forEach( alias => obj[alias] = obj[action.name] );
+  }
+}
 
-    // ACTION VALIDATION
-    // TODO: move to separate function, add more assertions, create unique error class
-    if (action.isCollection && !action.decoratorInfo.isStatic) {
+function registerAction(this: ActionController, action: ActionMetadata, collProto: any, override: boolean = false): void {
+  const ctx = new ExecuteContext(this.targetMetadata, action);
+  const self = this;
+
+  if (action.decoratorInfo.isStatic) {
+    if (override || !isFunction(this.target[action.name])) {
+      composeAction(this.target, action, function (this: AdapterStatic<any, any>, ...args: any[]) {
+        return self.execute(ctx.clone(), {async: true, args});
+      });
+    }
+
+    if (action.isCollection && action.collInstance && (override || !isFunction(collProto[action.name]))) {
+      composeAction(collProto, action, function (this: TDMCollection<any>, ...args: any[]): any {
+        this.splice(0, this.length);
+        return self.execute(ctx.clone(this), {async: true, args});
+      });
+    }
+  } else {
+    if (action.isCollection) {
       throw new Error('An action with a collection response must be a static level member');
     }
 
-    const ctx = new ExecuteContext(this.targetMetadata, action);
-    const self = this;
-
-    if (action.decoratorInfo.isStatic) {
-
-      if (action.isCollection && action.collInstance) {
-        collProto[action.name] = function (this: TDMCollection<any>, ...args: any[]): any {
-          this.splice(0, this.length);
-          return self.execute(ctx.clone(this), {async: true, args});
-        };
-      }
-
-      this.target[action.name] = function (this: AdapterStatic<any, any>, ...args: any[]) {
-        return self.execute(ctx.clone(), {async: true, args});
-      };
-    } else {
-      this.target.prototype[action.name] = function (this: TDMModel<any>, ...args: any[]) {
+    if (override || !isFunction(this.target.prototype[action.name])) {
+      composeAction(this.target.prototype, action, function (this: TDMModel<any>, ...args: any[]) {
         return self.execute(ctx.clone(this), {async: true, args});
-      };
+      });
     }
   }
 }

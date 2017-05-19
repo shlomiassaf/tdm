@@ -18,17 +18,17 @@ export class PlaygroundPageComponent {
   public user: User;
 
   constructor(ngDAO: NgDAO) {
-    ngDAO.get(UserDAO).find(6)
+    ngDAO.get(UserDAO).findById(6)
       .then( user => {
         console.log(user);
       }, err => alert(err));
 
-    DAO.angularHttp(UserDAO).find(5)
+    DAO.angularHttp(UserDAO).findById(5)
       .then( user => {
         console.log(user);
       }, err => alert(err));
     // this.user = new User();
-    this.user = User.find(5);
+    this.user = User.findById(5);
 
 
     // this.user.rawDeserialized({trailingSlashes: 'force'}).$rc.next()

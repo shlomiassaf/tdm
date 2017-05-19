@@ -42,7 +42,13 @@ export interface Adapter<T extends ActionMetadata, Z extends ActionOptions> {
     cancel: boolean;
   }
 
-  execute(ctx: ExecuteContext<T>, options: Z): AdapterResponse;
+  /**
+   *
+   * @param ctx Context for the execution
+   * @param options The options supplied (after possible transformation from 'pre')
+   * @param args the arguments used to invoke the action
+   */
+  execute(ctx: ExecuteContext<T>, options: Z, args: any[]): AdapterResponse;
 
   cancel(id: any): void;
 }

@@ -1,18 +1,20 @@
 import { isPrimitive } from '@tdm/core';
-import { TDMCollection as ARecordColl, IdentityValueType, ExecuteContext, ActionMethodType } from '@tdm/data';
+import { TDMCollection as ARecordColl, TargetDAO, IdentityValueType, ExecuteContext, ActionMethodType } from '@tdm/data';
 
 import { MockActionOptions } from './interfaces';
 import { MockActionMetadata } from '../metadata';
 import { MockAction } from '../metadata/decorators';
 
-export class MockDao {
+export class MockDao<T> implements TargetDAO<T, MockActionOptions> {
   @MockAction({
     method: ActionMethodType.READ,
     isCollection: true,
     collInstance: true,
-    validation: 'incoming' as 'incoming'
+    validation: 'incoming' as 'incoming',
+    alias: 'findAll'
   })
-  query: (options?: MockActionOptions) => ARecordColl<any>;
+  query: (options?: MockActionOptions) => Promise<ARecordColl<T>>;
+  findAll: (options?: MockActionOptions) => Promise<ARecordColl<T>>;
 
   @MockAction({
     method: ActionMethodType.READ,
@@ -22,7 +24,14 @@ export class MockDao {
       return options;
     }
   })
-  find: (id: IdentityValueType, options?: MockActionOptions) => any;
+  findById: (id: IdentityValueType, options?: MockActionOptions) => Promise<T>;
+
+  @MockAction({
+    method: ActionMethodType.READ,
+    validation: 'incoming' as 'incoming'
+  })
+  find: (options: MockActionOptions) => Promise<T>;
+  findOne: (options: MockActionOptions) => Promise<T>;
 
   @MockAction({
     method: ActionMethodType.DELETE,
@@ -40,7 +49,7 @@ export class MockDao {
       return options;
     }
   })
-  remove: (id: IdentityValueType | any, options?: MockActionOptions) => any;
+  remove: (id: IdentityValueType | any, options?: MockActionOptions) => Promise<void>;
 
   @MockAction({
     method: ActionMethodType.CREATE,
@@ -57,7 +66,7 @@ export class MockDao {
       return options;
     }
   })
-  create: (data: any, options?: MockActionOptions) => any;
+  create: (data: any, options?: MockActionOptions) => Promise<T | void>;
 
   @MockAction({
     method: ActionMethodType.UPDATE,
@@ -74,5 +83,5 @@ export class MockDao {
       return options;
     }
   })
-  update: (data: any, options?: MockActionOptions) => any;
+  update: (data: any, options?: MockActionOptions) => Promise<T | void>;
 }

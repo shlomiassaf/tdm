@@ -6,7 +6,12 @@ import { AdapterStatic } from '../fw';
  * @public
  */
 export class Store {
-  constructor() { /* TODO: ExternalMetadataStore is singleton, enforce? */ }
+
+  protected constructor() {
+    // support for post instantiation mixins on the prototype (plugins) - don't use new.
+    Store.create(this);
+  }
+
 
   getIdentityKey(target, direction?: TransformDir): string | undefined {
     return targetStore.getIdentityKey(target, direction);
@@ -44,11 +49,11 @@ export class Store {
    * @see ResourceMetadataArgs#name
    * @param name
    */
-  findTarget(name: string): any | undefined {
+  findModel(name: string): any | undefined {
     return targetStore.findTarget(name);
   }
 
-  getName(target: any): string | undefined {
+  getModelName(target: any): string | undefined {
     return targetStore.getTargetName(target);
   }
 
@@ -66,10 +71,22 @@ export class Store {
   markMixins(target: any, adapterClass: AdapterStatic<any, any>, ...mixins: any[]): void {
     targetStore.registerMixins(target, adapterClass, ...mixins);
   }
+
+  /**
+   * Creates a new Store instance.
+   * @param instance optional, used internally
+   * @returns {Store}
+   */
+  static create(instance?: Store): Store {
+    const store: Store = instance || Object.create(Store.prototype);
+
+
+    return store;
+  }
 }
 
 /**
  *
  * @public
  */
-export const store = new Store();
+export const store = Store.create();

@@ -24,8 +24,15 @@ export const ARHooks: { [P in ARHookableMethods]: ARHookRule } = {
   $update: { type: 'instance'},
   $remove: { type: 'instance'},
   $refresh: { type: 'instance'},
+
+  findById: { type: 'static'},
+
   find: { type: 'static'},
+  findOne: { type: 'static'},
+
   query: { type: 'static'},
+  findAll: { type: 'static'},
+
   create: { type: 'static'},
   update: { type: 'static'},
   remove: { type: 'static'},

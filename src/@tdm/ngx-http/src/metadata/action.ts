@@ -38,7 +38,5 @@ export class HttpActionMetadata extends ActionMetadata {
 
   static metaFactory = metaFactoryFactory<HttpActionMetadataArgs, HttpActionMetadata>(HttpActionMetadata);
 
-  static register(meta: MetaFactoryInstance<HttpActionMetadata>): void {
-    targetStore.getAdapter(HttpAdapter).addAction(meta);
-  };
+  static adapterClass = HttpAdapter;
 }

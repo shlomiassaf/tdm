@@ -1,4 +1,4 @@
-import { MapperFactory } from '@tdm/core';
+import { MapperFactory, decoratorInfo, ClassMetadata, MetaFactoryInstance, registerFactory } from '@tdm/core';
 import { ResourceMetadataArgs } from '@tdm/data';
 
 
@@ -28,5 +28,29 @@ export class HttpResourceMetadata implements HttpResourceMetadataArgs {
   constructor(obj: HttpResourceMetadataArgs) {
     Object.assign(this, obj);
   }
+
+  static metaFactory(metaArgs: HttpResourceMetadataArgs, target: Function): MetaFactoryInstance<HttpResourceMetadata> {
+    const info = decoratorInfo(target);
+    return {
+      info,
+      target,
+      metaClassKey: ClassMetadata,
+      metaPropKey: 'ngxHttpResource',
+      metaValue: new HttpResourceMetadata(metaArgs)
+    } as any
+  }
+
+  static register = registerFactory<HttpResourceMetadata>();
 }
 
+declare module '@tdm/core/metadata/target-metadata' {
+  interface TargetMetadata {
+    ngxHttpResource: HttpResourceMetadata;
+  }
+}
+
+declare module '@tdm/core/metadata/class-metadata' {
+  interface ClassMetadata {
+    ngxHttpResource: HttpResourceMetadata;
+  }
+}

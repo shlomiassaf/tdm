@@ -3,9 +3,13 @@ import { Constructor, isFunction, targetStore } from '@tdm/core';
 import { AdapterStatic, ActionOptions, IdentityValueType, DAOMethods, DAOTarget, DAOAdapter, TargetError } from './fw'
 
 export interface TargetDAO<T, Options extends ActionOptions> {
-  find(id: IdentityValueType, options?: Options): Promise<T>;
+  findById(id: IdentityValueType, options?: Options): Promise<T>;
+
+  find(options: Options): Promise<T>;
+  findOne(options: Options): Promise<T>;
 
   query(options?: Options): Promise<T[]>
+  findAll(options?: Options): Promise<T[]>
 
   create(instance: T, options?: Options): Promise<T | void>;
   create(obj: Partial<T>, options?: Options): Promise<T | void>;
@@ -18,9 +22,13 @@ export interface TargetDAO<T, Options extends ActionOptions> {
 }
 
 export interface AdapterDAO<Options extends ActionOptions> {
-  find<T>(id: IdentityValueType, options?: Options): Promise<T>;
+  findById<T>(id: IdentityValueType, options?: Options): Promise<T>;
+
+  find<T>(options: Options): Promise<T>;
+  findOne<T>(options: Options): Promise<T>;
 
   query<T>(options?: Options): Promise<T[]>
+  findAll<T>(options?: Options): Promise<T[]>
 
   create<T>(instance: T, options?: Options): Promise<T | void>;
   create<T>(obj: Partial<T>, options?: Options): Promise<T | void>;
@@ -33,13 +41,22 @@ export interface AdapterDAO<Options extends ActionOptions> {
 }
 
 export class DAO {
+  findById<T>(target: Constructor<T>, id: IdentityValueType, options?: ActionOptions): Promise<T> {
+    return this.run(target, 'findById', id, options);
+  }
 
-  find<T>(target: Constructor<T>, id: IdentityValueType, options?: ActionOptions): Promise<T> {
-    return this.run(target, 'find', id, options);
+  find<T>(target: Constructor<T>, options: ActionOptions): Promise<T> {
+    return this.run(target, 'find', options);
+  }
+  findOne<T>(target: Constructor<T>, options: ActionOptions): Promise<T> {
+    return this.find(target, options);
   }
 
   query<T>(target: Constructor<T>, options?: ActionOptions): Promise<T[]> {
     return this.run(target, 'query', options);
+  }
+  findAll<T>(target: Constructor<T>, options?: ActionOptions): Promise<T[]> {
+    return this.query(target, options);
   }
 
   create<T>(instance: T, options?: ActionOptions): Promise<T | void>;

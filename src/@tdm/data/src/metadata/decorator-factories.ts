@@ -18,6 +18,12 @@ export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterSt
 
       const TDMModel = TDMModelBase.factory(target);
 
+      targetStore.registerTarget(target);
+
+      const resourceClass = targetStore.getAdapter(adapterClass).resourceMetaClass;
+      if (resourceClass) {
+        resourceClass.register(resourceClass.metaFactory(metaArgs || {}, target));
+      }
       targetStore.setResource(metaArgs, target);
 
       // check for properties that set the type to self (same class)

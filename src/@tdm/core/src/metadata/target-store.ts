@@ -156,7 +156,7 @@ export class TargetStore {
               }
             });
         } else if (isFunction(clsKey.extend)) {
-          const value = clsKey.extend(fromTarget.get(clsKey), toTarget.get(clsKey));
+          const value = clsKey.extend(fromTarget.get(clsKey), toTarget.get(clsKey), {from, to});
           if (!isUndefined(value)) {
             toTarget.set(clsKey, value);
           }

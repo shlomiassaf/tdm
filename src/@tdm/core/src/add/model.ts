@@ -33,8 +33,8 @@ export function Model(metaArgs?: ModelMetadataArgs): Function {
 
 TargetStore.prototype.setModel = function(metaArgs: ModelMetadataArgs, target: Function): void {
   if (metaArgs) {
-    Object.keys(metaArgs)
-      .forEach( key => this.setClassProp(target, key, metaArgs[key]) );
+    ['factory', 'transformStrategy', 'transformNameStrategy']
+      .forEach( k => metaArgs.hasOwnProperty(k) && this.setClassProp(target, k, metaArgs[k]) );
   }
 };
 

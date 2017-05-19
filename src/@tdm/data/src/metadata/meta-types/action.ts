@@ -1,6 +1,6 @@
-import { isFunction, metaFactoryFactory, BaseMetadata, DecoratorInfo, MapExt, targetStore, MetaFactoryInstance } from '@tdm/core';
+import { stringify, isString, isFunction, registerFactory, metaFactoryFactory, BaseMetadata, DecoratorInfo, MapExt, targetStore, MetaFactoryInstance } from '@tdm/core';
 
-import { ExecuteResponse, ActionOptions, ValidationSchedule } from '../../fw';
+import { ExecuteResponse, ActionOptions, ValidationSchedule, AdapterStatic } from '../../fw';
 import { ExecuteContext } from '../../core';
 
 export enum ActionMethodType {
@@ -48,18 +48,44 @@ export interface ActionMetadataArgs<T> {
 
   validation?: ValidationSchedule;
 
+  /**
+   * An alias (or alias list) for methods names that reference this action.
+   *
+   * > The library will create a reference to the action methods for each alias in the list.
+   */
+  alias?: string | string[];
+
+  /**
+   * Declare the number of parameters that the action accepts.
+   * When set, if the number of params is less then the hint an empty option object is added at the
+   * hint location.
+   *
+   * The library assumes that the last parameter in an action method signature is the option object.
+   *
+   * > The value is the length, not last index.
+   *
+   *
+   * > This will eliminate the need to validate the options object on actions where options object is optional.
+   *
+   * If you are using other optional parameters or union types you will need to verify the options manually and do not define a hint.
+   * In such cases it is probably better to reconsider the implementation, remove parameters from the signature and put them in the options object.
+   */
+  paramHint?: number;
 }
 
-export class ActionMetadata extends BaseMetadata {
+export abstract class ActionMetadata extends BaseMetadata {
   method: ActionMethodType;
   isCollection: boolean | undefined;
   collInstance: boolean | undefined;
   pre?: (ctx: ExecuteContext<any>, ...args: any[] )=> any;
   post?: PostActionMetadata;
   validation: ValidationSchedule;
+  alias?: string[];
+  paramHint: number;
 
   constructor(public readonly metaArgs: ActionMetadataArgs<any>, info: DecoratorInfo) {
     super(info);
+
     Object.assign(this, metaArgs);
     if (metaArgs.post) {
       if (isFunction(metaArgs.post)) {
@@ -68,7 +94,40 @@ export class ActionMetadata extends BaseMetadata {
         this.post= metaArgs.post;
       }
     }
+    if (isString(metaArgs.alias)) {
+      this.alias = [metaArgs.alias]
+    }
+    this.paramHint = metaArgs.paramHint || 0;
   }
+
+  static metaFactory() {
+    throw new Error('ActionMetadata is an abstract class, please define the static metaFactory method');
+  }
+
+  static register(meta: MetaFactoryInstance<ActionMetadata>): void {
+    if (!this.adapterClass) {
+      throw new Error(`Class ${stringify(this)} must implement a static property 'adapterClass' that points to the Adapter it uses`);
+    } else if (!isFunction(this.adapterClass.prototype.execute)) {
+      throw new Error(`Class ${stringify(this)} points to an invalid Adapter class`);
+    }
+    targetStore.setMetaFormFactory(meta);
+    targetStore.getAdapter(this.adapterClass).addAction(meta);
+  }
+
+  static extend(from: Map<PropertyKey, ActionMetadata>, to: Map<PropertyKey, ActionMetadata> | undefined, meta): Map<PropertyKey, ActionMetadata> {
+    MapExt.asValArray(from)
+      .forEach( v => targetStore.getAdapter(this.adapterClass).addAction(v, meta.to) );
+
+    return to
+      ? MapExt.mergeInto(to, from) // TODO: on mixins we override, on "extends" class we dont... this overrides at all times (wrong behaviour for class extends)
+      : new Map<PropertyKey, ActionMetadata>(from.entries())
+    ;
+  }
+
+  /**
+   * The adapter class this action represents
+   */
+  static adapterClass: AdapterStatic<any, any>;
 }
 
 export class ExtendActionMetadata extends ActionMetadata {
@@ -85,7 +144,7 @@ export class ExtendActionMetadata extends ActionMetadata {
     targetStore.setMetaFor<any, ExtendActionMetadata[]>(meta.target, meta.metaClassKey, meta.info.name as any, curr);
   }
 
-  static extend(from: Map<PropertyKey, ExtendActionMetadata[]>, to: Map<PropertyKey, ExtendActionMetadata[]> | undefined): Map<PropertyKey, ExtendActionMetadata[]> {
+  static extend: any = function extend (from: Map<PropertyKey, ExtendActionMetadata[]>, to: Map<PropertyKey, ExtendActionMetadata[]> | undefined): Map<PropertyKey, ExtendActionMetadata[]> {
     if (!to) {
       to = new Map<PropertyKey, ExtendActionMetadata[]>();
     }

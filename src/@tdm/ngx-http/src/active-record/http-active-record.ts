@@ -1,10 +1,10 @@
 import { Tixin } from '@tdm/tixin';
-import { isPrimitive } from '@tdm/core';
 import { TDMCollection as ARecordColl, TDMModel, IdentityValueType, ExecuteContext } from '@tdm/data';
 
 import { HttpActionOptions } from '../core/interfaces';
 import { HttpActionMetadata, HttpActionMethodType } from '../metadata';
 import { HttpAction } from '../decorators';
+import { HttpDAOActions } from '../core/http-dao';
 
 export class HttpActiveRecord {
   @HttpAction({
@@ -39,75 +39,25 @@ export class HttpActiveRecord {
   })
   $remove: (options?: HttpActionOptions) => this;
 
-  @HttpAction({
-    method: HttpActionMethodType.Get,
-    isCollection: true,
-    collInstance: true,
-    validation: 'incoming' as 'incoming'
-  })
-  static query: (options?: HttpActionOptions) => ARecordColl<any>;
+  @HttpDAOActions.query
+  static query: (options?: HttpActionOptions) => any;
+  static findAll: (options?: HttpActionOptions) => any;
 
-  @HttpAction({
-    method: HttpActionMethodType.Get,
-    validation: 'incoming' as 'incoming',
-    pre: (ctx: ExecuteContext<HttpActionMetadata>, id: IdentityValueType, options?: HttpActionOptions) => {
-      ctx.setIdentity(id);
-      return options;
-    }
-  })
-  static find: (id: IdentityValueType, options?: HttpActionOptions) => any;
+  @HttpDAOActions.findById
+  static findById: (id: IdentityValueType, options?: HttpActionOptions) => any;
 
-  @HttpAction({
-    method: HttpActionMethodType.Delete,
-    validation: 'skip' as 'skip',
-    pre: (ctx: ExecuteContext<HttpActionMetadata>, id: IdentityValueType | any, options?: HttpActionOptions) => {
+  @HttpDAOActions.find
+  static find: (options: HttpActionOptions) =>any;
+  static findOne: (options: HttpActionOptions) => any;
 
-      if (isPrimitive(id)) {
-        ctx.setIdentity(id);
-      } else if (ctx.instanceOf(id)) {
-        ctx.setInstance(id);
-      } else {
-        ctx.deserialize(id);
-      }
+  @HttpDAOActions.create
+  static create: (data: any | Partial<any>, options?: HttpActionOptions) => any;
 
-      return options;
-    }
-  })
-  static remove: (id: IdentityValueType | any, options?: HttpActionOptions) => any;
+  @HttpDAOActions.update
+  static update: (data: any | Partial<any>, options?: HttpActionOptions) => any;
 
-  @HttpAction({
-    method: HttpActionMethodType.Post,
-    validation: 'both' as 'both',
-    pre: (ctx: ExecuteContext<HttpActionMetadata>, data: any, options?: HttpActionOptions) => {
-      if (ctx.instanceOf(data)) {
-        ctx.setInstance(data);
-      } else {
-        ctx.deserialize(data);
-      }
-
-      ctx.body = ctx.serialize();
-
-      return options;
-    }
-  })
-  static create: (data: any, options?: HttpActionOptions) => any;
-
-  @HttpAction({
-    method: HttpActionMethodType.Put,
-    validation: 'both' as 'both',
-    pre: (ctx: ExecuteContext<HttpActionMetadata>, data: any, options?: HttpActionOptions) => {
-      if (ctx.instanceOf(data)) {
-        ctx.setInstance(data);
-      } else {
-        ctx.deserialize(data);
-      }
-
-      ctx.body = ctx.serialize();
-
-      return options;
-    }
-  })
-  static update: (data: any, options?: HttpActionOptions) => any;
+  @HttpDAOActions.remove
+  static remove: ( (id: IdentityValueType | any, options?: HttpActionOptions) => any );
 }
 
 export const ActiveRecordCollection = ARecordColl;
@@ -115,9 +65,16 @@ export type ActiveRecordCollection<T> =
   ARecordColl<Tixin<T, TDMModel<T> & HttpActiveRecord>>
     & { query: ActiveRecordCollection<T> };
 
-export interface HttpActiveRecordStatic<T> {
-  find(id: IdentityValueType, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
+
+export interface HttpActiveRecordStatic<T>  {
+  findById(id: IdentityValueType, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
+
+  find(options: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
+  findOne(options: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
+
   query(options?: HttpActionOptions): ActiveRecordCollection<T>;
+  findAll(options?: HttpActionOptions): ActiveRecordCollection<T>;
+
   create(data: T, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
   update(data: Partial<T>, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
   remove(id: IdentityValueType | T, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;

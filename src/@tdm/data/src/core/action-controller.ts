@@ -53,6 +53,10 @@ export class ActionController {
     const args = params.args || [];
     let async = params.async;
 
+    if (args.length < action.paramHint) {
+      args[action.paramHint -1] = {};
+    }
+
     const options = isFunction(action.pre) ? action.pre(ctx, ...args) : args[0];
 
     if (!ctx.instance) {
@@ -97,7 +101,7 @@ export class ActionController {
           throw new Error('Cancelled');
         }
 
-        const adapterResponse = this.adapter.execute(ctx, options);
+        const adapterResponse = this.adapter.execute(ctx, options, args);
 
         eState.id = adapterResponse.id;
 

@@ -9,7 +9,7 @@ export class MockAdapter implements Adapter<MockActionMetadata, MockActionOption
   private executing = new Map<number, {resolve: any, reject: any}>();
   private idCount = 1;
 
-  execute(ctx: ExecuteContext<MockActionMetadata>, options: MockActionOptions): AdapterResponse {
+  execute(ctx: ExecuteContext<MockActionMetadata>, options: MockActionOptions, args: any[]): AdapterResponse {
     if (!options) options = {} as any;
 
     const [resource, action] = [ctx.targetMeta, ctx.action];

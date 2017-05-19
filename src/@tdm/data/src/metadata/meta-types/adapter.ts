@@ -1,4 +1,4 @@
-import { metaFactoryFactory, MetaFactoryStatic, targetStore, MetaFactoryInstance, Constructor } from '@tdm/core';
+import { isFunction, metaFactoryFactory, MetaFactoryStatic, targetStore, MetaFactoryInstance, Constructor } from '@tdm/core';
 import { ActionMetadata } from './action';
 import { array } from '../../utils';
 import { DAOMethods, DAOAdapter, DAOTarget } from '../../fw';
@@ -11,18 +11,31 @@ function unsupportedDAOCmd() {
 export interface AdapterMetadataArgs {
   actionMetaClass: MetaFactoryStatic;
   DAOClass: Constructor<any>;
+  /**
+   * The resource metadata class.
+   * If not set the metadata arguments are registered to the target metadata instance
+   */
+  resourceMetaClass?: MetaFactoryStatic;
 }
 
 export class AdapterMetadata {
   actionMetaClass: MetaFactoryStatic;
   DAOClass: Constructor<any>;
+  resourceMetaClass?: MetaFactoryStatic;
 
   private actions = new Map<any, ActionMetadata[]>();
 
-  addAction(meta: MetaFactoryInstance<ActionMetadata>): void {
-    const actions = this.actions.get(meta.target) || [];
-    actions.push(meta.metaValue);
-    this.actions.set(meta.target, actions);
+
+  addAction(meta: ActionMetadata, target: Constructor<any>): void;
+  addAction(meta: MetaFactoryInstance<ActionMetadata>): void;
+  addAction(meta: ActionMetadata | MetaFactoryInstance<ActionMetadata>, target?: Constructor<any>): void {
+    if (!isFunction(target)) {
+      target = (<any>meta).target;
+      meta = (<any>meta).metaValue;
+    }
+    const actions = this.actions.get(target) || [];
+    actions.push((<any>meta));
+    this.actions.set(target, actions);
   }
 
   getDAOAction(key: string): ActionMetadata {
@@ -56,6 +69,11 @@ export class AdapterMetadata {
         return targetStore.getAC(this[DAOTarget], this[DAOAdapter])
           .createExecFactory(action, 'promise')(undefined, true, ...args);
       };
+
+      if (action.alias) {
+        action.alias.forEach( alias => daoProto[alias] = daoProto[action.name] );
+      }
+
     });
 
     // set unsupported handlers for missing commands.

@@ -65,6 +65,10 @@ class CoreTargetMetadata extends TargetMetadata {
     return this.adapters.has(adapterClass);
   }
 
+  isActive(adapterClass: AdapterStatic<any, any>): boolean {
+    return this._activeAdapter === adapterClass;
+  }
+
   getAC(): ActionController | undefined;
   getAC(adapterClass: AdapterStatic<any, any>, create?: boolean): ActionController | undefined;
   getAC(adapterClass?: AdapterStatic<any, any>, create: boolean = true): ActionController | undefined {
@@ -136,6 +140,12 @@ declare module '@tdm/core/metadata/target-metadata' {
     findHookEvent(action: ARHookableMethods, event: 'before' | 'after'): HookMetadata | undefined;
 
     hasAdapter(adapterClass: AdapterStatic<any, any>): boolean;
+
+    /**
+     * Checks if the adapter is the current adapter for this target
+     * @param adapterClass
+     */
+    isActive(adapterClass: AdapterStatic<any, any>): boolean;
 
     /**
      * Returns the action controller of the current (active) adapter on this target.

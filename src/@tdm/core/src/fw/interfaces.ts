@@ -72,9 +72,12 @@ export interface MetaFactoryStatic {
    * 'to' can be undefined, if so it means that that Metadata class was never assigned to the type.
    * @param from
    * @param to
+   * @param meta
+   * @param meta.from the target source
+   * @param meta.to the target target
    * @returns the new extended value.
    */
-  extend?(from: Map<PropertyKey, any>, to: Map<PropertyKey, any> | undefined): Map<PropertyKey, any>;
+  extend?(from: Map<PropertyKey, any>, to: Map<PropertyKey, any> | undefined, meta?: { from: Constructor<any>, to: Constructor<any> }): Map<PropertyKey, any>;
 }
 
 export interface MetaFactoryInstance<T> {
