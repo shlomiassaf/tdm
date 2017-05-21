@@ -136,7 +136,7 @@ if (helpers.hasNpmFlag('newLib')) {
   }
 
   function setJest(name) {
-    const jestConfig = fs.readJsonSync(path.join(process.cwd(), 'jest.config.json'));
+    const jestConfig = fs.readJsonSync(path.join(process.cwd(), 'jest.base-config.json'));
     const catchAll = jestConfig.moduleNameMapper['(.*)'];
     delete jestConfig.moduleNameMapper['(.*)'];
 
@@ -145,7 +145,7 @@ if (helpers.hasNpmFlag('newLib')) {
 
     jestConfig.moduleNameMapper['(.*)'] = catchAll;
 
-    fs.writeJSONSync(path.join(process.cwd(), 'jest.config.json'), jestConfig);
+    fs.writeJSONSync(path.join(process.cwd(), 'jest.base-config.json'), jestConfig);
   }
 
   function setTS(name) {
