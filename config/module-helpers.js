@@ -94,6 +94,10 @@ if (helpers.hasNpmFlag('commitVersion')) {
   console.log(JSON.stringify(fs.readJsonSync(helpers.root('version_cache.json')), null, 2));
 }
 
+
+
+
+
 if (helpers.hasNpmFlag('printTsPaths')) {
   console.log(
     JSON.stringify(getTsPackagePaths(), null, 2)
@@ -103,9 +107,75 @@ if (helpers.hasNpmFlag('printTsPaths')) {
 if (helpers.hasNpmFlag('detectBump')) {
   const needBump = getPackagesThatNeedVersionBump();
   if (Object.keys(needBump).length > 0) {
-    err = JSON.stringify(needBump, null, 2);
-    console.log('The following packages need a bump: \n' + err);
+    console.log('The following packages need a bump: \n' + JSON.stringify(needBump, null, 2));
   } else {
     console.log('No bump needed, can publish.');
   }
+}
+
+if (helpers.hasNpmFlag('newLib')) {
+  function createPackageJSON(name) {
+    fs.mkdirsSync(path.join(process.cwd(), 'src', '@tdm', name));
+
+    const pkgJson = {
+      "name": `@tdm/${name}`,
+      "version": "1.0.1-alpha.1",
+      "description": "Typed data models (@tdm)",
+      "main": `bundle/tdm.${name}.umd.js`,
+      "module": "index.js",
+      "typings": "index.d.ts",
+      "keywords": [
+        "@tdm"
+      ],
+      "peerDependencies": {
+        "@tdm/tixin": "*",
+        "@tdm/core": "*"
+      }
+    };
+    fs.writeJSONSync(path.join(process.cwd(), 'src', '@tdm', name, 'package.json'), pkgJson);
+  }
+
+  function setJest(name) {
+    const jestConfig = fs.readJsonSync(path.join(process.cwd(), 'jest.config.json'));
+    const catchAll = jestConfig.moduleNameMapper['(.*)'];
+    delete jestConfig.moduleNameMapper['(.*)'];
+
+    jestConfig.moduleNameMapper[`^@tdm/${name}$`] = `<rootDir>/src/@tdm/${name}/src`;
+    jestConfig.moduleNameMapper[`^@tdm/${name}/(.*)`] = `<rootDir>/src/@tdm/${name}/src/$1`;
+
+    jestConfig.moduleNameMapper['(.*)'] = catchAll;
+
+    fs.writeJSONSync(path.join(process.cwd(), 'jest.config.json'), jestConfig);
+  }
+
+  function setTS(name) {
+    ['tsconfig', 'tsconfig.package', 'tsconfig.spec', 'tsconfig.webpack'].forEach( config => {
+      const tsConfig = fs.readJsonSync(path.join(process.cwd(), `${config}.json`));
+      tsConfig.compilerOptions.paths[`@tdm/${name}`] = [`@tdm/${name}/src/index.ts`];
+      tsConfig.compilerOptions.paths[`@tdm/${name}/*`] = [`@tdm/${name}/src/*`];
+      fs.writeJSONSync(path.join(process.cwd(), `${config}.json`), tsConfig);
+    });
+  }
+
+  const readline = require('readline');
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    prompt: 'lib name> '
+  });
+
+  rl.prompt();
+
+  rl.on('line', (line) => {
+    const name = line.trim();
+
+    if (!name) {
+      rl.prompt();
+    } else {
+      createPackageJSON(name);
+      setJest(name);
+      setTS(name);
+      process.exit(0);
+    }
+  });
 }

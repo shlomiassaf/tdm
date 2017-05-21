@@ -1,0 +1,47 @@
+{
+  "setupTestFrameworkScriptFile": "<rootDir>/src/setupJest.ts",
+  "globals": {
+    "__TS_CONFIG__": "tsconfig.spec.json",
+    "__TRANSFORM_HTML__": true
+  },
+  "transform": {
+    "^.+\\.(ts|js|html)$": "<rootDir>/node_modules/jest-preset-angular/preprocessor.js"
+  },
+  "testRegex": "@tdm\\/.+\\.spec\\.ts$",
+  "moduleFileExtensions": [
+    "ts",
+    "js",
+    "html",
+    "json"
+  ],
+  "mapCoverage": true,
+  "moduleDirectories": [
+    "node_modules",
+    "src"
+  ],
+  "testPathIgnorePatterns": [
+    "/node_modules/"
+  ],
+  "moduleNameMapper": {
+    "^@tdm/tixin$": "<rootDir>/src/@tdm/tixin/src",
+    "^@tdm/tixin/(.*)": "<rootDir>/src/@tdm/tixin/src/$1",
+    "^@tdm/core$": "<rootDir>/src/@tdm/core/src",
+    "^@tdm/core/(.*)": "<rootDir>/src/@tdm/core/src/$1",
+    "^@tdm/data$": "<rootDir>/src/@tdm/data/src",
+    "^@tdm/data/(.*)": "<rootDir>/src/@tdm/data/src/$1",
+    "^@tdm/ngx-http$": "<rootDir>/src/@tdm/ngx-http/src",
+    "^@tdm/ngx-http/(.*)": "<rootDir>/src/@tdm/ngx-http/src/$1",
+    "^@tdm/ngx-dynamic-forms$": "<rootDir>/src/@tdm/ngx-dynamic-forms/src",
+    "^@tdm/ngx-dynamic-forms/(.*)": "<rootDir>/src/@tdm/ngx-dynamic-forms/src/$1",
+    "^@tdm/json-api-mapper$": "<rootDir>/src/@tdm/json-api-mapper/src",
+    "^@tdm/json-api-mapper/(.*)": "<rootDir>/src/@tdm/json-api-mapper/src/$1",
+    "^@tdm/sequelize$": "<rootDir>/src/@tdm/sequelize/src",
+    "^@tdm/sequelize/(.*)": "<rootDir>/src/@tdm/sequelize/src/$1",
+    "^@tdm/orm2$": "<rootDir>/src/@tdm/orm2/src",
+    "^@tdm/orm2/(.*)": "<rootDir>/src/@tdm/orm2/src/$1",
+    "(.*)": "<rootDir>/src/$1"
+  },
+  "transformIgnorePatterns": [
+    "node_modules/(?!@ngrx)"
+  ]
+}
