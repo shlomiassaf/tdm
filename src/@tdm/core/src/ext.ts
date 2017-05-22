@@ -22,7 +22,9 @@ export {
   fireEvents,
   TargetEvents,
   lazyRef,
-  getProtoChain
+  getProtoChain,
+  MetaHostMetadataArgs,
+  MetaHost
 } from './fw';
 
 export {

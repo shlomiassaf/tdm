@@ -1,13 +1,13 @@
 import { Constructor, ensureTargetIsType, isFunction } from './utils';
 import { MetaFactoryStatic, MetaFactoryInstance } from './interfaces';
-import { decoratorInfo } from './base-metadata';
+import { decoratorInfo, BaseMetadata } from './base-metadata';
 import { targetStore } from '../metadata/target-store';
 
 /**
  * Create a metadata factory. A function that creates new instances of the metadata class provided.
  * This is a generic factory, it requires a metadata class in the right format (TODO: document)
  * @param metaClass
- * @param post allows post processing of the MetaFactoryInstance instnace
+ * @param post allows post processing of the MetaFactoryInstance instance
  * @returns {(metaArgs:Q, target:(Object|Function), key?:PropertyKey, desc?:PropertyDescriptor)=>MetaFactoryInstance<T>}
  */
 export function metaFactoryFactory<Q, T>(metaClass: MetaFactoryStatic & Constructor<T>, post?: (meta: MetaFactoryInstance<T>, metaArgs: Q) => void)
@@ -57,8 +57,7 @@ export function decoratorFactory<TMetaArgs>(metaClass: MetaFactoryStatic, option
 export function decoratorFactory<TMetaArgs>(metaClass: MetaFactoryStatic, ...args: any[]): ( (def?: TMetaArgs) => (target: Object, key: PropertyKey, desc?: PropertyDescriptor) => any ) | ( (def?: TMetaArgs) => (target: Function) => any ) {
   return (def: TMetaArgs) => {
     return (target: Object | Function, key: PropertyKey, desc?: PropertyDescriptor) => {
-      metaClass.register(metaClass.metaFactory(def, target, key, desc));
+      BaseMetadata.create(metaClass, def, target, key, desc);
     };
   }
 }
-

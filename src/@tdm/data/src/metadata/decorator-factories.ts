@@ -1,4 +1,4 @@
-import { isFunction, targetStore, PropMetadata, TDMModelBase } from '@tdm/core';
+import { isFunction, targetStore, PropMetadata, TDMModelBase, BaseMetadata } from '@tdm/core';
 import { AdapterStatic } from '../fw';
 import { ResourceMetadataArgs } from './meta-types';
 
@@ -22,7 +22,7 @@ export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterSt
 
       const resourceClass = targetStore.getAdapter(adapterClass).resourceMetaClass;
       if (resourceClass) {
-        resourceClass.register(resourceClass.metaFactory(metaArgs || {}, target));
+        BaseMetadata.create(resourceClass, metaArgs || {}, target);
       }
       targetStore.setResource(metaArgs, target);
 

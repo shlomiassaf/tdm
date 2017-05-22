@@ -164,11 +164,6 @@ export class TargetStore {
       });
   }
 
-  protected setMeta<T , Z extends MetaFactoryStatic>(metaClass: Z & Constructor<T>, def: any, tProto: Object, key?: PropertyKey, desc?: PropertyDescriptor): T {
-    const meta = metaClass.metaFactory(def, tProto, key, desc);
-    return this.set(ensureTargetIsType(tProto), meta.metaClassKey, meta.metaPropKey as any, meta.metaValue);
-  }
-
   protected set<T , Z, P extends keyof T>(target: Constructor<any>, k: Z & Constructor<T>, k1: P, v: T[P]): T[P] {
     // TODO: implement LRU since most values are set sequentially on the same target.
     let dkm = this.targets.get(target);

@@ -6,10 +6,12 @@ import {
   MetaFactoryInstance,
   registerFactory,
   decoratorInfo,
-  ensureTargetIsType
+  ensureTargetIsType,
+  MetaHost
 } from '../fw';
 
 import { ClassMetadata } from './class-metadata';
+import { PropMetadata } from './prop';
 
 export interface ExcludeMetadataArgs {
   /**
@@ -20,6 +22,17 @@ export interface ExcludeMetadataArgs {
   from?: TransformDir;
 }
 
+declare module './prop' {
+  interface PropMetadataArgs {
+    exclude?: true | ExcludeMetadataArgs;
+  }
+}
+
+@MetaHost({
+  host: PropMetadata,
+  containerKey: 'exclude',
+  before: (metaArgs: ExcludeMetadataArgs) => metaArgs
+})
 export class ExcludeMetadata extends BaseMetadata {
   from?: TransformDir;
 

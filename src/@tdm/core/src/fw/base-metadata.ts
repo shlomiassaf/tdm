@@ -1,5 +1,8 @@
-import { isNumber, isStaticDecorator } from './utils';
-import { DecoratorInfo } from './interfaces';
+import { isFunction, isNumber, isStaticDecorator } from './utils';
+import { DecoratorInfo, MetaFactoryStatic } from './interfaces';
+import { MetaHostMetadata } from './meta-host';
+
+export const EXTEND_COLL = Symbol('EXTEND_COLL');
 
 export function decoratorInfo(...args: any[]): DecoratorInfo {
 
@@ -27,6 +30,33 @@ export abstract class BaseMetadata {
 
   constructor(public readonly decoratorInfo: DecoratorInfo) {
     this.name = decoratorInfo.name;
+  }
+
+  /**
+   * Creates a Metadata class instance from decorator parameters.
+   *
+   * @param metaClass
+   * @param metaArgs
+   * @param target
+   * @param key
+   * @param desc
+   */
+  static create(metaClass: MetaFactoryStatic, metaArgs: any, target: Object | Function, key?: PropertyKey, desc?: PropertyDescriptor): void {
+    const arr: MetaHostMetadata[] = metaClass[EXTEND_COLL];
+
+    // TODO: make this pretty
+    const runAfter = metaArgs && Array.isArray(arr) && arr.map(a => {
+      if (metaArgs.hasOwnProperty(a.containerKey)) {
+        const myMetaArgs = isFunction(a.before) ? a.before(metaArgs[a.containerKey]) : metaArgs[a.containerKey];
+        delete metaArgs[a.containerKey];
+        return [a.target, myMetaArgs]
+      }
+    });
+
+    metaClass.register(metaClass.metaFactory(metaArgs, target, key, desc));
+
+    runAfter && runAfter.forEach( ra => ra && BaseMetadata.create(ra[0], ra[1], target, key, desc) );
+
   }
 }
 

@@ -6,3 +6,4 @@ export * from './normalize';
 export * from './events';
 export * from './target-store-builder';
 export * from './lazy-ref';
+export * from './meta-host';
