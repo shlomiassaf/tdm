@@ -1,4 +1,4 @@
-import { targetStore, Model, Prop, Relation } from '@tdm/core';
+import { tdm, Model, Prop } from '@tdm/core';
 import { PropMetadata } from '@tdm/core/tdm';
 
 import { TestTargetStore } from '@tdm/core/testing';
@@ -8,7 +8,7 @@ import { FormModelMetadata, FormPropMetadata } from "@tdm/ngx-dynamic-forms/core
 
 
 function getFormMeta(target: any): FormModelMetadata {
-  return targetStore.getClassProp(target, 'formModel');
+  return tdm.targetStore.getClassProp(target, 'formModel');
 }
 
 describe('@tdm/ngx-dynamic-forms', () => {
@@ -56,7 +56,7 @@ describe('@tdm/ngx-dynamic-forms', () => {
         }
 
         expect(getFormMeta(DemoForm).getProp('inForm')).toBeInstanceOf(FormPropMetadata);
-        expect(targetStore.getMetaFor(DemoForm, PropMetadata, 'inForm')).toBeInstanceOf(PropMetadata);
+        expect(tdm.targetStore.getMetaFor(DemoForm, PropMetadata, 'inForm')).toBeInstanceOf(PropMetadata);
       });
 
       it('should automatically add basic type when not set', () => {

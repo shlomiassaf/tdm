@@ -28,6 +28,8 @@ export class RelationMetadata extends BaseMetadata {
     this.foreignKey = obj && obj.foreignKey || info.name as any;
   }
 
+  static allowOn = <any>['member'];
+
   static metaFactory = metaFactoryFactory<RelationMetadataArgs, RelationMetadata>(RelationMetadata);
 
   static register = registerFactory<RelationMetadata>();

@@ -41,8 +41,9 @@ export class ExcludeMetadata extends BaseMetadata {
     if (obj) {
       this.from = obj.from;
     }
-
   }
+
+  static allowOn = <any>['class', 'member'];
 
   static metaFactory(metaArgs: ExcludeMetadataArgs, target: Object | Function, key: PropertyKey, desc?: PropertyDescriptor): MetaFactoryInstance<ExcludeMetadata> {
     const info = decoratorInfo(target, key, desc);

@@ -14,6 +14,7 @@ export {
   registerFactory,
   decoratorFactory,
   MetaFactoryStatic,
+  MetadataAllowOn,
   MetaFactoryInstance,
   BaseMetadata,
   DecoratorInfo,

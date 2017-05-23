@@ -44,6 +44,15 @@ export interface DecoratorInfo {
   hasDescriptor?: boolean;
 }
 
+
+/**
+ * A list of supported decoration targets for a metadata class.
+ *   - class: can decorate a class
+ *   - member: can decorate an instance level property or a method
+ *   - staticMember: can decorate an class level property or a method
+ */
+export type MetadataAllowOn = 'class' | 'member' | 'staticMember';
+
 export interface MetaFactoryStatic {
   // TODO: require meta specific constructor: new (metaArgs: any, info) [NOTE: info is not required for class decorating metas]
   new (...args: any[]): any;
@@ -78,6 +87,12 @@ export interface MetaFactoryStatic {
    * @returns the new extended value.
    */
   extend?(from: Map<PropertyKey, any>, to: Map<PropertyKey, any> | undefined, meta?: { from: Constructor<any>, to: Constructor<any> }): Map<PropertyKey, any>;
+
+  /**
+   * A list of supported decoration targets for a metadata class.
+   * If not set (or empty list) all of the targets are allowed.
+   */
+  allowOn?: MetadataAllowOn[];
 }
 
 export interface MetaFactoryInstance<T> {

@@ -130,6 +130,8 @@ export class PropMetadata extends BaseMetadata {
     }
   }
 
+  static allowOn = <any>['member'];
+
   static register = registerFactory<PropMetadata>();
 
   static extend(from: Map<PropertyKey, PropMetadata>, to: Map<PropertyKey, PropMetadata> | undefined): Map<PropertyKey, PropMetadata> {

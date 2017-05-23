@@ -1,7 +1,6 @@
 import * as voca from 'voca';
 
-import { Model, directMapper, TargetMetadata } from '@tdm/core';
-import { targetStore } from '@tdm/core/tdm';
+import { tdm, Model, directMapper } from '@tdm/core';
 import '@tdm/core/add/mapping';
 import { TargetMetaModifier } from '@tdm/core/testing';
 
@@ -28,13 +27,13 @@ describe('@tdm/core', () => {
       it('should register target and fire events using @Model decorator', () => {
         const createMetadata = jasmine.createSpy('createMetadata');
         const processType = jasmine.createSpy('processType');
-        targetStore.on.createMetadata(createMetadata);
-        targetStore.on.processType(processType);
+        tdm.targetStore.on.createMetadata(createMetadata);
+        tdm.targetStore.on.processType(processType);
 
 
         @Model() class User { }
 
-        expect(targetStore.getTargetMeta(User)).toBeInstanceOf(TargetMetadata);
+        expect(tdm.targetStore.getTargetMeta(User)).toBeInstanceOf(tdm.TargetMetadata);
 
         expect(createMetadata).toHaveBeenCalledTimes(1);
         expect(createMetadata).toHaveBeenLastCalledWith(User);
@@ -49,7 +48,7 @@ describe('@tdm/core', () => {
       it('should apply NamingStrategyConfig in inclusive mode - without defined @Props', () => {
         userModifier.classProp('transformNameStrategy', transformNameStrategy);
 
-        const user = targetStore.deserialize(directMapper.deserializer(data, User));
+        const user = tdm.targetStore.deserialize(directMapper.deserializer(data, User));
 
         expect(user['my_property_1']).toBeUndefined();
         expect(user['myProperty1']).toBe(data.my_property1);
@@ -59,7 +58,7 @@ describe('@tdm/core', () => {
 
         expect(user['myProperty3']).toBe(data.myProperty3);
 
-        const ser = targetStore.serialize(User, directMapper.serializer(user));
+        const ser = tdm.targetStore.serialize(User, directMapper.serializer(user));
 
         expect(ser['myProperty1']).toBeUndefined();
         expect(ser['my_property_1']).toBe(data.my_property1);
@@ -75,7 +74,7 @@ describe('@tdm/core', () => {
         userModifier.classProp('transformNameStrategy', transformNameStrategy);
         (userModifier.props as any)('myProperty1', 'myProperty2', 'myProperty3');
 
-        const user = targetStore.deserialize(directMapper.deserializer(data, User));
+        const user = tdm.targetStore.deserialize(directMapper.deserializer(data, User));
 
         expect(user['my_property_1']).toBeUndefined();
         expect(user['myProperty1']).toBe(data.my_property1);
@@ -85,7 +84,7 @@ describe('@tdm/core', () => {
 
         expect(user['myProperty3']).toBe(data.myProperty3);
 
-        const ser = targetStore.serialize(User, directMapper.serializer(user));
+        const ser = tdm.targetStore.serialize(User, directMapper.serializer(user));
 
         expect(ser['myProperty1']).toBeUndefined();
         expect(ser['my_property_1']).toBe(data.my_property1);
@@ -107,7 +106,7 @@ describe('@tdm/core', () => {
         };
 
 
-        const user = targetStore.deserialize(directMapper.deserializer(data, User));
+        const user = tdm.targetStore.deserialize(directMapper.deserializer(data, User));
 
         expect(user['my_property_1']).toBeUndefined();
         expect(user['myProperty1']).toBe(data.my_property_1);

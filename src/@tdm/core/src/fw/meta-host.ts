@@ -17,6 +17,12 @@ export interface MetaHostMetadataArgs {
   host: Constructor<any>;
   containerKey: string;
   before?(metaArgs: any): any;
+
+  /**
+   * When true, treats an array as a collection where each value is a instance of the metadata.
+   * This enables settings multiple metadata values.
+   */
+  forEach?: boolean;
 }
 
 /**
@@ -27,6 +33,7 @@ export class MetaHostMetadata extends BaseMetadata {
   containerKey: string;
   before?(metaArgs: any): any;
 
+  forEach: boolean;
   target: any;
 
 
