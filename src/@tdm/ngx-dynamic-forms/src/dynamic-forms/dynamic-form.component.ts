@@ -66,7 +66,7 @@ export interface LocalRenderInstruction extends RenderInstruction {
   <ng-content></ng-content>
 </form>`
 })
-export class DynamicFormComponent<T> implements AfterContentInit, AfterViewInit, OnChanges, DoCheck, OnDestroy {
+export class DynamicFormComponent<T = any> implements AfterContentInit, AfterViewInit, OnChanges, DoCheck, OnDestroy {
   tdmForm: TDMModelForm<any>;
 
   @ContentChildren(DynamicFormOverrideDirective) overrides: QueryList<DynamicFormOverrideDirective>;

@@ -1,5 +1,0 @@
-<form [formGroup]="tdmForm.form" novalidate>
-  <div *ngFor="let item of tdmForm.props; trackBy: tdmForm.trackBy" class="row">
-    <dynamic-form-element [parent]="tdmForm.form" [item]="item"></dynamic-form-element>
-  </div>
-</form>

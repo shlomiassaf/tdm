@@ -13,7 +13,7 @@ import { RenderInstruction } from '../interfaces';
  *   - mapping between model and form (serialization and deserialization)
  *   - exposing rendering instructions for a model (the instructions are used to render form elements)
  */
-export class TDMModelForm<T> {
+export class TDMModelForm<T = any> {
 
   form: FormGroup;
 
