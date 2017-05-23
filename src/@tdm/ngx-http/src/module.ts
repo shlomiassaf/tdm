@@ -14,12 +14,12 @@ export class HttpResourceModuleForRoot {
 }
 
 
-@NgModule({ })
+@NgModule()
 export class HttpResourceModule {
   static forRoot(): ModuleWithProviders {
     return {
       ngModule: HttpResourceModuleForRoot,
-      providers: [{ provide: NgDAO, useValue: new NgDAO() }]
+      providers: [ NgDAO ]
     }
   }
 }
