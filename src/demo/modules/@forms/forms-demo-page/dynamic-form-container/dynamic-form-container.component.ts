@@ -3,7 +3,7 @@ import { MdDialogRef, MD_DIALOG_DATA } from '@angular/material';
 
 import { Constructor } from '@tdm/core';
 
-export interface DynamicFormContainerData<T> {
+export class DynamicFormContainerData<T> {
   instance: T;
   type?: Constructor<T>;
 }

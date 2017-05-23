@@ -2,6 +2,9 @@ import { camelCase, snakeCase } from 'voca';
 import { ExtendAction, ExecuteContext, Identity, TDMCollection } from '@tdm/data';
 import { ARMixin, HttpResource, UrlParam, HttpActionOptions } from '@tdm/ngx-http';
 
+export function toCamelCase(propertyName: string) { return camelCase(propertyName) }
+export function toSnakeCase(propertyName: string) { return snakeCase(propertyName) }
+
 /**
  * This resource wraps a single endpoint REST API which means it is not resource oriented.
  * The API uses query parameters to identify the request.
@@ -19,8 +22,8 @@ import { ARMixin, HttpResource, UrlParam, HttpActionOptions } from '@tdm/ngx-htt
 @HttpResource({
   endpoint: 'http://netflixroulette.net/api/api.php',
   transformNameStrategy: {
-    incoming: (propertyName: string) => camelCase(propertyName),
-    outgoing: (propertyName: string) => snakeCase(propertyName)
+    incoming: toCamelCase,
+    outgoing: toSnakeCase
   },
   noBuild: true
 })
