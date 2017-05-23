@@ -1,4 +1,4 @@
-import { TargetStore, MapperFactory } from '@tdm/core';
+import { tdm } from '@tdm/core';
 import { ResourceMetadataArgs } from '../metadata';
 
 declare module '@tdm/core/metadata/target-store' {
@@ -7,7 +7,7 @@ declare module '@tdm/core/metadata/target-store' {
   }
 }
 
-TargetStore.prototype.setResource = function(metaArgs: ResourceMetadataArgs, target: Function): void {
+tdm.TargetStore.prototype.setResource = function(metaArgs: ResourceMetadataArgs, target: Function): void {
   this.setModel(metaArgs, target);
 
   if (metaArgs) {
@@ -27,7 +27,7 @@ declare module '@tdm/core/metadata/target-metadata' {
      */
     noBuild?: boolean;
 
-    mapper?: MapperFactory;
+    mapper?: tdm.MapperFactory;
   }
 }
 
@@ -42,6 +42,6 @@ declare module '@tdm/core/metadata/class-metadata' {
      */
     noBuild?: boolean;
 
-    mapper?: MapperFactory;
+    mapper?: tdm.MapperFactory;
   }
 }

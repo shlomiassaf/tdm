@@ -1,4 +1,4 @@
-import { TargetMetadata, MapperFactory, TDMModel, TDMCollection } from "@tdm/core";
+import { tdm, TDMModel, TDMCollection } from "@tdm/core";
 
 import { findProp } from '../utils';
 import { defaultConfig } from '../default-config';
@@ -18,7 +18,7 @@ export class ExecuteContext<T extends ActionMetadata> {
    */
   body?: any;
 
-  get targetMeta(): TargetMetadata {
+  get targetMeta(): tdm.TargetMetadata {
     return this.meta;
   }
 
@@ -41,10 +41,10 @@ export class ExecuteContext<T extends ActionMetadata> {
   }
 
   private _instance: TDMModel<any> | TDMCollection<any>;
-  private mapper: MapperFactory;
+  private mapper: tdm.MapperFactory;
 
 
-  constructor(private readonly meta: TargetMetadata, public readonly action: T) {
+  constructor(private readonly meta: tdm.TargetMetadata, public readonly action: T) {
     this.mapper = findProp('mapper', defaultConfig, meta);
   }
 

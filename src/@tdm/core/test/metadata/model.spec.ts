@@ -1,7 +1,7 @@
 import * as voca from 'voca';
 
 import { Model, directMapper, TargetMetadata } from '@tdm/core';
-import { targetStore } from '@tdm/core/ext';
+import { targetStore } from '@tdm/core/tdm';
 import '@tdm/core/add/mapping';
 import { TargetMetaModifier } from '@tdm/core/testing';
 

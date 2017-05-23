@@ -1,4 +1,4 @@
-import { isFunction, metaFactoryFactory, MetaFactoryStatic, targetStore, MetaFactoryInstance, Constructor } from '@tdm/core';
+import { tdm, Constructor } from '@tdm/core';
 import { ActionMetadata } from './action';
 import { array } from '../../utils';
 import { DAOMethods, DAOAdapter, DAOTarget } from '../../fw';
@@ -9,27 +9,27 @@ function unsupportedDAOCmd() {
 }
 
 export interface AdapterMetadataArgs {
-  actionMetaClass: MetaFactoryStatic;
+  actionMetaClass: tdm.MetaFactoryStatic;
   DAOClass: Constructor<any>;
   /**
    * The resource metadata class.
    * If not set the metadata arguments are registered to the target metadata instance
    */
-  resourceMetaClass?: MetaFactoryStatic;
+  resourceMetaClass?: tdm.MetaFactoryStatic;
 }
 
 export class AdapterMetadata {
-  actionMetaClass: MetaFactoryStatic;
+  actionMetaClass: tdm.MetaFactoryStatic;
   DAOClass: Constructor<any>;
-  resourceMetaClass?: MetaFactoryStatic;
+  resourceMetaClass?: tdm.MetaFactoryStatic;
 
   private actions = new Map<any, ActionMetadata[]>();
 
 
   addAction(meta: ActionMetadata, target: Constructor<any>): void;
-  addAction(meta: MetaFactoryInstance<ActionMetadata>): void;
-  addAction(meta: ActionMetadata | MetaFactoryInstance<ActionMetadata>, target?: Constructor<any>): void {
-    if (!isFunction(target)) {
+  addAction(meta: tdm.MetaFactoryInstance<ActionMetadata>): void;
+  addAction(meta: ActionMetadata | tdm.MetaFactoryInstance<ActionMetadata>, target?: Constructor<any>): void {
+    if (!tdm.isFunction(target)) {
       target = (<any>meta).target;
       meta = (<any>meta).metaValue;
     }
@@ -66,7 +66,7 @@ export class AdapterMetadata {
       }
 
       daoProto[action.name] = function (...args: any[]) {
-        return targetStore.getAC(this[DAOTarget], this[DAOAdapter])
+        return tdm.targetStore.getAC(this[DAOTarget], this[DAOAdapter])
           .createExecFactory(action, 'promise')(undefined, true, ...args);
       };
 
@@ -92,9 +92,9 @@ export class AdapterMetadata {
   // this workaround prevents the need for an adapter store, the meta is used as the store.
   // to support that we allow setting the metadata args in a later period.
   // the register() method is aware of that and knows how to handle this scenario.
-  static metaFactory = metaFactoryFactory<AdapterMetadataArgs, AdapterMetadata>(AdapterMetadata, (meta: any, metaArgs: any) => meta.metaArgs = metaArgs );
+  static metaFactory = tdm.metaFactoryFactory<AdapterMetadataArgs, AdapterMetadata>(AdapterMetadata, (meta: any, metaArgs: any) => meta.metaArgs = metaArgs );
 
-  static register(meta: MetaFactoryInstance<AdapterMetadata> & { metaArgs: AdapterMetadataArgs}): void {
-    targetStore.getAdapter(meta.target).setArgs(meta.metaArgs);
+  static register(meta: tdm.MetaFactoryInstance<AdapterMetadata> & { metaArgs: AdapterMetadataArgs}): void {
+    tdm.targetStore.getAdapter(meta.target).setArgs(meta.metaArgs);
   }
 }

@@ -1,4 +1,4 @@
-import { DecoratorInfo, metaFactoryFactory } from '@tdm/core';
+import { tdm } from '@tdm/core';
 
 import {
   ActionMetadata,
@@ -19,12 +19,12 @@ export class MockActionMetadata extends ActionMetadata {
   isCollection: boolean;
   validation: ValidationSchedule;
 
-  constructor(obj: MockActionMetadataArgs, public info: DecoratorInfo) {
+  constructor(obj: MockActionMetadataArgs, public info: tdm.DecoratorInfo) {
     super(obj, info);
   }
 
 
-  static metaFactory = metaFactoryFactory<MockActionMetadataArgs, MockActionMetadata>(MockActionMetadata);
+  static metaFactory = tdm.metaFactoryFactory<MockActionMetadataArgs, MockActionMetadata>(MockActionMetadata);
 
   static adapterClass = MockAdapter;
 }

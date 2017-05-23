@@ -1,4 +1,4 @@
-import { isPrimitive } from '@tdm/core';
+import { tdm } from '@tdm/core';
 import { TDMCollection as ARecordColl, TargetDAO, IdentityValueType, ExecuteContext, ActionMethodType } from '@tdm/data';
 
 import { MockActionOptions } from './interfaces';
@@ -38,7 +38,7 @@ export class MockDao<T> implements TargetDAO<T, MockActionOptions> {
     validation: 'skip' as 'skip',
     pre: (ctx: ExecuteContext<MockActionMetadata>, id: IdentityValueType | any, options?: MockActionOptions) => {
 
-      if (isPrimitive(id)) {
+      if (tdm.isPrimitive(id)) {
         ctx.setIdentity(id);
       } else if (ctx.instanceOf(id)) {
         ctx.setInstance(id);

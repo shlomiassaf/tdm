@@ -1,4 +1,4 @@
-import { lazyRef, DecoratorInfo, metaFactoryFactory, targetStore, MetaFactoryInstance } from '@tdm/core';
+import { tdm } from '@tdm/core';
 
 import { ActionMetadata, ActionMetadataArgs } from '@tdm/data';
 import { HttpAdapter } from '../core';
@@ -25,7 +25,7 @@ export class HttpActionMetadata extends ActionMetadata {
   trailingSlashes?: TrailingSlashesStrategy;
 
 
-  constructor(obj: HttpActionMetadataArgs, info: DecoratorInfo) {
+  constructor(obj: HttpActionMetadataArgs, info: tdm.DecoratorInfo) {
     super(obj, info);
 
     if (!obj.hasOwnProperty('method')) {
@@ -36,7 +36,7 @@ export class HttpActionMetadata extends ActionMetadata {
     this.method = this.methodInfo.method;
   }
 
-  static metaFactory = metaFactoryFactory<HttpActionMetadataArgs, HttpActionMetadata>(HttpActionMetadata);
+  static metaFactory = tdm.metaFactoryFactory<HttpActionMetadataArgs, HttpActionMetadata>(HttpActionMetadata);
 
   static adapterClass = HttpAdapter;
 }

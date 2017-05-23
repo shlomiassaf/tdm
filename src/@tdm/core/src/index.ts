@@ -13,10 +13,9 @@ export {
   ModelMetadataArgs
 } from './metadata';
 
-
-// TODO: this is for node support, since esm can be used on node (cant require @tdm/core/ext)
-//        this introduces noise to the main import...
-export * from './ext';
+// export plugin api, these are objects intended for internal use by extending plugins
+import * as tdm from './tdm';
+export { tdm };
 
 // import/export order is important to prevent null on circular dependencies.
 export { Model } from './add/model';

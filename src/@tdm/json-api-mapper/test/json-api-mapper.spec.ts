@@ -1,6 +1,6 @@
 import deepEqual from 'deep-equal';
 
-import { targetStore } from '@tdm/core/ext';
+import { targetStore } from '@tdm/core/tdm';
 import { TargetMetaModifier } from '@tdm/core/testing';
 import { jsonAPIMapper } from '../src/json-api-mapper';
 

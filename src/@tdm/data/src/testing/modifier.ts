@@ -1,4 +1,4 @@
-import { targetStore as _targetStore, TargetStore as _TargetStore, Constructor, isString, PropMetadata } from '@tdm/core';
+import { tdm, Constructor } from '@tdm/core';
 import { TargetMetaModifier as _TargetMetaModifier } from '@tdm/core/testing';
 import { TestTargetMetadata as _TestTargetMetadata } from '@tdm/core/testing/modifier';
 import { Resource, Hook, Owns, BelongsTo, ResourceMetadataArgs } from '@tdm/data';
@@ -11,9 +11,9 @@ import {
 } from '../metadata/meta-types';
 import { ARHookableMethods, ARHooks } from '@tdm/data/active-record/interfaces';
 
-const targetStore: TestTargetStore = _targetStore;
+const targetStore: TestTargetStore = tdm.targetStore;
 
-class TestTargetStore extends _TargetStore {
+class TestTargetStore extends tdm.TargetStore {
 
   static remove(type: typeof OwnsMetadata | typeof BelongsToMetadata, target: any, key: string): void {
     if (targetStore.hasTarget(target)) {
@@ -21,7 +21,7 @@ class TestTargetStore extends _TargetStore {
         case OwnsMetadata:
         case BelongsToMetadata:
           if (targetStore.targets.get(target).delete(type, key)) {
-            const prop = targetStore.getMetaFor(target, PropMetadata, key);
+            const prop = targetStore.getMetaFor(target, tdm.PropMetadata, key);
             prop.rel = prop.relation = undefined;
           }
           break;
@@ -36,7 +36,7 @@ class TestTargetStore extends _TargetStore {
 
       if (meta === false && hook) {
         dkm.delete(HookMetadata, key);
-      } else if (isString(meta) && hook) {
+      } else if (tdm.isString(meta) && hook) {
         delete hook[meta];
         if (Object.keys(hook).length === 0) {
           dkm.delete(HookMetadata, key);
@@ -86,7 +86,7 @@ export class TargetMetaModifier<T, Z> extends _TargetMetaModifier<T, Z> {
 
     if (meta === false) return;
 
-    if (!targetStore.getMetaFor(this.target, PropMetadata, key)) {
+    if (!targetStore.getMetaFor(this.target, tdm.PropMetadata, key)) {
       throw new Error('TestTargetMetadataStore does not support adding relations without Prop, please set a Prop first');
     }
 
@@ -98,7 +98,7 @@ export class TargetMetaModifier<T, Z> extends _TargetMetaModifier<T, Z> {
     TestTargetStore.remove(BelongsToMetadata, this.target, key);
     if (meta === false) return;
 
-    if (!targetStore.getMetaFor(this.target, PropMetadata, key)) {
+    if (!targetStore.getMetaFor(this.target, tdm.PropMetadata, key)) {
       throw new Error('TestTargetMetadataStore does not support adding relations without Prop, please set a Prop first');
     }
     TestTargetStore.addBelongsTo(this.target, key, meta);

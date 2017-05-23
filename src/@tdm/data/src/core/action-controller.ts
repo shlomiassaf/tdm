@@ -1,4 +1,4 @@
-import { targetStore, TargetMetadata, isFunction, MapperFactory, TDMCollection } from '@tdm/core';
+import { tdm, TDMCollection } from '@tdm/core';
 import { dispatchEvent, eventFactory, CancellationTokenResourceEvent, ExecuteInitResourceEvent } from '../events';
 import { defaultConfig } from '../default-config';
 import { findProp, noop } from '../utils';
@@ -16,6 +16,8 @@ import {
 import { ResourceControl } from '../resource-control';
 import { ExecuteContext, ExecuteParams } from './execute-context';
 
+const { targetStore, isFunction } = tdm;
+
 interface ExecuteState {
   id?: any;
   cancelled?: boolean;
@@ -24,10 +26,10 @@ interface ExecuteState {
 export class ActionController {
   public target: any;
   public adapter: Adapter<ActionMetadata, ActionOptions>;
-  public mapper: MapperFactory;
+  public mapper: tdm.MapperFactory;
   readonly adapterMeta: AdapterMetadata;
 
-  constructor(public targetMetadata: TargetMetadata, public adapterClass: AdapterStatic<any, any>) {
+  constructor(public targetMetadata: tdm.TargetMetadata, public adapterClass: AdapterStatic<any, any>) {
     this.target = targetMetadata.target;
     // TODO: adapter can be shared for all targets
     this.adapter = new adapterClass();

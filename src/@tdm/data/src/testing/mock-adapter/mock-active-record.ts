@@ -1,5 +1,5 @@
 import { Tixin } from '@tdm/tixin';
-import { isPrimitive } from '@tdm/core';
+import { tdm } from '@tdm/core';
 import { TDMCollection, ActionMethodType, TDMModel, IdentityValueType, ExecuteContext } from '@tdm/data';
 
 import { MockActionOptions } from './core/interfaces';
@@ -71,7 +71,7 @@ export class MockActiveRecord extends MockDao<any> {
     validation: 'skip' as 'skip',
     pre: (ctx: ExecuteContext<MockActionMetadata>, id: IdentityValueType | any, options?: MockActionOptions) => {
 
-      if (isPrimitive(id)) {
+      if (tdm.isPrimitive(id)) {
         ctx.setIdentity(id);
       } else if (ctx.instanceOf(id)) {
         ctx.setInstance(id);

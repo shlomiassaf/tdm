@@ -8,36 +8,24 @@ import {
   AsyncValidatorFn
 } from '@angular/forms';
 
-import {
-  MapperFactory,
-  DeserializeMapper,
-  DirectDeserializeMapper,
-  SerializeMapper,
-  PropertyContainer,
-  PoClassPropertyMap,
-  PlainSerializer,
-  isUndefined,
-  stringify,
-  isPrimitive,
-  isFunction,
-  directMapper,
-  targetStore,
-  PropMetadata
-} from '@tdm/core';
+import { tdm, directMapper, DirectDeserializeMapper } from '@tdm/core';
 import '@tdm/core/add/mapping';
 
 import { FormPropMetadata } from './decorators';
+
+const { targetStore, isUndefined, isFunction, isPrimitive } = tdm;
+
 
 export class NgFormsDeserializeMapper extends DirectDeserializeMapper {
   readonly raw: boolean = true;
 }
 
 
-export class NgFormsSerializeMapper extends SerializeMapper {
+export class NgFormsSerializeMapper extends tdm.SerializeMapper {
   protected cache: Map<any, any>;
-  private plainSer = new PlainSerializer();
+  private plainSer = new tdm.PlainSerializer();
 
-  serialize(container: PropertyContainer): any {
+  serialize(container: tdm.PropertyContainer): any {
     if (!this.cache) {
       this.cache = new Map<any, any>();
     }
@@ -49,16 +37,16 @@ export class NgFormsSerializeMapper extends SerializeMapper {
     }
   }
 
-  protected serializeObject(obj: any, container: PropertyContainer): FormGroup {
+  protected serializeObject(obj: any, container: tdm.PropertyContainer): FormGroup {
     const formModel = targetStore.getClassProp(container.target, 'formModel');
 
     if (!formModel) {
-      throw new Error(`Target '${stringify(container.target)}' is not a registered FormModel`)
+      throw new Error(`Target '${tdm.stringify(container.target)}' is not a registered FormModel`)
     }
 
     const data: FormGroup = new FormGroup({}, formModel.validator, formModel.asyncValidator);
 
-    const cb = (prop: PoClassPropertyMap) => {
+    const cb = (prop: tdm.PoClassPropertyMap) => {
       const meta = prop.prop;
 
       /*
@@ -132,7 +120,7 @@ export class NgFormsSerializeMapper extends SerializeMapper {
     return [sync.length > 0 ? Validators.compose(sync) : null, async];
   }
 
-  protected serializeChild(meta: PropMetadata, obj: any): FormGroup | FormArray {
+  protected serializeChild(meta: tdm.PropMetadata, obj: any): FormGroup | FormArray {
     return targetStore.serialize(meta.type as any, new NgFormsChildSerializeMapper(obj, this.cache));
   }
 
@@ -157,7 +145,7 @@ export class NgFormsSerializeMapper extends SerializeMapper {
     return data;
   }
 
-  protected serializeCollection(arr: any[], container: PropertyContainer): FormArray {
+  protected serializeCollection(arr: any[], container: tdm.PropertyContainer): FormArray {
     return new FormArray(arr.map(s => this.serializeObject(s, container)));
   }
 
@@ -170,11 +158,11 @@ export class NgFormsChildSerializeMapper extends NgFormsSerializeMapper {
 }
 
 
-export const ngFormsMapper: MapperFactory = {
+export const ngFormsMapper: tdm.MapperFactory = {
   serializer(source: any): NgFormsSerializeMapper {
     return new NgFormsSerializeMapper(source);
   },
-  deserializer(source: any, sourceType: any): DeserializeMapper {
+  deserializer(source: any, sourceType: any): tdm.DeserializeMapper {
     return directMapper.deserializer(source, sourceType) as any;
   }
 };

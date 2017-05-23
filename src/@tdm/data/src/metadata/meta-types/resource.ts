@@ -1,4 +1,4 @@
-import { ModelMetadataArgs, MapperFactory } from '@tdm/core';
+import { ModelMetadataArgs, tdm } from '@tdm/core';
 
 export interface ResourceMetadataArgs extends ModelMetadataArgs {
   /**
@@ -33,5 +33,5 @@ export interface ResourceMetadataArgs extends ModelMetadataArgs {
    */
   noBuild?: boolean;
 
-  mapper?: MapperFactory;
+  mapper?: tdm.MapperFactory;
 }

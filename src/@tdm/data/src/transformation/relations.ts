@@ -1,10 +1,10 @@
-import { Constructor, targetStore } from '@tdm/core';
+import { Constructor, tdm } from '@tdm/core';
 
 import { BelongsToMetadata, OwnsMetadata } from '../metadata';
 
-targetStore.on
+tdm.targetStore.on
   .createMetadata((target: Constructor<any>) => {
-    const meta = targetStore.getTargetMeta(target);
+    const meta = tdm.targetStore.getTargetMeta(target);
 
     const identity = meta.getIdentityKey();
     if (identity) {

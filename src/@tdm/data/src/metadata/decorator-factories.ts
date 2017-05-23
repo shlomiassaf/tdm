@@ -1,4 +1,4 @@
-import { isFunction, targetStore, PropMetadata, TDMModelBase, BaseMetadata } from '@tdm/core';
+import { tdm, TDMModelBase } from '@tdm/core';
 import { AdapterStatic } from '../fw';
 import { ResourceMetadataArgs } from './meta-types';
 
@@ -18,37 +18,37 @@ export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterSt
 
       const TDMModel = TDMModelBase.factory(target);
 
-      targetStore.registerTarget(target);
+      tdm.targetStore.registerTarget(target);
 
-      const resourceClass = targetStore.getAdapter(adapterClass).resourceMetaClass;
+      const resourceClass = tdm.targetStore.getAdapter(adapterClass).resourceMetaClass;
       if (resourceClass) {
-        BaseMetadata.create(resourceClass, metaArgs || {}, target);
+        tdm.BaseMetadata.create(resourceClass, metaArgs || {}, target);
       }
-      targetStore.setResource(metaArgs, target);
+      tdm.targetStore.setResource(metaArgs, target);
 
       // check for properties that set the type to self (same class)
       // the class will point to the base class (target) that TDModel extends.
       // this is fine if the user didn't set `typeGetter`, if he did we get TDModel
-      targetStore.getTargetMeta(target)
-        .getValues(PropMetadata)
+      tdm.targetStore.getTargetMeta(target)
+        .getValues(tdm.PropMetadata)
         .forEach( p => {
           const desc = Object.getOwnPropertyDescriptor(p, 'type');
 
-          if (desc && desc.configurable && isFunction(desc.get) && desc.get() === target) {
+          if (desc && desc.configurable && tdm.isFunction(desc.get) && desc.get() === target) {
             Object.defineProperty(p, 'type', { configurable: true, value: TDMModel });
           }
         });
 
-      targetStore.registerTarget(TDMModel);
+      tdm.targetStore.registerTarget(TDMModel);
 
       if (metaArgs.noBuild !== true) {
-        const tMeta = targetStore.getTargetMeta(TDMModel);
+        const tMeta = tdm.targetStore.getTargetMeta(TDMModel);
         // default behaviour, register the first adapter, if multiple...
         if (!tMeta.activeAdapter) {
           tMeta.setActiveAdapter(adapterClass);
         }
       } else {
-        targetStore.setReadyToBuild(TDMModel);
+        tdm.targetStore.setReadyToBuild(TDMModel);
       }
 
       return TDMModel;

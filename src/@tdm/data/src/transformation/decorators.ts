@@ -1,4 +1,4 @@
-import { targetStore, decoratorFactory, PropMetadata, RelationMetadataArgs } from '@tdm/core'; // RelationMetadataArgs - leave to satisfy angular compiler
+import { tdm, RelationMetadataArgs } from '@tdm/core'; // RelationMetadataArgs - leave to satisfy angular compiler
 import { TDMError, DecoratorError, ExecuteResponse, ARHooks, ARHookableMethods } from '../fw';
 import {
   HookMetadata,
@@ -31,7 +31,7 @@ export class NoopAdapter implements Adapter<any, any> {
   cancel(id: number): void {};
 }
 
-targetStore.registerAdapter(NoopAdapter, { actionMetaClass: <any>class {}, DAOClass: class {} });
+tdm.targetStore.registerAdapter(NoopAdapter, { actionMetaClass: <any>class {}, DAOClass: class {} });
 
 // FOR AOT
 const resource = decoratorFactories.resource<ResourceMetadataArgs>(NoopAdapter);
@@ -49,20 +49,20 @@ export function Resource(metaArgs: ResourceMetadataArgs) {
  * @propertyDecorator instance
  * @param metaArgs
  */
-export const ExtendAction = decoratorFactory<Partial<ActionMetadataArgs<any>>>(ExtendActionMetadata);
+export const ExtendAction = tdm.decoratorFactory<Partial<ActionMetadataArgs<any>>>(ExtendActionMetadata);
 
 /**
  * @propertyDecorator instance
  * @param def
  */
-export const BelongsTo = decoratorFactory<BelongsToMetadataArgs>(PropMetadata, true);
+export const BelongsTo = tdm.decoratorFactory<BelongsToMetadataArgs>(tdm.PropMetadata, true);
 
 
 /**
  * @propertyDecorator instance
  * @param def
  */
-export const Owns = decoratorFactory<OwnsMetadataArgs<any>>(PropMetadata, true);
+export const Owns = tdm.decoratorFactory<OwnsMetadataArgs<any>>(tdm.PropMetadata, true);
 
 
 /**

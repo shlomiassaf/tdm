@@ -1,13 +1,6 @@
 import { FormGroup } from '@angular/forms';
 
-import {
-  DualKeyMap,
-  Constructor,
-  PropMetadata,
-  directMapper,
-  targetStore,
-  TargetMetadata
-} from '@tdm/core';
+import { tdm, Constructor, directMapper } from '@tdm/core';
 import '@tdm/core/add/mapping';
 
 import { NgFormsSerializeMapper, NgFormsDeserializeMapper } from './angular-forms-mapper';
@@ -15,18 +8,18 @@ import { NgFormsSerializeMapper, NgFormsDeserializeMapper } from './angular-form
 
 class NgFormsBoundDeserializeMapper extends NgFormsDeserializeMapper {
 
-  protected deserialize(value: any, prop: PropMetadata): any {
+  protected deserialize(value: any, prop: tdm.PropMetadata): any {
     const mapper = this.ref
       ? new NgFormsChildDeserializeMapper(value, prop.type, this.existing)
       : directMapper.deserializer(value, prop.type)
     ;
 
-    return targetStore.deserialize(mapper, this.ref ? this.ref[prop.name] : undefined);
+    return tdm.targetStore.deserialize(mapper, this.ref ? this.ref[prop.name] : undefined);
   }
 }
 
 export class NgFormsChildDeserializeMapper extends NgFormsDeserializeMapper {
-  constructor(source: any, sourceType: any, protected existing: DualKeyMap<any, string, any>) {
+  constructor(source: any, sourceType: any, protected existing: tdm.DualKeyMap<any, string, any>) {
     super(source, sourceType);
   }
 }
@@ -39,10 +32,10 @@ export class NgFormsChildDeserializeMapper extends NgFormsDeserializeMapper {
  */
 export class NgFormsBoundMapper<T> {
   private fg: FormGroup;
-  private meta: TargetMetadata;
+  private meta: tdm.TargetMetadata;
 
   constructor(private readonly type: Constructor<any>, public readonly instance: T) {
-    this.meta = targetStore.getTargetMeta(type);
+    this.meta = tdm.targetStore.getTargetMeta(type);
   }
 
   serialize(): FormGroup {

@@ -1,13 +1,5 @@
-import {
-  MapExt,
-  RelationMetadataArgs,
-  MetaFactoryInstance, // leave to satisfy angular compiler
-  DecoratorInfo,
-  BaseMetadata,
-  metaFactoryFactory,
-  registerFactory
-} from '@tdm/core';
-
+import { tdm, RelationMetadataArgs } from '@tdm/core';
+import { MetaFactoryInstance } from '@tdm/core/tdm'; // leave for angular AOT compiler.
 
 export type BelongsToMetadataArgs = RelationMetadataArgs;
 
@@ -15,45 +7,45 @@ export interface OwnsMetadataArgs<T> {
   foreignKey: keyof T;
 }
 
-export class BelongsToMetadata extends BaseMetadata {
+export class BelongsToMetadata extends tdm.BaseMetadata {
 
   foreignKey: string;
 
-  constructor(obj: BelongsToMetadataArgs, info: DecoratorInfo) {
+  constructor(obj: BelongsToMetadataArgs, info: tdm.DecoratorInfo) {
     super(info);
 
     this.foreignKey = obj.foreignKey || info.name as any;
   }
 
-  static metaFactory = metaFactoryFactory<BelongsToMetadataArgs, BelongsToMetadata>(BelongsToMetadata);
+  static metaFactory = tdm.metaFactoryFactory<BelongsToMetadataArgs, BelongsToMetadata>(BelongsToMetadata);
 
-  static register = registerFactory<BelongsToMetadata>();
+  static register = tdm.registerFactory<BelongsToMetadata>();
 
   static extend(from: Map<PropertyKey, BelongsToMetadata>, to: Map<PropertyKey, BelongsToMetadata> | undefined): Map<PropertyKey, BelongsToMetadata> {
     return to
-      ? MapExt.mergeInto(to, from)
+      ? tdm.MapExt.mergeInto(to, from)
       : new Map<PropertyKey, BelongsToMetadata>(from.entries())
       ;
   }
 }
 
 
-export class OwnsMetadata extends BaseMetadata {
+export class OwnsMetadata extends tdm.BaseMetadata {
   foreignKey: string;
 
-  constructor(obj: OwnsMetadataArgs<any>, info: DecoratorInfo) {
+  constructor(obj: OwnsMetadataArgs<any>, info: tdm.DecoratorInfo) {
     super(info);
 
     this.foreignKey = obj.foreignKey;
   }
 
-  static metaFactory = metaFactoryFactory<OwnsMetadataArgs<any>, OwnsMetadata>(OwnsMetadata);
+  static metaFactory = tdm.metaFactoryFactory<OwnsMetadataArgs<any>, OwnsMetadata>(OwnsMetadata);
 
-  static register = registerFactory<OwnsMetadata>();
+  static register = tdm.registerFactory<OwnsMetadata>();
 
   static extend(from: Map<PropertyKey, OwnsMetadata>, to: Map<PropertyKey, OwnsMetadata> | undefined): Map<PropertyKey, OwnsMetadata> {
     return to
-      ? MapExt.mergeInto(to, from)
+      ? tdm.MapExt.mergeInto(to, from)
       : new Map<PropertyKey, OwnsMetadata>(from.entries())
       ;
   }

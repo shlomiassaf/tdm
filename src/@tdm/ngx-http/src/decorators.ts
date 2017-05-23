@@ -1,4 +1,4 @@
-import { decoratorFactory } from '@tdm/core';
+import { tdm } from '@tdm/core';
 import { decoratorFactories } from '@tdm/data';
 import {
   HttpResourceMetadataArgs,
@@ -14,13 +14,13 @@ import { HttpAdapter } from './core';
  * @propertyDecorator both
  * @param def
  */
-export const HttpAction = decoratorFactory<HttpActionMetadataArgs>(HttpActionMetadata);
+export const HttpAction = tdm.decoratorFactory<HttpActionMetadataArgs>(HttpActionMetadata);
 
 /**
  * @propertyDecorator instance
  * @param metaArgs
  */
-export const UrlParam = decoratorFactory<string | UrlParamMetadataArgs>(UrlParamMetadata, true);
+export const UrlParam = tdm.decoratorFactory<string | UrlParamMetadataArgs>(UrlParamMetadata, true);
 
 
 

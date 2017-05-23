@@ -79,7 +79,7 @@ export class NetflixPageComponent {
 
     if (type === 'title') {
       this.titles = undefined;
-      this.title = Title.find(value);
+      this.title = Title.findById(value);
       this.uiBlock.closeWithPromise(this.title.$rc.next()).open(UiBlock);
     } else {
       if (!this.titles) {

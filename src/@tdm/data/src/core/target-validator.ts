@@ -1,4 +1,4 @@
-import { targetStore, PropMetadata, LazyInit } from '@tdm/core';
+import { tdm } from '@tdm/core';
 import { Validator, ValidationError, ValidationContext } from '../fw';
 
 /**
@@ -6,15 +6,15 @@ import { Validator, ValidationError, ValidationContext } from '../fw';
  */
 export interface CompiledValidation {
   validators: Validator[],
-  prop: PropMetadata;
+  prop: tdm.PropMetadata;
 }
 
 /**
  * @internal
  */
 export function getInstructions(targetType: any): CompiledValidation[] {
-  // TODO: once @Validators are allowed (along with PropMetadata#Validators) aggregate here.
-  return targetStore.getTargetMeta(targetType).getValues(PropMetadata)
+  // TODO: once @Validators are allowed (along with tdm.PropMetadata#Validators) aggregate here.
+  return tdm.targetStore.getTargetMeta(targetType).getValues(tdm.PropMetadata)
     .map( prop => ({
         validators: prop.validation,
         prop
@@ -26,7 +26,7 @@ export class TargetValidator {
   /**
    * @internal
    */
-  @LazyInit(function (this: TargetValidator): CompiledValidation[] {
+  @tdm.LazyInit(function (this: TargetValidator): CompiledValidation[] {
     return getInstructions(this.targetType);
   })
   meta: CompiledValidation[];

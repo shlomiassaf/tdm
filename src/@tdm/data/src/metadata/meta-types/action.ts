@@ -1,7 +1,9 @@
-import { stringify, isString, isFunction, registerFactory, metaFactoryFactory, BaseMetadata, DecoratorInfo, MapExt, targetStore, MetaFactoryInstance } from '@tdm/core';
+import { tdm } from '@tdm/core';
 
 import { ExecuteResponse, ActionOptions, ValidationSchedule, AdapterStatic } from '../../fw';
 import { ExecuteContext } from '../../core';
+
+const { isFunction, isString, targetStore, metaFactoryFactory, stringify } = tdm;
 
 export enum ActionMethodType {
   /**
@@ -73,7 +75,7 @@ export interface ActionMetadataArgs<T> {
   paramHint?: number;
 }
 
-export abstract class ActionMetadata extends BaseMetadata {
+export abstract class ActionMetadata extends tdm.BaseMetadata {
   method: ActionMethodType;
   isCollection: boolean | undefined;
   collInstance: boolean | undefined;
@@ -83,7 +85,7 @@ export abstract class ActionMetadata extends BaseMetadata {
   alias?: string[];
   paramHint: number;
 
-  constructor(public readonly metaArgs: ActionMetadataArgs<any>, info: DecoratorInfo) {
+  constructor(public readonly metaArgs: ActionMetadataArgs<any>, info: tdm.DecoratorInfo) {
     super(info);
 
     Object.assign(this, metaArgs);
@@ -104,7 +106,7 @@ export abstract class ActionMetadata extends BaseMetadata {
     throw new Error('ActionMetadata is an abstract class, please define the static metaFactory method');
   }
 
-  static register(meta: MetaFactoryInstance<ActionMetadata>): void {
+  static register(meta: tdm.MetaFactoryInstance<ActionMetadata>): void {
     if (!this.adapterClass) {
       throw new Error(`Class ${stringify(this)} must implement a static property 'adapterClass' that points to the Adapter it uses`);
     } else if (!isFunction(this.adapterClass.prototype.execute)) {
@@ -115,11 +117,11 @@ export abstract class ActionMetadata extends BaseMetadata {
   }
 
   static extend(from: Map<PropertyKey, ActionMetadata>, to: Map<PropertyKey, ActionMetadata> | undefined, meta): Map<PropertyKey, ActionMetadata> {
-    MapExt.asValArray(from)
+    tdm.MapExt.asValArray(from)
       .forEach( v => targetStore.getAdapter(this.adapterClass).addAction(v, meta.to) );
 
     return to
-      ? MapExt.mergeInto(to, from) // TODO: on mixins we override, on "extends" class we dont... this overrides at all times (wrong behaviour for class extends)
+      ? tdm.MapExt.mergeInto(to, from) // TODO: on mixins we override, on "extends" class we dont... this overrides at all times (wrong behaviour for class extends)
       : new Map<PropertyKey, ActionMetadata>(from.entries())
     ;
   }
@@ -131,14 +133,14 @@ export abstract class ActionMetadata extends BaseMetadata {
 }
 
 export class ExtendActionMetadata extends ActionMetadata {
-  constructor(metaArgs: Partial<ActionMetadataArgs<any>>, info: DecoratorInfo)  {
+  constructor(metaArgs: Partial<ActionMetadataArgs<any>>, info: tdm.DecoratorInfo)  {
     super(metaArgs as any, info);
     Object.assign(this, metaArgs)
   }
 
   static metaFactory = metaFactoryFactory<ActionMetadataArgs<any>, ExtendActionMetadata>(ExtendActionMetadata);
 
-  static register(meta: MetaFactoryInstance<ExtendActionMetadata>): void {
+  static register(meta: tdm.MetaFactoryInstance<ExtendActionMetadata>): void {
     const curr = targetStore.getMetaFor<any, ExtendActionMetadata[]>(meta.target, meta.metaClassKey, meta.info.name as any) || [];
     curr.push(meta.metaValue);
     targetStore.setMetaFor<any, ExtendActionMetadata[]>(meta.target, meta.metaClassKey, meta.info.name as any, curr);
@@ -149,7 +151,7 @@ export class ExtendActionMetadata extends ActionMetadata {
       to = new Map<PropertyKey, ExtendActionMetadata[]>();
     }
 
-      MapExt.asKeyValArray(from)
+    tdm.MapExt.asKeyValArray(from)
         .forEach( ([k, v]) => {
           if (!to.has(k)) {
             to.set(k, v.slice())

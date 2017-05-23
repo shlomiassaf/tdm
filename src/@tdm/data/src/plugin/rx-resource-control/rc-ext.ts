@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject'
 import { share } from 'rxjs/operator/share'
 
 import { TixinFree } from '@tdm/tixin';
-import { LazyInit } from '@tdm/core';
+import { tdm } from '@tdm/core';
 import {
   ResourceEvent,
   ResourceEventType,
@@ -31,7 +31,7 @@ export class RxResourceControl<T> extends ResourceControl<T> {
   /**
    * An observable that emits a value every time the busy state changes.
    */
-  @LazyInit(function(this: RxResourceControl<any>) {
+  @tdm.LazyInit(function(this: RxResourceControl<any>) {
     return share.call(this._busySubject);
   })
   busy$: Observable<boolean>;
@@ -40,18 +40,18 @@ export class RxResourceControl<T> extends ResourceControl<T> {
    * An observable that emits the resource (hence self) on every ActionSuccess event.
    * If self is ActiveRecordCollection it will emit the collection property.
    */
-  @LazyInit(function(this: RxResourceControl<any>) {
+  @tdm.LazyInit(function(this: RxResourceControl<any>) {
     return share.call(this._selfSubject);
   })
   self$: Observable<T>;
 
 
-  @LazyInit(function(this: ResourceControl<any>) {
+  @tdm.LazyInit(function(this: ResourceControl<any>) {
     return new BehaviorSubject<boolean>(this.busy)
   })
   private _busySubject: BehaviorSubject<boolean>;
 
-  @LazyInit(function(this: ResourceControl<any>) {
+  @tdm.LazyInit(function(this: ResourceControl<any>) {
     return new BehaviorSubject<T>(<any>this.parent)
   })
   private _selfSubject: BehaviorSubject<T>;

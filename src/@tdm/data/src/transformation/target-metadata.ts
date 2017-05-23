@@ -1,16 +1,5 @@
 import { Tixin } from '@tdm/tixin';
-import {
-  TDMCollection,
-  targetStore,
-  DecoratorInfo,
-  TargetMetadata,
-  stringify,
-  LazyInit,
-  getProtoChain,
-  Constructor,
-  SetExt,
-  fireEvents
-} from '@tdm/core';
+import { tdm, TDMCollection, Constructor } from '@tdm/core';
 
 import { AdapterError, AdapterStatic, ARHookableMethods } from '../fw';
 import {
@@ -22,7 +11,7 @@ import {
 import { ActionController } from '../core/action-controller';
 import { TargetValidator } from '../core/target-validator';
 
-class CoreTargetMetadata extends TargetMetadata {
+class CoreTargetMetadata extends tdm.TargetMetadata {
 
   collectionClass: typeof TDMCollection & Constructor<TDMCollection<any>>;
 
@@ -30,12 +19,12 @@ class CoreTargetMetadata extends TargetMetadata {
     return this._activeAdapter;
   }
 
-  @LazyInit(function (this: CoreTargetMetadata): TargetValidator {
+  @tdm.LazyInit(function (this: CoreTargetMetadata): TargetValidator {
     return new TargetValidator(this.target);
   })
   protected validator: TargetValidator;
 
-  @LazyInit(function (this: CoreTargetMetadata): Map<AdapterStatic<any, any>, ActionController> {
+  @tdm.LazyInit(function (this: CoreTargetMetadata): Map<AdapterStatic<any, any>, ActionController> {
     return new Map<AdapterStatic<any, any>, ActionController>();
   })
   protected adapters: Map<AdapterStatic<any, any>, ActionController>;
@@ -47,7 +36,7 @@ class CoreTargetMetadata extends TargetMetadata {
   }
 
   setResource(meta: ResourceMetadataArgs): void {
-    targetStore.setResource(meta, this.target);
+    tdm.targetStore.setResource(meta, this.target);
   }
 
   findHook(action: ARHookableMethods): { before: HookMetadata, after: HookMetadata } | undefined {
@@ -78,7 +67,7 @@ class CoreTargetMetadata extends TargetMetadata {
     return this.adapters.get(adapterClass) || (create ? this.registerAdapter(adapterClass) : undefined);
   }
 
-  getExtendingAction(info: DecoratorInfo): ExtendActionMetadata | undefined {
+  getExtendingAction(info: tdm.DecoratorInfo): ExtendActionMetadata | undefined {
     const arr = this.config.get(ExtendActionMetadata, info.name);
     if (arr) {
       return arr.find(a => a.name === info.name && a.decoratorInfo.isStatic === info.isStatic);
@@ -90,28 +79,28 @@ class CoreTargetMetadata extends TargetMetadata {
 
     this.getProtoChainWithMixins(this.target, adapter)
       .forEach(proto => {
-        if (this.target !== proto && targetStore.hasTarget(proto)) {
-          targetStore.extend(proto, this.target);
+        if (this.target !== proto && tdm.targetStore.hasTarget(proto)) {
+          tdm.targetStore.extend(proto, this.target);
         }
       });
 
-    fireEvents('processType', this.target);
+    tdm.fireEvents('processType', this.target);
   }
 
   private getProtoChainWithMixins(target: Constructor<any>, adapterClass: AdapterStatic<any, any>): Set<Constructor<any>> {
-    return getProtoChain(target)
+    return tdm.getProtoChain(target)
       .reduce((protoSet, proto) => {
         protoSet.add(proto);
-        SetExt.combine(protoSet, targetStore.getMixins(proto, adapterClass));
+        tdm.SetExt.combine(protoSet, tdm.targetStore.getMixins(proto, adapterClass));
         return protoSet;
       }, new Set<Constructor<any>>());
   }
 
   private registerAdapter(adapterClass: AdapterStatic<any, any>): ActionController {
-    if (!targetStore.hasAdapter(adapterClass)) {
+    if (!tdm.targetStore.hasAdapter(adapterClass)) {
       throw AdapterError.notRegistered(adapterClass)
     } else if (this.adapters.has(adapterClass)) {
-      throw AdapterError.registered(adapterClass, stringify(this.target))
+      throw AdapterError.registered(adapterClass, tdm.stringify(this.target))
     } else {
       return this.adapters.set(adapterClass, new ActionController(this, adapterClass)).get(adapterClass);
     }
@@ -156,7 +145,7 @@ declare module '@tdm/core/metadata/target-metadata' {
      */
     getAC(adapterClass: AdapterStatic<any, any>, create?: boolean): ActionController | undefined;
 
-    getExtendingAction(info: DecoratorInfo): ExtendActionMetadata | undefined;
+    getExtendingAction(info: tdm.DecoratorInfo): ExtendActionMetadata | undefined;
 
     readonly activeAdapter: AdapterStatic<any, any>;
     setActiveAdapter(adapter: AdapterStatic<any, any>): void;
@@ -165,10 +154,10 @@ declare module '@tdm/core/metadata/target-metadata' {
   }
 }
 
-Tixin(TargetMetadata, CoreTargetMetadata);
+Tixin(tdm.TargetMetadata, CoreTargetMetadata);
 
 // override core implementation to support type specific collection class
-TargetMetadata.prototype.createCollection = function(): TDMCollection<any> {
+tdm.TargetMetadata.prototype.createCollection = function(): TDMCollection<any> {
   return this.collectionClass
     ? new this.collectionClass()
     : new TDMCollection()

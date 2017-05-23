@@ -1,10 +1,10 @@
-import { Constructor, targetStore } from '@tdm/core';
+import { Constructor, tdm } from '@tdm/core';
 import { DAO } from '@tdm/data';
 import { HttpDao } from './core/http-dao';
 import { HttpAdapter } from './core';
 import { HttpActionMetadata, HttpResourceMetadata } from './metadata';
 
-targetStore.registerAdapter(HttpAdapter, {
+tdm.targetStore.registerAdapter(HttpAdapter, {
   actionMetaClass: HttpActionMetadata,
   DAOClass: HttpDao,
   resourceMetaClass: HttpResourceMetadata

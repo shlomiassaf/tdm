@@ -1,5 +1,5 @@
 import { Tixin } from '@tdm/tixin';
-import { LazyInit, Constructor, TargetStore, TargetMetadata, targetStore } from '../../index';
+import { tdm, Constructor } from '../../index';
 import { SerializeMapper, DeserializeMapper, TransformationError } from '../../mapping';
 import { TargetTransformer } from '../../mapping/target-transformer';
 import { isFunction, array } from '../../fw';
@@ -26,7 +26,7 @@ declare module '@tdm/core/metadata/target-store' {
   }
 }
 
-TargetStore.prototype.serialize = function serialize(target: Constructor<any>, mapper: SerializeMapper): any {
+tdm.TargetStore.prototype.serialize = function serialize(target: Constructor<any>, mapper: SerializeMapper): any {
   const meta = this.getTargetMeta(target);
   if (meta) {
     return meta.serialize(mapper);
@@ -39,7 +39,7 @@ TargetStore.prototype.serialize = function serialize(target: Constructor<any>, m
  * @param mapper
  * @returns {any}
  */
-TargetStore.prototype.deserialize = function deserialize(mapper: DeserializeMapper, instance?: any): any | any[] | undefined {
+tdm.TargetStore.prototype.deserialize = function deserialize(mapper: DeserializeMapper, instance?: any): any | any[] | undefined {
   if (this.hasTarget(mapper.sourceType)) {
     const meta = this.getTargetMeta(mapper.sourceType);
     const result: any = instance || meta.factory(mapper.isCollection);
@@ -56,7 +56,7 @@ TargetStore.prototype.deserialize = function deserialize(mapper: DeserializeMapp
  * @param mapper
  * @param instance Optional, if not set a new instance of will be created.
  */
-TargetStore.prototype.deserializePlain = function deserializePlain(mapper: DeserializeMapper, instance?: any): any {
+tdm.TargetStore.prototype.deserializePlain = function deserializePlain(mapper: DeserializeMapper, instance?: any): any {
   const meta = this.getTargetMeta(PlainObject);
   const result: any = instance || mapper.isCollection ? [] : {};
   meta.deserialize(mapper, result, true);
@@ -64,11 +64,11 @@ TargetStore.prototype.deserializePlain = function deserializePlain(mapper: Deser
 };
 
 // TODO: base on onInit event
-targetStore.registerTarget(PlainObject);
+tdm.targetStore.registerTarget(PlainObject);
 
 
-class MappingTargetMetadata extends TargetMetadata {
-  @LazyInit(function (this: TargetMetadata): TargetTransformer {
+class MappingTargetMetadata extends tdm.TargetMetadata {
+  @tdm.LazyInit(function (this: tdm.TargetMetadata): TargetTransformer {
     return new TargetTransformer(this);
   })
   transformer: TargetTransformer;
@@ -85,7 +85,7 @@ class MappingTargetMetadata extends TargetMetadata {
       }
 
       const refItems = target.splice(0, target.length);
-      const identKey = targetStore.getIdentityKey(this.target, 'incoming');
+      const identKey = tdm.targetStore.getIdentityKey(this.target, 'incoming');
 
       while (mapper.next()) {
         let t: any;
@@ -124,4 +124,4 @@ declare module '@tdm/core/metadata/target-metadata' {
   }
 }
 
-Tixin(TargetMetadata, MappingTargetMetadata);
+Tixin(tdm.TargetMetadata, MappingTargetMetadata);

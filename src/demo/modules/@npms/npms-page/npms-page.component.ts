@@ -57,7 +57,7 @@ export class NpmsPageComponent {
 
     if (value.length === 1) {
       this.packages = undefined;
-      this.package = <any>Package.find(value[0]);
+      this.package = <any>Package.findById(value[0]);
       this.uiBlock.closeWithPromise(this.package.$rc.next()).open(UiBlock);
       this.package.$rc.next().then( self => self.name = value[0] );
     } else {

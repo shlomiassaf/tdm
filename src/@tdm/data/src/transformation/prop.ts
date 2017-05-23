@@ -1,4 +1,4 @@
-import { RelationMetadata, PropMetadata, isFunction } from '@tdm/core';
+import { tdm } from '@tdm/core';
 import { BelongsToMetadata, OwnsMetadata, RelationshipType } from '../metadata';
 import { Validator } from '../fw';
 
@@ -14,8 +14,8 @@ declare module '@tdm/core/metadata/prop' {
   }
 }
 
-PropMetadata.prototype.setCoreRelationship = function(rel: BelongsToMetadata | OwnsMetadata): void {
-  this.setRelationship(new RelationMetadata({foreignKey: rel.foreignKey}, rel.decoratorInfo));
+tdm.PropMetadata.prototype.setCoreRelationship = function(rel: BelongsToMetadata | OwnsMetadata): void {
+  this.setRelationship(new tdm.RelationMetadata({foreignKey: rel.foreignKey}, rel.decoratorInfo));
 
   if (rel instanceof BelongsToMetadata) {
     this.rel = 'belongsTo';
@@ -24,9 +24,9 @@ PropMetadata.prototype.setCoreRelationship = function(rel: BelongsToMetadata | O
   }
 };
 
-PropMetadata.onInit((prop, metaArgs) => {
+tdm.PropMetadata.onInit((prop, metaArgs) => {
   prop.validation = Array.isArray(metaArgs.validation)
     ? metaArgs.validation.slice()
-    : metaArgs.validation && isFunction(metaArgs.validation.validate) ? [metaArgs.validation] : []
+    : metaArgs.validation && tdm.isFunction(metaArgs.validation.validate) ? [metaArgs.validation] : []
   ;
 });

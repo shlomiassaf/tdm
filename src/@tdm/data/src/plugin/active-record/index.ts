@@ -1,14 +1,4 @@
-import {
-  TDMModel,
-  TDMModelBase,
-  TDMCollection,
-  targetStore,
-  Constructor,
-  isFunction,
-  getProtoChain,
-  SetExt,
-  MapExt
-} from '@tdm/core';
+import { tdm, Constructor, TDMModel, TDMModelBase, TDMCollection } from '@tdm/core';
 
 import {
   ActionMetadata,
@@ -18,6 +8,8 @@ import {
   ActionController,
   ResourceControl
 } from '@tdm/data';
+
+const { MapExt, SetExt, targetStore, getProtoChain, isFunction } = tdm;
 
 /**
  * Returns all of the actions registered for a target going through the proto chain and all

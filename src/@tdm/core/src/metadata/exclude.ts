@@ -30,8 +30,7 @@ declare module './prop' {
 
 @MetaHost({
   host: PropMetadata,
-  containerKey: 'exclude',
-  before: (metaArgs: ExcludeMetadataArgs) => metaArgs
+  containerKey: 'exclude'
 })
 export class ExcludeMetadata extends BaseMetadata {
   from?: TransformDir;

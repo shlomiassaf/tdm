@@ -1,13 +1,4 @@
-import {
-  Prop,
-  PropMetadata,
-  BaseMetadata,
-  DecoratorInfo,
-  metaFactoryFactory,
-  registerFactory,
-  MetaHost,
-  targetStore
-} from '@tdm/core';
+import { tdm, Prop } from '@tdm/core';
 
 import { TargetMetaModifier } from '@tdm/core/testing';
 
@@ -22,14 +13,14 @@ declare module '@tdm/core/metadata/prop' {
   }
 }
 
-@MetaHost({
-  host: PropMetadata,
+@tdm.MetaHost({
+  host: tdm.PropMetadata,
   containerKey: 'extendMe'
 })
-class ExtendMeMetadata extends BaseMetadata {
+class ExtendMeMetadata extends tdm.BaseMetadata {
   testProp: string;
 
-  constructor(obj: ExtendMeMetadataArgs, info: DecoratorInfo) {
+  constructor(obj: ExtendMeMetadataArgs, info: tdm.DecoratorInfo) {
     super(info);
 
     if (typeof obj === 'object') {
@@ -37,23 +28,23 @@ class ExtendMeMetadata extends BaseMetadata {
     }
   }
 
-  static metaFactory = metaFactoryFactory<ExtendMeMetadataArgs, ExtendMeMetadata>(ExtendMeMetadata);
+  static metaFactory = tdm.metaFactoryFactory<ExtendMeMetadataArgs, ExtendMeMetadata>(ExtendMeMetadata);
 
-  static register = registerFactory<ExtendMeMetadata>();
+  static register = tdm.registerFactory<ExtendMeMetadata>();
 }
 
-@MetaHost({
-  host: PropMetadata,
+@tdm.MetaHost({
+  host: tdm.PropMetadata,
   containerKey: 'extendMe1',
   before: (metaArgs: ExtendMeMetadataArgs) => {
     metaArgs.testProp = 'test1';
     return metaArgs;
   }
 })
-class ExtendMeMetadata1 extends BaseMetadata {
+class ExtendMeMetadata1 extends tdm.BaseMetadata {
   testProp: string;
 
-  constructor(obj: ExtendMeMetadataArgs, info: DecoratorInfo) {
+  constructor(obj: ExtendMeMetadataArgs, info: tdm.DecoratorInfo) {
     super(info);
 
     if (typeof obj === 'object') {
@@ -61,9 +52,9 @@ class ExtendMeMetadata1 extends BaseMetadata {
     }
   }
 
-  static metaFactory = metaFactoryFactory<ExtendMeMetadataArgs, ExtendMeMetadata1>(ExtendMeMetadata1);
+  static metaFactory = tdm.metaFactoryFactory<ExtendMeMetadataArgs, ExtendMeMetadata1>(ExtendMeMetadata1);
 
-  static register = registerFactory<ExtendMeMetadata1>();
+  static register = tdm.registerFactory<ExtendMeMetadata1>();
 }
 
 class User {
@@ -106,25 +97,25 @@ describe('@tdm/core', () => {
         expect(userModifier.getProp('prop1')['extendMe']).toBeUndefined();
         expect(userModifier.getProp('prop2')['extendMe']).toBeUndefined();
 
-        const extendMe = targetStore.getMetaFor(User, ExtendMeMetadata, 'prop2');
+        const extendMe = tdm.targetStore.getMetaFor(User, ExtendMeMetadata, 'prop2');
         expect(extendMe.testProp).toEqual('test');
 
-        expect(targetStore.getMetaFor(User, ExtendMeMetadata, 'prop1')).toBeUndefined();
+        expect(tdm.targetStore.getMetaFor(User, ExtendMeMetadata, 'prop1')).toBeUndefined();
       });
 
       it('should be able to transform defined metadata from a remote metadata host', () => {
 
-        const extendMe = targetStore.getMetaFor(User, ExtendMeMetadata1, 'prop3');
+        const extendMe = tdm.targetStore.getMetaFor(User, ExtendMeMetadata1, 'prop3');
         expect(extendMe.testProp).toEqual('test1');
 
       });
 
       it('should be able to handle multiple defined metadata from a remote metadata host', () => {
 
-        const extendMe = targetStore.getMetaFor(User, ExtendMeMetadata, 'prop4');
+        const extendMe = tdm.targetStore.getMetaFor(User, ExtendMeMetadata, 'prop4');
         expect(extendMe.testProp).toEqual('test');
 
-        const extendMe1 = targetStore.getMetaFor(User, ExtendMeMetadata1, 'prop4');
+        const extendMe1 = tdm.targetStore.getMetaFor(User, ExtendMeMetadata1, 'prop4');
         expect(extendMe1.testProp).toEqual('test1');
 
       });

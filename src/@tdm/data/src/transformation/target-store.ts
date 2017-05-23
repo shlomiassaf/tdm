@@ -1,13 +1,13 @@
 import { Tixin } from '@tdm/tixin';
-import { TargetStore, LazyInit, Constructor } from '@tdm/core';
+import { tdm, Constructor } from '@tdm/core';
 
 import { AdapterStatic } from '../fw';
 import { ActionController } from '../core/action-controller';
 import { AdapterMetadata, AdapterMetadataArgs } from '../metadata';
 
-class CoreTargetStore extends TargetStore {
+class CoreTargetStore extends tdm.TargetStore {
 
-  @LazyInit(function(this: CoreTargetStore): Set<any>{
+  @tdm.LazyInit(function(this: CoreTargetStore): Set<any>{
     return new Set<any>();
   })
   readyToBuild: Set<any>;
@@ -76,4 +76,4 @@ declare module '@tdm/core/metadata/target-store' {
     getAC(target: Constructor<any>, adapterClass: AdapterStatic<any, any>): ActionController | undefined;
   }
 }
-Tixin(TargetStore as any, CoreTargetStore as any);
+Tixin(tdm.TargetStore as any, CoreTargetStore as any);

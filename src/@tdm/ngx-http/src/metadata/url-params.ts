@@ -1,4 +1,4 @@
-import { targetStore, DecoratorInfo, BaseMetadata, metaFactoryFactory, MapExt, SetExt, isString, MetaFactoryInstance } from '@tdm/core';
+import { tdm } from '@tdm/core';
 import { mapMethod, MappedMethod, HttpActionMethodType } from './method-mapper';
 
 export interface UrlParamMetadataArgs {
@@ -21,16 +21,16 @@ export interface UrlParamMetadataArgs {
   methods?: HttpActionMethodType | HttpActionMethodType[]
 }
 
-export class UrlParamMetadata extends BaseMetadata {
+export class UrlParamMetadata extends tdm.BaseMetadata {
   urlTemplateParamName: string;
   methods: MappedMethod[] = [];
 
-  constructor(metaArgs: UrlParamMetadataArgs | string | undefined, info: DecoratorInfo)  {
+  constructor(metaArgs: UrlParamMetadataArgs | string | undefined, info: tdm.DecoratorInfo)  {
     super(info);
 
     const urlParamsMeta: UrlParamMetadataArgs = {};
 
-    if (isString(metaArgs)) {
+    if (tdm.isString(metaArgs)) {
       Object.assign(urlParamsMeta, { urlTemplateParamName: metaArgs });
     } else {
       metaArgs && Object.assign(urlParamsMeta, metaArgs);
@@ -49,12 +49,12 @@ export class UrlParamMetadata extends BaseMetadata {
     }
   }
 
-  static metaFactory = metaFactoryFactory<UrlParamMetadataArgs, UrlParamMetadata>(UrlParamMetadata);
+  static metaFactory = tdm.metaFactoryFactory<UrlParamMetadataArgs, UrlParamMetadata>(UrlParamMetadata);
 
-  static register(meta: MetaFactoryInstance<UrlParamMetadata>): void {
-    const curr = targetStore.getMetaFor<any, Set<UrlParamMetadata>>(meta.target, meta.metaClassKey, meta.info.name as any) || new Set<UrlParamMetadata>();
+  static register(meta: tdm.MetaFactoryInstance<UrlParamMetadata>): void {
+    const curr = tdm.targetStore.getMetaFor<any, Set<UrlParamMetadata>>(meta.target, meta.metaClassKey, meta.info.name as any) || new Set<UrlParamMetadata>();
     curr.add(meta.metaValue);
-    targetStore.setMetaFor<any, Set<UrlParamMetadata>>(meta.target, meta.metaClassKey, meta.info.name as any, curr);
+    tdm.targetStore.setMetaFor<any, Set<UrlParamMetadata>>(meta.target, meta.metaClassKey, meta.info.name as any, curr);
   }
 
   static extend(from: Map<PropertyKey, Set<UrlParamMetadata>>, to: Map<PropertyKey, Set<UrlParamMetadata>> | undefined): Map<PropertyKey, Set<UrlParamMetadata>> {
@@ -62,12 +62,12 @@ export class UrlParamMetadata extends BaseMetadata {
       to = new Map<PropertyKey, Set<UrlParamMetadata>>();
     }
 
-    MapExt.asKeyValArray(from)
+    tdm.MapExt.asKeyValArray(from)
       .forEach( ([k, v]) => {
         if (!to.has(k)) {
           to.set(k, new Set<UrlParamMetadata>(v.values()))
         } else {
-          SetExt.combine(to.get(k), v);
+          tdm.SetExt.combine(to.get(k), v);
         }
       });
 

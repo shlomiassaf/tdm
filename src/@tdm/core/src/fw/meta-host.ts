@@ -48,4 +48,8 @@ export class MetaHostMetadata extends BaseMetadata {
   }
 }
 
-export const MetaHost = decoratorFactory<MetaHostMetadataArgs>(MetaHostMetadata, 'class');
+export function MetaHost(metaArgs: MetaHostMetadataArgs): (target: Object | Function, key?: PropertyKey, desc?: PropertyDescriptor) => any {
+  return metaHost(metaArgs) as any;
+}
+export const metaHost: (metaArgs: MetaHostMetadataArgs) => (target: Object | Function, key?: PropertyKey, desc?: PropertyDescriptor) => any
+  = <any>decoratorFactory<MetaHostMetadataArgs>(MetaHostMetadata, 'class'); // for Angular AOT

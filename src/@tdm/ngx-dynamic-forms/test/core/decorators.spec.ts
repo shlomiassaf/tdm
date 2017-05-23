@@ -1,5 +1,5 @@
 import { targetStore, Model, Prop, Relation } from '@tdm/core';
-import { PropMetadata } from '@tdm/core/ext';
+import { PropMetadata } from '@tdm/core/tdm';
 
 import { TestTargetStore } from '@tdm/core/testing';
 

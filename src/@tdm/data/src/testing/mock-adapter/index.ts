@@ -13,10 +13,10 @@ export {
 
 // TODO: solve this circular dependency hell
 import { MockDao } from './core/mock-dao';
-import { targetStore } from '@tdm/core/metadata';
+import { tdm } from '@tdm/core';
 import { MockAdapter } from './core';
 import { MockActionMetadata } from './metadata';
-targetStore.registerAdapter(MockAdapter, {
+tdm.targetStore.registerAdapter(MockAdapter, {
   actionMetaClass: MockActionMetadata,
   DAOClass: MockDao
 });

@@ -1,4 +1,4 @@
-import { TDMModel, TransformDir, Constructor, targetStore, SerializeMapper, DeserializeMapper } from '@tdm/core';
+import { TDMModel, TransformDir, Constructor, tdm } from '@tdm/core';
 import { AdapterStatic } from '../fw';
 
 /**
@@ -14,33 +14,33 @@ export class Store {
 
 
   getIdentityKey(target, direction?: TransformDir): string | undefined {
-    return targetStore.getIdentityKey(target, direction);
+    return tdm.targetStore.getIdentityKey(target, direction);
   }
 
   hasTarget(target: any): boolean {
-    return targetStore.hasTarget(target);
+    return tdm.targetStore.hasTarget(target);
   }
 
-  serialize(target: Constructor<any>, mapper: SerializeMapper): any {
-    return targetStore.serialize(target, mapper);
+  serialize(target: Constructor<any>, mapper: tdm.SerializeMapper): any {
+    return tdm.targetStore.serialize(target, mapper);
   }
 
   /**
-   * Deserialize and instance of "DeserializeMapper" into an instance of tge target supplied
+   * Deserialize and instance of "tdm.DeserializeMapper" into an instance of tge target supplied
    * @param target
    * @param mapper
    * @returns {any}
    */
-  deserialize(mapper: DeserializeMapper): TDMModel<any> | TDMModel<any>[] | undefined {
-    return targetStore.deserialize(mapper);
+  deserialize(mapper: tdm.DeserializeMapper): TDMModel<any> | TDMModel<any>[] | undefined {
+    return tdm.targetStore.deserialize(mapper);
   }
 
   /**
-   * Deserialize and instance of "DeserializeMapper" into a plain object (object literal)
+   * Deserialize and instance of "tdm.DeserializeMapper" into a plain object (object literal)
    * @param mapper
    */
-  deserializePlain(mapper: DeserializeMapper): any {
-    return targetStore.deserializePlain(mapper);
+  deserializePlain(mapper: tdm.DeserializeMapper): any {
+    return tdm.targetStore.deserializePlain(mapper);
   }
 
 
@@ -50,15 +50,15 @@ export class Store {
    * @param name
    */
   findModel(name: string): any | undefined {
-    return targetStore.findTarget(name);
+    return tdm.targetStore.findTarget(name);
   }
 
   getModelName(target: any): string | undefined {
-    return targetStore.getTargetName(target);
+    return tdm.targetStore.getTargetName(target);
   }
 
   buildIfReady(target: any, adapterClass: AdapterStatic<any, any>): boolean {
-    return targetStore.buildIfReady(target, adapterClass);
+    return tdm.targetStore.buildIfReady(target, adapterClass);
   }
 
   /**
@@ -69,7 +69,7 @@ export class Store {
    * @param mixins
    */
   markMixins(target: any, adapterClass: AdapterStatic<any, any>, ...mixins: any[]): void {
-    targetStore.registerMixins(target, adapterClass, ...mixins);
+    tdm.targetStore.registerMixins(target, adapterClass, ...mixins);
   }
 
   /**
