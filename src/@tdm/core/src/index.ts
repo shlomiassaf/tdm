@@ -1,17 +1,6 @@
-export {
-  Constructor,
-  TransformDir,
-  TransformFn,
-  TransformStrategy,
-  NamingStrategyConfig
-} from './fw';
+export * from './fw/pub_index';
 
-export {
-  PropMetadataArgs,
-  RelationMetadataArgs,
-  ExcludeMetadataArgs,
-  ModelMetadataArgs
-} from './metadata';
+export * from './metadata/pub_index';
 
 // export plugin api, these are objects intended for internal use by extending plugins
 import * as tdm from './tdm';
@@ -21,7 +10,7 @@ export { tdm };
 export { Model } from './add/model';
 import './add/target-store';
 
-export { directMapper, TransformationError, DirectSerializeMapper, DirectDeserializeMapper } from './mapping';
+export * from './mapping/pub_index';
 
 export { Prop, Exclude, Relation, Identity } from './decorators';
 
