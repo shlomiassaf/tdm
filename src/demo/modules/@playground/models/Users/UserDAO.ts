@@ -90,6 +90,15 @@ export class UserDAO implements  BeforeHook<'bfRef', HttpActionOptions>,
     console.log('BeforeQuery');
   }
 
+  @Hook({event: 'before', action: 'findById'})
+  static bfFindById(this: TDMCollection<ARMixin<UserDAO>>) {
+    console.log('BeforeFindById');
+  }
+  @Hook({event: 'after', action: 'findById'})
+  static afFindById(this: TDMCollection<ARMixin<UserDAO>>) {
+    console.log('AfterFindById');
+  }
+
   @Hook({event: 'after', action: 'query'})
   static afQuery(this: TDMCollection<ARMixin<UserDAO>>) {
     console.log('AfterQuery');

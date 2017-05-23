@@ -75,16 +75,16 @@ export function Hook(def: HookMetadataArgs) {
   }
 
   return (target: Object, propertyKey: string | symbol, desc) => {
-    const meta = HookMetadata.metaFactory(def, target, propertyKey, desc);
+    const curried = tdm.BaseMetadata.createCurry(HookMetadata, def, target, propertyKey, desc);
 
     switch (ARHooks[def.action].type) {
       case 'instance':
-        if (meta.info.isStatic) {
+        if (curried.meta.info.isStatic) {
           throw DecoratorError.hookNoStatic(target, propertyKey, def.action);
         }
         break;
       case 'static':
-        if (!meta.info.isStatic) {
+        if (!curried.meta.info.isStatic) {
           throw DecoratorError.hookNoInstance(target, propertyKey, def.action);
         }
         break;
@@ -92,7 +92,7 @@ export function Hook(def: HookMetadataArgs) {
         break;
     }
 
-    HookMetadata.register(meta);
+    curried();
   };
 }
 

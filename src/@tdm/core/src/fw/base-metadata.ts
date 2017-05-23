@@ -1,5 +1,5 @@
 import { isFunction, isNumber, isStaticDecorator } from './utils';
-import { DecoratorInfo, MetaFactoryStatic } from './interfaces';
+import { DecoratorInfo, MetaFactoryInstance, MetaFactoryStatic } from './interfaces';
 import { MetaHostMetadata } from './meta-host';
 
 export const EXTEND_COLL = Symbol('EXTEND_COLL');
@@ -42,21 +42,39 @@ export abstract class BaseMetadata {
    * @param desc
    */
   static create(metaClass: MetaFactoryStatic, metaArgs: any, target: Object | Function, key?: PropertyKey, desc?: PropertyDescriptor): void {
+    BaseMetadata.createCurry(metaClass, metaArgs, target, key, desc)();
+  }
+
+  static createCurry(metaClass: MetaFactoryStatic,
+                     metaArgs: any,
+                     target: Object | Function,
+                     key?: PropertyKey,
+                     desc?: PropertyDescriptor): MetadataCurriedCreate {
+
     const arr: MetaHostMetadata[] = metaClass[EXTEND_COLL];
 
     // TODO: make this pretty
     const runAfter = metaArgs && Array.isArray(arr) && arr.map(a => {
-      if (metaArgs.hasOwnProperty(a.containerKey)) {
-        const myMetaArgs = isFunction(a.before) ? a.before(metaArgs[a.containerKey]) : metaArgs[a.containerKey];
-        delete metaArgs[a.containerKey];
-        return [a.target, myMetaArgs]
-      }
-    });
+        if (metaArgs.hasOwnProperty(a.containerKey)) {
+          const myMetaArgs = isFunction(a.before) ? a.before(metaArgs[a.containerKey]) : metaArgs[a.containerKey];
+          delete metaArgs[a.containerKey];
+          return [a.target, myMetaArgs]
+        }
+      });
 
-    metaClass.register(metaClass.metaFactory(metaArgs, target, key, desc));
+    const meta = metaClass.metaFactory(metaArgs, target, key, desc);
 
-    runAfter && runAfter.forEach( ra => ra && BaseMetadata.create(ra[0], ra[1], target, key, desc) );
 
+    const curry: MetadataCurriedCreate = <any>( (alternateMeta?: MetaFactoryInstance<any>): void => {
+      metaClass.register(alternateMeta || meta);
+      runAfter && runAfter.forEach( ra => ra && BaseMetadata.create(ra[0], ra[1], target, key, desc) );
+    } );
+
+    curry.meta = meta;
+
+    return curry;
   }
 }
 
+export type MetadataCurriedCreate
+  = ((alternateMeta?: MetaFactoryInstance<any>) => void) & { meta: MetaFactoryInstance<any> };
