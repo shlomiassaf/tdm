@@ -1,6 +1,6 @@
-import { Constructor, isUndefined, isFunction, ensureTargetIsType } from '../fw/utils';
+import { Constructor, isUndefined, isFunction } from '../fw/utils';
 import { KeySet, SetExt, MapExt,DualKeyMap } from '../fw/set-map-ext';
-import { MetaFactoryStatic, MetaFactoryInstance } from '../fw/interfaces';
+import { MetaClass, MetadataClassStatic, MetaClassInstanceDetails } from '../fw/metadata-framework';
 import { targetEvents, TargetEvents } from '../fw/events'
 
 import { ClassMetadata } from './class-metadata';
@@ -30,7 +30,7 @@ export class TargetStore {
    */
   protected locals: KeySet<any, any>;
   protected namedTargets: Map<string, Constructor<any>>;
-  protected targets: Map<Constructor<any>, DualKeyMap<MetaFactoryStatic, PropertyKey, any>>;
+  protected targets: Map<Constructor<any>, DualKeyMap<MetadataClassStatic, PropertyKey, any>>;
   protected builtTargets: Map<Constructor<any>, TargetMetadata>;
 
   protected constructor() {
@@ -94,27 +94,27 @@ export class TargetStore {
     }
   }
 
-  getMetaFor<T extends MetaFactoryStatic, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>): Map<PropertyKey, Z> | undefined;
-  getMetaFor<T extends MetaFactoryStatic, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, name: PropertyKey): Z | undefined;
-  getMetaFor<T extends MetaFactoryStatic, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, name?: PropertyKey): Z | Map<PropertyKey, Z> | undefined {
+  getMetaFor<T, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>): Map<PropertyKey, Z> | undefined;
+  getMetaFor<T, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, name: PropertyKey): Z | undefined;
+  getMetaFor<T, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, name?: PropertyKey): Z | Map<PropertyKey, Z> | undefined {
     const dkm = this.targets.get(target);
     if (dkm) {
       return name ? dkm.get(metaClass, name) : dkm.get(metaClass);
     }
   }
 
-  setMetaFormFactory<T>(meta: MetaFactoryInstance<T>): void {
+  setMetaFormFactory<T>(meta: MetaClassInstanceDetails<any, any>): void {
     this.setMetaFor(meta.target, meta.metaClassKey, meta.metaPropKey, meta.metaValue);
   }
 
-  setMetaFor<T extends MetaFactoryStatic, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, name: string, value: Z): void {
+  setMetaFor<T, ZValue = T>(target: Constructor<any>, metaClass: typeof ClassMetadata | MetadataClassStatic<T>, name: string, value: ZValue): void {
     if (metaClass === ClassMetadata) {
       this.setClassProp(target, name as any, value);
     } else {
       let dkm = this.targets.get(target);
 
       if (!dkm) {
-        this.targets.set(target, dkm = new DualKeyMap<MetaFactoryStatic, PropertyKey, any>());
+        this.targets.set(target, dkm = new DualKeyMap<MetadataClassStatic, PropertyKey, any>());
       }
 
       dkm.set(metaClass, name, value);
@@ -128,7 +128,7 @@ export class TargetStore {
    */
   registerTarget(target: Constructor<any>): void {
     if (!this.hasTarget(target)) {
-      this.targets.set(target, new DualKeyMap<MetaFactoryStatic, PropertyKey, any>());
+      this.targets.set(target, new DualKeyMap<MetadataClassStatic, PropertyKey, any>());
     }
   }
 
@@ -155,10 +155,13 @@ export class TargetStore {
                 this.setClassProp(to, k as any, v); // TODO: this.setClassProp searches for target (to) each iteration... redundant but it also handle target built/not built...
               }
             });
-        } else if (isFunction(clsKey.extend)) {
-          const value = clsKey.extend(fromTarget.get(clsKey), toTarget.get(clsKey), {from, to});
-          if (!isUndefined(value)) {
-            toTarget.set(clsKey, value);
+        } else {
+          const metaClass = MetaClass.get(clsKey)
+          if (metaClass.extend) {
+            const value = metaClass.extend(fromTarget.get(clsKey), toTarget.get(clsKey), {from, to});
+            if (!isUndefined(value)) {
+              toTarget.set(clsKey, value);
+            }
           }
         }
       });
@@ -169,7 +172,7 @@ export class TargetStore {
     let dkm = this.targets.get(target);
 
     if (!dkm) {
-      this.targets.set(target, dkm = new DualKeyMap<MetaFactoryStatic, PropertyKey, any>());
+      this.targets.set(target, dkm = new DualKeyMap<MetadataClassStatic, PropertyKey, any>());
     }
 
     dkm.set(k as any, k1, v as any);
@@ -187,7 +190,7 @@ export class TargetStore {
 
     targetStore.locals = new KeySet<any, any>();
     targetStore.namedTargets = new Map<string, Constructor<any>>();
-    targetStore.targets = new Map<Constructor<any>, DualKeyMap<MetaFactoryStatic, PropertyKey, any>>();
+    targetStore.targets = new Map<Constructor<any>, DualKeyMap<MetadataClassStatic, PropertyKey, any>>();
     targetStore.builtTargets = new Map<Constructor<any>, TargetMetadata>();
 
     return targetStore;
@@ -195,4 +198,4 @@ export class TargetStore {
 }
 
 export const targetStore: TargetStore = TargetStore.create();
-
+MetaClass.defaultRegistrator( meta => targetStore.setMetaFormFactory(meta) );

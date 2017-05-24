@@ -4,6 +4,5 @@ export * from './interfaces';
 export * from './base-metadata';
 export * from './normalize';
 export * from './events';
-export * from './target-store-builder';
 export * from './lazy-ref';
-export * from './meta-host';
+export * from './metadata-framework';

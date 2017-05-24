@@ -91,9 +91,11 @@ function activeRecord(target: Constructor<any>): void {
     getActions(target, ac.adapterClass).forEach(a => {
       // TODO check action instance of ActionMetadata + in ActionMetadata verify using DecoratorInfo
       const extAction = targetStore.getTargetMeta(target).getExtendingAction(a.decoratorInfo);
+
       if (extAction) {
         const metaArgs = Object.assign({}, a.metaArgs, extAction);
-        a = ac.adapterMeta.actionMetaClass.metaFactory(metaArgs, target, extAction.decoratorInfo.name).metaValue;
+        const metaClass = tdm.MetaClass.get(ac.adapterMeta.actionMetaClass);
+        a = metaClass.factory(metaArgs, target, extAction.decoratorInfo).metaValue;
       }
 
       registerAction.call(ac, a, collProto, true)

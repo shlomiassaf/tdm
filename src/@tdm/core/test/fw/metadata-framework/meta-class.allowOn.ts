@@ -8,8 +8,12 @@ export interface TestMetadataArgs {
 
 describe('@tdm/core', () => {
   describe('fw', () => {
-    describe('BaseMetadata', () => {
+    describe('@MetaClass()', () => {
       it('should validate metadata allowOn class', () => {
+        
+        @tdm.MetaClass<TestMetadataArgs, TestMeMetadata>({
+          allowOn: ['class']
+        })
         class TestMeMetadata extends tdm.BaseMetadata {
           testProp: string;
 
@@ -20,10 +24,6 @@ describe('@tdm/core', () => {
               Object.assign(this, obj);
             }
           }
-
-          static allowOn = <any>['class'];
-          static metaFactory = tdm.metaFactoryFactory<TestMetadataArgs, TestMeMetadata>(TestMeMetadata);
-          static register = tdm.registerFactory<TestMeMetadata>();
         }
 
         class User {
@@ -31,9 +31,9 @@ describe('@tdm/core', () => {
           prop1: string;
         }
 
-        const doClass = () => tdm.BaseMetadata.create(TestMeMetadata, undefined, User);
-        const doInstance = () => tdm.BaseMetadata.create(TestMeMetadata, undefined, User.prototype, 'prop1');
-        const doStatic = () => tdm.BaseMetadata.create(TestMeMetadata, undefined, User, 'prop1');
+        const doClass = () => tdm.MetaClass.get(TestMeMetadata).create(undefined, User);
+        const doInstance = () => tdm.MetaClass.get(TestMeMetadata).create(undefined, User.prototype, 'prop1');
+        const doStatic = () => tdm.MetaClass.get(TestMeMetadata).create(undefined, User, 'prop1');
 
         expect(doClass).not.toThrow();
         expect(doInstance).toThrowError('Metadata class TestMeMetadata can not decorate an instance member (User.prop1)');
@@ -42,6 +42,10 @@ describe('@tdm/core', () => {
       });
 
       it('should validate metadata allowOn member', () => {
+
+        @tdm.MetaClass<TestMetadataArgs, TestMeMetadata>({
+          allowOn: ['member']
+        })
         class TestMeMetadata extends tdm.BaseMetadata {
           testProp: string;
 
@@ -52,10 +56,6 @@ describe('@tdm/core', () => {
               Object.assign(this, obj);
             }
           }
-
-          static allowOn = <any>['member'];
-          static metaFactory = tdm.metaFactoryFactory<TestMetadataArgs, TestMeMetadata>(TestMeMetadata);
-          static register = tdm.registerFactory<TestMeMetadata>();
         }
 
         class User {
@@ -63,9 +63,9 @@ describe('@tdm/core', () => {
           prop1: string;
         }
 
-        const doClass = () => tdm.BaseMetadata.create(TestMeMetadata, undefined, User);
-        const doInstance = () => tdm.BaseMetadata.create(TestMeMetadata, undefined, User.prototype, 'prop1');
-        const doStatic = () => tdm.BaseMetadata.create(TestMeMetadata, undefined, User, 'prop1');
+        const doClass = () => tdm.MetaClass.get(TestMeMetadata).create(undefined, User);
+        const doInstance = () => tdm.MetaClass.get(TestMeMetadata).create(undefined, User.prototype, 'prop1');
+        const doStatic = () => tdm.MetaClass.get(TestMeMetadata).create(undefined, User, 'prop1');
 
         expect(doClass).toThrowError('Metadata class TestMeMetadata can not decorate a class (User)');
         expect(doInstance).not.toThrow();
@@ -74,6 +74,10 @@ describe('@tdm/core', () => {
       });
 
       it('should validate metadata allowOn staticMember', () => {
+
+        @tdm.MetaClass<TestMetadataArgs, TestMeMetadata>({
+          allowOn: ['staticMember']
+        })
         class TestMeMetadata extends tdm.BaseMetadata {
           testProp: string;
 
@@ -84,10 +88,6 @@ describe('@tdm/core', () => {
               Object.assign(this, obj);
             }
           }
-
-          static allowOn = <any>['staticMember'];
-          static metaFactory = tdm.metaFactoryFactory<TestMetadataArgs, TestMeMetadata>(TestMeMetadata);
-          static register = tdm.registerFactory<TestMeMetadata>();
         }
 
         class User {
@@ -95,9 +95,9 @@ describe('@tdm/core', () => {
           prop1: string;
         }
 
-        const doClass = () => tdm.BaseMetadata.create(TestMeMetadata, undefined, User);
-        const doInstance = () => tdm.BaseMetadata.create(TestMeMetadata, undefined, User.prototype, 'prop1');
-        const doStatic = () => tdm.BaseMetadata.create(TestMeMetadata, undefined, User, 'prop1');
+        const doClass = () => tdm.MetaClass.get(TestMeMetadata).create(undefined, User);
+        const doInstance = () => tdm.MetaClass.get(TestMeMetadata).create(undefined, User.prototype, 'prop1');
+        const doStatic = () => tdm.MetaClass.get(TestMeMetadata).create(undefined, User, 'prop1');
 
         expect(doClass).toThrowError('Metadata class TestMeMetadata can not decorate a class (User)');
         expect(doInstance).toThrowError('Metadata class TestMeMetadata can not decorate an instance member (User.prop1)');
@@ -105,6 +105,10 @@ describe('@tdm/core', () => {
       });
 
       it('should validate metadata allowOn with multiple targets', () => {
+
+        @tdm.MetaClass<TestMetadataArgs, TestMeMetadata>({
+          allowOn: ['class', 'member']
+        })
         class TestMeMetadata extends tdm.BaseMetadata {
           testProp: string;
 
@@ -115,10 +119,6 @@ describe('@tdm/core', () => {
               Object.assign(this, obj);
             }
           }
-
-          static allowOn = <any>['class', 'member'];
-          static metaFactory = tdm.metaFactoryFactory<TestMetadataArgs, TestMeMetadata>(TestMeMetadata);
-          static register = tdm.registerFactory<TestMeMetadata>();
         }
 
         class User {
@@ -126,9 +126,9 @@ describe('@tdm/core', () => {
           prop1: string;
         }
 
-        const doClass = () => tdm.BaseMetadata.create(TestMeMetadata, undefined, User);
-        const doInstance = () => tdm.BaseMetadata.create(TestMeMetadata, undefined, User.prototype, 'prop1');
-        const doStatic = () => tdm.BaseMetadata.create(TestMeMetadata, undefined, User, 'prop1');
+        const doClass = () => tdm.MetaClass.get(TestMeMetadata).create(undefined, User);
+        const doInstance = () => tdm.MetaClass.get(TestMeMetadata).create(undefined, User.prototype, 'prop1');
+        const doStatic = () => tdm.MetaClass.get(TestMeMetadata).create(undefined, User, 'prop1');
 
         expect(doClass).not.toThrow();
         expect(doInstance).not.toThrow();

@@ -3,11 +3,9 @@ import {
   TransformDir,
   BaseMetadata,
   DecoratorInfo,
-  MetaFactoryInstance,
-  registerFactory,
-  decoratorInfo,
-  ensureTargetIsType,
-  MetaHost
+  MetaClass,
+  MetaClassMetadata,
+  MetaClassInstanceDetails
 } from '../fw';
 
 import { ClassMetadata } from './class-metadata';
@@ -28,51 +26,58 @@ declare module './prop' {
   }
 }
 
-@MetaHost({
-  host: PropMetadata,
-  containerKey: 'exclude'
+function factory(metaArgs: ExcludeMetadataArgs, target: Object | Function, info: DecoratorInfo): MetaClassInstanceDetails<ExcludeMetadataArgs, ExcludeMetadata> {
+  if (info.type === 'class') {
+    return {
+      info,
+      target: target,
+      metaClassKey: ClassMetadata,
+      metaPropKey: 'transformStrategy',
+      metaValue: 'exclusive'
+    } as any
+  } else {
+    return {
+      info,
+      target: <any>target.constructor,
+      metaClassKey: ExcludeMetadata,
+      metaPropKey: info.name,
+      metaValue: new ExcludeMetadata(metaArgs, info)
+    }
+  }
+}
+
+function extend(from: Map<PropertyKey, ExcludeMetadata>, to: Map<PropertyKey, ExcludeMetadata> | undefined): Map<PropertyKey, ExcludeMetadata> {
+  return to
+    ? MapExt.mergeInto(to, from)
+    : new Map<PropertyKey, ExcludeMetadata>(from.entries())
+    ;
+}
+
+@MetaClass<ExcludeMetadataArgs, ExcludeMetadata>({
+  allowOn: ['class', 'member'],
+  proxy: {
+    host: PropMetadata,
+    containerKey: 'exclude'
+  },
+  factory,
+  extend
 })
 export class ExcludeMetadata extends BaseMetadata {
   from?: TransformDir;
 
-  constructor(obj: ExcludeMetadataArgs | undefined, info: DecoratorInfo) {
+  constructor(metaArgs: ExcludeMetadataArgs, info: DecoratorInfo) {
     super(info);
 
-    if (obj) {
-      this.from = obj.from;
+    if (metaArgs) {
+      this.from = metaArgs.from;
     }
-  }
-
-  static allowOn = <any>['class', 'member'];
-
-  static metaFactory(metaArgs: ExcludeMetadataArgs, target: Object | Function, key: PropertyKey, desc?: PropertyDescriptor): MetaFactoryInstance<ExcludeMetadata> {
-    const info = decoratorInfo(target, key, desc);
-    const type = ensureTargetIsType(target);
-    if (info.isStatic) {
-      return {
-        info,
-        target: type,
-        metaClassKey: ClassMetadata,
-        metaPropKey: 'transformStrategy',
-        metaValue: 'exclusive'
-      } as any
-    } else {
-      return {
-        info,
-        target: type,
-        metaClassKey: ExcludeMetadata,
-        metaPropKey: info.name,
-        metaValue: new ExcludeMetadata(metaArgs, info)
-      }
-    }
-  }
-
-  static register = registerFactory<ExcludeMetadata>();
-
-  static extend(from: Map<PropertyKey, ExcludeMetadata>, to: Map<PropertyKey, ExcludeMetadata> | undefined): Map<PropertyKey, ExcludeMetadata> {
-    return to
-      ? MapExt.mergeInto(to, from)
-      : new Map<PropertyKey, ExcludeMetadata>(from.entries())
-    ;
   }
 }
+
+//to make it easy on generics later
+declare module '../fw/metadata-framework/meta-class' {
+  module MetaClass {
+    function get(target: typeof ExcludeMetadata): MetaClassMetadata<ExcludeMetadataArgs, ExcludeMetadata>;
+  }
+}
+

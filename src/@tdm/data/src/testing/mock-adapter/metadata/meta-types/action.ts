@@ -13,7 +13,11 @@ export interface MockActionMetadataArgs extends ActionMetadataArgs<ActionMethodT
   isCollection?: boolean;
 }
 
-
+@tdm.MetaClass<MockActionMetadataArgs, MockActionMetadata>({
+  allowOn: ['staticMember', 'member'],
+  extend: ActionMetadata.extend,
+  register: ActionMetadata.register
+})
 export class MockActionMetadata extends ActionMetadata {
   method: ActionMethodType;
   isCollection: boolean;
@@ -22,9 +26,6 @@ export class MockActionMetadata extends ActionMetadata {
   constructor(obj: MockActionMetadataArgs, public info: tdm.DecoratorInfo) {
     super(obj, info);
   }
-
-
-  static metaFactory = tdm.metaFactoryFactory<MockActionMetadataArgs, MockActionMetadata>(MockActionMetadata);
 
   static adapterClass = MockAdapter;
 }

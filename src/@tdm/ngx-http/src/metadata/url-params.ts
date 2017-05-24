@@ -21,6 +21,34 @@ export interface UrlParamMetadataArgs {
   methods?: HttpActionMethodType | HttpActionMethodType[]
 }
 
+function register(meta: tdm.MetaClassInstanceDetails<UrlParamMetadataArgs, UrlParamMetadata>): void {
+  const curr = tdm.targetStore.getMetaFor<any, Set<UrlParamMetadata>>(meta.target, meta.metaClassKey, meta.info.name as any) || new Set<UrlParamMetadata>();
+  curr.add(meta.metaValue);
+  tdm.targetStore.setMetaFor<any, Set<UrlParamMetadata>>(meta.target, meta.metaClassKey, meta.info.name as any, curr);
+}
+
+function extend(from: Map<PropertyKey, Set<UrlParamMetadata>>, to: Map<PropertyKey, Set<UrlParamMetadata>> | undefined): Map<PropertyKey, Set<UrlParamMetadata>> {
+  if (!to) {
+    to = new Map<PropertyKey, Set<UrlParamMetadata>>();
+  }
+
+  tdm.MapExt.asKeyValArray(from)
+    .forEach( ([k, v]) => {
+      if (!to.has(k)) {
+        to.set(k, new Set<UrlParamMetadata>(v.values()))
+      } else {
+        tdm.SetExt.combine(to.get(k), v);
+      }
+    });
+
+  return to;
+}
+
+@tdm.MetaClass<UrlParamMetadataArgs, UrlParamMetadata>({
+  allowOn: ['member'],
+  extend,
+  register
+})
 export class UrlParamMetadata extends tdm.BaseMetadata {
   urlTemplateParamName: string;
   methods: MappedMethod[] = [];
@@ -47,30 +75,5 @@ export class UrlParamMetadata extends tdm.BaseMetadata {
     } else {
       this.methods = [];
     }
-  }
-
-  static metaFactory = tdm.metaFactoryFactory<UrlParamMetadataArgs, UrlParamMetadata>(UrlParamMetadata);
-
-  static register(meta: tdm.MetaFactoryInstance<UrlParamMetadata>): void {
-    const curr = tdm.targetStore.getMetaFor<any, Set<UrlParamMetadata>>(meta.target, meta.metaClassKey, meta.info.name as any) || new Set<UrlParamMetadata>();
-    curr.add(meta.metaValue);
-    tdm.targetStore.setMetaFor<any, Set<UrlParamMetadata>>(meta.target, meta.metaClassKey, meta.info.name as any, curr);
-  }
-
-  static extend(from: Map<PropertyKey, Set<UrlParamMetadata>>, to: Map<PropertyKey, Set<UrlParamMetadata>> | undefined): Map<PropertyKey, Set<UrlParamMetadata>> {
-    if (!to) {
-      to = new Map<PropertyKey, Set<UrlParamMetadata>>();
-    }
-
-    tdm.MapExt.asKeyValArray(from)
-      .forEach( ([k, v]) => {
-        if (!to.has(k)) {
-          to.set(k, new Set<UrlParamMetadata>(v.values()))
-        } else {
-          tdm.SetExt.combine(to.get(k), v);
-        }
-      });
-
-    return to;
   }
 }

@@ -2,9 +2,7 @@ import { tdm } from '@tdm/core';
 import { decoratorFactories } from '@tdm/data';
 import {
   HttpResourceMetadataArgs,
-  HttpActionMetadataArgs,
   HttpActionMetadata,
-  UrlParamMetadataArgs,
   UrlParamMetadata
 } from './metadata';
 
@@ -14,13 +12,13 @@ import { HttpAdapter } from './core';
  * @propertyDecorator both
  * @param def
  */
-export const HttpAction = tdm.decoratorFactory<HttpActionMetadataArgs>(HttpActionMetadata);
+export const HttpAction = tdm.MetaClass.get(HttpActionMetadata).createDecorator();
 
 /**
  * @propertyDecorator instance
  * @param metaArgs
  */
-export const UrlParam = tdm.decoratorFactory<string | UrlParamMetadataArgs>(UrlParamMetadata, true);
+export const UrlParam = tdm.MetaClass.get(UrlParamMetadata).createDecorator(true);
 
 
 

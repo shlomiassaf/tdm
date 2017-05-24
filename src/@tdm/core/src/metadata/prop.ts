@@ -9,11 +9,9 @@ import {
   propTransformConfig,
   PropTransformConfig,
   BaseMetadata,
-  MetaFactoryInstance,
   DecoratorInfo,
-  decoratorInfo,
-  ensureTargetIsType,
-  registerFactory
+  MetaClass,
+  MetaClassMetadata
 } from '../fw';
 
 import { RelationMetadata } from './relation';
@@ -48,6 +46,17 @@ export interface PropMetadataArgs {
   typeGetter?: () => any;
 }
 
+function extend(from: Map<PropertyKey, PropMetadata>, to: Map<PropertyKey, PropMetadata> | undefined): Map<PropertyKey, PropMetadata> {
+  return to
+    ? MapExt.mergeInto(to, from)
+    : new Map<PropertyKey, PropMetadata>(from.entries())
+    ;
+}
+
+@MetaClass<PropMetadataArgs, PropMetadata>({
+  allowOn: ['member'],
+  extend
+})
 export class PropMetadata extends BaseMetadata {
   alias: PropAliasConfig;
   transform?: Partial<PropTransformConfig>;
@@ -58,7 +67,7 @@ export class PropMetadata extends BaseMetadata {
   relation: RelationMetadata | undefined;
   foreignKeyOf?: PropMetadata;
 
-  constructor(obj: PropMetadataArgs | undefined, target: any, info: DecoratorInfo)  {
+  constructor(obj: PropMetadataArgs | undefined, info: DecoratorInfo, target: any)  {
     super(info);
 
     if (!obj) {
@@ -118,26 +127,11 @@ export class PropMetadata extends BaseMetadata {
     this._onInit.push(handler);
   }
 
-  static metaFactory(metaArgs: any, target: Object | Function, key: PropertyKey, desc?: PropertyDescriptor): MetaFactoryInstance<PropMetadata> {
-    const info = decoratorInfo(target, key, desc);
-    const type = ensureTargetIsType(target);
-    return {
-      info,
-      target: type,
-      metaClassKey: PropMetadata,
-      metaPropKey: info.name,
-      metaValue: new PropMetadata(metaArgs, type, info)
-    }
-  }
+}
 
-  static allowOn = <any>['member'];
-
-  static register = registerFactory<PropMetadata>();
-
-  static extend(from: Map<PropertyKey, PropMetadata>, to: Map<PropertyKey, PropMetadata> | undefined): Map<PropertyKey, PropMetadata> {
-    return to
-      ? MapExt.mergeInto(to, from)
-      : new Map<PropertyKey, PropMetadata>(from.entries())
-    ;
+// to make it easy on generics later
+declare module '../fw/metadata-framework/meta-class' {
+  module MetaClass {
+    function get(target: typeof PropMetadata): MetaClassMetadata<PropMetadataArgs, PropMetadata>;
   }
 }

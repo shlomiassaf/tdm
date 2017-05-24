@@ -22,7 +22,7 @@ class CoreTargetStore extends tdm.TargetStore {
   }
 
   registerAdapter(adapterClass: AdapterStatic<any, any>, metaArgs: AdapterMetadataArgs): void {
-    AdapterMetadata.register(AdapterMetadata.metaFactory(metaArgs, adapterClass));
+    tdm.MetaClass.get(AdapterMetadata).create(metaArgs, adapterClass);
   }
 
   setReadyToBuild(target: any): void {

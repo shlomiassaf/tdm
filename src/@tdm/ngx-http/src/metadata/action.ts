@@ -15,6 +15,11 @@ export interface HttpActionMetadataArgs extends ActionMetadataArgs<HttpActionMet
   endpoint?: string;
 }
 
+@tdm.MetaClass<HttpActionMetadataArgs, HttpActionMetadata>({
+  allowOn: ['staticMember', 'member'],
+  extend: ActionMetadata.extend,
+  register: ActionMetadata.register
+})
 export class HttpActionMetadata extends ActionMetadata {
   methodInfo: MappedMethod;
 
@@ -35,8 +40,6 @@ export class HttpActionMetadata extends ActionMetadata {
     this.methodInfo = mapMethod(obj.method);
     this.method = this.methodInfo.method;
   }
-
-  static metaFactory = tdm.metaFactoryFactory<HttpActionMetadataArgs, HttpActionMetadata>(HttpActionMetadata);
 
   static adapterClass = HttpAdapter;
 }

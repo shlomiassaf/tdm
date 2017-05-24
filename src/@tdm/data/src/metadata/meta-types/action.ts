@@ -3,7 +3,7 @@ import { tdm } from '@tdm/core';
 import { ExecuteResponse, ActionOptions, ValidationSchedule, AdapterStatic } from '../../fw';
 import { ExecuteContext } from '../../core';
 
-const { isFunction, isString, targetStore, metaFactoryFactory, stringify } = tdm;
+const { isFunction, isString, targetStore, stringify } = tdm;
 
 export enum ActionMethodType {
   /**
@@ -23,7 +23,7 @@ export type PostActionMetadata =  {
   skipDeserialize?: boolean;
 }
 
-export interface ActionMetadataArgs<T> {
+export interface ActionMetadataArgs<T = any> {
   method: T;
   /**
    * Specify if the response is an array.
@@ -102,18 +102,15 @@ export abstract class ActionMetadata extends tdm.BaseMetadata {
     this.paramHint = metaArgs.paramHint || 0;
   }
 
-  static metaFactory() {
-    throw new Error('ActionMetadata is an abstract class, please define the static metaFactory method');
-  }
-
-  static register(meta: tdm.MetaFactoryInstance<ActionMetadata>): void {
-    if (!this.adapterClass) {
+  static register(this: tdm.MetaClassMetadata<ActionMetadataArgs, ActionMetadata>,
+                  meta: tdm.MetaClassInstanceDetails<ActionMetadataArgs<any>, ActionMetadata>): void {
+    if (!this.target.adapterClass) {
       throw new Error(`Class ${stringify(this)} must implement a static property 'adapterClass' that points to the Adapter it uses`);
-    } else if (!isFunction(this.adapterClass.prototype.execute)) {
+    } else if (!isFunction(this.target.adapterClass.prototype.execute)) {
       throw new Error(`Class ${stringify(this)} points to an invalid Adapter class`);
     }
     targetStore.setMetaFormFactory(meta);
-    targetStore.getAdapter(this.adapterClass).addAction(meta);
+    targetStore.getAdapter(this.target.adapterClass).addAction(meta);
   }
 
   static extend(from: Map<PropertyKey, ActionMetadata>, to: Map<PropertyKey, ActionMetadata> | undefined, meta): Map<PropertyKey, ActionMetadata> {
@@ -123,49 +120,11 @@ export abstract class ActionMetadata extends tdm.BaseMetadata {
     return to
       ? tdm.MapExt.mergeInto(to, from) // TODO: on mixins we override, on "extends" class we dont... this overrides at all times (wrong behaviour for class extends)
       : new Map<PropertyKey, ActionMetadata>(from.entries())
-    ;
+      ;
   }
 
   /**
    * The adapter class this action represents
    */
   static adapterClass: AdapterStatic<any, any>;
-}
-
-export class ExtendActionMetadata extends ActionMetadata {
-  constructor(metaArgs: Partial<ActionMetadataArgs<any>>, info: tdm.DecoratorInfo)  {
-    super(metaArgs as any, info);
-    Object.assign(this, metaArgs)
-  }
-
-  static metaFactory = metaFactoryFactory<ActionMetadataArgs<any>, ExtendActionMetadata>(ExtendActionMetadata);
-
-  static register(meta: tdm.MetaFactoryInstance<ExtendActionMetadata>): void {
-    const curr = targetStore.getMetaFor<any, ExtendActionMetadata[]>(meta.target, meta.metaClassKey, meta.info.name as any) || [];
-    curr.push(meta.metaValue);
-    targetStore.setMetaFor<any, ExtendActionMetadata[]>(meta.target, meta.metaClassKey, meta.info.name as any, curr);
-  }
-
-  static extend: any = function extend (from: Map<PropertyKey, ExtendActionMetadata[]>, to: Map<PropertyKey, ExtendActionMetadata[]> | undefined): Map<PropertyKey, ExtendActionMetadata[]> {
-    if (!to) {
-      to = new Map<PropertyKey, ExtendActionMetadata[]>();
-    }
-
-    tdm.MapExt.asKeyValArray(from)
-        .forEach( ([k, v]) => {
-          if (!to.has(k)) {
-            to.set(k, v.slice())
-          } else {
-            const arrFrom = v;
-            const arrTo = to.get(k);
-            arrFrom.forEach( action => {
-              if (!arrTo.some( a => a.name === action.name )) {
-                arrTo.push(action);
-              }
-            });
-          }
-        });
-
-    return to;
-  }
 }

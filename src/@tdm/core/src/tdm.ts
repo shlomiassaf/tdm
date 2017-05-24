@@ -11,21 +11,23 @@ export {
   KeySet,
   MapExt,
   ensureTargetIsType,
-  registerFactory,
-  decoratorFactory,
-  MetaFactoryStatic,
+
   MetadataAllowOn,
-  MetaFactoryInstance,
+
   BaseMetadata,
   DecoratorInfo,
-  decoratorInfo,
-  metaFactoryFactory,
   fireEvents,
   TargetEvents,
   lazyRef,
   getProtoChain,
-  MetaHostMetadataArgs,
-  MetaHost
+
+  ProxyHostMetadataArgs,
+  MetaClassMetadataArgs,
+  MetaClassMetadata,
+  MetaClass,
+  MetadataClassStatic,
+  MetadataCurriedCreate,
+  MetaClassInstanceDetails
 } from './fw';
 
 export {

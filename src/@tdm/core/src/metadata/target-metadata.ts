@@ -6,8 +6,8 @@ import {
   NamingStrategyConfig,
   isString,
   stringify,
-  MetaFactoryStatic,
-  DecoratorInfo
+  DecoratorInfo,
+  MetadataClassStatic
 } from '../fw';
 import { ClassMetadata } from './class-metadata';
 import { PropMetadata } from './prop';
@@ -34,7 +34,7 @@ export class TargetMetadata implements ClassMetadata {
 
   protected config: DualKeyMap<Constructor<any>, PropertyKey, any>;
 
-  constructor(public readonly target: Constructor<any>, config: DualKeyMap<MetaFactoryStatic, PropertyKey, any>) {
+  constructor(public readonly target: Constructor<any>, config: DualKeyMap<MetadataClassStatic, PropertyKey, any>) {
     this.config = config;
 
     if (config.has(ClassMetadata as any)) {
@@ -73,7 +73,7 @@ export class TargetMetadata implements ClassMetadata {
     return values ? Array.from(values.values()) : [];
   }
 
-  getMetaFor<T extends MetaFactoryStatic, Z extends BaseMetadata>(metaClass: T & Constructor<Z>, name: string): Z {
+  getMetaFor<T extends MetadataClassStatic, Z extends BaseMetadata>(metaClass: T & Constructor<Z>, name: string): Z {
     const meta = this.config.get(metaClass);
     if (meta) {
       return meta.get(name);

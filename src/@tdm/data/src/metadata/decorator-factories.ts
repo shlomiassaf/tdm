@@ -22,7 +22,7 @@ export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterSt
 
       const resourceClass = tdm.targetStore.getAdapter(adapterClass).resourceMetaClass;
       if (resourceClass) {
-        tdm.BaseMetadata.create(resourceClass, metaArgs || {}, target);
+        tdm.MetaClass.get<any, any>(resourceClass).create(metaArgs || {}, target);
       }
       tdm.targetStore.setResource(metaArgs, target);
 

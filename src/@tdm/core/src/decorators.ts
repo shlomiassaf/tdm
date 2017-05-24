@@ -1,4 +1,4 @@
-import { Constructor, decoratorFactory } from './fw';
+import { Constructor, MetaClass } from './fw';
 import { targetStore, ExcludeMetadata, ExcludeMetadataArgs, PropMetadata, PropMetadataArgs, RelationMetadata, RelationMetadataArgs } from './metadata';
 
 targetStore.on
@@ -21,7 +21,7 @@ targetStore.on
  * @propertyDecorator instance
  * @param def
  */
-export const Prop = decoratorFactory<PropMetadataArgs>(PropMetadata, true);
+export const Prop = MetaClass.get(PropMetadata).createDecorator(true);
 
 /**
  * @propertyDecorator instance
@@ -32,14 +32,14 @@ export function Exclude(metaArgs?: ExcludeMetadataArgs): (target: Object | Funct
   return exclude(metaArgs) as any;
 }
 export const exclude: (metaArgs?: ExcludeMetadataArgs) => (target: Object | Function, key?: PropertyKey, desc?: PropertyDescriptor) => any
-  = <any>decoratorFactory<any>(ExcludeMetadata); // for Angular AOT
+  = <any>MetaClass.get(ExcludeMetadata).createDecorator(); // for Angular AOT
 
 
 /**
  * @propertyDecorator instance
  * @param def
  */
-export const Relation = decoratorFactory<RelationMetadataArgs>(RelationMetadata, true);
+export const Relation = MetaClass.get(RelationMetadata).createDecorator(true);
 
 /**
  * @propertyDecorator instance

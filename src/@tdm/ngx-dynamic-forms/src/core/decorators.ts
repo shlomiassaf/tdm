@@ -4,7 +4,7 @@ import { tdm, Constructor } from '@tdm/core';
 
 import { RenderDef } from '../interfaces';
 
-import { MetaFactoryInstance } from '@tdm/core/tdm'; // leave for angular AOT compiler.
+import { MetaClassInstanceDetails } from '@tdm/core/tdm'; // leave for angular AOT compiler.
 
 export interface FormModelMetadataArgs {
   validator?: ValidatorFn;
@@ -57,6 +57,23 @@ export interface FormPropMetadataArgs {
   asyncValidators?: AsyncValidatorFn | Array<AsyncValidatorFn>;
 }
 
+function factory(this: tdm.MetaClassMetadata<FormPropMetadataArgs, FormModelMetadata>,
+                 metaArgs: FormPropMetadataArgs,
+                 target: Object,
+                 info: tdm.DecoratorInfo): tdm.MetaClassInstanceDetails<FormPropMetadataArgs, FormModelMetadata> {
+  return {
+    info,
+    target: <any>target,
+    metaClassKey: <any>tdm.ClassMetadata,
+    metaPropKey: 'formModel',
+    metaValue: new FormModelMetadata(metaArgs || {})
+  };
+}
+
+@tdm.MetaClass<FormPropMetadataArgs, FormModelMetadata>({
+  allowOn: ['class'],
+  factory
+})
 export class FormModelMetadata {
   validator: ValidatorFn | null;
   asyncValidator: AsyncValidatorFn | null;
@@ -92,21 +109,19 @@ export class FormModelMetadata {
   getProp(propertyKey: string): FormPropMetadata | undefined {
     return this.props.get(propertyKey);
   }
-
-  static metaFactory(metaArgs: FormModelMetadataArgs, target: Function): tdm.MetaFactoryInstance<FormModelMetadata> {
-    const info = tdm.decoratorInfo(target);
-      return {
-        info,
-        target,
-        metaClassKey: tdm.ClassMetadata,
-        metaPropKey: 'formModel',
-        metaValue: new FormModelMetadata(metaArgs || {})
-      } as any
-  }
-
-  static register = tdm.registerFactory<FormModelMetadata>();
 }
 
+function extend(from: Map<PropertyKey, FormPropMetadata>, to: Map<PropertyKey, FormPropMetadata> | undefined): Map<PropertyKey, FormPropMetadata> {
+  return to
+    ? tdm.MapExt.mergeInto(new Map<PropertyKey, FormPropMetadata>(to.entries()), from)
+    : new Map<PropertyKey, FormPropMetadata>(from.entries())
+    ;
+}
+
+@tdm.MetaClass<FormPropMetadataArgs, FormPropMetadata>({
+  allowOn: ['member'],
+  extend
+})
 export class FormPropMetadata extends tdm.BaseMetadata {
   transform: (value: any) => any;
   exclude: boolean;
@@ -138,36 +153,23 @@ export class FormPropMetadata extends tdm.BaseMetadata {
   }
 
   static EMPTY = new FormPropMetadata({} as any, { type: 'class'} );
-
-  static metaFactory = tdm.metaFactoryFactory(FormPropMetadata);
-
-  static register = tdm.registerFactory<FormPropMetadata>();
-
-  static extend(from: Map<PropertyKey, FormPropMetadata>, to: Map<PropertyKey, FormPropMetadata> | undefined): Map<PropertyKey, FormPropMetadata> {
-    return to
-      ? tdm.MapExt.mergeInto(new Map<PropertyKey, FormPropMetadata>(to.entries()), from)
-      : new Map<PropertyKey, FormPropMetadata>(from.entries())
-    ;
-  }
 }
 
 /**
  * @propertyDecorator static
  * @param metaArgs
  */
-export function FormModel(metaArgs?: FormModelMetadataArgs) {
-  return (target: Function) => {
-    const meta = FormModelMetadata.metaFactory(metaArgs || {}, target);
-    FormModelMetadata.register(meta);
-  }
+export function FormModel(metaArgs?: FormModelMetadataArgs): (target: Function) => any {
+  return formModel(metaArgs) as any;
 }
-
+export const formModel = tdm.MetaClass.get(FormModelMetadata).createDecorator(true);
+// Split due to angular AOT
 
 /**
  * @propertyDecorator instance
  * @param metaArgs
  */
-export const FormProp = tdm.decoratorFactory<FormPropMetadataArgs>(FormPropMetadata, true);
+export const FormProp = tdm.MetaClass.get(FormPropMetadata).createDecorator(true);
 
 tdm.targetStore.on
   .processType((target: Constructor<any>) => {

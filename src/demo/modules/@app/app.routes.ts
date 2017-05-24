@@ -7,7 +7,7 @@ import { DataResolver } from './app.resolver';
 
 export const ROUTES: Routes = [
   { path: '',      component: HomeComponent },
-  { path: 'playground', loadChildren: '@playground#PlaygroundModule' },
+  { path: 'playground', loadChildren: '@playground#PlaygroundModule?loader=sync' },
   { path: 'netflix', loadChildren: '@netflix#NetflixModule' },
   { path: 'vehicles', loadChildren: '@vehicle#VehicleModule' },
   { path: 'npms', loadChildren: '@npms#NpmsModule' },

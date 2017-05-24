@@ -1,13 +1,11 @@
 import { tdm, RelationMetadataArgs } from '@tdm/core'; // RelationMetadataArgs - leave to satisfy angular compiler
-import { TDMError, DecoratorError, ExecuteResponse, ARHooks, ARHookableMethods } from '../fw';
+import { ExecuteResponse, ARHookableMethods } from '../fw';
 import {
   HookMetadata,
-  HookMetadataArgs,
-  ActionMetadataArgs,
   ExtendActionMetadata,
   ResourceMetadataArgs,
-  BelongsToMetadataArgs,
-  OwnsMetadataArgs
+  BelongsToMetadata,
+  OwnsMetadata
 } from '../metadata';
 
 import * as decoratorFactories from '../metadata/decorator-factories';
@@ -49,52 +47,22 @@ export function Resource(metaArgs: ResourceMetadataArgs) {
  * @propertyDecorator instance
  * @param metaArgs
  */
-export const ExtendAction = tdm.decoratorFactory<Partial<ActionMetadataArgs<any>>>(ExtendActionMetadata);
+export const ExtendAction = tdm.MetaClass.get(ExtendActionMetadata).createDecorator();
 
 /**
  * @propertyDecorator instance
  * @param def
  */
-export const BelongsTo = tdm.decoratorFactory<BelongsToMetadataArgs>(tdm.PropMetadata, true);
+export const BelongsTo = tdm.MetaClass.get(BelongsToMetadata).createDecorator();
 
 
 /**
  * @propertyDecorator instance
  * @param def
  */
-export const Owns = tdm.decoratorFactory<OwnsMetadataArgs<any>>(tdm.PropMetadata, true);
+export const Owns = tdm.MetaClass.get(OwnsMetadata).createDecorator();
 
-
-/**
- * @propertyDecorator both
- * @param def
- */
-export function Hook(def: HookMetadataArgs) {
-  if (!ARHooks.hasOwnProperty(def.action)) {
-    throw new TDMError(`Invalid hook '${def.action}'`);
-  }
-
-  return (target: Object, propertyKey: string | symbol, desc) => {
-    const curried = tdm.BaseMetadata.createCurry(HookMetadata, def, target, propertyKey, desc);
-
-    switch (ARHooks[def.action].type) {
-      case 'instance':
-        if (curried.meta.info.isStatic) {
-          throw DecoratorError.hookNoStatic(target, propertyKey, def.action);
-        }
-        break;
-      case 'static':
-        if (!curried.meta.info.isStatic) {
-          throw DecoratorError.hookNoInstance(target, propertyKey, def.action);
-        }
-        break;
-      default:
-        break;
-    }
-
-    curried();
-  };
-}
+export const Hook = tdm.MetaClass.get(HookMetadata).createDecorator();
 
 export function BeforeHook(action: ARHookableMethods) {
   return Hook({event: 'before', action});

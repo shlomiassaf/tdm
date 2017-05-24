@@ -2,9 +2,8 @@ import {
   MapExt,
   BaseMetadata,
   DecoratorInfo,
-  MetaFactoryInstance, // leave to satisfy angular compiler
-  metaFactoryFactory,
-  registerFactory
+  MetaClass,
+  MetaClassMetadata
 } from '../fw';
 
 export interface RelationMetadataArgs {
@@ -18,6 +17,18 @@ export interface RelationMetadataArgs {
   foreignKey?: string;
 }
 
+
+function extend(from: Map<PropertyKey, RelationMetadata>, to: Map<PropertyKey, RelationMetadata> | undefined): Map<PropertyKey, RelationMetadata> {
+  return to
+    ? MapExt.mergeInto(to, from)
+    : new Map<PropertyKey, RelationMetadata>(from.entries())
+    ;
+}
+
+@MetaClass<RelationMetadataArgs, RelationMetadata>({
+  allowOn: ['member'],
+  extend
+})
 export class RelationMetadata extends BaseMetadata {
 
   foreignKey: string;
@@ -28,16 +39,11 @@ export class RelationMetadata extends BaseMetadata {
     this.foreignKey = obj && obj.foreignKey || info.name as any;
   }
 
-  static allowOn = <any>['member'];
-
-  static metaFactory = metaFactoryFactory<RelationMetadataArgs, RelationMetadata>(RelationMetadata);
-
-  static register = registerFactory<RelationMetadata>();
-
-  static extend(from: Map<PropertyKey, RelationMetadata>, to: Map<PropertyKey, RelationMetadata> | undefined): Map<PropertyKey, RelationMetadata> {
-    return to
-      ? MapExt.mergeInto(to, from)
-      : new Map<PropertyKey, RelationMetadata>(from.entries())
-    ;
-  }
 }
+
+// to make it easy on generics later
+// declare module '../fw/metadata-framework/meta-class' {
+//   module MetaClass {
+//     function get(target: typeof RelationMetadata): MetaClassMetadata<RelationMetadataArgs, RelationMetadata>;
+//   }
+// }

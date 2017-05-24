@@ -13,9 +13,11 @@ declare module '@tdm/core/metadata/prop' {
   }
 }
 
-@tdm.MetaHost({
-  host: tdm.PropMetadata,
-  containerKey: 'extendMe'
+@tdm.MetaClass<ExtendMeMetadataArgs, ExtendMeMetadata>({
+  proxy: {
+    host: tdm.PropMetadata,
+    containerKey: 'extendMe'
+  }
 })
 class ExtendMeMetadata extends tdm.BaseMetadata {
   testProp: string;
@@ -28,17 +30,16 @@ class ExtendMeMetadata extends tdm.BaseMetadata {
     }
   }
 
-  static metaFactory = tdm.metaFactoryFactory<ExtendMeMetadataArgs, ExtendMeMetadata>(ExtendMeMetadata);
-
-  static register = tdm.registerFactory<ExtendMeMetadata>();
 }
 
-@tdm.MetaHost({
-  host: tdm.PropMetadata,
-  containerKey: 'extendMe1',
-  before: (metaArgs: ExtendMeMetadataArgs) => {
-    metaArgs.testProp = 'test1';
-    return metaArgs;
+@tdm.MetaClass<ExtendMeMetadataArgs, ExtendMeMetadata1>({
+  proxy: {
+    host: tdm.PropMetadata,
+    containerKey: 'extendMe1',
+    before: (metaArgs: ExtendMeMetadataArgs) => {
+      metaArgs.testProp = 'test1';
+      return metaArgs;
+    }
   }
 })
 class ExtendMeMetadata1 extends tdm.BaseMetadata {
@@ -51,10 +52,6 @@ class ExtendMeMetadata1 extends tdm.BaseMetadata {
       Object.assign(this, obj);
     }
   }
-
-  static metaFactory = tdm.metaFactoryFactory<ExtendMeMetadataArgs, ExtendMeMetadata1>(ExtendMeMetadata1);
-
-  static register = tdm.registerFactory<ExtendMeMetadata1>();
 }
 
 class User {
@@ -89,7 +86,7 @@ class User {
 
 describe('@tdm/core', () => {
   describe('fw', () => {
-    describe('@MetaHost()', () => {
+    describe('@MetaClass()', () => {
       it('should be able to define metadata from a remote metadata host', () => {
 
 
