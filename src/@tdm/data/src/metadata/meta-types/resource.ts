@@ -1,4 +1,4 @@
-import { ModelMetadataArgs, tdm } from '@tdm/core';
+import { TransformStrategy, NamingStrategyConfig, ModelMetadataArgs, tdm } from '@tdm/core';
 
 export interface ResourceMetadataArgs extends ModelMetadataArgs {
   /**
@@ -7,7 +7,7 @@ export interface ResourceMetadataArgs extends ModelMetadataArgs {
    * If not set, the default name is the class name (which does not guarantee uniqueness)
    * @optional
    */
-  name?: string;
+  resName?: string;
 
   /**
    * If true will not build the decorated class into a resource.
@@ -34,4 +34,29 @@ export interface ResourceMetadataArgs extends ModelMetadataArgs {
   noBuild?: boolean;
 
   mapper?: tdm.MapperFactory;
+}
+
+export function noop() {}
+
+@tdm.MetaClass<ResourceMetadataArgs, ResourceMetadata>({
+  allowOn: ['class'],
+  register: <any>noop
+})
+export class ResourceMetadata extends tdm.BaseMetadata {
+  resName: string;
+  noBuild: boolean;
+  mapper: tdm.MapperFactory;
+  factory: (isColl: boolean) => any;
+  transformStrategy: TransformStrategy | undefined;
+  transformNameStrategy: NamingStrategyConfig | undefined;
+  
+  constructor(obj: ResourceMetadataArgs, info: tdm.DecoratorInfo) {
+    super(info);
+    ['resName', 'noBuild', 'mapper', 'factory', 'transformStrategy', 'transformNameStrategy']
+      .forEach( k => {
+        if (obj.hasOwnProperty(k)) {
+        this[k] = obj[k]
+      }
+    });
+  }
 }

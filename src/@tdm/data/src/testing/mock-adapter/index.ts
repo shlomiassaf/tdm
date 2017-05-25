@@ -1,5 +1,6 @@
 export {
   MockResource,
+  MockResourceMetadata,
   MockResourceMetadataArgs,
   MockAction,
   MockActionMetadataArgs
@@ -15,10 +16,11 @@ export {
 import { MockDao } from './core/mock-dao';
 import { tdm } from '@tdm/core';
 import { MockAdapter } from './core';
-import { MockActionMetadata } from './metadata';
+import { MockActionMetadata, MockResourceMetadata } from './metadata';
 tdm.targetStore.registerAdapter(MockAdapter, {
   actionMetaClass: MockActionMetadata,
-  DAOClass: MockDao
+  DAOClass: MockDao,
+  resourceMetaClass: MockResourceMetadata
 });
 
 

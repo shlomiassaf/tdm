@@ -1,6 +1,6 @@
 import { tdm } from '@tdm/core';
 import { MetaClassInstanceDetails } from '@tdm/core/tdm'; // leave for angular AOT compiler.
-import { ResourceMetadataArgs } from '@tdm/data';
+import { ResourceMetadataArgs, ResourceMetadata } from '@tdm/data';
 
 import { Params } from '../utils/match-pattern';
 import { BaseHttpConfig, TrailingSlashesStrategy } from '../core/interfaces';
@@ -29,7 +29,7 @@ function factory(this: tdm.MetaClassMetadata<HttpResourceMetadataArgs, HttpResou
   allowOn: ['class'],
   factory
 })
-export class HttpResourceMetadata implements HttpResourceMetadataArgs {
+export class HttpResourceMetadata extends ResourceMetadata implements HttpResourceMetadataArgs {
   /**
    * The url for this resource.
    * This property does not extend from a base type.
@@ -39,10 +39,9 @@ export class HttpResourceMetadata implements HttpResourceMetadataArgs {
   headers?: { [key: string]: any };
   withCredentials?: boolean;
   trailingSlashes?: TrailingSlashesStrategy;
-  noBuild: boolean;
-  mapper: tdm.MapperFactory;
 
   constructor(obj: HttpResourceMetadataArgs, info: tdm.DecoratorInfo) {
+    super(obj, info);
     Object.assign(this, obj);
   }
 

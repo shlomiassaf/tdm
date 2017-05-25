@@ -3,16 +3,21 @@ import { ExecuteResponse, ARHookableMethods } from '../fw';
 import {
   HookMetadata,
   ExtendActionMetadata,
+  ResourceMetadata,
   ResourceMetadataArgs,
   BelongsToMetadata,
-  OwnsMetadata
+  OwnsMetadata,
+
+  ActionMetadataArgs, // ActionMetadataArgs - leave to satisfy angular compiler
+  OwnsMetadataArgs,   // OwnsMetadataArgs - leave to satisfy angular compiler
+  HookMetadataArgs   // HookMetadataArgs - leave to satisfy angular compiler
 } from '../metadata';
 
-import * as decoratorFactories from '../metadata/decorator-factories';
 import { Adapter } from '../fw';
 
 /* Workaround, see index.ts in this directory */
-import './target-store'
+import './meta-class';
+import './target-store';
 import './target-metadata';
 import './prop';
 import './relations';
@@ -29,10 +34,11 @@ export class NoopAdapter implements Adapter<any, any> {
   cancel(id: number): void {};
 }
 
-tdm.targetStore.registerAdapter(NoopAdapter, { actionMetaClass: <any>class {}, DAOClass: class {} });
-
-// FOR AOT
-const resource = decoratorFactories.resource<ResourceMetadataArgs>(NoopAdapter);
+tdm.targetStore.registerAdapter(NoopAdapter, {
+  actionMetaClass: <any>class {},
+  DAOClass: class {},
+  resourceMetaClass: ResourceMetadata
+});
 
 /**
  * A Resource with a NOOP adapter.
@@ -40,8 +46,9 @@ const resource = decoratorFactories.resource<ResourceMetadataArgs>(NoopAdapter);
  * @param metaArgs
  */
 export function Resource(metaArgs: ResourceMetadataArgs) {
-  return resource(metaArgs) as any;
+  return _Resource(metaArgs) as any;
 }
+const _Resource = tdm.MetaClass.get(ResourceMetadata).createResourceDecorator(NoopAdapter); // FOR AOT
 
 /**
  * @propertyDecorator instance
@@ -53,14 +60,14 @@ export const ExtendAction = tdm.MetaClass.get(ExtendActionMetadata).createDecora
  * @propertyDecorator instance
  * @param def
  */
-export const BelongsTo = tdm.MetaClass.get(BelongsToMetadata).createDecorator();
+export const BelongsTo = tdm.MetaClass.get(BelongsToMetadata).createDecorator(true);
 
 
 /**
  * @propertyDecorator instance
  * @param def
  */
-export const Owns = tdm.MetaClass.get(OwnsMetadata).createDecorator();
+export const Owns = tdm.MetaClass.get(OwnsMetadata).createDecorator(true);
 
 export const Hook = tdm.MetaClass.get(HookMetadata).createDecorator();
 

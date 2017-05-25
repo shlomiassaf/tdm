@@ -22,8 +22,6 @@ import { Params, getParamNames, formatPattern } from '../utils/match-pattern';
 
 import { getHttp } from '../providers';
 
-const EMPTY_META: HttpResourceMetadata = <any>{};
-
 export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOptions> {
   readonly supports = { cancel: true };
 
@@ -37,8 +35,12 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
       const http = getHttp();
 
       if (!options) options = {} as any;
-      let {action} = ctx;
-      let resource = ctx.targetMeta.ngxHttpResource || EMPTY_META;
+      const {action} = ctx;
+      const resource = ctx.targetMeta.ngxHttpResource;
+
+      if (!resource) {
+        throw new Error('Http resource not set.')
+      }
 
       const url = findProp('endpoint', resource, action);
       if (!url) {
@@ -112,7 +114,7 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
   protected getParams(ctx: ExecuteContext<HttpActionMetadata>, meta: tdm.TargetMetadata, options: HttpActionOptions): Params {
     const params = Object.assign({}, findProp('urlParams', httpDefaultConfig, meta.ngxHttpResource, ctx.action));
 
-    if (meta !== EMPTY_META && ctx.instance) {
+    if (ctx.instance) {
       // we don't care about the keys (properties) UrlParam is on...
       // TODO: change how UrlParams are stored, instead of target->UrlParamMetadata->propName->Set<UrlParamMetadata>
       // store everything in one set/array to avoid this messy extraction.

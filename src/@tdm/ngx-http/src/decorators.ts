@@ -1,12 +1,14 @@
 import { tdm } from '@tdm/core';
-import { decoratorFactories } from '@tdm/data';
-import {
-  HttpResourceMetadataArgs,
-  HttpActionMetadata,
-  UrlParamMetadata
-} from './metadata';
 
 import { HttpAdapter } from './core';
+import {
+  HttpResourceMetadata,
+  HttpResourceMetadataArgs,
+  HttpActionMetadata,
+  UrlParamMetadata,
+  HttpActionMetadataArgs,   // HttpActionMetadataArgs - leave to satisfy angular compiler
+  UrlParamMetadataArgs      // UrlParamMetadataArgs - leave to satisfy angular compiler
+} from './metadata';
 
 /**
  * @propertyDecorator both
@@ -24,7 +26,7 @@ export const UrlParam = tdm.MetaClass.get(UrlParamMetadata).createDecorator(true
 
 // FOR AOT
 // export const HttpResource = df.resource<HttpResourceMetadataArgs>(HttpAdapter);
-const httpResource = decoratorFactories.resource<HttpResourceMetadataArgs>(HttpAdapter);
+const httpResource = tdm.MetaClass.get(HttpResourceMetadata).createResourceDecorator(HttpAdapter);
 
 /**
  * @classDecorator

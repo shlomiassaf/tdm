@@ -68,7 +68,7 @@ describe('@tdm/data', () => {
       const user: User = bucket.create<any>(User);
       user.$refresh({returnValue}).$rc.next()
         .then( data => {
-          expect(targetStore.getClassProp(User, 'name')).toBe('User_');
+          expect(targetStore.getClassProp(User, 'resName')).toBe('User_');
           expect(user.name).toBe('test');
           expect(user.value).toBe('value1');
           done();
@@ -100,7 +100,7 @@ describe('@tdm/data', () => {
       const user = bucket.create(User);
       user.$refresh({returnValue}).$rc.next()
         .then( data => {
-          expect(targetStore.getClassProp(User, 'name')).toBe('User');
+          expect(targetStore.getClassProp(User, 'resName')).toBe('User');
           expect(user.name).toBe('test');
           expect(user.value).toBe('value1');
           done();
@@ -125,7 +125,7 @@ describe('@tdm/data', () => {
       const user = bucket.create(User);
       user.$refresh({returnValue}).$rc.next()
         .then( data => {
-          expect(targetStore.getClassProp(User, 'name')).toBe('User');
+          expect(targetStore.getClassProp(User, 'resName')).toBe('User');
           expect(user.name).toBe('test');
           expect(user.value).toBe('value1');
           done();
@@ -139,14 +139,14 @@ describe('@tdm/data', () => {
       class User_ { }
 
       @Resource({
-        name: 'TestUser'
+        resName: 'TestUser'
       })
       @MockResource({
         endpoint: '/api/users/:id?'
       })
       class User extends MockMixin(User_) { }
 
-      expect(targetStore.getClassProp(User, 'name')).toBe('TestUser');
+      expect(targetStore.getClassProp(User, 'resName')).toBe('TestUser');
     });
 
 

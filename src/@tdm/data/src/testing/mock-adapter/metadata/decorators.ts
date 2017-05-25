@@ -1,13 +1,14 @@
 import { tdm } from '@tdm/core';
-import { decoratorFactories as df } from '@tdm/data';
 
 import {
-  MockResourceMetadataArgs,
-  MockActionMetadata
+  MockResourceMetadata,
+  MockActionMetadata,
+  MockResourceMetadataArgs, // MockResourceMetadataArgs - leave to satisfy angular compiler
+  MockActionMetadataArgs    // MockActionMetadataArgs - leave to satisfy angular compiler
 } from './meta-types';
 
 import { MockAdapter } from '../core';
 
 
-export const MockResource = df.resource<MockResourceMetadataArgs>(MockAdapter);
+export const MockResource = tdm.MetaClass.get(MockResourceMetadata).createResourceDecorator(MockAdapter);
 export const MockAction = tdm.MetaClass.get(MockActionMetadata).createDecorator();

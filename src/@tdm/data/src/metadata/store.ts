@@ -46,7 +46,7 @@ export class Store {
 
   /**
    * Search for a target registered in the repository by it's name.
-   * @see ResourceMetadataArgs#name
+   * @see ResourceMetadataArgs#resName
    * @param name
    */
   findModel(name: string): any | undefined {

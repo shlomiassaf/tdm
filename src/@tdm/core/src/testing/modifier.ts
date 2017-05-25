@@ -34,7 +34,7 @@ export class TestTargetStore extends tdm.TargetStore {
   static clear(target: any): void {
     const meta = targetStore.builtTargets.get(target);
     if (meta) {
-      targetStore.namedTargets.delete(meta.name);
+      targetStore.namedTargets.delete(meta.resName);
       targetStore.builtTargets.delete(target);
       targetStore.targets.get(target).clear();
 
@@ -134,7 +134,7 @@ export class TargetMetaModifier<T, Z> {
    * @returns {TargetMetaModifier}
    */
   setName(name?: string): this {
-    TestTargetMetadata.setClassProp(this.target, 'name', name);
+    TestTargetMetadata.setClassProp(this.target, 'resName', name);
     return this;
   }
 

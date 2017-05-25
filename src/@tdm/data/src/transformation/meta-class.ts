@@ -1,15 +1,30 @@
 import { tdm, TDMModelBase } from '@tdm/core';
 import { AdapterStatic } from '../fw';
-import { ResourceMetadataArgs } from './meta-types';
+import { ResourceMetadataArgs } from '../metadata';
+
+declare module '@tdm/core/fw/metadata-framework/meta-class' {
+  interface MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
+    createResourceDecorator(adapterClass: AdapterStatic<any, any>): (def: TMetaArgs) => (target: Function) => any;
+  }
+}
 
 /**
  * A Factory for Resource class decorators, the returned decorator will automatically register the
  * target & adapterType with the resource.
  * @param adapterClass
  */
-export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterStatic<any, any>): (metaArgs: T) => ClassDecorator {
-  return function ResourceDecorator(metaArgs: T) {
+export function resource<TMetaArgs extends ResourceMetadataArgs>(
+  this: tdm.MetaClassMetadata<ResourceMetadataArgs, ResourceMetadataArgs>,
+  adapterClass: AdapterStatic<any, any>): (metaArgs: TMetaArgs) => ClassDecorator {
+
+  const metaClass = this;
+
+  return function ResourceDecorator(metaArgs: TMetaArgs) {
     return (target: any) => {
+
+      if (tdm.targetStore.getAdapter(adapterClass).resourceMetaClass !== metaClass.target) {
+        throw new Error(`Adapter ${tdm.stringify(adapterClass)} resource metadata mismatch`)
+      }
 
       if (metaArgs.factory) {
         console.warn('Model#factory can not be set in @tdm/data');
@@ -20,10 +35,7 @@ export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterSt
 
       tdm.targetStore.registerTarget(target);
 
-      const resourceClass = tdm.targetStore.getAdapter(adapterClass).resourceMetaClass;
-      if (resourceClass) {
-        tdm.MetaClass.get<any, any>(resourceClass).create(metaArgs || {}, target);
-      }
+      metaClass.create(metaArgs || {}, target);
       tdm.targetStore.setResource(metaArgs, target);
 
       // check for properties that set the type to self (same class)
@@ -55,4 +67,7 @@ export function resource<T extends ResourceMetadataArgs>(adapterClass: AdapterSt
     };
   }
 }
+
+tdm.MetaClassMetadata.prototype.createResourceDecorator = resource;
+
 

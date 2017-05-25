@@ -28,7 +28,7 @@ export class BelongsToMetadata extends tdm.BaseMetadata {
   }
 }
 
-@tdm.MetaClass<BelongsToMetadataArgs, BelongsToMetadata>({
+@tdm.MetaClass<OwnsMetadataArgs<any>, OwnsMetadata>({
   allowOn: ['member'],
   extend
 })

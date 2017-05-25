@@ -65,7 +65,7 @@ export class TargetStore {
    * @returns {string}
    */
   getTargetName(target: Constructor<any>): string | undefined {
-    return this.getClassProp(target, 'name');
+    return this.getClassProp(target, 'resName');
   }
 
   hasClassProp<P extends keyof ClassMetadata>(target: Constructor<any>, key: P): boolean {
@@ -77,7 +77,7 @@ export class TargetStore {
       this.builtTargets.get(target)[key] = value;
     }
 
-    if (key === 'name') {
+    if (key === 'resName') {
       this.namedTargets.set(value as any, target);
     }
 

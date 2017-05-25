@@ -11,7 +11,7 @@ tdm.TargetStore.prototype.setResource = function(metaArgs: ResourceMetadataArgs,
   this.setModel(metaArgs, target);
 
   if (metaArgs) {
-    ['name', 'noBuild', 'mapper']
+    ['resName', 'noBuild', 'mapper']
       .forEach( k => metaArgs.hasOwnProperty(k) && this.setClassProp(target, k, metaArgs[k]) );
   }
 };

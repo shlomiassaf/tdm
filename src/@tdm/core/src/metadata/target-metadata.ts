@@ -26,7 +26,7 @@ const defaultCollFactory = () => [];
  * @pluginApi
  */
 export class TargetMetadata implements ClassMetadata {
-  name: string;
+  resName: string;
   factory: (isColl: boolean) => any;
   identity: PropertyKey; // TODO: this should be string
   transformStrategy: TransformStrategy | undefined;
@@ -45,8 +45,8 @@ export class TargetMetadata implements ClassMetadata {
       this.factory = (isColl: boolean) => isColl ? defaultCollFactory() : new this.target();
     }
 
-    if (!this.name) {
-      this.name = stringify(target);
+    if (!this.resName) {
+      this.resName = stringify(target);
     }
   }
 

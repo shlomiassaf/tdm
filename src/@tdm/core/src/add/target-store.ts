@@ -47,7 +47,7 @@ TargetStore.prototype.getTargetMeta = function getTargetMeta(target: Constructor
     }
     meta = new TargetMetadata(target, metaArgs);
     this.builtTargets.set(target, meta);
-    this.namedTargets.set(meta.name, target);
+    this.namedTargets.set(meta.resName, target);
     fireEvents('createMetadata', target);
   }
   return meta;

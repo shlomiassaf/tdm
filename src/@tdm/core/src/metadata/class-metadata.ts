@@ -67,7 +67,7 @@ export class ClassMetadata {
    * If not set, the default name is the class name (which does not guarantee uniqueness)
    * @optional
    */
-  name?: string;
+  resName?: string;
 
   /**
    * A Factory for creating new instances of the target and or collection.
