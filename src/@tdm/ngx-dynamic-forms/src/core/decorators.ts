@@ -70,7 +70,7 @@ function factory(this: tdm.MetaClassMetadata<FormPropMetadataArgs, FormModelMeta
   };
 }
 
-@tdm.MetaClass<FormPropMetadataArgs, FormModelMetadata>({
+@tdm.MetaClass<FormModelMetadataArgs, FormModelMetadata>({
   allowOn: ['class'],
   factory
 })

@@ -3,7 +3,7 @@ import { MetadataAllowOn, MetadataClassStatic, MetaClassInstanceDetails, Decorat
 import { MetaClassMetadata } from './meta-class';
 
 /**
- * Defines a proxy for the current metadata class on an other metadata class.
+ * Proxy definition for the current metadata class on an other metadata class.
  *
  * ProxyHost enables syntax sugar, where a user can avoid setting Decorators and set the metadata in one place.
  * For example:
@@ -89,6 +89,10 @@ export interface ProxyHostMetadataArgs<T extends MetadataClassStatic<any, any> =
 export interface MetaClassMetadataArgs<TMetaArgs = any, TMetaClass = any> {
   storage?: '';
 
+  /**
+   * Defines a proxy for the current metadata class on an other metadata class.
+   * See {@link ProxyHostMetadataArgs}
+   */
   proxy?: ProxyHostMetadataArgs;
 
   /**
