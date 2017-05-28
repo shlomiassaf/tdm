@@ -35,14 +35,16 @@ export function getInstructions(meta: TargetMetadata, dir: TransformDir): Compil
   const excluded = meta.getValues(ExcludeMetadata)
     .filter(e => !e.from || e.from === dir);
 
+  const model = meta.model();
+  
   // in exclusive mode there is no point in have 2 transformation strategies.
   // incoming is never there since incoming keys are not calculated, only defined Props.
-  if (meta.transformStrategy === 'exclusive') {
+  if (model.transformStrategy === 'exclusive') {
     dir = 'outgoing';
   }
 
   // only apply naming strategy on outgoing, incoming has no effect here
-  const naming = namingStrategyMap(dir, meta.transformNameStrategy);
+  const naming = namingStrategyMap(dir, model.transformNameStrategy);
 
 
 
@@ -60,7 +62,7 @@ export function getInstructions(meta: TargetMetadata, dir: TransformDir): Compil
 
       // apply naming strategy when DONT HAVE ALIAS!
       if (!obj.exclude && naming && obj.cls === obj.obj) {
-        obj.obj = meta.transformNameStrategy[dir](obj.cls);
+        obj.obj = model.transformNameStrategy[dir](obj.cls);
       }
 
       // store the PoClassPropertyMap of a belongsTo PropMetadata relation
@@ -130,11 +132,12 @@ export class TargetTransformer {
   protected outgoing: CompiledTransformation;
 
   @LazyInit(function (this: TargetTransformer): PropertyContainer {
-    if (this.meta.transformStrategy === 'exclusive') {
+    const model = this.meta.model();
+    if (model.transformStrategy === 'exclusive') {
       return new ExclusivePropertyContainer(this.meta.target, this.incoming);
     } else {
-      const rename = namingStrategyMap('incoming', this.meta.transformNameStrategy)
-        ? (prop) => prop.cls = this.meta.transformNameStrategy.incoming(prop.obj)
+      const rename = namingStrategyMap('incoming', model.transformNameStrategy)
+        ? (prop) => prop.cls = model.transformNameStrategy.incoming(prop.obj)
         : undefined
       ;
       return new InclusivePropertyContainer(this.meta.target, this.incoming, deserializePredicate, rename);
@@ -143,11 +146,12 @@ export class TargetTransformer {
   protected incomingContainer: PropertyContainer;
 
   @LazyInit(function (this: TargetTransformer): PropertyContainer {
-    if (this.meta.transformStrategy === 'exclusive') {
+    const model = this.meta.model();
+    if (model.transformStrategy === 'exclusive') {
       return new ExclusivePropertyContainer(this.meta.target, this.outgoing);
     } else {
-      const rename = namingStrategyMap('outgoing', this.meta.transformNameStrategy)
-        ? (prop) => prop.obj = this.meta.transformNameStrategy.outgoing(prop.cls)
+      const rename = namingStrategyMap('outgoing', model.transformNameStrategy)
+        ? (prop) => prop.obj = model.transformNameStrategy.outgoing(prop.cls)
         : undefined
       ;
       return new InclusivePropertyContainer(this.meta.target, this.outgoing, serializePredicate, rename);

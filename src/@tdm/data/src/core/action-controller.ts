@@ -26,14 +26,12 @@ interface ExecuteState {
 export class ActionController {
   public target: any;
   public adapter: Adapter<ActionMetadata, ActionOptions>;
-  public mapper: tdm.MapperFactory;
   readonly adapterMeta: AdapterMetadata;
 
   constructor(public targetMetadata: tdm.TargetMetadata, public adapterClass: AdapterStatic<any, any>) {
     this.target = targetMetadata.target;
     // TODO: adapter can be shared for all targets
     this.adapter = new adapterClass();
-    this.mapper = findProp('mapper', defaultConfig, targetMetadata);
 
     this.adapterMeta = targetStore.getAdapter(adapterClass);
   }

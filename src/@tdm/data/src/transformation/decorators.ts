@@ -1,10 +1,8 @@
-import { tdm, RelationMetadataArgs } from '@tdm/core'; // RelationMetadataArgs - leave to satisfy angular compiler
+import { tdm, ModelMetadataArgs, RelationMetadataArgs } from '@tdm/core'; // RelationMetadataArgs - leave to satisfy angular compiler
 import { ExecuteResponse, ARHookableMethods } from '../fw';
 import {
   HookMetadata,
   ExtendActionMetadata,
-  ResourceMetadata,
-  ResourceMetadataArgs,
   BelongsToMetadata,
   OwnsMetadata,
 
@@ -21,7 +19,6 @@ import './target-store';
 import './target-metadata';
 import './prop';
 import './relations';
-import './resource';
 import './mixins';
 
 // TODO: this is a workaround to allow registering Models with no adapter so `onProcessType` event
@@ -37,7 +34,7 @@ export class NoopAdapter implements Adapter<any, any> {
 tdm.targetStore.registerAdapter(NoopAdapter, {
   actionMetaClass: <any>class {},
   DAOClass: class {},
-  resourceMetaClass: ResourceMetadata
+  resourceMetaClass: tdm.ModelMetadata
 });
 
 /**
@@ -45,10 +42,10 @@ tdm.targetStore.registerAdapter(NoopAdapter, {
  * @classDecorator
  * @param metaArgs
  */
-export function Resource(metaArgs: ResourceMetadataArgs) {
+export function Resource(metaArgs: ModelMetadataArgs) {
   return _Resource(metaArgs) as any;
 }
-const _Resource = tdm.MetaClass.get(ResourceMetadata).createResourceDecorator(NoopAdapter); // FOR AOT
+const _Resource = tdm.MetaClass.get(tdm.ModelMetadata).createResourceDecorator(NoopAdapter); // FOR AOT
 
 /**
  * @propertyDecorator instance

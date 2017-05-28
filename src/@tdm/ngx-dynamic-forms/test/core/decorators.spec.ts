@@ -8,7 +8,7 @@ import { FormModelMetadata, FormPropMetadata } from "@tdm/ngx-dynamic-forms/core
 
 
 function getFormMeta(target: any): FormModelMetadata {
-  return tdm.targetStore.getClassProp(target, 'formModel');
+  return tdm.targetStore.getMetaFor(target, FormModelMetadata, true);
 }
 
 describe('@tdm/ngx-dynamic-forms', () => {

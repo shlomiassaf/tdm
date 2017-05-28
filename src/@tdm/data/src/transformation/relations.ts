@@ -3,7 +3,7 @@ import { Constructor, tdm } from '@tdm/core';
 import { BelongsToMetadata, OwnsMetadata } from '../metadata';
 
 tdm.targetStore.on
-  .createMetadata((target: Constructor<any>) => {
+  .processType((target: Constructor<any>) => {
     const meta = tdm.targetStore.getTargetMeta(target);
 
     const identity = meta.getIdentityKey();

@@ -42,7 +42,7 @@ tdm.TargetStore.prototype.serialize = function serialize(target: Constructor<any
 tdm.TargetStore.prototype.deserialize = function deserialize(mapper: DeserializeMapper, instance?: any): any | any[] | undefined {
   if (this.hasTarget(mapper.sourceType)) {
     const meta = this.getTargetMeta(mapper.sourceType);
-    const result: any = instance || meta.factory(mapper.isCollection);
+    const result: any = instance || meta.model().factory(mapper.isCollection);
 
     meta.deserialize(mapper, result);
     return result;
@@ -99,7 +99,7 @@ class MappingTargetMetadata extends tdm.TargetMetadata {
         }
 
         if (!t) {
-          t = plain ? {} : this.factory(false);
+          t = plain ? {} : this.model().factory(false);
         }
 
         this.transformer.deserialize(mapper, t);

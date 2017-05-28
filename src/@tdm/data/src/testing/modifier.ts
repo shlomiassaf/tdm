@@ -1,7 +1,7 @@
 import { tdm, Constructor } from '@tdm/core';
 import { TargetMetaModifier as _TargetMetaModifier } from '@tdm/core/testing';
 import { TestTargetMetadata as _TestTargetMetadata } from '@tdm/core/testing/modifier';
-import { Resource, Hook, Owns, BelongsTo, ResourceMetadataArgs } from '@tdm/data';
+import { Resource, Hook, Owns, BelongsTo } from '@tdm/data';
 import {
   OwnsMetadataArgs,
   BelongsToMetadataArgs,
@@ -59,13 +59,6 @@ class TestTargetStore extends tdm.TargetStore {
 }
 
 export class TargetMetaModifier<T, Z> extends _TargetMetaModifier<T, Z> {
-
-
-  updateResource(resource: ResourceMetadataArgs): this {
-    targetStore.setResource(resource, this.target);
-    return this;
-  }
-
 
   /**
    * Add/Remove/Replace a hook

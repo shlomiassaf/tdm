@@ -3,11 +3,13 @@ import {
   Constructor,
   Prop,
   PropMetadataArgs,
+  Model,
+  ModelMetadataArgs,
+  Identity,
   Exclude,
   ExcludeMetadataArgs,
   Relation,
-  RelationMetadataArgs,
-  ModelMetadataArgs
+  RelationMetadataArgs
 } from '@tdm/core';
 
 import { RelationMetadata, PropMetadata, ExcludeMetadata } from '@tdm/core/tdm';
@@ -24,6 +26,11 @@ export class TestTargetStore extends tdm.TargetStore {
     return targetStore.builtTargets.get(target);
   }
 
+  static getModel<T extends tdm.ModelMetadata = tdm.ModelMetadata>(target: Constructor<any>): T {
+    const t = targetStore.getTargetMeta(target, true);
+    return t && t.model<T>();
+  }
+
   static clearAll(): void {
     targetStore.namedTargets.clear();
     targetStore.builtTargets.clear();
@@ -34,22 +41,13 @@ export class TestTargetStore extends tdm.TargetStore {
   static clear(target: any): void {
     const meta = targetStore.builtTargets.get(target);
     if (meta) {
-      targetStore.namedTargets.delete(meta.resName);
+      targetStore.namedTargets.delete(meta.model().resName);
       targetStore.builtTargets.delete(target);
       targetStore.targets.get(target).clear();
 
     }
   }
 
-  static removeClassProp(target: Constructor<any>, key: keyof tdm.ClassMetadata) {
-    if (targetStore.builtTargets.has(target)) {
-      delete targetStore.builtTargets.get(target)[key];
-    }
-
-    if (targetStore.targets.has(target)) {
-      return targetStore.targets.get(target).delete(tdm.ClassMetadata, key);
-    }
-  }
 }
 
 export class TestTargetMetadata extends tdm.TargetMetadata {
@@ -79,21 +77,6 @@ export class TestTargetMetadata extends tdm.TargetMetadata {
   static removeProp = TestTargetMetadata.removeFactory(tdm.PropMetadata);
   static removeExclude = TestTargetMetadata.removeFactory(tdm.ExcludeMetadata);
 
-  static getClassProp<P extends keyof tdm.ClassMetadata>(target: Constructor<any>, propName: keyof tdm.ClassMetadata): tdm.ClassMetadata[P] {
-    const t = getTargetMetaStore(target);
-    if (t) {
-      return t[propName];
-    }
-  }
-
-  static removeClassProp(target: Constructor<any>, propName: keyof tdm.ClassMetadata): boolean {
-    return TestTargetStore.removeClassProp(target, propName);
-  }
-
-  static setClassProp<P extends keyof tdm.ClassMetadata>(target: Constructor<any>, propName: P, value: tdm.ClassMetadata[P]): void {
-    targetStore.setClassProp(target, propName, value);
-  }
-
   static addRelation(target: Constructor<any>, key: string, meta?: RelationMetadataArgs): void {
     Relation(meta)(target.prototype, key);
   }
@@ -116,25 +99,26 @@ export class TargetMetaModifier<T, Z> {
   constructor(public target: Z & Constructor<T>) {
   }
 
+  build(): void {
+    targetStore.getTargetMeta(this.target).model().build();
+  }
+
   clear(): this {
     TestTargetStore.clear(this.target);
     return this;
   }
 
-  updateResource(resource: ModelMetadataArgs): this {
-    targetStore.setModel(resource, this.target);
-    return this;
-  }
-
-
   /**
-   * Set/Update the identity field.
-   * If key is empty will set to default name
-   * @param key
+   * Registers a new model
+   *
+   * > Clears the model from the registry before trying to register.
+   * @param metaArgs
+   * @param type
    * @returns {TargetMetaModifier}
    */
-  setName(name?: string): this {
-    TestTargetMetadata.setClassProp(this.target, 'resName', name);
+  setModel<T extends ModelMetadataArgs>(metaArgs: T = undefined): this {
+    this.clear();
+    Model(metaArgs)(this.target);
     return this;
   }
 
@@ -145,7 +129,7 @@ export class TargetMetaModifier<T, Z> {
    * @returns {TargetMetaModifier}
    */
   setIdentity(key?: keyof T): this {
-    TestTargetMetadata.setClassProp(this.target, 'identity', key);
+    Identity()(this.target.prototype, key);
     return this;
   }
 
@@ -156,7 +140,7 @@ export class TargetMetaModifier<T, Z> {
    */
   setExclude(exclude: boolean): this {
     if (!exclude) {
-      TestTargetMetadata.removeClassProp(this.target, 'transformStrategy');
+      delete targetStore.getTargetMeta(this.target).model().transformStrategy;
     } else {
       TestTargetMetadata.setExcludeClass(this.target);
     }
@@ -173,18 +157,6 @@ export class TargetMetaModifier<T, Z> {
 
   getExclude<P extends keyof T>(key: P): tdm.ExcludeMetadata {
     return TestTargetMetadata.getExclude(this.target, key);
-  }
-
-  getClassProp<P extends keyof tdm.ClassMetadata>(key: P): tdm.ClassMetadata[P] {
-    return TestTargetMetadata.getClassProp(this.target, key);
-  }
-
-  classProp<P extends keyof tdm.ClassMetadata>(key: P, value?: tdm.ClassMetadata[P] | false): this {
-    TestTargetMetadata.removeClassProp(this.target, key);
-    if (typeof value !== 'boolean') {
-      TestTargetMetadata.setClassProp(this.target, key, value);
-    }
-    return this;
   }
 
   relation(key: keyof T, meta?: RelationMetadataArgs | false): this {

@@ -2,20 +2,19 @@ import {
   Constructor,
   DualKeyMap,
   BaseMetadata,
-  TransformStrategy,
-  NamingStrategyConfig,
   isString,
-  stringify,
   DecoratorInfo,
+  GLOBAL_KEY,
   MetadataClassStatic
 } from '../fw';
-import { ClassMetadata } from './class-metadata';
+
+import { targetStore } from './target-store';
 import { PropMetadata } from './prop';
 import { TDMCollection } from '../model';
 
 import { Prop } from '../decorators';
 
-const defaultCollFactory = () => [];
+
 
 /**
  * The metadata store for a target.
@@ -25,29 +24,13 @@ const defaultCollFactory = () => [];
  *
  * @pluginApi
  */
-export class TargetMetadata implements ClassMetadata {
-  resName: string;
-  factory: (isColl: boolean) => any;
+export class TargetMetadata {
   identity: PropertyKey; // TODO: this should be string
-  transformStrategy: TransformStrategy | undefined;
-  transformNameStrategy: NamingStrategyConfig | undefined;
 
   protected config: DualKeyMap<Constructor<any>, PropertyKey, any>;
 
   constructor(public readonly target: Constructor<any>, config: DualKeyMap<MetadataClassStatic, PropertyKey, any>) {
     this.config = config;
-
-    if (config.has(ClassMetadata as any)) {
-      Array.from(config.get(ClassMetadata as any).entries()).forEach(([k, v]) => this[k] = v);
-    }
-
-    if (!this.factory) {
-      this.factory = (isColl: boolean) => isColl ? defaultCollFactory() : new this.target();
-    }
-
-    if (!this.resName) {
-      this.resName = stringify(target);
-    }
   }
 
   getCreateProp(info: DecoratorInfo | string): PropMetadata {
@@ -73,10 +56,50 @@ export class TargetMetadata implements ClassMetadata {
     return values ? Array.from(values.values()) : [];
   }
 
-  getMetaFor<T extends MetadataClassStatic, Z extends BaseMetadata>(metaClass: T & Constructor<Z>, name: string): Z {
-    const meta = this.config.get(metaClass);
-    if (meta) {
-      return meta.get(name);
+
+
+  /**
+   * Get the whole map of non-single metadata class
+   */
+  getMetaFor<T extends MetadataClassStatic, Z extends BaseMetadata>(metaClass: T & Constructor<Z>): Map<PropertyKey, Z> | undefined;
+  /**
+   * Get metadata for a single value metadata class
+   */
+  getMetaFor<T extends MetadataClassStatic, Z extends BaseMetadata>(metaClass: T & Constructor<Z>, single: true): Z | undefined;
+  /**
+   * Get metadata for a non-single value metadata class
+   */
+  getMetaFor<T extends MetadataClassStatic, Z extends BaseMetadata>(metaClass: T & Constructor<Z>, name: string): Z | undefined;
+  getMetaFor<T extends MetadataClassStatic, Z extends BaseMetadata>(metaClass: T & Constructor<Z>, name?: string | true): Z | undefined {
+    if (isString(name)) {
+      const meta = this.config.get(metaClass);
+      if (meta) {
+        return meta.get(name);
+      }
+    } else if (name === true) {
+      const meta = this.config.get(GLOBAL_KEY);
+      if (meta) {
+        return meta.get(<any>metaClass);
+      }
+    } else {
+      return this.config.get(metaClass) as any;
+    }
+  }
+
+  /**
+   * Set metadata for a single metadata class
+   */
+  setMetaFor<T, ZValue = T>(metaClass: MetadataClassStatic<T>, value: ZValue): void;
+  /**
+   * Set metadata for a non-single metadata class
+   */
+  setMetaFor<T, ZValue = T>(metaClass: MetadataClassStatic<T>, name: string, value: ZValue): void;
+  setMetaFor<T, ZValue = T>(metaClass: MetadataClassStatic<T>, name: string | ZValue, value?: ZValue): void {
+    // TODO: don't go to target-store for this, implement here
+    if (isString(name)) {
+      targetStore.setMetaFor(this.target, metaClass, name, value);
+    } else {
+      targetStore.setMetaFor(this.target, metaClass, true, name);
     }
   }
 

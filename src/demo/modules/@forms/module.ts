@@ -11,7 +11,7 @@ import { ROUTES } from './routes';
 /**
  * An example for @tdm/ngx-dynamic-forms
  *
- * @demo core: Identity, ExtendAction, transformNameStrategy, noBuild
+ * @demo core: Identity, ExtendAction, transformNameStrategy, skip
  * @demo angular-http: HttpResource, UrlParam
  */
 @NgModule({

@@ -8,7 +8,7 @@ import {
   MetaClassInstanceDetails
 } from '../fw';
 
-import { ClassMetadata } from './class-metadata';
+import { targetStore } from './target-store';
 import { PropMetadata } from './prop';
 
 export interface ExcludeMetadataArgs {
@@ -26,15 +26,10 @@ declare module './prop' {
   }
 }
 
-function factory(metaArgs: ExcludeMetadataArgs, target: Object | Function, info: DecoratorInfo): MetaClassInstanceDetails<ExcludeMetadataArgs, ExcludeMetadata> {
+function factory(this: MetaClassMetadata<ExcludeMetadataArgs, ExcludeMetadata>,
+                 metaArgs: ExcludeMetadataArgs, target: Object | Function, info: DecoratorInfo): MetaClassInstanceDetails<ExcludeMetadataArgs, ExcludeMetadata> | undefined {
   if (info.type === 'class') {
-    return {
-      info,
-      target: target,
-      metaClassKey: ClassMetadata,
-      metaPropKey: 'transformStrategy',
-      metaValue: 'exclusive'
-    } as any
+    targetStore.getTargetMeta(<any>target).model().transformStrategy = 'exclusive';
   } else {
     return {
       info,

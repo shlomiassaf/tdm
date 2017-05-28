@@ -8,7 +8,7 @@ import { ROUTES } from './routes';
 /**
  * An example of handling non-resource oriented REST API's.
  *
- * @demo core: Identity, ExtendAction, transformNameStrategy, noBuild
+ * @demo core: Identity, ExtendAction, transformNameStrategy, skip
  * @demo angular-http: HttpResource, UrlParam
  */
 @NgModule({

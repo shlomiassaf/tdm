@@ -9,7 +9,7 @@ import { vehicleMapper } from '../mapper';
   urlParams: {
     format: 'json'
   },
-  noBuild: true,
+  skip: true,
   mapper: vehicleMapper
 })
 export class Make {
@@ -31,7 +31,7 @@ export class Make {
   urlParams: {
     format: 'json'
   },
-  noBuild: true,
+  skip: true,
   mapper: vehicleMapper
 })
 export class Model {

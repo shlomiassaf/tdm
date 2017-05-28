@@ -5,7 +5,7 @@ import { packageMapper } from '../mapper';
 
 @HttpResource({
   endpoint: 'https://api.npms.io/v2/package/:name',
-  noBuild: true,
+  skip: true,
   mapper: packageMapper
 })
 @Exclude()

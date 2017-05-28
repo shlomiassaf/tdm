@@ -1,7 +1,7 @@
 import 'rxjs';
 
 import { MockMixin, MockResource, bucketFactory } from '@tdm/data/testing';
-import { Prop, Exclude, Resource } from '@tdm/data';
+import { Prop, Exclude } from '@tdm/data';
 
 class User_ {
   id: number;
@@ -42,18 +42,14 @@ class User_ {
   nonExisting: string;
 }
 
-@Resource({
-  transformStrategy: 'inclusive'
-})
 @MockResource({
+  transformStrategy: 'inclusive',
   endpoint: '/api/users/:id?'
 })
 class UserInc extends MockMixin(User_) { }
 
-@Resource({
-  transformStrategy: 'exclusive'
-})
 @MockResource({
+  transformStrategy: 'exclusive',
   endpoint: '/api/users/:id?'
 })
 class UserExc extends MockMixin(User_) { }

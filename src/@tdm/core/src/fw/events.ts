@@ -29,10 +29,23 @@ export class TargetEvents {
   }
 
   /**
-   * Fired when the type is processed, after extending all metadata.
+   * Fired before the type is processed, after extending all metadata.
    * This event is not guaranteed to fire, it will fire only if the type is decorated with an appropriate decorator.
    *
    * FireAfter: createMetadata
+   * FireBefore: processType
+   */
+  beforeProcessType(handler: (target: Constructor<any>) => void): void {
+    if (isFunction(handler)) {
+      eventHandlers.add('beforeProcessType', handler);
+    }
+  }
+
+  /**
+   * Fired when the type is processed, after extending all metadata.
+   * This event is not guaranteed to fire, it will fire only if the type is decorated with an appropriate decorator.
+   *
+   * FireAfter: beforeProcessType
    */
   processType(handler: (target: Constructor<any>) => void): void {
     if (isFunction(handler)) {

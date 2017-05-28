@@ -31,7 +31,6 @@ export {
 } from './fw';
 
 export {
-  ClassMetadata,
   PropMetadata,
   ExcludeMetadata,
   RelationMetadata,
@@ -49,3 +48,5 @@ export {
   transformValueOut,
   PlainSerializer,
 } from './mapping';
+
+export { ModelMetadata } from './add/model';

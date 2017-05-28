@@ -42,11 +42,12 @@ function factory(this: tdm.MetaClassMetadata<HookMetadataArgs, HookMetadata>,
   return this.constructor.prototype.factory.call(this, metaArgs, target, info, key, desc);
 }
 
-function register(meta: tdm.MetaClassInstanceDetails<HookMetadataArgs, HookMetadata>): void {
+function register(this: tdm.MetaClassMetadata<HookMetadataArgs, HookMetadata>,
+                  meta: tdm.MetaClassInstanceDetails<HookMetadataArgs, HookMetadata>): void {
   const hook: StoredHook = {[meta.metaValue.event]: meta.metaValue};
 
   const currHook = tdm.targetStore.getMetaFor<any, StoredHook>(meta.target, HookMetadata, meta.metaValue.action) || {} as any;
-  tdm.targetStore.setMetaFor<any, StoredHook>(meta.target, meta.metaClassKey, meta.metaValue.action as any, Object.assign(currHook, hook));
+  tdm.targetStore.setMetaFor<any, StoredHook>(meta.target, HookMetadata, meta.metaValue.action as any, Object.assign(currHook, hook));
 }
 
 function extend(from: Map<PropertyKey, StoredHook>, to: Map<PropertyKey, StoredHook> | undefined): Map<PropertyKey, StoredHook> {

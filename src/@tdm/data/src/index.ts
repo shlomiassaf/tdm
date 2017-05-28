@@ -27,8 +27,6 @@ export {
   Relationship,
   RelationshipType,
   Resource,
-  ResourceMetadata,
-  ResourceMetadataArgs,
   ValidationContext,
   ValidationError,
   ValidationMetadataArgs,

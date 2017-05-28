@@ -1,23 +1,12 @@
-import { tdm } from '@tdm/core';
-import { ResourceMetadataArgs, ResourceMetadata } from '@tdm/data';
+import { tdm, ModelMetadataArgs } from '@tdm/core';
 
-export interface MockResourceMetadataArgs extends ResourceMetadataArgs {
+export interface MockResourceMetadataArgs extends ModelMetadataArgs {
   endpoint: string;
 }
 
-export function noop() {}
-
-@tdm.MetaClass<ResourceMetadataArgs, MockResourceMetadata>({
-  allowOn: ['class'],
-  register: <any>noop
+@tdm.MetaClass<MockResourceMetadataArgs, MockResourceMetadata>({
+  inherit: tdm.ModelMetadata
 })
-export class MockResourceMetadata extends ResourceMetadata implements ResourceMetadataArgs {
+export class MockResourceMetadata extends tdm.ModelMetadata implements MockResourceMetadataArgs {
   endpoint: string;
-
-  constructor(obj: MockResourceMetadataArgs, info: tdm.DecoratorInfo) {
-    super(obj, info);
-    this.endpoint = obj.endpoint;
-  }
-
 }
-

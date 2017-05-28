@@ -36,7 +36,7 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
 
       if (!options) options = {} as any;
       const {action} = ctx;
-      const resource = ctx.targetMeta.ngxHttpResource;
+      const resource = ctx.targetMeta.model<HttpResourceMetadata>();
 
       if (!resource) {
         throw new Error('Http resource not set.')
@@ -51,7 +51,7 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
       const withCredentials = findProp('withCredentials', httpDefaultConfig, resource, action, options);
       const strip = findProp('trailingSlashes', httpDefaultConfig, resource, action, options);
 
-      const urlParams = this.getParams(ctx, ctx.targetMeta, options);
+      const urlParams = this.getParams(ctx, ctx.targetMeta, resource, options);
 
       const {path, query} = this.splitParams(url, urlParams);
 
@@ -111,8 +111,8 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
     return headers;
   }
 
-  protected getParams(ctx: ExecuteContext<HttpActionMetadata>, meta: tdm.TargetMetadata, options: HttpActionOptions): Params {
-    const params = Object.assign({}, findProp('urlParams', httpDefaultConfig, meta.ngxHttpResource, ctx.action));
+  protected getParams(ctx: ExecuteContext<HttpActionMetadata>, meta: tdm.TargetMetadata, resource: HttpResourceMetadata, options: HttpActionOptions): Params {
+    const params = Object.assign({}, findProp('urlParams', httpDefaultConfig, resource, ctx.action));
 
     if (ctx.instance) {
       // we don't care about the keys (properties) UrlParam is on...

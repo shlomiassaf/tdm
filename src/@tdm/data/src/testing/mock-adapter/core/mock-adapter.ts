@@ -1,6 +1,6 @@
 import { Adapter, AdapterResponse, ExecuteContext, findProp, ExecuteResponse } from '@tdm/data';
 
-import { MockActionMetadata } from '../metadata';
+import { MockActionMetadata, MockResourceMetadata } from '../metadata';
 import { MockActionOptions } from './interfaces';
 
 export class MockAdapter implements Adapter<MockActionMetadata, MockActionOptions> {
@@ -12,7 +12,8 @@ export class MockAdapter implements Adapter<MockActionMetadata, MockActionOption
   execute(ctx: ExecuteContext<MockActionMetadata>, options: MockActionOptions, args: any[]): AdapterResponse {
     if (!options) options = {} as any;
 
-    const [resource, action] = [ctx.targetMeta, ctx.action];
+    const action = ctx.action ;
+    const resource = ctx.targetMeta.model<MockResourceMetadata>();
     const endpoint = findProp('endpoint', resource, action);
 
     if (options.payloadInspect) {

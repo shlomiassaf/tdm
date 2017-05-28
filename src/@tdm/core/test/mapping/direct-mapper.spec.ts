@@ -47,9 +47,10 @@ describe('@tdm/core', () => {
 
       it('should deserialize a basic document', () => {
         articleModifier
-          .setName('articles')
+          .setModel({ resName: 'articles', skip: true })
           .setIdentity('id')
-          .props('id', 'title');
+          .props('id', 'title')
+          .build();
 
 
         const res = targetStore.deserialize(directMapper.deserializer(basic, Article));
@@ -63,7 +64,7 @@ describe('@tdm/core', () => {
 
       it('should exclude properties decorated with exclude', () => {
         articleModifier
-          .setName('articles')
+          .setModel({ resName: 'articles' })
           .setIdentity('id')
           .props('id', 'title')
           .exclude('category');
@@ -79,7 +80,7 @@ describe('@tdm/core', () => {
 
       it('should alias properties', () => {
         articleModifier
-          .setName('articles')
+          .setModel({ resName: 'articles' })
           .setIdentity('id')
           .props('id', 'title')
           .prop('myCat' as any, {alias: 'category'});
@@ -96,7 +97,7 @@ describe('@tdm/core', () => {
 
       it('should set the id', () => {
         articleModifier
-          .setName('articles')
+          .setModel({ resName: 'articles' })
           .setIdentity('myId' as any)
           .props('myId' as any, 'title');
 
@@ -113,7 +114,7 @@ describe('@tdm/core', () => {
 
       it('should set the aliased id', () => {
         articleModifier
-          .setName('articles')
+          .setModel({ resName: 'articles' })
           .setIdentity('myId' as any)
           .prop('myId' as any, {alias: 'id'})
           .prop('title');
@@ -130,9 +131,8 @@ describe('@tdm/core', () => {
 
       it('should only include decorated properties in exclusive mode', () => {
         articleModifier
-          .setName('articles')
+          .setModel({ resName: 'articles', transformStrategy: 'exclusive' })
           .setIdentity('id')
-          .classProp('transformStrategy', 'exclusive')
           .props('id', 'title');
 
 
@@ -146,7 +146,7 @@ describe('@tdm/core', () => {
 
       it('should deserialize a basic collection document', () => {
         articleModifier
-          .setName('articles')
+          .setModel({ resName: 'articles' })
           .setIdentity('id')
           .props('id', 'title');
 
@@ -166,7 +166,7 @@ describe('@tdm/core', () => {
 
       it('should exclude properties decorated with exclude from collection items', () => {
         articleModifier
-          .setName('articles')
+          .setModel({ resName: 'articles' })
           .setIdentity('id')
           .props('id', 'title')
           .exclude('category');
@@ -187,13 +187,26 @@ describe('@tdm/core', () => {
       });
 
       it('should deserialize an included resources', () => {
-        articleModifier.setName('articles').setIdentity('id').props('id', 'title', 'category')
+        articleModifier
+          .setModel({ resName: 'articles', skip: true  })
+          .setIdentity('id')
+          .props('id', 'title', 'category')
           .prop('comments', {typeGetter: () => Comment}, Array).relation('comments')
-          .prop('author', Author).relation('author');
+          .prop('author', Author).relation('author')
+          .build();
 
-        authorModifier.setName('people').setIdentity('id').props('id', 'firstName', 'lastName');
-        commentModifier.setName('comments').setIdentity('id').props('id', 'body')
-          .prop('author', Author).relation('author', {foreignKey: 'author_id'});
+        authorModifier
+          .setModel({ resName: 'people' })
+          .setIdentity('id')
+          .props('id', 'firstName', 'lastName');
+
+        commentModifier
+          .setModel({ resName: 'comments', skip: true  })
+          .setIdentity('id')
+          .props('id', 'body')
+          .prop('author', Author)
+          .relation('author', {foreignKey: 'author_id'})
+          .build();
 
         const res: Article = targetStore.deserialize(directMapper.deserializer(included, Article)) as any;
 
@@ -239,7 +252,7 @@ describe('@tdm/core', () => {
 
       it('should serialize a basic document', () => {
         articleModifier
-          .setName('articles')
+          .setModel({ resName: 'articles' })
           .setIdentity('id')
           .props('id', 'title');
 
@@ -252,7 +265,7 @@ describe('@tdm/core', () => {
 
       it('should exclude properties decorated with exclude', () => {
         articleModifier
-          .setName('articles')
+          .setModel({ resName: 'articles' })
           .setIdentity('id')
           .props('id', 'title')
           .exclude('category');
@@ -266,7 +279,7 @@ describe('@tdm/core', () => {
 
       it('should alias properties', () => {
         articleModifier
-          .setName('articles')
+          .setModel({ resName: 'articles' })
           .setIdentity('id')
           .props('id', 'title')
           .prop('myCat' as any, {alias: 'category'});
@@ -285,7 +298,7 @@ describe('@tdm/core', () => {
 
       it('should handle different id name and delete it from output', () => {
         articleModifier
-          .setName('articles')
+          .setModel({ resName: 'articles' })
           .setIdentity('myId' as any)
           .prop('myId' as any, {alias: 'id'})
           .prop('title');
@@ -298,7 +311,7 @@ describe('@tdm/core', () => {
 
       it('should handle different id with alias name and delete it from output', () => {
         articleModifier
-          .setName('articles')
+          .setModel({ resName: 'articles' })
           .setIdentity('myId' as any)
           .prop('myId' as any, {alias: 'id'});
 
@@ -310,9 +323,8 @@ describe('@tdm/core', () => {
 
       it('should only include decorated properties in exclusive mode', () => {
         articleModifier
-          .setName('articles')
+          .setModel({ resName: 'articles', transformStrategy: 'exclusive' })
           .setIdentity('id')
-          .classProp('transformStrategy', 'exclusive')
           .props('id', 'title');
 
 
@@ -326,7 +338,7 @@ describe('@tdm/core', () => {
 
       it('should serialize a basic collection document', () => {
         articleModifier
-          .setName('articles')
+          .setModel({ resName: 'articles' })
           .setIdentity('id')
           .props('id', 'title');
 
@@ -339,13 +351,26 @@ describe('@tdm/core', () => {
       });
 
       it('should serialize an included resources', () => {
-        articleModifier.setName('articles').setIdentity('id').props('id', 'title', 'category')
+        articleModifier
+          .setModel({ resName: 'articles', skip: true  })
+          .setIdentity('id')
+          .props('id', 'title', 'category')
           .prop('comments', {typeGetter: () => Comment}, Array).relation('comments')
-          .prop('author', Author).relation('author');
+          .prop('author', Author).relation('author')
+          .build();
 
-        authorModifier.setName('people').setIdentity('id').props('id', 'firstName', 'lastName');
-        commentModifier.setName('comments').setIdentity('id').props('id', 'body')
-          .prop('author', Author).relation('author', {foreignKey: 'author_id'});
+        authorModifier
+          .setModel({ resName: 'people' })
+          .setIdentity('id')
+          .props('id', 'firstName', 'lastName');
+
+        commentModifier
+          .setModel({ resName: 'comments', skip: true  })
+          .setIdentity('id')
+          .props('id', 'body')
+          .prop('author', Author)
+          .relation('author', {foreignKey: 'author_id'})
+          .build();
 
         const resource: Article = targetStore.deserialize(directMapper.deserializer(included, Article)) as any;
         const ser = targetStore.serialize(Article, directMapper.serializer(resource));
@@ -356,9 +381,7 @@ describe('@tdm/core', () => {
         // return keys.
         expect(deepEqual(ser, Object.assign({}, included, {author: "9"}))).toBe(true);
 
-
       });
-
     });
   });
 })

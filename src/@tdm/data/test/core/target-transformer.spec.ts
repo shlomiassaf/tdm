@@ -65,13 +65,11 @@ describe('@tdm/data', () => {
     });
 
     it('should apply NamingStrategyConfig', (done) => {
-      @Resource({
+      @MockResource({
         transformNameStrategy: {
           incoming: name => voca.camelCase(name),
           outgoing: name => voca.snakeCase(name)
-        }
-      })
-      @MockResource({
+        },
         endpoint: '/api/users/:id?'
       })
       class User extends MockMixin(class {}) { }

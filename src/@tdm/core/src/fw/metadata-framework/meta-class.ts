@@ -6,6 +6,13 @@ import { ProxyHostMetadataArgs, MetaClassMetadataArgs } from './meta-class-args'
 const store = new Map<Constructor<any>, MetaClassMetadata>();
 
 /**
+ * A token representing single items (see {@link MetaClassMetadataArgs.single})
+ * Use this token as a key for single items in TargetMetadata
+ * @type {symbol}
+ */
+export class GLOBAL_KEY {}
+
+/**
  * Represents management and control logic for metadata class's
  */
 export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
@@ -15,6 +22,10 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
     if (!this.metaArgs) {
       this.metaArgs = {};
     } else {
+      if (metaArgs.inherit) {
+        this.metaArgs = metaArgs = Object.assign({}, MetaClass.get(metaArgs.inherit).metaArgs, metaArgs);
+      }
+
       if (metaArgs.factory) {
         this.factory = metaArgs.factory;
       }
@@ -29,7 +40,18 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
       }
       
       if (isFunction(metaArgs.extend)) {
+        if (metaArgs.single === true) {
+          // TODO: make error message clear;
+          throw new Error('Extending a single class is done using extendSingle');
+        }
         this.extend = metaArgs.extend;
+      }
+      if (isFunction(metaArgs.extendSingle)) {
+        if (metaArgs.single !== true) {
+          // TODO: make error message clear;
+          throw new Error('Extending a non-single class is done using extend');
+        }
+        this.extendSingle = metaArgs.extendSingle;
       }
     }
   }
@@ -69,11 +91,21 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
 
     const meta = this.factory(metaArgs, target, info, key, desc);
 
-    const curry: MetadataCurriedCreate<TMetaArgs, TMetaClass> = <any>( (alternateMeta?: MetaClassInstanceDetails<TMetaArgs, TMetaClass>): TMetaClass => {
-      this.register(alternateMeta || meta);
+    const curry: MetadataCurriedCreate<TMetaArgs, TMetaClass> = <any>( (_meta?: MetaClassInstanceDetails<TMetaArgs, TMetaClass>): TMetaClass => {
+      if (!_meta) {
+        _meta = meta;
+      }
+
+      this.register(_meta);
+
+      const chain = this.singleChain(_meta);
+      if (chain) {
+        // we use this class's register implementation for all
+        chain.forEach( c => this.register(c) );
+      }
 
       const proxies = this.findProxies(metaArgs);
-      proxies && proxies.forEach( ra => {
+      proxies.forEach( ra => {
         if (ra) { // we check since findProxies returns undefined when no key on metadata arguments was found
           for (let i=1, len=ra.args.length; i<len; i++) {
             ra.meta.create(ra.args[i], target, key, desc);
@@ -81,7 +113,7 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
         }
       });
 
-      return meta.metaValue;
+      return meta && meta.metaValue;
     } );
 
     curry.meta = meta;
@@ -106,7 +138,8 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
   /**
    * @internal
    */
-  extend?(from: Map<PropertyKey, any>, to: Map<PropertyKey, any> | undefined, meta?: { from: Constructor<any>, to: Constructor<any> }): Map<PropertyKey, any>;
+  extend?(from: Map<PropertyKey, any>, to: Map<PropertyKey, any> | undefined, meta?: { from: Constructor<any>, to: Constructor<any> }): Map<PropertyKey, any> | undefined;
+  extendSingle?(from: TMetaClass, to: TMetaClass | undefined, meta?: { from: Constructor<any>, to: Constructor<any> }): TMetaClass | undefined;
 
   /**
    * @internal
@@ -117,7 +150,7 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
       info,
       target: type,
       metaClassKey: this.target,
-      metaPropKey: info.name,
+      metaPropKey: this.metaArgs.single === true ? GLOBAL_KEY : info.name,
       metaValue: new this.target(metaArgs, info, type)
     };
 
@@ -126,12 +159,46 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
 
   /**
    * @internal
+   * set by target-store.ts
    */
   public register: (meta: MetaClassInstanceDetails<TMetaArgs, TMetaClass>) => void;
 
-  private findProxies(metaArgs: TMetaArgs | undefined): Array<{ meta: MetaClassMetadata; args: any[]}> | void {
-    if (metaArgs && this.proxyTo.length > 0) {
-      return this.proxyTo.map(proxy => {
+  /**
+   * Given a MetaClassInstanceDetails, if its a single metadata (single) and has a chain (inherit)
+   * it will go up the chain and create MetaClassInstanceDetails that match the given one just with
+   * the inherited class as the metaClass property.
+   *
+   * This is used to allow registering inheriting single metadata classes.
+   * For example, a ModelMetadata might get extended by an adapter resource, the only metadata class
+   * registered is the extending one, if we will not register the ModelMetadata token as well logic
+   * that expects to find it will fail.
+   * @param meta
+   * @returns {[any,any]|[any]}
+   */
+  private singleChain(meta: MetaClassInstanceDetails<TMetaArgs, TMetaClass>): MetaClassInstanceDetails<TMetaArgs, TMetaClass>[] | undefined {
+    if (this.metaArgs.single === true && this.metaArgs.inherit) {
+      const parentMeta = Object.create(meta);
+      parentMeta.metaClassKey = this.metaArgs.inherit;
+
+      const deep = getMetaClass(this.metaArgs.inherit).singleChain(meta);
+      return deep
+        ? [ parentMeta, ...deep ]
+        : [ parentMeta ]
+      ;
+    }
+  }
+
+  private findProxies(metaArgs: TMetaArgs | undefined): Array<{ meta: MetaClassMetadata; args: any[]}> {
+    const results: Array<{ meta: MetaClassMetadata; args: any[]}> = [];
+
+    if (metaArgs) {
+
+      // we need to take into account parent metadata
+      if (this.metaArgs.inherit) {
+        results.splice(0, 0, ...MetaClass.get(this.metaArgs.inherit).findProxies(metaArgs));
+      }
+
+      const local = this.proxyTo.map(proxy => {
         if (metaArgs.hasOwnProperty(proxy.containerKey)) {
           const myMetaArgs = isFunction(proxy.before)
             ? proxy.before(metaArgs[proxy.containerKey])
@@ -143,10 +210,15 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
           return proxy.forEach === true && Array.isArray(myMetaArgs)
             ? { meta: proxy.metaClass, args: myMetaArgs }
             : { meta: proxy.metaClass, args: [myMetaArgs] }
-          ;
+            ;
         }
       });
+
+      results.splice(results.length, 0, ...local);
     }
+
+
+    return results;
   }
 
   /**

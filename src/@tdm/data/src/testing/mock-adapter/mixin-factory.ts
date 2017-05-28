@@ -1,5 +1,6 @@
 /* tslint:disable:max-line-length */
 import { Tixin, Type } from '@tdm/tixin';
+import { tdm } from '@tdm/core';
 import { TDMModel, store, plugins } from '@tdm/data';
 import { MockAdapter } from './core';
 
@@ -21,7 +22,11 @@ export function MockMixin<Model, TypeofModel, T1, C1, T2, C2, T3, C3, T4, C4, T5
 export function MockMixin<Model, TypeofModel, TMIXIN, CMIXIN>(model?: TypeofModel & Type<Model>, ...mixins: Array<CMIXIN & Type<TMIXIN>>): Type<Model & TDMModel<Model> & MockActiveRecord & TMIXIN> & MockActiveRecordStatic<Model> & typeof MockActiveRecord & CMIXIN & TypeofModel {
   plugins.assertPlugin('ActiveRecord');
 
-  model = model || <any>class {};
+  if (!model) {
+    model = <any>class {};
+  }
+  // a model might not be a target at this point (i.e. it has no metadata)
+  tdm.targetStore.registerTarget(model);
 
   /**
    * Marking the mixin BaseRestResource for model.
@@ -34,7 +39,10 @@ export function MockMixin<Model, TypeofModel, TMIXIN, CMIXIN>(model?: TypeofMode
   // we can't send ...mixin to Tixin since the type limits the ..mixins amount
   const result = (Tixin as any)(model, MockActiveRecord, ...mixins);
 
-  store.buildIfReady(result, MockAdapter);
+  const tMeta = tdm.targetStore.getTargetMeta(result);
+  if (tMeta.hasModel) {
+    tMeta.model().build(true);
+  }
 
   return result as any;
 }

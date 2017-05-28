@@ -45,7 +45,7 @@ export class ExecuteContext<T extends ActionMetadata> {
 
 
   constructor(private readonly meta: tdm.TargetMetadata, public readonly action: T) {
-    this.mapper = findProp('mapper', defaultConfig, meta);
+    this.mapper = findProp('mapper', defaultConfig, meta.model());
   }
 
   /**
@@ -59,7 +59,7 @@ export class ExecuteContext<T extends ActionMetadata> {
     }
 
     if (!value) {
-      value = this.meta.factory(this.action.isCollection);
+      value = this.meta.model().factory(this.action.isCollection);
     } else if (!this.instanceOf(value)) {
       throw new Error('Instance does not match type');
     }

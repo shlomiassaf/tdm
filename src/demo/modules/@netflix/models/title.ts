@@ -25,7 +25,7 @@ export function toSnakeCase(propertyName: string) { return snakeCase(propertyNam
     incoming: toCamelCase,
     outgoing: toSnakeCase
   },
-  noBuild: true
+  skip: true
 })
 export class Title {
   unit: number;

@@ -16,7 +16,7 @@ export class TDMModelFormService {
 
   getMeta(type: Type<any>): FormModelMetadata {
     return type
-      ? targetStore.getClassProp(type, 'formModel')
+      ? targetStore.getMetaFor(type, FormModelMetadata, true)
       : undefined
   }
 
@@ -32,7 +32,7 @@ export class TDMModelFormService {
 
   private _getInstructions(type: Type<any>): RenderInstruction[] {
     const props = targetStore.getTargetMeta(type).getValues(tdm.PropMetadata);
-    const formMeta = targetStore.getClassProp(type, 'formModel');
+    const formMeta = this.getMeta(type);
     return props.map( p => {
       const formProp = formMeta.getProp(p.name as string);
       if (formProp && formProp.exclude) {

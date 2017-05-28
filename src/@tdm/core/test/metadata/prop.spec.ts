@@ -1,7 +1,8 @@
-import { Prop, Relation } from '@tdm/core';
+import { Model, Prop, Relation } from '@tdm/core';
 import { PropMetadata } from '@tdm/core/tdm';
 import { TargetMetaModifier } from '@tdm/core/testing';
 
+@Model()
 class User {
 
   // alias SPEC //
@@ -122,7 +123,7 @@ class User {
 // relations SPEC //
 }
 
-
+@Model()
 class Person {
   @Prop() self: Person;
 

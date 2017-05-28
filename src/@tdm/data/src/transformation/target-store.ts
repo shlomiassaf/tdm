@@ -7,10 +7,6 @@ import { AdapterMetadata, AdapterMetadataArgs } from '../metadata';
 
 class CoreTargetStore extends tdm.TargetStore {
 
-  @tdm.LazyInit(function(this: CoreTargetStore): Set<any>{
-    return new Set<any>();
-  })
-  readyToBuild: Set<any>;
 
   getAdapter(adapterClass: AdapterStatic<any, any>): AdapterMetadata {
     return this.local<AdapterMetadata>(adapterClass)
@@ -23,24 +19,6 @@ class CoreTargetStore extends tdm.TargetStore {
 
   registerAdapter(adapterClass: AdapterStatic<any, any>, metaArgs: AdapterMetadataArgs): void {
     tdm.MetaClass.get(AdapterMetadata).create(metaArgs, adapterClass);
-  }
-
-  setReadyToBuild(target: any): void {
-    if (!this.readyToBuild.has(target)) {
-      this.readyToBuild.add(target);
-    }
-  }
-
-  buildIfReady(target: any, adapterClass: AdapterStatic<any, any>): boolean {
-    if (this.readyToBuild.has(target)) {
-      const tMeta = this.getTargetMeta(target);
-      if (!tMeta.activeAdapter) {
-        this.readyToBuild.delete(target);
-        tMeta.setActiveAdapter(adapterClass);
-        return true;
-      }
-    }
-    return false;
   }
 
   getAC(target: Constructor<any>): ActionController | undefined;
@@ -61,9 +39,6 @@ declare module '@tdm/core/metadata/target-store' {
     getAdapter(adapterClass: AdapterStatic<any, any>): AdapterMetadata | undefined;
     hasAdapter(adapterClass: AdapterStatic<any, any>): boolean;
     registerAdapter(adapterClass: AdapterStatic<any, any>, metaArgs: AdapterMetadataArgs): void;
-
-    setReadyToBuild(target: any): void;
-    buildIfReady(target: any, adapterClass: AdapterStatic<any, any>): boolean;
 
     /**
      * Returns the action controller of the current (active) adapter on this target.

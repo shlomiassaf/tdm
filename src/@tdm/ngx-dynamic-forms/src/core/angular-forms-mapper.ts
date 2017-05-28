@@ -11,7 +11,7 @@ import {
 import { tdm, directMapper, DirectDeserializeMapper } from '@tdm/core';
 import '@tdm/core/add/mapping';
 
-import { FormPropMetadata } from './decorators';
+import { FormModelMetadata, FormPropMetadata } from './decorators';
 
 const { targetStore, isUndefined, isFunction, isPrimitive } = tdm;
 
@@ -38,7 +38,7 @@ export class NgFormsSerializeMapper extends tdm.SerializeMapper {
   }
 
   protected serializeObject(obj: any, container: tdm.PropertyContainer): FormGroup {
-    const formModel = targetStore.getClassProp(container.target, 'formModel');
+    const formModel = targetStore.getMetaFor(container.target, FormModelMetadata, true);
 
     if (!formModel) {
       throw new Error(`Target '${tdm.stringify(container.target)}' is not a registered FormModel`)

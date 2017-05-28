@@ -1,6 +1,6 @@
 import { tdm } from '@tdm/core';
 import { MockMixin, MockResource, MockActionOptions, bucketFactory } from '@tdm/data/testing';
-import { ActiveRecord, Constructor, Prop, Resource } from '@tdm/data';
+import { ActiveRecord, Constructor, Prop } from '@tdm/data';
 
 const { targetStore, TargetMetadata } = tdm;
 
@@ -35,7 +35,7 @@ describe('@tdm/data', () => {
       targetStore.on.processType(processType);
 
 
-      @MockResource({ endpoint: '/api/users/:id?', noBuild: true }) class User { }
+      @MockResource({ endpoint: '/api/users/:id?', skip: true }) class User { }
 
       expect(targetStore.getTargetMeta(User)).toBeInstanceOf(TargetMetadata);
 
@@ -55,7 +55,7 @@ describe('@tdm/data', () => {
     it('should register resource using const/type (no inheritance)', (done) => {
       @MockResource({
         endpoint: '/api/users/:id?',
-        noBuild: true
+        skip: true
       })
       class User_ {
         name: string;
@@ -68,7 +68,7 @@ describe('@tdm/data', () => {
       const user: User = bucket.create<any>(User);
       user.$refresh({returnValue}).$rc.next()
         .then( data => {
-          expect(targetStore.getClassProp(User, 'resName')).toBe('User_');
+          expect(targetStore.getTargetMeta(User).model().resName).toBe('User_');
           expect(user.name).toBe('test');
           expect(user.value).toBe('value1');
           done();
@@ -100,7 +100,7 @@ describe('@tdm/data', () => {
       const user = bucket.create(User);
       user.$refresh({returnValue}).$rc.next()
         .then( data => {
-          expect(targetStore.getClassProp(User, 'resName')).toBe('User');
+          expect(targetStore.getTargetMeta(User).model().resName).toBe('User');
           expect(user.name).toBe('test');
           expect(user.value).toBe('value1');
           done();
@@ -125,7 +125,7 @@ describe('@tdm/data', () => {
       const user = bucket.create(User);
       user.$refresh({returnValue}).$rc.next()
         .then( data => {
-          expect(targetStore.getClassProp(User, 'resName')).toBe('User');
+          expect(targetStore.getTargetMeta(User).model().resName).toBe('User');
           expect(user.name).toBe('test');
           expect(user.value).toBe('value1');
           done();
@@ -138,15 +138,13 @@ describe('@tdm/data', () => {
     it('should override resource name, if set', () => {
       class User_ { }
 
-      @Resource({
-        resName: 'TestUser'
-      })
       @MockResource({
+        resName: 'TestUser',
         endpoint: '/api/users/:id?'
       })
       class User extends MockMixin(User_) { }
 
-      expect(targetStore.getClassProp(User, 'resName')).toBe('TestUser');
+      expect(targetStore.getTargetMeta(User).model().resName).toBe('TestUser');
     });
 
 

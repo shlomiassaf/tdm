@@ -17,8 +17,7 @@ export type MetadataAllowOn = 'class' | 'member' | 'staticMember';
 
 
 export interface MetadataClassStatic<TMetaArgs = any, TMetaClass = any> {
-  new (metaArgs: TMetaArgs, info: DecoratorInfo): TMetaClass;
-  new (metaArgs: TMetaArgs, info: DecoratorInfo, target: Object | Function): TMetaClass;
+  new (metaArgs: TMetaArgs, info: DecoratorInfo, target?: Object | Function): TMetaClass;
   prototype: TMetaClass
 }
 

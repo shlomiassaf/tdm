@@ -76,21 +76,19 @@ describe('@tdm/data', () => {
     });
 
 
-    it('should call instance level hooks', (done) => {
+    it('should call instance level hooks', () => {
       const user = bucket.create(User);
-      user.$refresh().$rc.next()
+      return user.$refresh().$rc.next()
         .then( data => {
           expect(PUser.beforeRefresh).toHaveBeenCalledTimes(1);
           expect(PUser.afterRefresh).toHaveBeenCalledTimes(1);
           expect(PUser.beforeRefresh.calls.mostRecent().object).toBe(user);
           expect(PUser.afterRefresh.calls.mostRecent().object).toBe(user);
-          done();
-        })
-        .catch( err => done.fail(err) );
+        });
     });
 
-    it('should call static level hooks', (done) => {
-      User.query({ returnValue: [ { username: '1' }, { username: '2' }, { username: '3' } ] }).$rc.next()
+    it('should call static level hooks', () => {
+      return User.query({ returnValue: [ { username: '1' }, { username: '2' }, { username: '3' } ] }).$rc.next()
         .then( data => {
           bucket.bucket.push(data)
           expect(SUser.beforeQuery).toHaveBeenCalledTimes(1);
@@ -103,9 +101,7 @@ describe('@tdm/data', () => {
           SUser.afterQuery.calls.mostRecent().object.forEach( (value, idx) => {
             expect(value.username).toBe(String(idx +1))
           });
-          done();
-        })
-        .catch( err => done.fail(err) );
+        });
     });
   });
 });

@@ -46,7 +46,7 @@ describe('@tdm/core', () => {
       beforeEach( () => userModifier.clear() );
 
       it('should apply NamingStrategyConfig in inclusive mode - without defined @Props', () => {
-        userModifier.classProp('transformNameStrategy', transformNameStrategy);
+        userModifier.setModel({ transformNameStrategy: transformNameStrategy });
 
         const user = tdm.targetStore.deserialize(directMapper.deserializer(data, User));
 
@@ -71,7 +71,7 @@ describe('@tdm/core', () => {
       });
 
       it('should apply NamingStrategyConfig in inclusive mode - with defined @Props', () => {
-        userModifier.classProp('transformNameStrategy', transformNameStrategy);
+        userModifier.setModel({ transformNameStrategy: transformNameStrategy });
         (userModifier.props as any)('myProperty1', 'myProperty2', 'myProperty3');
 
         const user = tdm.targetStore.deserialize(directMapper.deserializer(data, User));
@@ -97,8 +97,10 @@ describe('@tdm/core', () => {
       });
 
       it('should apply NamingStrategyConfig in exclusive mode', () => {
-        userModifier.classProp('transformNameStrategy', transformNameStrategy);
-        userModifier.classProp('transformStrategy', 'exclusive');
+        userModifier.setModel({
+          transformNameStrategy: transformNameStrategy,
+          transformStrategy: 'exclusive'
+        });
         (userModifier.props as any)('myProperty1', 'myProperty2', 'myProperty3');
 
         const data = {

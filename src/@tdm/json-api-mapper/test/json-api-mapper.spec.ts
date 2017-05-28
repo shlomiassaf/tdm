@@ -44,7 +44,7 @@ describe('JSONAPIMapper', () => {
 
     it('should deserialize a basic document', () => {
       articleModifier
-        .setName('articles')
+        .setModel({ resName: 'articles' })
         .setIdentity('id')
         .props('id', 'title');
 
@@ -60,7 +60,7 @@ describe('JSONAPIMapper', () => {
 
     it('should exclude properties decorated with exclude', () => {
       articleModifier
-        .setName('articles')
+        .setModel({ resName: 'articles' })
         .setIdentity('id')
         .props('id', 'title')
         .exclude('category');
@@ -76,7 +76,7 @@ describe('JSONAPIMapper', () => {
 
     it('should alias properties', () => {
       articleModifier
-        .setName('articles')
+        .setModel({ resName: 'articles' })
         .setIdentity('id')
         .props('id', 'title')
         .prop('myCat' as any, { alias: 'category' });
@@ -93,7 +93,7 @@ describe('JSONAPIMapper', () => {
 
     it('should set the id', () => {
       articleModifier
-        .setName('articles')
+        .setModel({ resName: 'articles' })
         .setIdentity('myId' as any)
         .props('myId' as any, 'title');
 
@@ -108,7 +108,7 @@ describe('JSONAPIMapper', () => {
 
     it('should set the aliased id', () => {
       articleModifier
-        .setName('articles')
+        .setModel({ resName: 'articles' })
         .setIdentity('myId' as any)
         .prop('myId' as any, { alias: 'id' })
         .prop('title');
@@ -124,9 +124,8 @@ describe('JSONAPIMapper', () => {
 
     it('should only include decorated properties in exclusive mode', () => {
       articleModifier
-        .setName('articles')
+        .setModel({ resName: 'articles', transformStrategy: 'exclusive' })
         .setIdentity('id')
-        .classProp('transformStrategy', 'exclusive')
         .props('id', 'title');
 
 
@@ -140,7 +139,7 @@ describe('JSONAPIMapper', () => {
 
     it('should deserialize a basic collection document', () => {
       articleModifier
-        .setName('articles')
+        .setModel({ resName: 'articles' })
         .setIdentity('id')
         .props('id', 'title');
 
@@ -160,7 +159,7 @@ describe('JSONAPIMapper', () => {
 
     it('should exclude properties decorated with exclude from collection items', () => {
       articleModifier
-        .setName('articles')
+        .setModel({ resName: 'articles' })
         .setIdentity('id')
         .props('id', 'title')
         .exclude('category');
@@ -181,9 +180,9 @@ describe('JSONAPIMapper', () => {
     });
 
     it('should deserialize an included resources', () => {
-      articleModifier.setName('articles').setIdentity('id').props('id', 'title', 'category');
-      authorModifier.setName('people').setIdentity('id').props('id', 'firstName', 'lastName');
-      commentModifier.setName('comments').setIdentity('id').props('id', 'body');
+      articleModifier.setModel({ resName: 'articles' }).setIdentity('id').props('id', 'title', 'category');
+      authorModifier.setModel({ resName: 'people' }).setIdentity('id').props('id', 'firstName', 'lastName');
+      commentModifier.setModel({ resName: 'comments' }).setIdentity('id').props('id', 'body');
 
 
       const res: Article = targetStore.deserialize(jsonAPIMapper.deserializer(included.payload, Article)) as any;
@@ -217,13 +216,13 @@ describe('JSONAPIMapper', () => {
     });
 
     it('should deserialize an included resources with explicit relations', () => {
-      authorModifier.setName('people').setIdentity('id').props('id', 'firstName', 'lastName');
+      authorModifier.setModel({ resName: 'people' }).setIdentity('id').props('id', 'firstName', 'lastName');
 
-      articleModifier.setName('articles').setIdentity('id').props('id', 'title', 'category')
+      articleModifier.setModel({ resName: 'articles' }).setIdentity('id').props('id', 'title', 'category')
         .prop('comments', { typeGetter: () => Comment }, Array).relation('comments')
         .prop('author', Author).relation('author');
 
-      commentModifier.setName('comments').setIdentity('id').props('id', 'body')
+      commentModifier.setModel({ resName: 'comments' }).setIdentity('id').props('id', 'body')
         .prop('author', Author).relation('author');
 
       const res: Article = targetStore.deserialize(jsonAPIMapper.deserializer(included.payload, Article)) as any;
@@ -268,7 +267,7 @@ describe('JSONAPIMapper', () => {
 
     it('should serialize a basic document', () => {
       articleModifier
-        .setName('articles')
+        .setModel({ resName: 'articles' })
         .setIdentity('id')
         .props('id', 'title');
 
@@ -281,7 +280,7 @@ describe('JSONAPIMapper', () => {
 
     it('should exclude properties decorated with exclude', () => {
       articleModifier
-        .setName('articles')
+        .setModel({ resName: 'articles' })
         .setIdentity('id')
         .props('id', 'title')
         .exclude('category');
@@ -295,7 +294,7 @@ describe('JSONAPIMapper', () => {
 
     it('should alias properties', () => {
       articleModifier
-        .setName('articles')
+        .setModel({ resName: 'articles' })
         .setIdentity('id')
         .props('id', 'title')
         .prop('myCat' as any, { alias: 'category' });
@@ -314,7 +313,7 @@ describe('JSONAPIMapper', () => {
 
     it('should handle different id name and delete it from output', () => {
       articleModifier
-        .setName('articles')
+        .setModel({ resName: 'articles' })
         .setIdentity('myId' as any)
         .props('myId' as any, 'title');
 
@@ -326,7 +325,7 @@ describe('JSONAPIMapper', () => {
 
     it('should handle different id with alias name and delete it from output', () => {
       articleModifier
-        .setName('articles')
+        .setModel({ resName: 'articles' })
         .setIdentity('myId' as any)
         .prop('myId' as any, { alias: 'id' })
         .prop('title');
@@ -338,9 +337,8 @@ describe('JSONAPIMapper', () => {
 
     it('should only include decorated properties in exclusive mode', () => {
       articleModifier
-        .setName('articles')
+        .setModel({ resName: 'articles', transformStrategy: 'exclusive' })
         .setIdentity('id')
-        .classProp('transformStrategy', 'exclusive')
         .props('id', 'title');
 
 
@@ -354,7 +352,7 @@ describe('JSONAPIMapper', () => {
 
     it('should serialize a basic collection document', () => {
       articleModifier
-        .setName('articles')
+        .setModel({ resName: 'articles' })
         .setIdentity('id')
         .props('id', 'title');
 
@@ -367,13 +365,26 @@ describe('JSONAPIMapper', () => {
     });
 
     it('should serialize an included resources', () => {
-      articleModifier.setName('articles').setIdentity('id').props('id', 'title', 'category')
-        .prop('comments', { typeGetter: () => Comment }, Array).relation('comments')
-        .prop('author', Author).relation('author');
+      articleModifier
+        .setModel({ resName: 'articles', skip: true })
+        .setIdentity('id')
+        .props('id', 'title', 'category')
+        .prop('comments', { typeGetter: () => Comment }, Array)
+        .relation('comments')
+        .prop('author', Author).relation('author')
+        .build();
 
-      authorModifier.setName('people').setIdentity('id').props('id', 'firstName', 'lastName');
-      commentModifier.setName('comments').setIdentity('id').props('id', 'body')
-        .prop('author', Author).relation('author');
+      authorModifier
+        .setModel({ resName: 'people' })
+        .setIdentity('id')
+        .props('id', 'firstName', 'lastName');
+
+      commentModifier
+        .setModel({ resName: 'comments', skip: true  })
+        .setIdentity('id').props('id', 'body')
+        .prop('author', Author)
+        .relation('author')
+        .build();
 
 
 

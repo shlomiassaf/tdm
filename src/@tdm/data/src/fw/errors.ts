@@ -1,6 +1,8 @@
 import { tdm, TDMModel } from '@tdm/core';
 import { AdapterStatic, ValidationError } from './interfaces';
 
+const { stringify } = tdm;
+
 function getErrorName(type: Function): string {
   return `TDM${type.name}`;
 }
@@ -24,7 +26,7 @@ export class PluginError extends TDMError {
 
 export class DecoratorError extends TDMError {
   constructor(target: any, propertyName: PropertyKey, message: string) {
-    super(`Invalid decorator @ ${tdm.stringify(target)}#${tdm.stringify(propertyName)}: ${message}`);
+    super(`Invalid decorator @ ${stringify(target)}#${stringify(propertyName)}: ${message}`);
     this.name = getErrorName(DecoratorError);
   }
 
@@ -45,15 +47,15 @@ export class AdapterError extends TDMError {
   }
 
   static notRegistered(adapterClass: AdapterStatic<any, any>): AdapterError {
-    return new AdapterError(adapterClass, `Adapter '${tdm.stringify(adapterClass)}' is not a registered Adapter`);
+    return new AdapterError(adapterClass, `Adapter '${stringify(adapterClass)}' is not a registered Adapter`);
   }
 
   static notRegisteredFor(adapterClass: AdapterStatic<any, any>, target: any): AdapterError {
-    return new AdapterError(adapterClass, `Adapter '${tdm.stringify(adapterClass)}' is not a registered Adapter for target '${target}'`);
+    return new AdapterError(adapterClass, `Adapter '${stringify(adapterClass)}' is not a registered Adapter for target '${target}'`);
   }
 
   static registered(adapterClass: AdapterStatic<any, any>, existsIn: string): AdapterError {
-    return new AdapterError(adapterClass, `Adapter '${tdm.stringify(adapterClass)}' already registered for '${existsIn}'`);
+    return new AdapterError(adapterClass, `Adapter '${stringify(adapterClass)}' already registered for '${existsIn}'`);
   }
 }
 
@@ -64,17 +66,28 @@ export class TargetError extends TDMError {
   }
 
   static built(target: any, adapterClass: AdapterStatic<any, any>): TargetError {
-    return new TargetError(target, `Target/Adapter ${tdm.stringify(target)}/${tdm.stringify(adapterClass)} is already built`);
+    return new TargetError(target, `Target/Adapter ${stringify(target)}/${stringify(adapterClass)} is already built`);
   }
 
   static noActiveAdapter(target: any): TargetError {
-    return new TargetError(target, `Target ${tdm.stringify(target)} has no active adapter registered.`);
+    return new TargetError(target, `Target ${stringify(target)} has no active adapter registered.`);
+  }
+
+  /**
+   * Fires an error that indicates that the target does not have a {@link ModelMetadata}
+   * instance registered (or any {@link ModelMetadata} derived instance).
+   * This usually means that the target is not decorated with @Model (or any adapter specific implementation of @Model)
+   * @param target
+   * @returns {TargetError}
+   */
+  static notModel(target: any): TargetError {
+    return new TargetError(target, `Target ${stringify(target)} is not a model, make sure it is decorated with a @Model decorator (or any derived adapter specific Model decorator)`);
   }
 }
 
 export class ResourceError extends TDMError {
   constructor(public readonly ar: TDMModel<any>, message?: string) {
-    super(message)
+    super(message);
     this.name = getErrorName(ResourceError);
   }
 

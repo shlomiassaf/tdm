@@ -2,7 +2,7 @@ import { Constructor, MetaClass } from './fw';
 import { targetStore, ExcludeMetadata, ExcludeMetadataArgs, PropMetadata, PropMetadataArgs, RelationMetadata, RelationMetadataArgs } from './metadata';
 
 targetStore.on
-  .createMetadata( (target: Constructor<any>) => {
+  .processType( (target: Constructor<any>) => {
     const meta = targetStore.getTargetMeta(target);
     meta.getValues(RelationMetadata)
       .forEach( relation => {
@@ -46,6 +46,6 @@ export const Relation = MetaClass.get(RelationMetadata).createDecorator(true);
  */
 export function Identity(): Function {
   return (target: Object, key: PropertyKey) => {
-    targetStore.setClassProp(target.constructor as any, 'identity', key);
+    targetStore.getTargetMeta(<any>target.constructor).model().identity = key;
   }
 }

@@ -1,4 +1,3 @@
-export * from './resource';
 export * from './action';
 export * from './extend-action';
 export * from './adapter';

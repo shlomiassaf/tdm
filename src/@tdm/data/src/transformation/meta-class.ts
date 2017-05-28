@@ -1,6 +1,5 @@
-import { tdm, TDMModelBase } from '@tdm/core';
+import { tdm, ModelMetadataArgs, TDMModelBase } from '@tdm/core';
 import { AdapterStatic } from '../fw';
-import { ResourceMetadataArgs } from '../metadata';
 
 declare module '@tdm/core/fw/metadata-framework/meta-class' {
   interface MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
@@ -8,13 +7,15 @@ declare module '@tdm/core/fw/metadata-framework/meta-class' {
   }
 }
 
+const ADAPTER_REF = Symbol('Adapter Ref');
+
 /**
  * A Factory for Resource class decorators, the returned decorator will automatically register the
  * target & adapterType with the resource.
  * @param adapterClass
  */
-export function resource<TMetaArgs extends ResourceMetadataArgs>(
-  this: tdm.MetaClassMetadata<ResourceMetadataArgs, ResourceMetadataArgs>,
+export function resource<TMetaArgs extends ModelMetadataArgs>(
+  this: tdm.MetaClassMetadata<ModelMetadataArgs, tdm.ModelMetadata>,
   adapterClass: AdapterStatic<any, any>): (metaArgs: TMetaArgs) => ClassDecorator {
 
   const metaClass = this;
@@ -32,16 +33,17 @@ export function resource<TMetaArgs extends ResourceMetadataArgs>(
       }
 
       const TDMModel = TDMModelBase.factory(target);
+      TDMModel[ADAPTER_REF] = adapterClass;
 
-      tdm.targetStore.registerTarget(target);
+      const modelMeta = metaClass.create(metaArgs || {}, target);
+      // tdm.targetStore.registerTarget(target);
+      const meta = tdm.targetStore.getTargetMeta(target);
 
-      metaClass.create(metaArgs || {}, target);
-      tdm.targetStore.setResource(metaArgs, target);
 
       // check for properties that set the type to self (same class)
       // the class will point to the base class (target) that TDModel extends.
       // this is fine if the user didn't set `typeGetter`, if he did we get TDModel
-      tdm.targetStore.getTargetMeta(target)
+      meta
         .getValues(tdm.PropMetadata)
         .forEach( p => {
           const desc = Object.getOwnPropertyDescriptor(p, 'type');
@@ -52,15 +54,10 @@ export function resource<TMetaArgs extends ResourceMetadataArgs>(
         });
 
       tdm.targetStore.registerTarget(TDMModel);
+      const tdmModelMeta = metaClass.extendSingle(modelMeta, undefined, { from: target, to: TDMModel });
 
-      if (metaArgs.noBuild !== true) {
-        const tMeta = tdm.targetStore.getTargetMeta(TDMModel);
-        // default behaviour, register the first adapter, if multiple...
-        if (!tMeta.activeAdapter) {
-          tMeta.setActiveAdapter(adapterClass);
-        }
-      } else {
-        tdm.targetStore.setReadyToBuild(TDMModel);
+      if (metaArgs.skip !== true) {
+        tdmModelMeta.build();
       }
 
       return TDMModel;
@@ -70,4 +67,13 @@ export function resource<TMetaArgs extends ResourceMetadataArgs>(
 
 tdm.MetaClassMetadata.prototype.createResourceDecorator = resource;
 
+tdm.targetStore.on.beforeProcessType( target => {
+  const tMeta = tdm.targetStore.getTargetMeta(target);
+  // default behaviour, register the first adapter, if multiple...
+  if (target[ADAPTER_REF]) {
+    if (!tMeta.activeAdapter) {
+      tMeta.setActiveAdapter(target[ADAPTER_REF]);
+    }
+  }
+});
 

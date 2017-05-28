@@ -5,7 +5,6 @@ import { AdapterError, AdapterStatic, ARHookableMethods } from '../fw';
 import {
   ExtendActionMetadata,
   HookMetadata,
-  ResourceMetadataArgs,
   ValidationError
 } from '../metadata';
 import { ActionController } from '../core/action-controller';
@@ -33,10 +32,6 @@ class CoreTargetMetadata extends tdm.TargetMetadata {
 
   validate(instance: any): Promise<ValidationError[]> {
     return this.validator.validate(instance);
-  }
-
-  setResource(meta: ResourceMetadataArgs): void {
-    tdm.targetStore.setResource(meta, this.target);
   }
 
   findHook(action: ARHookableMethods): { before: HookMetadata, after: HookMetadata } | undefined {
@@ -84,7 +79,6 @@ class CoreTargetMetadata extends tdm.TargetMetadata {
         }
       });
 
-    tdm.fireEvents('processType', this.target);
   }
 
   private getProtoChainWithMixins(target: Constructor<any>, adapterClass: AdapterStatic<any, any>): Set<Constructor<any>> {
@@ -107,23 +101,11 @@ class CoreTargetMetadata extends tdm.TargetMetadata {
   }
 }
 
-// @tdm/data does not allow a 'factory' for @tdm/core @Model, it uses it's own factory.
-Object.defineProperty(CoreTargetMetadata.prototype, 'factory', {
-  value: function targetFactory(isColl: boolean): any {
-    return isColl
-      ? this.createCollection()
-      : new this.target()
-      ;
-  }
-});
-
 declare module '@tdm/core/metadata/target-metadata' {
   interface TargetMetadata {
     collectionClass: typeof TDMCollection & Constructor<TDMCollection<any>>;
 
     validate(instance: any): Promise<ValidationError[]>;
-
-    setResource(meta: ResourceMetadataArgs): void;
 
     findHook(action: ARHookableMethods): { before: HookMetadata, after: HookMetadata } | undefined;
     findHookEvent(action: ARHookableMethods, event: 'before' | 'after'): HookMetadata | undefined;

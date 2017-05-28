@@ -28,7 +28,7 @@ import { ARMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpAct
   urlParams: {
     limit: '5'
   },
-  noBuild: true
+  skip: true
 })
 @Injectable()
 class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,

@@ -46,7 +46,7 @@ export class Store {
 
   /**
    * Search for a target registered in the repository by it's name.
-   * @see ResourceMetadataArgs#resName
+   * @see ModelMetadataArgs#resName
    * @param name
    */
   findModel(name: string): any | undefined {
@@ -55,10 +55,6 @@ export class Store {
 
   getModelName(target: any): string | undefined {
     return tdm.targetStore.getTargetName(target);
-  }
-
-  buildIfReady(target: any, adapterClass: AdapterStatic<any, any>): boolean {
-    return tdm.targetStore.buildIfReady(target, adapterClass);
   }
 
   /**

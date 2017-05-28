@@ -87,7 +87,25 @@ export interface ProxyHostMetadataArgs<T extends MetadataClassStatic<any, any> =
 }
 
 export interface MetaClassMetadataArgs<TMetaArgs = any, TMetaClass = any> {
-  storage?: '';
+  /**
+   * When true, the metadata is saved under the global key.
+   *
+   * > Global key logic is implemented throughout the library, make sure to follow this logic when
+   * implementing custom behaviour (for example, overriding the default factory and/or register methods)
+   * Since most custom implementation are metadata class specific this should be an issue.
+   *
+   *
+   * @default undefined;
+   */
+  single?: true;
+
+  /**
+   * A Metadata class to inherit the MetaClassMetadataArgs from.
+   *
+   * Note that the MetaClassMetadataArgs used to defined the parent are used and not the
+   * MetaClassMetadata instance.
+   */
+  inherit?: any;
 
   /**
    * Defines a proxy for the current metadata class on an other metadata class.
@@ -107,7 +125,7 @@ export interface MetaClassMetadataArgs<TMetaArgs = any, TMetaClass = any> {
            target: Object | Function,
            info: DecoratorInfo,
            key?: PropertyKey,
-           desc?: PropertyDescriptor): MetaClassInstanceDetails<TMetaArgs, TMetaClass>
+           desc?: PropertyDescriptor): MetaClassInstanceDetails<TMetaArgs, TMetaClass> | undefined;
 
   /**
    * Register the metadata instance.
@@ -118,7 +136,7 @@ export interface MetaClassMetadataArgs<TMetaArgs = any, TMetaClass = any> {
             meta: MetaClassInstanceDetails<TMetaArgs, TMetaClass>): void;
 
   /**
-   * Optional implementation of extend logic, logic that handles one type extending another type.
+   * Optional implementation of extend logic FOR non-single metadata, logic that handles one type extending another type.
    * If not set, the Metadata class is not extendable and will not inherit metadata from child types.
    * If the method returns undefined it will also not extend the Metadata class.
    *
@@ -130,7 +148,21 @@ export interface MetaClassMetadataArgs<TMetaArgs = any, TMetaClass = any> {
    * @param meta.to the target target
    * @returns the new extended value.
    */
-  extend?(from: Map<PropertyKey, any>, to: Map<PropertyKey, any> | undefined, meta?: { from: Constructor<any>, to: Constructor<any> }): Map<PropertyKey, any>;
+  extend?(from: Map<PropertyKey, any>, to: Map<PropertyKey, any> | undefined, meta?: { from: Constructor<any>, to: Constructor<any> }): Map<PropertyKey, any> | undefined;
+
+  /**
+   * Optional implementation of extend logic FOR single metadata, logic that handles one type extending another type.
+   * If not set, the Metadata class is not extendable and will not inherit metadata from child types.
+   * If the method returns undefined it will also not extend the Metadata class.
+   *
+   * 'to' can be undefined, if so it means that that Metadata class was never assigned to the type.
+   *
+   * @param from
+   * @param to
+   * @param meta
+   *  @returns the new extended value.
+   */
+  extendSingle?(from: TMetaClass, to: TMetaClass | undefined, meta?: { from: Constructor<any>, to: Constructor<any> }): TMetaClass | undefined;
 
   /**
    * A list of supported decoration targets for a metadata class.

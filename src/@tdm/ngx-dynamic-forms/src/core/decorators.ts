@@ -57,29 +57,18 @@ export interface FormPropMetadataArgs {
   asyncValidators?: AsyncValidatorFn | Array<AsyncValidatorFn>;
 }
 
-function factory(this: tdm.MetaClassMetadata<FormPropMetadataArgs, FormModelMetadata>,
-                 metaArgs: FormPropMetadataArgs,
-                 target: Object,
-                 info: tdm.DecoratorInfo): tdm.MetaClassInstanceDetails<FormPropMetadataArgs, FormModelMetadata> {
-  return {
-    info,
-    target: <any>target,
-    metaClassKey: <any>tdm.ClassMetadata,
-    metaPropKey: 'formModel',
-    metaValue: new FormModelMetadata(metaArgs || {})
-  };
-}
-
 @tdm.MetaClass<FormModelMetadataArgs, FormModelMetadata>({
-  allowOn: ['class'],
-  factory
+  single: true,
+  allowOn: ['class']
 })
-export class FormModelMetadata {
+export class FormModelMetadata extends tdm.BaseMetadata implements FormModelMetadataArgs {
   validator: ValidatorFn | null;
   asyncValidator: AsyncValidatorFn | null;
   props = new Map<string, FormPropMetadata>();
 
-  constructor(metaArgs?: FormModelMetadataArgs | undefined) {
+  constructor(metaArgs: FormModelMetadataArgs | undefined, info: tdm.DecoratorInfo) {
+    super(info);
+
     if (metaArgs) {
       this.validator = metaArgs.validator || null;
       this.asyncValidator = metaArgs.asyncValidator || null;
@@ -173,30 +162,18 @@ export const FormProp = tdm.MetaClass.get(FormPropMetadata).createDecorator(true
 
 tdm.targetStore.on
   .processType((target: Constructor<any>) => {
-    const modelProps = tdm.targetStore.getMetaFor(target, FormPropMetadata);
+    const tMeta = tdm.targetStore.getTargetMeta(target);
+    const modelProps = tMeta.getMetaFor(FormPropMetadata);
     if (modelProps) {
-      let formModel = tdm.targetStore.getClassProp(target, 'formModel');
+      let formModel = tMeta.getMetaFor(FormModelMetadata, true);
       if (!formModel) {
-        formModel = new FormModelMetadata(undefined);
-        tdm.targetStore.setClassProp(target, 'formModel', formModel);
+        FormModel()(target);
+        formModel = tMeta.getMetaFor(FormModelMetadata, true);
       }
 
-      const meta = tdm.targetStore.getTargetMeta(target);
       tdm.MapExt.asKeyValArray(modelProps)
         .forEach( ([k, v]) => {
-          formModel.addProp(meta.getCreateProp(k as any), v);
+          formModel.addProp(tMeta.getCreateProp(k as any), v);
         });
     }
 });
-
-declare module '@tdm/core/metadata/target-metadata' {
-  interface TargetMetadata {
-    formModel: FormModelMetadata;
-  }
-}
-
-declare module '@tdm/core/metadata/class-metadata' {
-  interface ClassMetadata {
-    formModel: FormModelMetadata;
-  }
-}

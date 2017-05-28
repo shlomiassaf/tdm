@@ -1,4 +1,4 @@
-export * from './class-metadata'
+export * from './model-metadata'
 export * from './target-store'
 export * from './prop'
 export * from './relation'

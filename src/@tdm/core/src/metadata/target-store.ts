@@ -1,9 +1,8 @@
-import { Constructor, isUndefined, isFunction } from '../fw/utils';
+import { Constructor, isUndefined } from '../fw/utils';
 import { KeySet, SetExt, MapExt,DualKeyMap } from '../fw/set-map-ext';
-import { MetaClass, MetadataClassStatic, MetaClassInstanceDetails } from '../fw/metadata-framework';
+import { MetaClass, MetadataClassStatic, MetaClassInstanceDetails, GLOBAL_KEY } from '../fw/metadata-framework';
 import { targetEvents, TargetEvents } from '../fw/events'
 
-import { ClassMetadata } from './class-metadata';
 import { TargetMetadata } from './target-metadata';
 
 /**
@@ -59,65 +58,42 @@ export class TargetStore {
     return this.namedTargets.get(name);
   }
 
-  /**
-   * Returns the target's name key without initiating a target build.
-   * @param target
-   * @returns {string}
-   */
-  getTargetName(target: Constructor<any>): string | undefined {
-    return this.getClassProp(target, 'resName');
-  }
-
-  hasClassProp<P extends keyof ClassMetadata>(target: Constructor<any>, key: P): boolean {
-    return this.hasTarget(target) && this.targets.get(target).has(ClassMetadata, key);
-  }
-
-  setClassProp<P extends keyof ClassMetadata>(target: Constructor<any>, key: P, value: ClassMetadata[P]): ClassMetadata[P] {
-    if (this.builtTargets.has(target)) {
-      this.builtTargets.get(target)[key] = value;
-    }
-
-    if (key === 'resName') {
-      this.namedTargets.set(value as any, target);
-    }
-
-    this.set(target, ClassMetadata, key, value);
-
-    return value;
-  }
-
-  getClassProp<P extends keyof ClassMetadata>(target: Constructor<any>, key: P): ClassMetadata[P] | undefined {
-    if (this.builtTargets.has(target)) {
-      return this.builtTargets.get(target)[key];
-    } else if (this.hasTarget(target)) {
-      return this.targets.get(target).get(ClassMetadata, key);
-    }
-  }
 
   getMetaFor<T, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>): Map<PropertyKey, Z> | undefined;
+  getMetaFor<T, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, single: true): Z | undefined;
+  getMetaFor<T, Z, P extends keyof Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, single: true, singleKey: P): Z[P] | undefined;
   getMetaFor<T, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, name: PropertyKey): Z | undefined;
-  getMetaFor<T, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, name?: PropertyKey): Z | Map<PropertyKey, Z> | undefined {
+  getMetaFor<T, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, name?: PropertyKey | true, singleKey?: any): Z | Map<PropertyKey, Z> | undefined {
     const dkm = this.targets.get(target);
     if (dkm) {
-      return name ? dkm.get(metaClass, name) : dkm.get(metaClass);
+      if (name === true) {
+        const v = dkm.get(GLOBAL_KEY, <any>metaClass);
+        return v && singleKey ? v[singleKey] : v;
+      } else if (name) {
+        return dkm.get(metaClass, name);
+      } else {
+        return dkm.get(metaClass)
+      }
     }
   }
 
   setMetaFormFactory<T>(meta: MetaClassInstanceDetails<any, any>): void {
-    this.setMetaFor(meta.target, meta.metaClassKey, meta.metaPropKey, meta.metaValue);
+    if (meta) {
+      if (meta.metaPropKey === GLOBAL_KEY) {
+        this.set<any, any, any>(meta.target, GLOBAL_KEY, meta.metaClassKey, meta.metaValue);
+      } else {
+        this.setMetaFor(meta.target, meta.metaClassKey, meta.metaPropKey, meta.metaValue);
+      }
+    }
   }
 
-  setMetaFor<T, ZValue = T>(target: Constructor<any>, metaClass: typeof ClassMetadata | MetadataClassStatic<T>, name: string, value: ZValue): void {
-    if (metaClass === ClassMetadata) {
-      this.setClassProp(target, name as any, value);
+  setMetaFor<T, ZValue = T>(target: Constructor<any>, metaClass: MetadataClassStatic<T>, single: true, value: ZValue): void;
+  setMetaFor<T, ZValue = T>(target: Constructor<any>, metaClass: MetadataClassStatic<T>, name: string, value: ZValue): void;
+  setMetaFor<T, ZValue = T>(target: Constructor<any>, metaClass: MetadataClassStatic<T>, name: string | true, value: ZValue): void {
+    if (name === true) {
+      this.set<any, any, any>(target, GLOBAL_KEY, metaClass, value);
     } else {
-      let dkm = this.targets.get(target);
-
-      if (!dkm) {
-        this.targets.set(target, dkm = new DualKeyMap<MetadataClassStatic, PropertyKey, any>());
-      }
-
-      dkm.set(metaClass, name, value);
+      this.set(target, metaClass, name, value);
     }
   }
 
@@ -147,16 +123,29 @@ export class TargetStore {
     const toTarget = this.targets.get(to);
     Array.from(fromTarget.keys())
       .forEach( clsKey => {
-        if (clsKey === ClassMetadata) {
-          const clsMap = toTarget.get(ClassMetadata);
-          MapExt.asKeyValArray(fromTarget.get(ClassMetadata))
-            .forEach( ([k, v]) => {
-              if (!clsMap || !clsMap.has(k)) {
-                this.setClassProp(to, k as any, v); // TODO: this.setClassProp searches for target (to) each iteration... redundant but it also handle target built/not built...
-              }
-            });
+         if (clsKey === GLOBAL_KEY) {
+           const singleTypes = fromTarget.get(clsKey);
+           const toSingleTypes = toTarget.get(clsKey) || new Map<any, any>();
+
+           MapExt.asKeyValArray(singleTypes)
+             .forEach( ([type, instance]) => {
+               // type is a class, using <any> since for TS its a PropertyKey
+               const metaClass = MetaClass.get(<any>type);
+               if (metaClass.extendSingle) {
+                 const toInstance = toSingleTypes.get(<any>type);
+                 const value = metaClass.extendSingle(instance, toInstance, {from, to});
+                 if (!isUndefined(value)) {
+                   toSingleTypes.set(<any>type, <any>value);
+                 }
+               }
+             });
+
+           if (toSingleTypes.size > 0) {
+             toTarget.set(clsKey, toSingleTypes);
+           }
+
         } else {
-          const metaClass = MetaClass.get(clsKey)
+          const metaClass = MetaClass.get(clsKey);
           if (metaClass.extend) {
             const value = metaClass.extend(fromTarget.get(clsKey), toTarget.get(clsKey), {from, to});
             if (!isUndefined(value)) {
