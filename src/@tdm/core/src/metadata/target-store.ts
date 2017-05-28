@@ -58,7 +58,6 @@ export class TargetStore {
     return this.namedTargets.get(name);
   }
 
-
   getMetaFor<T, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>): Map<PropertyKey, Z> | undefined;
   getMetaFor<T, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, single: true): Z | undefined;
   getMetaFor<T, Z, P extends keyof Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, single: true, singleKey: P): Z[P] | undefined;

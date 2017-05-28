@@ -1,4 +1,5 @@
 import { Constructor } from '../utils';
+import { MetaClassMetadata } from './meta-class';
 
 export interface DecoratorInfo {
   type: 'class' | 'member' | 'param';
@@ -31,6 +32,9 @@ export interface MetaClassInstanceDetails<TMetaArgs, TMetaClass> {
 
 export type MetadataCurriedCreate<TMetaArgs, TMetaClass>
   = ((alternateMeta?: MetaClassInstanceDetails<TMetaArgs, TMetaClass>) => TMetaClass) & { meta: MetaClassInstanceDetails<TMetaArgs, TMetaClass> };
+
+export type RegisterFn<TMetaArgs, TMetaClass> = (this: MetaClassMetadata<TMetaArgs, TMetaClass>,
+                                                 meta: MetaClassInstanceDetails<TMetaArgs, TMetaClass>) => void;
 
 export type ExtendFn = (from: Map<PropertyKey, any>, to: Map<PropertyKey, any> | undefined, meta?: { from: Constructor<any>, to: Constructor<any> }) => Map<PropertyKey, any> | undefined;
 export type ExtendSingleFn<TMetaClass> = (from: TMetaClass, to: TMetaClass | undefined, meta?: { from: Constructor<any>, to: Constructor<any> }) => TMetaClass | undefined

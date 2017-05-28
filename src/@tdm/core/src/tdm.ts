@@ -50,3 +50,5 @@ export {
 } from './mapping';
 
 export { ModelMetadata } from './add/model';
+
+export * from './helpers';

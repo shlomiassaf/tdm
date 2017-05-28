@@ -21,23 +21,18 @@ export interface UrlParamMetadataArgs {
   methods?: HttpActionMethodType | HttpActionMethodType[]
 }
 
-function register(meta: tdm.MetaClassInstanceDetails<UrlParamMetadataArgs, UrlParamMetadata>): void {
-  const curr = tdm.targetStore.getMetaFor<any, Set<UrlParamMetadata>>(meta.target, meta.metaClassKey, meta.info.name as any) || new Set<UrlParamMetadata>();
-  curr.add(meta.metaValue);
-  tdm.targetStore.setMetaFor<any, Set<UrlParamMetadata>>(meta.target, meta.metaClassKey, meta.info.name as any, curr);
-}
-
-function extend(from: Map<PropertyKey, Set<UrlParamMetadata>>, to: Map<PropertyKey, Set<UrlParamMetadata>> | undefined): Map<PropertyKey, Set<UrlParamMetadata>> {
+function extend(from: Map<PropertyKey, UrlParamMetadata[]>, to: Map<PropertyKey, UrlParamMetadata[]> | undefined): Map<PropertyKey, UrlParamMetadata[]> {
   if (!to) {
-    to = new Map<PropertyKey, Set<UrlParamMetadata>>();
+    to = new Map<PropertyKey, UrlParamMetadata[]>();
   }
 
   tdm.MapExt.asKeyValArray(from)
     .forEach( ([k, v]) => {
       if (!to.has(k)) {
-        to.set(k, new Set<UrlParamMetadata>(v.values()))
+        to.set(k, v.slice())
       } else {
-        tdm.SetExt.combine(to.get(k), v);
+        // TODO: need to filter duplicated (based on method)
+        to.set(k, to.get(k).concat(v));
       }
     });
 
@@ -47,7 +42,7 @@ function extend(from: Map<PropertyKey, Set<UrlParamMetadata>>, to: Map<PropertyK
 @tdm.MetaClass<UrlParamMetadataArgs, UrlParamMetadata>({
   allowOn: ['member'],
   extend,
-  register
+  register: tdm.registerHelpers.array
 })
 export class UrlParamMetadata extends tdm.BaseMetadata {
   urlTemplateParamName: string;

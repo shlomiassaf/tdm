@@ -120,8 +120,8 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
       // store everything in one set/array to avoid this messy extraction.
       // an alternative is to cache the flattened array.
       const boundParams = meta
-        .getValues<any, Set<UrlParamMetadata>>(UrlParamMetadata)
-        .reduce( (arr, set) => arr.concat(Array.from(set)) , [] as UrlParamMetadata[]);
+        .getValues<any, UrlParamMetadata[]>(UrlParamMetadata)
+        .reduce( (arr, partial) => arr.concat(partial) , [] as UrlParamMetadata[]);
 
       for (let i = 0, len = boundParams.length; i < len; i++) {
         const bp = boundParams[i];

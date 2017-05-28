@@ -1,5 +1,12 @@
-import { Constructor } from '../utils';
-import { MetadataAllowOn, MetadataClassStatic, MetaClassInstanceDetails, DecoratorInfo, ExtendFn, ExtendSingleFn } from './types';
+import {
+  MetadataAllowOn,
+  MetadataClassStatic,
+  MetaClassInstanceDetails,
+  DecoratorInfo,
+  RegisterFn,
+  ExtendFn,
+  ExtendSingleFn
+} from './types';
 import { extendHelpers } from './utils';
 import { MetaClassMetadata } from './meta-class';
 
@@ -133,8 +140,7 @@ export interface MetaClassMetadataArgs<TMetaArgs = any, TMetaClass = any> {
    * This operation save the instance in the targetStore.
    * @param meta
    */
-  register?(this: MetaClassMetadata<TMetaArgs, TMetaClass>,
-            meta: MetaClassInstanceDetails<TMetaArgs, TMetaClass>): void;
+  register?: RegisterFn<TMetaArgs, TMetaClass>;
 
   /**
    * Optional implementation of extend logic FOR non-single metadata, logic that handles one type extending another type.

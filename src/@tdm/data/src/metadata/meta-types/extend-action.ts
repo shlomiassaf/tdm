@@ -1,13 +1,5 @@
 import { tdm } from '@tdm/core';
-
 import { ActionMetadata, ActionMetadataArgs } from './action';
-const { targetStore } = tdm;
-
-function register(meta: tdm.MetaClassInstanceDetails<ActionMetadataArgs<any>, ExtendActionMetadata>): void {
-  const curr = targetStore.getMetaFor<any, ExtendActionMetadata[]>(meta.target, meta.metaClassKey, meta.info.name as any) || [];
-  curr.push(meta.metaValue);
-  targetStore.setMetaFor<ExtendActionMetadata, ExtendActionMetadata[]>(meta.target, meta.metaClassKey, meta.info.name as any, curr);
-}
 
 function extend(from: Map<PropertyKey, ExtendActionMetadata[]>, to: Map<PropertyKey, ExtendActionMetadata[]> | undefined): Map<PropertyKey, ExtendActionMetadata[]> {
   if (!to) {
@@ -35,7 +27,7 @@ function extend(from: Map<PropertyKey, ExtendActionMetadata[]>, to: Map<Property
 @tdm.MetaClass<ActionMetadataArgs<any>, ExtendActionMetadata>({
   allowOn: ['staticMember', 'member'],
   extend,
-  register
+  register: tdm.registerHelpers.array
 })
 export class ExtendActionMetadata extends ActionMetadata {
   constructor(metaArgs: Partial<ActionMetadataArgs<any>>, info: tdm.DecoratorInfo)  {
