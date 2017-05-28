@@ -86,7 +86,7 @@ export class ModelMetadata extends BaseMetadata implements ModelMetadataArgs {
   }
 }
 
-declare module '../fw/metadata-framework/meta-class' {
+declare module '../../fw/metadata-framework/meta-class' {
   module MetaClass {
     function get(target: typeof ModelMetadata): MetaClassMetadata<ModelMetadataArgs, ModelMetadata>;
   }

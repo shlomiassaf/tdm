@@ -1,4 +1,4 @@
-import { tdm } from '@tdm/core';
+import { tdm, ModelMetadataArgs } from '@tdm/core';
 
 import {
   MockResourceMetadata,
