@@ -27,7 +27,7 @@ export class TestTargetStore extends tdm.TargetStore {
   }
 
   static getModel<T extends tdm.ModelMetadata = tdm.ModelMetadata>(target: Constructor<any>): T {
-    const t = targetStore.getTargetMeta(target, true);
+    const t = targetStore.getTargetMeta(target);
     return t && t.model<T>();
   }
 

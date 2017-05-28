@@ -1,9 +1,11 @@
 import { Tixin } from '@tdm/tixin';
 import { tdm, Constructor } from '../../index';
+import { Model } from '../model';
 import { SerializeMapper, DeserializeMapper, TransformationError } from '../../mapping';
 import { TargetTransformer } from '../../mapping/target-transformer';
 import { isFunction, array } from '../../fw';
 
+@Model({ resName: 'InternalPlainObject' })
 class PlainObject {}
 
 declare module '@tdm/core/metadata/target-store' {
@@ -62,10 +64,6 @@ tdm.TargetStore.prototype.deserializePlain = function deserializePlain(mapper: D
   meta.deserialize(mapper, result, true);
   return result;
 };
-
-// TODO: base on onInit event
-tdm.targetStore.registerTarget(PlainObject);
-
 
 class MappingTargetMetadata extends tdm.TargetMetadata {
   @tdm.LazyInit(function (this: tdm.TargetMetadata): TargetTransformer {

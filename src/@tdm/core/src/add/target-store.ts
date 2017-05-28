@@ -32,7 +32,7 @@ declare module '@tdm/core/metadata/target-store' {
      * @param register when true will also register if not exists
      * @returns {TargetMetadata}
      */
-    getTargetMeta(target: Constructor<any>, register?: boolean): TargetMetadata | undefined;
+    getTargetMeta(target: Constructor<any>): TargetMetadata | undefined;
 
     /**
      * Returns the target's name key without initiating a target build.
@@ -62,16 +62,16 @@ TargetStore.prototype.getTargetName = function getTargetName(this: TargetStore,
   return targetStore.getMetaFor(target, ModelMetadata, true, 'resName');
 };
 
-TargetStore.prototype.getTargetMeta = function getTargetMeta(target: Constructor<any>, register?: true): TargetMetadata | undefined {
+TargetStore.prototype.getTargetMeta = function getTargetMeta(target: Constructor<any>): TargetMetadata | undefined {
   let meta = this.builtTargets.get(target);
   if (!meta) {
-    if (register === true) {
-      this.registerTarget(target);
-    }
     const metaArgs = this.targets.get(target);
+
     if (!metaArgs) {
-      throw new Error('Target has no metadata');
+      this.registerTarget(target);
+      return this.getTargetMeta(target);
     }
+
     meta = new TargetMetadata(target, metaArgs);
     this.builtTargets.set(target, meta);
     fireEvents('createMetadata', target);

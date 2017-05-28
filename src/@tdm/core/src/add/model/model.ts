@@ -45,7 +45,7 @@ export class ModelMetadata extends BaseMetadata implements ModelMetadataArgs {
   constructor(metaArgs: ModelMetadataArgs, info: DecoratorInfo, target: Constructor<any>) {
     super(info);
 
-    const tMeta = targetStore.getTargetMeta(target, true);
+    const tMeta = targetStore.getTargetMeta(target);
 
     const classMetadata = tMeta.hasOwnProperty(MODEL_PH) ? tMeta[MODEL_PH] : {};
     Object.assign(this, classMetadata, metaArgs || {}, {target, tMeta}); // last obj is for clone, so we won't take previous values

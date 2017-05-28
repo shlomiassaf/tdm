@@ -18,13 +18,11 @@ function extend(from: Map<PropertyKey, BelongsToMetadata>, to: Map<PropertyKey, 
   extend
 })
 export class BelongsToMetadata extends tdm.BaseMetadata {
-
   foreignKey: string;
 
-  constructor(obj: BelongsToMetadataArgs, info: tdm.DecoratorInfo) {
+  constructor(obj: BelongsToMetadataArgs | undefined, info: tdm.DecoratorInfo) {
     super(info);
-
-    this.foreignKey = obj.foreignKey || info.name as any;
+    this.foreignKey = (obj && obj.foreignKey) || info.name as any;
   }
 }
 
@@ -32,16 +30,7 @@ export class BelongsToMetadata extends tdm.BaseMetadata {
   allowOn: ['member'],
   extend
 })
-export class OwnsMetadata extends tdm.BaseMetadata {
-  foreignKey: string;
-
-  constructor(obj: OwnsMetadataArgs<any>, info: tdm.DecoratorInfo) {
-    super(info);
-
-    this.foreignKey = obj.foreignKey;
-  }
-
-}
+export class OwnsMetadata extends BelongsToMetadata { }
 
 export type Relationship = BelongsToMetadata | OwnsMetadata;
 export type RelationshipType = 'belongsTo' | 'hasMany' | 'hasOne';

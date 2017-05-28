@@ -2,7 +2,6 @@ import { MetaClass, getProtoChain, fireEvents } from '../../fw';
 import { targetStore, ModelMetadataArgs } from '../../metadata';
 import { ModelMetadata } from './model';
 
-
 /**
  * @propertyDecorator static
  * @param metaArgs
@@ -13,7 +12,7 @@ export function Model(metaArgs?: ModelMetadataArgs): Function {
 
     getProtoChain(target)
       .forEach(proto => {
-        if (target !== proto && this.hasTarget(proto)) {
+        if (target !== proto && targetStore.hasTarget(proto)) {
           targetStore.extend(proto, target);
         }
       });
