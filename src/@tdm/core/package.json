@@ -1,6 +1,6 @@
 {
   "name": "@tdm/core",
-  "version": "1.0.1-alpha.3",
+  "version": "1.0.1-alpha.4",
   "description": "Typed data models (@tdm) main morph/transformation module",
   "main": "bundle/tdm.core.umd.js",
   "module": "index.js",
