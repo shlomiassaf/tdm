@@ -1,6 +1,7 @@
-import { tdm, Prop } from '@tdm/core';
+import { tdm, Prop, Model } from '@tdm/core';
 
 import { TargetMetaModifier } from '@tdm/core/testing';
+import { targetStore } from "@tdm/core/metadata";
 
 export interface ExtendMeMetadataArgs {
   testProp: string;
@@ -42,18 +43,43 @@ class ExtendMeMetadata extends tdm.BaseMetadata {
     }
   }
 })
-class ExtendMeMetadata1 extends tdm.BaseMetadata {
-  testProp: string;
+class ExtendMeMetadata1 extends ExtendMeMetadata {}
 
-  constructor(obj: ExtendMeMetadataArgs, info: tdm.DecoratorInfo) {
+export interface TopLevelMetadataArgs {
+  value: number;
+}
+@tdm.MetaClass<TopLevelMetadataArgs, TopLevelMetadata>({
+  single: true,
+  allowOn: ['class'],
+  proxy: {
+    host: tdm.ModelMetadata,
+    containerKey: 'top',
+    forEach: true
+  },
+  register: tdm.registerHelpers.array
+})
+class TopLevelMetadata extends tdm.BaseMetadata {
+  value: number;
+  constructor(metaArgs: TopLevelMetadataArgs, info: tdm.DecoratorInfo) {
     super(info);
-
-    if (typeof obj === 'object') {
-      Object.assign(this, obj);
-    }
+    this.value = metaArgs.value;
   }
 }
+declare module '@tdm/core/metadata/model-metadata' {
+  interface ModelMetadataArgs {
+    top?: TopLevelMetadataArgs[]
+  }
+}
+const TopLevel = tdm.MetaClass.get(TopLevelMetadata).createDecorator('class');
 
+@TopLevel({ value: 4 })
+@Model({
+  top: [
+    { value: 1 },
+    { value: 2 },
+    { value: 3 }
+  ]
+})
 class User {
   @Prop()
   prop1: string;
@@ -115,6 +141,15 @@ describe('@tdm/core', () => {
         const extendMe1 = tdm.targetStore.getMetaFor(User, ExtendMeMetadata1, 'prop4');
         expect(extendMe1.testProp).toEqual('test1');
 
+      });
+
+      it('should reflect iterable proxy', () => {
+        const arr = targetStore.getMetaFor<TopLevelMetadata, TopLevelMetadata[]>(User, <any>TopLevelMetadata, true);
+        expect(arr).toBeInstanceOf(Array);
+        expect(arr[0].value).toEqual(1);
+        expect(arr[1].value).toEqual(2);
+        expect(arr[2].value).toEqual(3);
+        expect(arr[3].value).toEqual(4);
       });
     })
   })
