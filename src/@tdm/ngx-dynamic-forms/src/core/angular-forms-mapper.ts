@@ -11,7 +11,7 @@ import {
 import { tdm, directMapper, DirectDeserializeMapper } from '@tdm/core';
 import '@tdm/core/add/mapping';
 
-import { FormModelMetadata, FormPropMetadata } from './decorators';
+import { FormModelMetadata, FormPropMetadata } from './metadata';
 
 const { targetStore, isUndefined, isFunction, isPrimitive } = tdm;
 

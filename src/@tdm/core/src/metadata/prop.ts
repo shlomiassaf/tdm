@@ -1,5 +1,4 @@
 import {
-  MapExt,
   isFunction,
   reflection,
   Constructor,
@@ -46,16 +45,9 @@ export interface PropMetadataArgs {
   typeGetter?: () => any;
 }
 
-function extend(from: Map<PropertyKey, PropMetadata>, to: Map<PropertyKey, PropMetadata> | undefined): Map<PropertyKey, PropMetadata> {
-  return to
-    ? MapExt.mergeInto(to, from)
-    : new Map<PropertyKey, PropMetadata>(from.entries())
-    ;
-}
-
 @MetaClass<PropMetadataArgs, PropMetadata>({
   allowOn: ['member'],
-  extend
+  extend: 'prop'
 })
 export class PropMetadata extends BaseMetadata {
   alias: PropAliasConfig;

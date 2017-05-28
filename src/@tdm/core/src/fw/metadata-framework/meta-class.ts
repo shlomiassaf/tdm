@@ -1,6 +1,6 @@
-import { Constructor, stringify, ensureTargetIsType, isFunction } from '../utils';
-import { MetadataClassStatic, MetaClassInstanceDetails, MetadataCurriedCreate, DecoratorInfo } from './types';
-import { decoratorInfo } from './utils';
+import { Constructor, isString, stringify, ensureTargetIsType, isFunction } from '../utils';
+import { MetadataClassStatic, MetaClassInstanceDetails, MetadataCurriedCreate, DecoratorInfo, ExtendFn, ExtendSingleFn } from './types';
+import { decoratorInfo, extendHelpers } from './utils';
 import { ProxyHostMetadataArgs, MetaClassMetadataArgs } from './meta-class-args';
 
 const store = new Map<Constructor<any>, MetaClassMetadata>();
@@ -38,14 +38,19 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
         proxy.metaClass = this;
         MetaClass.get(metaArgs.proxy.host).proxyTo.push(proxy);
       }
-      
-      if (isFunction(metaArgs.extend)) {
+
+      if (metaArgs.extend) {
         if (metaArgs.single === true) {
           // TODO: make error message clear;
           throw new Error('Extending a single class is done using extendSingle');
         }
-        this.extend = metaArgs.extend;
+        if (isString(metaArgs.extend)) {
+          this.extend = extendHelpers[metaArgs.extend];
+        } else if (isFunction(metaArgs.extend)) {
+          this.extend = metaArgs.extend;
+        }
       }
+
       if (isFunction(metaArgs.extendSingle)) {
         if (metaArgs.single !== true) {
           // TODO: make error message clear;
@@ -107,7 +112,7 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
       const proxies = this.findProxies(metaArgs);
       proxies.forEach( ra => {
         if (ra) { // we check since findProxies returns undefined when no key on metadata arguments was found
-          for (let i=1, len=ra.args.length; i<len; i++) {
+          for (let i=0, len=ra.args.length; i<len; i++) {
             ra.meta.create(ra.args[i], target, key, desc);
           }
         }
@@ -138,8 +143,8 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
   /**
    * @internal
    */
-  extend?(from: Map<PropertyKey, any>, to: Map<PropertyKey, any> | undefined, meta?: { from: Constructor<any>, to: Constructor<any> }): Map<PropertyKey, any> | undefined;
-  extendSingle?(from: TMetaClass, to: TMetaClass | undefined, meta?: { from: Constructor<any>, to: Constructor<any> }): TMetaClass | undefined;
+  extend?: ExtendFn;
+  extendSingle?: ExtendSingleFn<TMetaClass>;
 
   /**
    * @internal

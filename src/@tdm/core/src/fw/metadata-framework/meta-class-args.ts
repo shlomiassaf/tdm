@@ -1,5 +1,6 @@
 import { Constructor } from '../utils';
-import { MetadataAllowOn, MetadataClassStatic, MetaClassInstanceDetails, DecoratorInfo } from './types';
+import { MetadataAllowOn, MetadataClassStatic, MetaClassInstanceDetails, DecoratorInfo, ExtendFn, ExtendSingleFn } from './types';
+import { extendHelpers } from './utils';
 import { MetaClassMetadata } from './meta-class';
 
 /**
@@ -141,6 +142,10 @@ export interface MetaClassMetadataArgs<TMetaArgs = any, TMetaClass = any> {
    * If the method returns undefined it will also not extend the Metadata class.
    *
    * 'to' can be undefined, if so it means that that Metadata class was never assigned to the type.
+   *
+   * #### You can set on of the predefined extend functions.
+   *   - prop: An extending implementation suitable for property decorators. Expecting a `Map<PropertyKey, T>`, it will merge the source into the target.
+   *
    * @param from
    * @param to
    * @param meta
@@ -148,7 +153,7 @@ export interface MetaClassMetadataArgs<TMetaArgs = any, TMetaClass = any> {
    * @param meta.to the target target
    * @returns the new extended value.
    */
-  extend?(from: Map<PropertyKey, any>, to: Map<PropertyKey, any> | undefined, meta?: { from: Constructor<any>, to: Constructor<any> }): Map<PropertyKey, any> | undefined;
+  extend?: ExtendFn | keyof typeof extendHelpers;
 
   /**
    * Optional implementation of extend logic FOR single metadata, logic that handles one type extending another type.
@@ -162,7 +167,7 @@ export interface MetaClassMetadataArgs<TMetaArgs = any, TMetaClass = any> {
    * @param meta
    *  @returns the new extended value.
    */
-  extendSingle?(from: TMetaClass, to: TMetaClass | undefined, meta?: { from: Constructor<any>, to: Constructor<any> }): TMetaClass | undefined;
+  extendSingle?: ExtendSingleFn<TMetaClass>;
 
   /**
    * A list of supported decoration targets for a metadata class.

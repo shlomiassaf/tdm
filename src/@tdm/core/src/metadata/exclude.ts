@@ -1,5 +1,4 @@
 import {
-  MapExt,
   TransformDir,
   BaseMetadata,
   DecoratorInfo,
@@ -41,13 +40,6 @@ function factory(this: MetaClassMetadata<ExcludeMetadataArgs, ExcludeMetadata>,
   }
 }
 
-function extend(from: Map<PropertyKey, ExcludeMetadata>, to: Map<PropertyKey, ExcludeMetadata> | undefined): Map<PropertyKey, ExcludeMetadata> {
-  return to
-    ? MapExt.mergeInto(to, from)
-    : new Map<PropertyKey, ExcludeMetadata>(from.entries())
-    ;
-}
-
 @MetaClass<ExcludeMetadataArgs, ExcludeMetadata>({
   allowOn: ['class', 'member'],
   proxy: {
@@ -55,7 +47,7 @@ function extend(from: Map<PropertyKey, ExcludeMetadata>, to: Map<PropertyKey, Ex
     containerKey: 'exclude'
   },
   factory,
-  extend
+  extend: 'prop'
 })
 export class ExcludeMetadata extends BaseMetadata {
   from?: TransformDir;

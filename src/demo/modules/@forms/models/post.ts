@@ -4,8 +4,9 @@ import { FormModel, FormProp } from '@tdm/ngx-dynamic-forms';
 
 import { User } from './user';
 
-@Model()
-@FormModel()
+@Model({
+  form: undefined
+})
 export class Post {
 
   @Identity()
@@ -30,21 +31,25 @@ export class Post {
   })
   content: string;
 
-  @FormProp({
-    required: true,
-    render: {
-      ordinal: 3,
-      type: 'text',
-      label: 'Post Title'
+  @Prop({
+    form: {
+      required: true,
+      render: {
+        ordinal: 3,
+        type: 'text',
+        label: 'Post Title'
+      }
     }
   })
   title: string;
 
-  @FormProp({
-    render: {
-      ordinal: 4,
-      type: 'text',
-      label: 'Post Summery'
+  @Prop({
+    form: {
+      render: {
+        ordinal: 4,
+        type: 'text',
+        label: 'Post Summery'
+      }
     }
   })
   tldr: string;

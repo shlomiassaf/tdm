@@ -1,9 +1,7 @@
 import {
-  MapExt,
   BaseMetadata,
   DecoratorInfo,
-  MetaClass,
-  MetaClassMetadata
+  MetaClass
 } from '../fw';
 
 export interface RelationMetadataArgs {
@@ -18,16 +16,9 @@ export interface RelationMetadataArgs {
 }
 
 
-function extend(from: Map<PropertyKey, RelationMetadata>, to: Map<PropertyKey, RelationMetadata> | undefined): Map<PropertyKey, RelationMetadata> {
-  return to
-    ? MapExt.mergeInto(to, from)
-    : new Map<PropertyKey, RelationMetadata>(from.entries())
-    ;
-}
-
 @MetaClass<RelationMetadataArgs, RelationMetadata>({
   allowOn: ['member'],
-  extend
+  extend: 'prop'
 })
 export class RelationMetadata extends BaseMetadata {
 
@@ -36,7 +27,7 @@ export class RelationMetadata extends BaseMetadata {
   constructor(obj: RelationMetadataArgs | undefined, info: DecoratorInfo)  {
     super(info);
 
-    this.foreignKey = obj && obj.foreignKey || info.name as any;
+    this.foreignKey = (obj && obj.foreignKey) || info.name as any;
   }
 
 }

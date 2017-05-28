@@ -29,6 +29,8 @@ export interface MetaClassInstanceDetails<TMetaArgs, TMetaClass> {
   metaValue: TMetaClass;
 }
 
-
 export type MetadataCurriedCreate<TMetaArgs, TMetaClass>
   = ((alternateMeta?: MetaClassInstanceDetails<TMetaArgs, TMetaClass>) => TMetaClass) & { meta: MetaClassInstanceDetails<TMetaArgs, TMetaClass> };
+
+export type ExtendFn = (from: Map<PropertyKey, any>, to: Map<PropertyKey, any> | undefined, meta?: { from: Constructor<any>, to: Constructor<any> }) => Map<PropertyKey, any> | undefined;
+export type ExtendSingleFn<TMetaClass> = (from: TMetaClass, to: TMetaClass | undefined, meta?: { from: Constructor<any>, to: Constructor<any> }) => TMetaClass | undefined
