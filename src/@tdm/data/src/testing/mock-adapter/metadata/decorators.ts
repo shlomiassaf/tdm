@@ -11,4 +11,4 @@ import { MockAdapter } from '../core';
 
 
 export const MockResource = tdm.MetaClass.get(MockResourceMetadata).createResourceDecorator(MockAdapter);
-export const MockAction = tdm.MetaClass.get(MockActionMetadata).createDecorator();
+export const MockAction = tdm.MetaClass.decorator(MockActionMetadata);

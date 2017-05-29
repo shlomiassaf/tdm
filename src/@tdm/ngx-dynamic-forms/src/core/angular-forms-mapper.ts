@@ -74,7 +74,7 @@ export class NgFormsSerializeMapper extends tdm.SerializeMapper {
 
       let ctrl: AbstractControl;
       if (formProp.childForm === true && value) {
-        ctrl = targetStore.hasTarget(meta.type)
+        ctrl = targetStore.hasTarget(meta.type.ref)
           ? this.serializeChild(meta, value)
           : this.serializePlain(value)
         ;
@@ -121,7 +121,7 @@ export class NgFormsSerializeMapper extends tdm.SerializeMapper {
   }
 
   protected serializeChild(meta: tdm.PropMetadata, obj: any): FormGroup | FormArray {
-    return targetStore.serialize(meta.type as any, new NgFormsChildSerializeMapper(obj, this.cache));
+    return targetStore.serialize(meta.type.ref as any, new NgFormsChildSerializeMapper(obj, this.cache));
   }
 
   protected serializePlain(obj: any): FormGroup | FormArray {

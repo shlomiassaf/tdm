@@ -369,7 +369,7 @@ describe('JSONAPIMapper', () => {
         .setModel({ resName: 'articles', skip: true })
         .setIdentity('id')
         .props('id', 'title', 'category')
-        .prop('comments', { typeGetter: () => Comment }, Array)
+        .prop('comments', { type: () => Comment }, Array)
         .relation('comments')
         .prop('author', Author).relation('author')
         .build();

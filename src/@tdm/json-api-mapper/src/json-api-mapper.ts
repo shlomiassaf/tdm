@@ -216,9 +216,10 @@ export class JSONAPISerializeMapper extends tdm.SerializeMapper {
 
     this.cache.set(uuid, data);
 
-    const cb = (prop: tdm.PoClassPropertyMap) => {
-      if (prop.prop && prop.prop.relation) {
-        const type = prop.prop.type;
+    const cb = (pMap: tdm.PoClassPropertyMap) => {
+      const p = pMap.prop;
+      if (p && p.relation) {
+        const type = p.type.ref;
         const name = targetStore.getTargetName(type as any);
 
         if (!type || !name) {
@@ -226,25 +227,25 @@ export class JSONAPISerializeMapper extends tdm.SerializeMapper {
           throw new Error('Property Relation without type or name, try setting typeGetter in prop');
         }
 
-        const isArray = prop.prop.relation && prop.prop.typedArray && Array.isArray(obj[prop.cls]);
+        const isArray = p.relation && p.type.isArray && Array.isArray(obj[pMap.cls]);
         const idKey = targetStore.getIdentityKey(type as any);
         const createRel = (id: string) => ({ id, type: name });
 
         if (isArray) {
           const relList = [];
-          data.relationships[prop.cls] = { data: relList };
-          obj[prop.cls].forEach( item => {
+          data.relationships[pMap.cls] = { data: relList };
+          obj[pMap.cls].forEach( item => {
             relList.push(createRel(item[idKey]));
             this.serializeChild(item, type)
           });
 
         } else {
-          data.relationships[prop.cls] = { data: createRel(obj[prop.cls][idKey]) };
-          this.serializeChild(obj[prop.cls], type);
+          data.relationships[pMap.cls] = { data: createRel(obj[pMap.cls][idKey]) };
+          this.serializeChild(obj[pMap.cls], type);
         }
       } else {
-        const value = tdm.transformValueOut(obj[prop.cls], prop.prop);
-        data.attributes[prop.obj] = new tdm.PlainSerializer().serialize(value);
+        const value = tdm.transformValueOut(obj[pMap.cls], p);
+        data.attributes[pMap.obj] = new tdm.PlainSerializer().serialize(value);
       }
     };
 

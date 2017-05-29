@@ -1,4 +1,4 @@
-import { MetaClass, getProtoChain, fireEvents } from '../../fw';
+import { MetaClass, getProtoChain } from '../../fw';
 import { targetStore, ModelMetadataArgs } from '../../metadata';
 import { ModelMetadata } from './model';
 
@@ -8,7 +8,7 @@ import { ModelMetadata } from './model';
  */
 export function Model(metaArgs?: ModelMetadataArgs): Function {
   return (target: any) => {
-    const metaClass = MetaClass.get(ModelMetadata).create(metaArgs || {}, target);
+    const metaClass = MetaClass.create(ModelMetadata, metaArgs || {}, target);
 
     getProtoChain(target)
       .forEach(proto => {

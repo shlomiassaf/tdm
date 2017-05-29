@@ -151,6 +151,10 @@ export class TargetMetaModifier<T, Z> {
     return TestTargetMetadata.getProp(this.target, key);
   }
 
+  getType<P extends keyof T>(key: P): tdm.TypeMetadata {
+    return this.getProp(key).type;
+  }
+
   getRelation<P extends keyof T>(key: P): tdm.RelationMetadata {
     return TestTargetMetadata.getRelation(this.target, key);
   }
@@ -179,14 +183,12 @@ export class TargetMetaModifier<T, Z> {
   prop(key: keyof T, meta?: PropMetadataArgs | false | Function, type?: Function): this {
     TestTargetMetadata.removeProp(this.target, key);
 
-    if (typeof meta !== 'boolean' && !tdm.isFunction(meta)) {
-      TestTargetMetadata.addProp(this.target, key, meta);
-    } else if (tdm.isFunction(meta)) {
-      type = meta;
+    if ( (!type && tdm.isFunction(meta)) || tdm.isFunction(type) ) {
+      (Reflect as any).defineMetadata("design:type", type || meta, this.target.prototype, key);
     }
 
-    if (tdm.isFunction(type)) {
-      (Reflect as any).defineMetadata("design:type", type, this.target.prototype, key);
+    if (typeof meta !== 'boolean' && !tdm.isFunction(meta)) {
+      TestTargetMetadata.addProp(this.target, key, meta);
     }
 
     return this;

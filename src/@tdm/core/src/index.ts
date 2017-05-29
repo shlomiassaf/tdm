@@ -12,7 +12,7 @@ import './add/target-store';
 
 export * from './mapping/pub_index';
 
-export { Prop, Exclude, Relation, Identity } from './decorators';
+export { Type, Prop, Exclude, Relation, Identity } from './decorators';
 
 // public serialize / deserialize functions
 import { Constructor } from './fw';

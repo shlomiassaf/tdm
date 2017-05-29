@@ -10,8 +10,8 @@ class NgFormsBoundDeserializeMapper extends NgFormsDeserializeMapper {
 
   protected deserialize(value: any, prop: tdm.PropMetadata): any {
     const mapper = this.ref
-      ? new NgFormsChildDeserializeMapper(value, prop.type, this.existing)
-      : directMapper.deserializer(value, prop.type)
+      ? new NgFormsChildDeserializeMapper(value, prop.type.ref, this.existing)
+      : directMapper.deserializer(value, prop.type.ref)
     ;
 
     return tdm.targetStore.deserialize(mapper, this.ref ? this.ref[prop.name] : undefined);

@@ -70,7 +70,7 @@ declare module '@tdm/core/metadata/model-metadata' {
     top?: TopLevelMetadataArgs[]
   }
 }
-const TopLevel = tdm.MetaClass.get(TopLevelMetadata).createDecorator('class');
+const TopLevel = tdm.MetaClass.decorator(TopLevelMetadata, 'class');
 
 @TopLevel({ value: 4 })
 @Model({

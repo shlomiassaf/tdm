@@ -79,11 +79,11 @@ export class DirectDeserializeMapper extends DeserializeMapper {
       // later we wil check if this value is in cache, if not create it.
       /// if its not a primitive, it will process as a full object inlcuded in the payload.
       if (prop.relation && isPrimitive(value)) {
-        value = { [targetStore.getIdentityKey(prop.type as any, 'outgoing')]: value };
+        value = { [targetStore.getIdentityKey(prop.type.ref as any, 'outgoing')]: value };
       }
 
-      if (targetStore.hasTarget(prop.type)) {
-        return this.getCache(prop.type, value) || this.deserialize(value, prop);
+      if (targetStore.hasTarget(prop.type.ref)) {
+        return this.getCache(prop.type.ref, value) || this.deserialize(value, prop);
       }
     }
 
@@ -93,8 +93,8 @@ export class DirectDeserializeMapper extends DeserializeMapper {
   protected deserialize(value: any, prop: PropMetadata): any {
 
     const mapper = this.ref
-        ? new DirectChildDeserializeMapper(value, prop.type, this.existing)
-        : directMapper.deserializer(value, prop.type)
+        ? new DirectChildDeserializeMapper(value, prop.type.ref, this.existing)
+        : directMapper.deserializer(value, prop.type.ref)
       ;
 
     return targetStore.deserialize(mapper);
@@ -137,19 +137,20 @@ export class DirectSerializeMapper extends SerializeMapper {
   private serializeObject(obj: any, container: PropertyContainer): any {
     const data: any = {};
 
-    const cb = (prop: PoClassPropertyMap) => {
-      if (prop.prop && targetStore.hasTarget(prop.prop.type)) {
-        const type: any = prop.prop.type;
-        if (prop.prop.relation && !prop.prop.typedArray) {
+    const cb = (pMap: PoClassPropertyMap) => {
+      const p = pMap.prop;
+      if (p && targetStore.hasTarget(p.type.ref)) {
+        const type: any = p.type.ref;
+        if (p.relation && !p.type.isArray) {
           const idKey = targetStore.getIdentityKey(type);
           // if the rel points to a different fk property name, @tdm will make sure prop.obj is that fk.
-          data[prop.obj] = obj[prop.cls][idKey];
+          data[pMap.obj] = obj[pMap.cls][idKey];
         } else {
-          data[prop.obj] = targetStore.serialize(type, new DirectChildSerializeMapper(obj[prop.cls], this.cache))
+          data[pMap.obj] = targetStore.serialize(type, new DirectChildSerializeMapper(obj[pMap.cls], this.cache))
         }
       } else {
-        const newVal = this.plainSer.serialize(transformValueOut(obj[prop.cls], prop.prop));
-        data[prop.obj] = newVal;
+        const newVal = this.plainSer.serialize(transformValueOut(obj[pMap.cls], p));
+        data[pMap.obj] = newVal;
       }
     };
 

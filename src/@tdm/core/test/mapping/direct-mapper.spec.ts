@@ -191,8 +191,9 @@ describe('@tdm/core', () => {
           .setModel({ resName: 'articles', skip: true  })
           .setIdentity('id')
           .props('id', 'title', 'category')
-          .prop('comments', {typeGetter: () => Comment}, Array).relation('comments')
-          .prop('author', Author).relation('author')
+          .prop('comments', { type: () => Comment }, Array).relation('comments')
+          .prop('author', Author)
+          .relation('author')
           .build();
 
         authorModifier
@@ -355,7 +356,7 @@ describe('@tdm/core', () => {
           .setModel({ resName: 'articles', skip: true  })
           .setIdentity('id')
           .props('id', 'title', 'category')
-          .prop('comments', {typeGetter: () => Comment}, Array).relation('comments')
+          .prop('comments', {type: () => Comment}, Array).relation('comments')
           .prop('author', Author).relation('author')
           .build();
 

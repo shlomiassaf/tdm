@@ -1,4 +1,5 @@
 import { Constructor, isString, stringify, ensureTargetIsType, isFunction } from '../utils';
+import { targetEvents } from '../events';
 import { MetadataClassStatic, MetaClassInstanceDetails, MetadataCurriedCreate, DecoratorInfo, ExtendFn, ExtendSingleFn } from './types';
 import { decoratorInfo, extendHelpers } from './utils';
 import { ProxyHostMetadataArgs, MetaClassMetadataArgs } from './meta-class-args';
@@ -101,6 +102,9 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
         _meta = meta;
       }
 
+      // in case factory return undefined
+      if (!_meta) return;
+
       this.register(_meta);
 
       const chain = this.singleChain(_meta);
@@ -108,6 +112,8 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
         // we use this class's register implementation for all
         chain.forEach( c => this.register(c) );
       }
+
+      targetEvents.FIRE.metaInit(_meta.metaClassKey, _meta.target, _meta.metaValue, metaArgs);
 
       const proxies = this.findProxies(metaArgs);
       proxies.forEach( ra => {
@@ -228,6 +234,12 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
 
   /**
    * A factory for {@link MetaClassMetadata} instances
+   *
+   * > This will create an instance of a metadata class container.
+   * A Metadata container can create instances of the metadata class it "contains", thus, the instance
+   * returned from the static `create` method also has a 'create' method however that instance level
+   * `create` method is a factory for instance of the metadata class, not the container.
+   *
    * @param target
    * @param metaArgs
    * @returns {MetaClassMetadata<TMetaArgs, TMetaClass>}
@@ -253,6 +265,37 @@ export module MetaClass {
   // export function get<TMetaArgs, TMetaClass, Z>(target: Z & MetadataClassStatic<TMetaArgs, TMetaClass>): MetaClassMetadata<TMetaArgs, TMetaClass> {
   //   return store.get(target);
   // }
+
+  /**
+   * Creates a metadata class instance.
+   * This is a shortcut for `MetaClass.get(MyMetadataClass).create(...);
+   * @param metaClass
+   * @param metaArgs
+   * @param target
+   * @param key
+   * @param desc
+   * @return {TMetaClass}
+   */
+  export function create<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
+                                                   metaArgs: TMetaArgs,
+                                                   target: Object | Function,
+                                                   key?: PropertyKey,
+                                                   desc?: PropertyDescriptor): TMetaClass {
+    return store.get(metaClass).create(metaArgs, target, key, desc);
+  }
+
+  export function decorator<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>, type: 'class'): (def: TMetaArgs) => (target: Function) => any;
+  export function decorator<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>, type: 'prop'): (def: TMetaArgs) => (target: Object, key: PropertyKey, desc?: PropertyDescriptor) => any;
+  export function decorator<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>, type: 'both'): (def: TMetaArgs) => (target: Object | Function, key?: PropertyKey, desc?: PropertyDescriptor) => any;
+  export function decorator<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>): (def: TMetaArgs) => (target: Object, key: PropertyKey, desc?: PropertyDescriptor) => any;
+  export function decorator<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>, optional: true, type: 'class'): (def?: TMetaArgs) => (target: Function) => any;
+  export function decorator<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>, optional: true, type: 'prop'): (def?: TMetaArgs) => (target: Object, key: PropertyKey, desc?: PropertyDescriptor) => any;
+  export function decorator<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>, optional: true, type: 'both'): (def?: TMetaArgs) => (target: Object | Function, key?: PropertyKey, desc?: PropertyDescriptor) => any;
+  export function decorator<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>, optional: true): (def?: TMetaArgs) => (target: Object, key: PropertyKey, desc?: PropertyDescriptor) => any;
+  export function decorator<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>, ...args: any[]): ( (def?: TMetaArgs) => (target: Object, key: PropertyKey, desc?: PropertyDescriptor) => any ) | ( (def?: TMetaArgs) => (target: Function) => any ) {
+    return store.get(metaClass).createDecorator();
+  }
+
 
   export function defaultRegistrator(fn: (meta: MetaClassInstanceDetails<any, any>) => void): void {
     MetaClassMetadata.prototype['register'] = fn;

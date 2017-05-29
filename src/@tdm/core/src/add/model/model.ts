@@ -1,5 +1,5 @@
 import {
-  fireEvents,
+  targetEvents,
   stringify,
   TransformStrategy,
   NamingStrategyConfig,
@@ -80,8 +80,8 @@ export class ModelMetadata extends BaseMetadata implements ModelMetadataArgs {
       }
     }
     this._built = true;
-    fireEvents('beforeProcessType', this.target);
-    fireEvents('processType', this.target);
+    targetEvents.FIRE.beforeProcessType(this.target);
+    targetEvents.FIRE.processType(this.target);
     return true;
   }
 }

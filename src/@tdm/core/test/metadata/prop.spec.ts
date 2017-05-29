@@ -59,65 +59,23 @@ class User {
   @Prop() noTransform: string;
   // transform SPEC //
 
-
-  // typeGetter SPEC //
-  @Prop() anyType: any;
-  @Prop({
-    typeGetter: () => String
-  }) anyTypeWithRef: any;
-
-  @Prop() undefinedType: undefined;
-  @Prop({
-    typeGetter: () => String
-  }) undefinedTypeWithRef: any;
-
-  @Prop() nullType: null;
-  @Prop({
-    typeGetter: () => String
-  }) nullTypeWithRef: any;
-
-  // trap to https://github.com/Microsoft/TypeScript/issues/7169
-  @Prop() anArray: User[];
-  @Prop() anArrayOfStr: String[];
-  @Prop({
-    typeGetter: () => User
-  }) anArrayWithSelf: User[];
-
-  @Prop() thisRef: this;
-  @Prop({
-    typeGetter: () => User
-  }) thisRefWithSelf: this;
-
-  @Prop() self: User;
-
-  @Prop() person: Person;
-
-  @Prop({
-    typeGetter: () => User
-  }) selfWithRef: User;
-
-  @Prop({
-    typeGetter: () => Person
-  }) personWithRef: Person;
-// typeGetter SPEC //
-
 // relations SPEC //
   @Prop()
   noRelation: Person;
 
-  @Prop({ typeGetter: () => Person })
+  @Prop({ type: () => Person })
   @Relation()
   belongsTo: Person;
 
-  @Prop({ typeGetter: () => Person })
+  @Prop({ type: () => Person })
   @Relation({ foreignKey: 'belongsToFk_id' })
   belongsToFk: Person;
 
-  @Prop({ typeGetter: () => Person })
+  @Prop({ type: () => Person })
   @Relation()
   hasOne: Person;
 
-  @Prop({ typeGetter: () => Person })
+  @Prop({ type: () => Person })
   @Relation()
   hasMany: Person[];
 // relations SPEC //
@@ -130,11 +88,11 @@ class Person {
   @Prop() user: User;
 
   @Prop({
-    typeGetter: () => Person
+    type: () => Person
   }) selfWithRef: Person;
 
   @Prop({
-    typeGetter: () => User
+    type: () => User
   }) userWithRef: User;
 
   @Prop()
@@ -199,35 +157,6 @@ describe('@tdm/core', () => {
         checkTrans('onlyOutTransform', undefined, 'onlyOutTransform');
       });
 
-      it('should use typeGetter when required', () => {
-        expect(userModifier.getProp('anyType').type).toBe(Object);
-        expect(userModifier.getProp('anyTypeWithRef').type).toBe(String);
-
-        expect(userModifier.getProp('undefinedType').type).toBe(undefined);
-        expect(userModifier.getProp('undefinedTypeWithRef').type).toBe(String);
-
-        expect(userModifier.getProp('anArray').type).toBe(Array);
-        expect(userModifier.getProp('anArray').typedArray).toBeUndefined();
-        expect(userModifier.getProp('anArrayOfStr').type).toBe(Array);
-        expect(userModifier.getProp('anArrayOfStr').typedArray).toBeUndefined();
-        expect(userModifier.getProp('anArrayWithSelf').type).toBe(User);
-        expect(userModifier.getProp('anArrayWithSelf').typedArray).toBe(true);
-
-        expect(userModifier.getProp('thisRef').type).toBe(Object);
-        expect(userModifier.getProp('thisRefWithSelf').type).toBe(User);
-
-
-        expect(personModifier.getProp('user').type).toBe(User);
-        expect(personModifier.getProp('userWithRef').type).toBe(User);
-        expect(personModifier.getProp('self').type).toBe(Person);
-        expect(personModifier.getProp('selfWithRef').type).toBe(Person);
-
-        expect(userModifier.getProp('person').type).toBeUndefined();
-        expect(userModifier.getProp('personWithRef').type).toBe(Person);
-        expect(userModifier.getProp('self').type).toBe(User);
-        expect(userModifier.getProp('selfWithRef').type).toBe(User);
-
-      });
     });
   })
 });

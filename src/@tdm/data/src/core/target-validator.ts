@@ -43,7 +43,7 @@ export class TargetValidator {
         member: p.prop.name,
         target: instance,
         value: instance[p.prop.name],
-        type: p.prop.type
+        type: p.prop.type.ref
       };
       const propValidations = p.validators.map( validator => {
         return Promise.resolve(validator.validate(context))

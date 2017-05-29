@@ -1,4 +1,4 @@
-import { tdm } from '@tdm/core';
+import { tdm, PropMetadataArgs, Constructor } from '@tdm/core';
 import { BelongsToMetadata, OwnsMetadata, RelationshipType } from '../metadata';
 import { Validator } from '../fw';
 
@@ -20,13 +20,19 @@ tdm.PropMetadata.prototype.setCoreRelationship = function(rel: BelongsToMetadata
   if (rel instanceof BelongsToMetadata) {
     this.rel = 'belongsTo';
   } else {
-    this.rel = this.typedArray ? 'hasMany': 'hasOne';
+    this.rel = this.type.isArray ? 'hasMany': 'hasOne';
   }
 };
 
-tdm.PropMetadata.onInit((prop, metaArgs) => {
-  prop.validation = Array.isArray(metaArgs.validation)
-    ? metaArgs.validation.slice()
-    : metaArgs.validation && tdm.isFunction(metaArgs.validation.validate) ? [metaArgs.validation] : []
-  ;
-});
+tdm.targetStore.on
+  .metaInit(tdm.PropMetadata)
+  .run((target: Constructor<any>, prop: tdm.PropMetadata, metaArgs?: PropMetadataArgs) => {
+    if (!metaArgs) {
+      metaArgs = {};
+    }
+
+    prop.validation = Array.isArray(metaArgs.validation)
+      ? metaArgs.validation.slice()
+      : metaArgs.validation && tdm.isFunction(metaArgs.validation.validate) ? [metaArgs.validation] : []
+    ;
+  });

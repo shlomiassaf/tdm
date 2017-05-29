@@ -32,7 +32,7 @@ export class FormModelMetadata extends tdm.BaseMetadata implements FormModelMeta
 
   addProp(prop: tdm.PropMetadata, metaArgs: FormPropMetadata) {
     if (!metaArgs.exclude && !metaArgs.render.type) {
-      switch (prop.type) {
+      switch (prop.type.ref) {
         case Boolean:
           metaArgs.render.type = 'boolean';
           break;

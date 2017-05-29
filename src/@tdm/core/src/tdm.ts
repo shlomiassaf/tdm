@@ -16,7 +16,6 @@ export {
 
   BaseMetadata,
   DecoratorInfo,
-  fireEvents,
   TargetEvents,
   lazyRef,
   getProtoChain,
@@ -31,6 +30,7 @@ export {
 } from './fw';
 
 export {
+  TypeMetadata,
   PropMetadata,
   ExcludeMetadata,
   RelationMetadata,

@@ -1,6 +1,5 @@
 import {
-  isFunction,
-  reflection,
+  LazyInit,
   Constructor,
   TransformFn,
   propAliasConfig,
@@ -13,13 +12,10 @@ import {
   MetaClassMetadata
 } from '../fw';
 
-import { RelationMetadata } from './relation';
 
-const TYPE_GETTER_EXCEPTIONS = [
-  Array,
-  undefined,
-  Object
-];
+import { targetStore } from './target-store';
+import { RelationMetadata } from './relation';
+import { TypeMetadata, TypeMetadataArgs } from './type';
 
 export interface PropMetadataArgs {
   alias?: string | Partial<PropAliasConfig>;
@@ -42,7 +38,7 @@ export interface PropMetadataArgs {
    * D): When the type T in an Array of T, TypeScript will emit the type Array without the array
    *     element type. https://github.com/Microsoft/TypeScript/issues/7169
    */
-  typeGetter?: () => any;
+  type?: TypeMetadataArgs;
 }
 
 @MetaClass<PropMetadataArgs, PropMetadata>({
@@ -53,13 +49,23 @@ export class PropMetadata extends BaseMetadata {
   alias: PropAliasConfig;
   transform?: Partial<PropTransformConfig>;
 
-  type: Function | Constructor<any>;
-  typedArray: boolean | undefined;
+  @LazyInit(function(this: PropMetadata) {
+    // get the type information.
+    // 3 options:
+    // 1. User set the @Type decorator, so we will find it in the metadata store
+    // 2. User the the 'type' property in PropMetadataArgs which will mimic @Type in the PropMetadata constructor
+    // 3. Auto resolve, we will create a new instance with no getter.
+    return targetStore.getMetaFor(this.target, TypeMetadata, this.name)
+      || new TypeMetadata(this.typeArgs, this.decoratorInfo, this.target);
+  })
+  type: TypeMetadata;
 
   relation: RelationMetadata | undefined;
   foreignKeyOf?: PropMetadata;
 
-  constructor(obj: PropMetadataArgs | undefined, info: DecoratorInfo, target: any)  {
+  private typeArgs?: TypeMetadataArgs;
+
+  constructor(obj: PropMetadataArgs | undefined, info: DecoratorInfo, private target: Constructor<any>)  {
     super(info);
 
     if (!obj) {
@@ -73,50 +79,19 @@ export class PropMetadata extends BaseMetadata {
       this.transform = propTransformConfig(obj.transform);
     }
 
-    const type = reflection.designType(target.prototype, info.name as any);
-
-    // user supplied type getter will work only if
-    // A. Type is unknown
-    // B. Type is the base type and not the TDModel type that extended the base type.
-    //    The ResourceDecorator will replace the type with the TDModel in this case
-    // C. Type is Object, when the type is "this" TS will return Object as type.
-    // D. Type is Array, when the type is Array of TS will return Array as type.
-    if (isFunction(obj.typeGetter)) {
-      if (type === target || TYPE_GETTER_EXCEPTIONS.indexOf(type) > -1) {
-        // WHY configurable: true -> see decorator-factories#resource
-        Object.defineProperty(this, 'type', { configurable: true, get: obj.typeGetter });
-        this.isTypeGetter = true;
-        if (type === Array) {
-          this.typedArray = true;
-        }
-      }
+    if (obj.type) {
+      this.typeArgs = obj.type;
     }
-
-    if (type && !this.hasOwnProperty('type')) {
-      this.type = type;
-    }
-
-    PropMetadata._onInit.forEach( h => h(this, obj))
   }
 
   setRelationship(rel: RelationMetadata): void {
-    if (!this.isTypeGetter) {
-      if (!this.type || this.type === Object || this.type === Array) {
+    if (!this.type.isGetter) {
+      if (!this.type.ref || this.type.ref === Object || this.type.ref === Array) {
         throw new Error(`Property ${this.decoratorInfo.name} with relation but without a type, please set a type.`);
       }
     }
 
     this.relation = rel;
-  }
-
-
-  private isTypeGetter?: boolean;
-
-
-  // TODO: make this interface global for all metadata classes
-  private static _onInit: Array<(prop: PropMetadata, metaArgs: PropMetadataArgs) => void> = [];
-  static onInit(handler: (prop: PropMetadata, metaArgs: PropMetadataArgs) => void): void {
-    this._onInit.push(handler);
   }
 
 }

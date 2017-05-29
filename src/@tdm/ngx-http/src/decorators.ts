@@ -14,13 +14,13 @@ import {
  * @propertyDecorator both
  * @param def
  */
-export const HttpAction = tdm.MetaClass.get(HttpActionMetadata).createDecorator();
+export const HttpAction = tdm.MetaClass.decorator(HttpActionMetadata);
 
 /**
  * @propertyDecorator instance
  * @param metaArgs
  */
-export const UrlParam = tdm.MetaClass.get(UrlParamMetadata).createDecorator(true);
+export const UrlParam = tdm.MetaClass.decorator(UrlParamMetadata, true);
 
 
 
