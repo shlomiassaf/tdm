@@ -11,7 +11,7 @@ const transformNameStrategy = {
 };
 
 
-class User { }
+class User {}
 
 
 describe('@tdm/core', () => {
@@ -30,14 +30,12 @@ describe('@tdm/core', () => {
         tdm.targetStore.on.createMetadata(createMetadata);
         tdm.targetStore.on.processType(processType);
 
-
         @Model() class User { }
 
         expect(tdm.targetStore.getTargetMeta(User)).toBeInstanceOf(tdm.TargetMetadata);
 
         expect(createMetadata).toHaveBeenCalledTimes(1);
         expect(createMetadata).toHaveBeenLastCalledWith(User);
-
 
         expect(processType).toHaveBeenCalledTimes(1);
         expect(processType).toHaveBeenLastCalledWith(User);

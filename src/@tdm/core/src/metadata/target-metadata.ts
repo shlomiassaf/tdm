@@ -24,12 +24,11 @@ import { Prop } from '../decorators';
  *
  * @pluginApi
  */
-export class TargetMetadata {
-  identity: PropertyKey; // TODO: this should be string
+export class TargetMetadata<T = any, Z = any> {
 
   protected config: DualKeyMap<Constructor<any>, PropertyKey, any>;
 
-  constructor(public readonly target: Constructor<any>, config: DualKeyMap<MetadataClassStatic, PropertyKey, any>) {
+  constructor(public readonly target: Z & Constructor<T>, config: DualKeyMap<MetadataClassStatic, PropertyKey, any>) {
     this.config = config;
   }
 
@@ -107,8 +106,8 @@ export class TargetMetadata {
    * Create a new instance of the TDMCollection for this type.
    * @returns {TDMCollection}
    */
-  createCollection(): TDMCollection<any> {
-    return new TDMCollection();
+  createCollection(): TDMCollection<T> {
+    return new TDMCollection<T>();
   }
 
   protected get<T, Z, P extends keyof T>(type: T & Constructor<Z>, key: P): Z {

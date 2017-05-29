@@ -5,7 +5,7 @@ import { TargetStore, TargetMetadata, PropMetadata, targetStore } from '../metad
 import { ModelMetadata } from '../add/model';
 
 declare module '@tdm/core/metadata/target-metadata' {
-  interface TargetMetadata {
+  interface TargetMetadata<T, Z> {
     /**
      * Returns the target's identity key without initiating a target build.
      * @param target
@@ -32,7 +32,7 @@ declare module '@tdm/core/metadata/target-store' {
      * @param register when true will also register if not exists
      * @returns {TargetMetadata}
      */
-    getTargetMeta(target: Constructor<any>): TargetMetadata | undefined;
+    getTargetMeta<T, Z>(target: Z & Constructor<T>): TargetMetadata<T, Z> | undefined;
 
     /**
      * Returns the target's name key without initiating a target build.

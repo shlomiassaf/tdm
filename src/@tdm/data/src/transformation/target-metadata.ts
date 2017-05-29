@@ -10,9 +10,9 @@ import {
 import { ActionController } from '../core/action-controller';
 import { TargetValidator } from '../core/target-validator';
 
-class CoreTargetMetadata extends tdm.TargetMetadata {
+class CoreTargetMetadata<T = any, Z = any>extends tdm.TargetMetadata<T, Z> {
 
-  collectionClass: typeof TDMCollection & Constructor<TDMCollection<any>>;
+  collectionClass: typeof TDMCollection & Constructor<TDMCollection<T>>;
 
   get activeAdapter(): AdapterStatic<any, any> | undefined {
     return this._activeAdapter;
@@ -140,8 +140,5 @@ Tixin(tdm.TargetMetadata, CoreTargetMetadata);
 
 // override core implementation to support type specific collection class
 tdm.TargetMetadata.prototype.createCollection = function(): TDMCollection<any> {
-  return this.collectionClass
-    ? new this.collectionClass()
-    : new TDMCollection()
-    ;
+  return this.collectionClass ? new this.collectionClass() : new TDMCollection();
 };

@@ -65,11 +65,11 @@ tdm.TargetStore.prototype.deserializePlain = function deserializePlain(mapper: D
   return result;
 };
 
-class MappingTargetMetadata extends tdm.TargetMetadata {
-  @tdm.LazyInit(function (this: tdm.TargetMetadata): TargetTransformer {
-    return new TargetTransformer(this);
+class MappingTargetMetadata<T, Z> extends tdm.TargetMetadata<T, Z> {
+  @tdm.LazyInit(function (this: tdm.TargetMetadata<T, Z>): TargetTransformer<T, Z> {
+    return new TargetTransformer<T, Z>(this);
   })
-  transformer: TargetTransformer;
+  transformer: TargetTransformer<T, Z>;
 
   serialize(mapper: SerializeMapper): any {
     return this.transformer.serialize(mapper);
@@ -115,8 +115,8 @@ class MappingTargetMetadata extends tdm.TargetMetadata {
 }
 
 declare module '@tdm/core/metadata/target-metadata' {
-  interface TargetMetadata {
-    transformer: TargetTransformer;
+  interface TargetMetadata<T ,Z> {
+    transformer: TargetTransformer<T, Z>;
     serialize(mapper: SerializeMapper): any;
     deserialize(mapper: DeserializeMapper, target: any | any[], plain?: boolean): void;
   }

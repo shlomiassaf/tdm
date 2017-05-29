@@ -23,12 +23,12 @@ interface ExecuteState {
   cancelled?: boolean;
 }
 
-export class ActionController {
-  public target: any;
+export class ActionController<T = any, Z = any> {
+  public target: Z;
   public adapter: Adapter<ActionMetadata, ActionOptions>;
   readonly adapterMeta: AdapterMetadata;
 
-  constructor(public targetMetadata: tdm.TargetMetadata, public adapterClass: AdapterStatic<any, any>) {
+  constructor(public targetMetadata: tdm.TargetMetadata<T, Z>, public adapterClass: AdapterStatic<any, any>) {
     this.target = targetMetadata.target;
     // TODO: adapter can be shared for all targets
     this.adapter = new adapterClass();

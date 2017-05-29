@@ -29,7 +29,7 @@ export function namingStrategyMap(dir: TransformDir, transformNameStrategy: Nami
 /**
  * @internal
  */
-export function getInstructions(meta: TargetMetadata, dir: TransformDir): CompiledTransformation {
+export function getInstructions<T, Z>(meta: TargetMetadata<T, Z>, dir: TransformDir): CompiledTransformation {
   // all excluded instructions for this type
   // this array will be filtered to hold only @Exclude without @Prop
   const excluded = meta.getValues(ExcludeMetadata)
@@ -109,9 +109,9 @@ function deserializePredicate(p: PoClassPropertyMap) {
  * A Target transformer is the running context of a mapper.
  * It will run the mapper, provide input and parse results
  */
-export class TargetTransformer {
+export class TargetTransformer<T, Z> {
 
-  @LazyInit(function (this: TargetTransformer): PoClassPropertyMap | undefined {
+  @LazyInit(function (this: TargetTransformer<T, Z>): PoClassPropertyMap | undefined {
     const idKey = this.meta.getIdentityKey();
     if (idKey) {
       return (this.hasOwnProperty('incoming') ? this.incoming : this.outgoing)
@@ -120,18 +120,18 @@ export class TargetTransformer {
   })
   protected identity: PoClassPropertyMap | undefined;
 
-  @LazyInit(function (this: TargetTransformer): CompiledTransformation {
+  @LazyInit(function (this: TargetTransformer<T, Z>): CompiledTransformation {
     return getInstructions(this.meta, 'incoming');
   })
   protected incoming: CompiledTransformation;
 
 
-  @LazyInit(function (this: TargetTransformer): CompiledTransformation {
+  @LazyInit(function (this: TargetTransformer<T, Z>): CompiledTransformation {
     return getInstructions(this.meta, 'outgoing');
   })
   protected outgoing: CompiledTransformation;
 
-  @LazyInit(function (this: TargetTransformer): PropertyContainer {
+  @LazyInit(function (this: TargetTransformer<T, Z>): PropertyContainer {
     const model = this.meta.model();
     if (model.transformStrategy === 'exclusive') {
       return new ExclusivePropertyContainer(this.meta.target, this.incoming);
@@ -145,7 +145,7 @@ export class TargetTransformer {
   })
   protected incomingContainer: PropertyContainer;
 
-  @LazyInit(function (this: TargetTransformer): PropertyContainer {
+  @LazyInit(function (this: TargetTransformer<T, Z>): PropertyContainer {
     const model = this.meta.model();
     if (model.transformStrategy === 'exclusive') {
       return new ExclusivePropertyContainer(this.meta.target, this.outgoing);
@@ -159,7 +159,7 @@ export class TargetTransformer {
   })
   protected outgoingContainer: PropertyContainer;
 
-  constructor(protected meta: TargetMetadata) { }
+  constructor(protected meta: TargetMetadata<T, Z>) { }
 
   serialize(mapper: SerializeMapper): any {
     return mapper.serialize(this.outgoingContainer);
