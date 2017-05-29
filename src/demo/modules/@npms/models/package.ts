@@ -129,9 +129,9 @@ export class Package {
     method: HttpActionMethodType.Post,
     pre: (ctx: ExecuteContext<any>, packages: string | string[], options?: HttpActionOptions) => {
       if (packages && typeof packages === 'string') {
-        ctx.body = [packages];
+        ctx.data = [packages];
       } else if (Array.isArray(packages)) {
-        ctx.body = packages.filter( p => !!p);
+        ctx.data = packages.filter(p => !!p);
       } else {
         throw new Error('Invalid parameters supplied');
       }

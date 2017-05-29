@@ -11,7 +11,7 @@ export class MockActiveRecord extends MockDao<any> {
     method: ActionMethodType.CREATE,
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<MockActionMetadata>, options?: MockActionOptions) => {
-      ctx.body = ctx.serialize();
+      ctx.data = ctx.serialize();
       return options;
     }
   })
@@ -27,7 +27,7 @@ export class MockActiveRecord extends MockDao<any> {
     method: ActionMethodType.UPDATE,
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<MockActionMetadata>, options?: MockActionOptions) => {
-      ctx.body = ctx.serialize();
+      ctx.data = ctx.serialize();
       return options;
     }
   })
@@ -93,7 +93,7 @@ export class MockActiveRecord extends MockDao<any> {
         ctx.deserialize(data);
       }
 
-      ctx.body = ctx.serialize();
+      ctx.data = ctx.serialize();
 
       return options;
     }
@@ -110,7 +110,7 @@ export class MockActiveRecord extends MockDao<any> {
         ctx.deserialize(data);
       }
 
-      ctx.body = ctx.serialize();
+      ctx.data = ctx.serialize();
 
       return options;
     }

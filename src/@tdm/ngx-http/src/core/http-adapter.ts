@@ -60,7 +60,7 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
         method: action.methodInfo.source as any,
         search: this.paramsToSearchParams(query),
         headers: this.getHeaders(ctx, resource, options),
-        body: ctx.body,
+        body: ctx.data,
         withCredentials
       });
 

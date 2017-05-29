@@ -11,7 +11,7 @@ export class HttpActiveRecord {
     method: HttpActionMethodType.Post,
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<HttpActionMetadata>, options?: HttpActionOptions) => {
-      ctx.body = ctx.serialize();
+      ctx.data = ctx.serialize();
       return options;
     }
   })
@@ -27,7 +27,7 @@ export class HttpActiveRecord {
     method: HttpActionMethodType.Put,
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<HttpActionMetadata>, options?: HttpActionOptions) => {
-      ctx.body = ctx.serialize();
+      ctx.data = ctx.serialize();
       return options;
     }
   })

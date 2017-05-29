@@ -14,9 +14,9 @@ export interface ExecuteParams {
 // export class ExecuteContext<T = any, Z extends ActionMetadata = ActionMetadata> {
 export class ExecuteContext<T extends ActionMetadata> {
   /**
-   * Optional body to be sent if set.
+   * Optional data, usually an action pre hook will use this to pass information to the adapter.
    */
-  body?: any;
+  data?: any;
 
   get targetMeta(): tdm.TargetMetadata {
     return this.meta;

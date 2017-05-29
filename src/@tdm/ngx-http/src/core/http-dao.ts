@@ -43,7 +43,7 @@ export const HttpDAOActions = {
         ctx.deserialize(data);
       }
 
-      ctx.body = ctx.serialize();
+      ctx.data = ctx.serialize();
 
       return options;
     }
@@ -59,7 +59,7 @@ export const HttpDAOActions = {
         ctx.deserialize(data);
       }
 
-      ctx.body = ctx.serialize();
+      ctx.data = ctx.serialize();
 
       return options;
     }

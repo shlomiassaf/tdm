@@ -61,7 +61,7 @@ export class MockDao<T> implements TargetDAO<T, MockActionOptions> {
         ctx.deserialize(data);
       }
 
-      ctx.body = ctx.serialize();
+      ctx.data = ctx.serialize();
 
       return options;
     }
@@ -78,7 +78,7 @@ export class MockDao<T> implements TargetDAO<T, MockActionOptions> {
         ctx.deserialize(data);
       }
 
-      ctx.body = ctx.serialize();
+      ctx.data = ctx.serialize();
 
       return options;
     }
