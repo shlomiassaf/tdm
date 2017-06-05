@@ -1,5 +1,5 @@
-import { tdm } from '@tdm/core';
-import { ValidationConfigError, ValidationContext } from './fw';
+import { tdm, errors } from '@tdm/core';
+import { ValidationContext } from './fw';
 
 const undef = undefined;
 
@@ -71,7 +71,7 @@ export class Min {
 
   constructor(private min: number) {
     if (!tdm.isNumber(min)) {
-      throw new ValidationConfigError(this.name, 'input "min" is not a number');
+      errors.throw.validationConfig(this.name, 'input "min" is not a number');
     }
   }
 
@@ -93,7 +93,7 @@ export class Max {
 
   constructor(private max: number) {
     if (!tdm.isNumber(max)) {
-      throw new ValidationConfigError(this.name, 'input "max" is not a number');
+      errors.throw.validationConfig(this.name, 'input "max" is not a number');
     }
   }
 
@@ -115,10 +115,10 @@ export class Between {
 
   constructor(private min: number, private max: number) {
     if (!tdm.isNumber(min)) {
-      throw new ValidationConfigError(this.name, 'input "min" is not a number');
+      errors.throw.validationConfig(this.name, 'input "min" is not a number');
     }
     if (!tdm.isNumber(max)) {
-      throw new ValidationConfigError(this.name, 'input "max" is not a number');
+      errors.throw.validationConfig(this.name, 'input "max" is not a number');
     }
   }
 

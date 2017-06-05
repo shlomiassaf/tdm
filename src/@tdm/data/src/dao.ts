@@ -1,6 +1,6 @@
-import { Constructor, tdm } from '@tdm/core';
+import { Constructor, tdm, errors } from '@tdm/core';
 
-import { AdapterStatic, ActionOptions, IdentityValueType, DAOMethods, DAOTarget, DAOAdapter, TargetError } from './fw'
+import { AdapterStatic, ActionOptions, IdentityValueType, DAOMethods, DAOTarget, DAOAdapter } from './fw'
 
 export interface TargetDAO<T, Options extends ActionOptions> {
   findById(id: IdentityValueType, options?: Options): Promise<T>;
@@ -116,7 +116,7 @@ export class DAO {
 
     const meta = tdm.targetStore.getTargetMeta(target);
     if (!meta.activeAdapter) {
-      return Promise.reject(TargetError.noActiveAdapter(target));
+      return Promise.reject(errors.modelNoAdapter(target));
     }
 
     const action = tdm.targetStore.getAdapter(meta.activeAdapter).getDAOAction(cmd);

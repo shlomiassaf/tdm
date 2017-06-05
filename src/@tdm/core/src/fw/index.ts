@@ -1,3 +1,4 @@
+export * from './errors';
 export * from './set-map-ext';
 export * from './utils';
 export * from './interfaces';

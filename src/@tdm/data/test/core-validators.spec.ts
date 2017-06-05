@@ -6,7 +6,7 @@ describe('@tdm/data', () => {
     const bucket = bucketFactory();
     afterEach(() => bucket.clear() );
 
-    it('Should emit core validation errors', (done) => {
+    it('Should emit core validation errors', () => {
       class User_ {
         @Prop({
           validation: validators.declared
@@ -52,18 +52,18 @@ describe('@tdm/data', () => {
         between: 1
       };
 
-      const user = bucket.create(User);
+      return expect(
+        bucket.create(User).$refresh({returnValue}).$rc.next()
+          .catch( err => {
+            expect(err.errors.length).toBe(6);
+            expect(err.message).toBe('Validation Error [User]');
+            throw null;
+          })
+      ).rejects.toEqual(null);
 
-      user.$refresh({returnValue}).$rc.next()
-        .then( data => done.fail(new Error('Validation not triggered')) )
-        .catch( err => {
-          expect(err.validationErrors.length).toBe(6);
-          // expect(err.validationErrors[0].errors['test-validator']).toBe('error');
-          done();
-        });
     });
 
-    it('Should validate instance of', (done) => {
+    it('Should validate instance of', () => {
       class MyClass {};
 
       class User_ {
@@ -105,25 +105,17 @@ describe('@tdm/data', () => {
         instanceOfString: 4
       };
 
-      let user = bucket.create(User);
+      return expect(
+        bucket.create(User).$refresh({returnValue: returnValuePass}).$rc.next()
+          .catch( err => { throw null; })
+          .then( () => bucket.create(User).$refresh({returnValue: returnValueFail}).$rc.next() )
+          .catch( err => {
+            expect(err.errors.length).toBe(4);
+            expect(err.message).toBe('Validation Error [User]');
+            throw null;
+          })
+      ).rejects.toEqual(null);
 
-      const unique = {};
-      user.$refresh({returnValue: returnValuePass}).$rc.next()
-        .catch( (err) => {
-          done.fail(err);
-          return unique;
-        })
-        .then( hasError => {
-          if (hasError !== unique) {
-            user = bucket.create(User);
-            user.$refresh({returnValue: returnValueFail}).$rc.next()
-              .then( data => done.fail(new Error('Validation not triggered')) )
-              .catch( err => {
-                expect(err.validationErrors.length).toBe(4);
-                done();
-              });
-          }
-        });
     });
 
   });

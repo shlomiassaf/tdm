@@ -1,9 +1,9 @@
-import { tdm, TDMModel, TDMCollection } from "@tdm/core";
+import { tdm, TDMModel, TDMCollection, errors } from "@tdm/core";
 
 import { findProp } from '../utils';
 import { defaultConfig } from '../default-config';
 import { ActionMetadata } from '../metadata';
-import { IdentityValueType, ResourceError } from '../fw';
+import { IdentityValueType } from '../fw';
 
 export interface ExecuteParams {
   async?: boolean;
@@ -106,7 +106,7 @@ export class ExecuteContext<T extends ActionMetadata> {
       const isColl = !!this.action.isCollection;
 
       if (mapper.isCollection !== isColl) {
-        throw ResourceError.coll_obj(this.safeInstance, isColl);
+        errors.throw.modelSingleCol(<any>this.safeInstance, isColl);
       }
 
       this.meta.deserialize(mapper, this.safeInstance);

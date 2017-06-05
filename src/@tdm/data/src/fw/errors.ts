@@ -1,112 +1,52 @@
-import { tdm, TDMModel } from '@tdm/core';
+import { Errors, tdm } from '@tdm/core';
 import { AdapterStatic, ValidationError } from './interfaces';
 
 const { stringify } = tdm;
 
-function getErrorName(type: Function): string {
-  return `TDM${type.name}`;
-}
+const pt = Errors.prototype;
 
-export class TDMError extends Error {
-
-}
-
-export class PluginError extends TDMError {
-  constructor(public pluginName: string, message: string) {
-    super(message);
-    this.name = getErrorName(PluginError);
-  }
-
-  static missing(name: string): DecoratorError {
-    return new PluginError(name, `Unknown plugin "${name}"`);
-  }
-
-}
-
-
-export class DecoratorError extends TDMError {
-  constructor(target: any, propertyName: PropertyKey, message: string) {
-    super(`Invalid decorator @ ${stringify(target)}#${stringify(propertyName)}: ${message}`);
-    this.name = getErrorName(DecoratorError);
-  }
-
-  static hookNoStatic(target: any, propertyName: PropertyKey, action: string): DecoratorError {
-   return new DecoratorError(target, propertyName, `Hook '${action}' can only decorate instance methods`);
-  }
-
-  static hookNoInstance(target: any, propertyName: PropertyKey, action: string): DecoratorError {
-    return new DecoratorError(target, propertyName, `Hook '${action}' can only decorate instance methods`);
+declare module '@tdm/core/fw/errors' {
+  interface Errors {
+    validation(model: any, errors: ValidationError[]): Error & { errors: ValidationError[] };
+    validationConfig(validationName: string, message: string): Error;
+    modelNoAdapter(model: any): Error;
+    plugin(pluginName: string, message: string): Error;
+    pluginMissing(pluginName: string): Error;
+    adapter(adapterClass: AdapterStatic<any, any>, message: string): Error;
+    adapterRegistered(adapterClass: AdapterStatic<any, any>, registeredIn?: any): Error;
+    adapterNotRegistered(adapterClass: AdapterStatic<any, any>, model?: any): Error;
   }
 }
 
+pt.modelNoAdapter = function modelNoAdapterError(this: Errors, model: any): Error {
+  return this.model(model, `No active adapter registered.`);
+};
 
-export class AdapterError extends TDMError {
-  constructor(public adapterClass: AdapterStatic<any, any>, message: string) {
-    super(message);
-    this.name = getErrorName(AdapterError);
-  }
+pt.validation = function validationError(this: Errors, model: any, errors: ValidationError[]): Error & { errors: ValidationError[] } {
+  // TODO: print validation errors
+  return this.ERROR(`Validation Error [${stringify(model)}]`, { errors });
+};
 
-  static notRegistered(adapterClass: AdapterStatic<any, any>): AdapterError {
-    return new AdapterError(adapterClass, `Adapter '${stringify(adapterClass)}' is not a registered Adapter`);
-  }
+pt.validationConfig = function validationConfigError(this: Errors, validationName: string, message: string): Error {
+  return this.ERROR(`Invalid validation configuration params for "${validationName}": ${message}`);
+};
 
-  static notRegisteredFor(adapterClass: AdapterStatic<any, any>, target: any): AdapterError {
-    return new AdapterError(adapterClass, `Adapter '${stringify(adapterClass)}' is not a registered Adapter for target '${target}'`);
-  }
+pt.plugin = function plugin(this: Errors, pluginName: string, message: string): Error {
+  return this.ERROR(`Plugin Error [${pluginName}]: ${message}`);
+};
 
-  static registered(adapterClass: AdapterStatic<any, any>, existsIn: string): AdapterError {
-    return new AdapterError(adapterClass, `Adapter '${stringify(adapterClass)}' already registered for '${existsIn}'`);
-  }
-}
+pt.pluginMissing = function plugin(this: Errors, pluginName: string): Error {
+  return this.plugin(pluginName, `Unknown or missing plugin`);
+};
 
-export class TargetError extends TDMError {
-  constructor(public target: any, message: string) {
-    super(message);
-    this.name = getErrorName(TargetError);
-  }
+pt.adapter = function adapter(adapterClass: AdapterStatic<any, any>, message: string): Error {
+  return this.ERROR(`Adapter Error [${stringify(adapterClass)}]: ${message}`);
+};
 
-  static built(target: any, adapterClass: AdapterStatic<any, any>): TargetError {
-    return new TargetError(target, `Target/Adapter ${stringify(target)}/${stringify(adapterClass)} is already built`);
-  }
+pt.adapterRegistered = function adapterRegistered(adapterClass: AdapterStatic<any, any>, registeredIn?: any): Error {
+  return this.adapter(adapterClass, `Adapter already registered${ registeredIn ? ` (in ${stringify(registeredIn)})` : '' }`);
+};
 
-  static noActiveAdapter(target: any): TargetError {
-    return new TargetError(target, `Target ${stringify(target)} has no active adapter registered.`);
-  }
-
-  /**
-   * Fires an error that indicates that the target does not have a {@link ModelMetadata}
-   * instance registered (or any {@link ModelMetadata} derived instance).
-   * This usually means that the target is not decorated with @Model (or any adapter specific implementation of @Model)
-   * @param target
-   * @returns {TargetError}
-   */
-  static notModel(target: any): TargetError {
-    return new TargetError(target, `Target ${stringify(target)} is not a model, make sure it is decorated with a @Model decorator (or any derived adapter specific Model decorator)`);
-  }
-}
-
-export class ResourceError extends TDMError {
-  constructor(public readonly ar: TDMModel<any>, message?: string) {
-    super(message);
-    this.name = getErrorName(ResourceError);
-  }
-
-  static coll_obj(ar: TDMModel<any>, expectedCol: boolean): ResourceError {
-    return new ResourceError(null, expectedCol
-      ? `Expected a collection but got an object`
-      : `Expected an object but got a collection`
-    );
-  }
-}
-
-export class ResourceValidationError extends ResourceError {
-  constructor(ar: TDMModel<any>, public readonly validationErrors: ValidationError[]) {
-    super(ar)
-  }
-}
-
-export class ValidationConfigError extends Error {
-  constructor(validationName: string, message: string) {
-    super(`Invalid validation configuration params for "${validationName}": ${message}`);
-  }
-}
+pt.adapterNotRegistered = function adapterNotRegistered(adapterClass: AdapterStatic<any, any>, model?: any): Error {
+  return this.adapter(adapterClass, `Adapter not registered${ model ? ` (in ${stringify(model)})` : '' }`);
+};

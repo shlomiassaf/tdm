@@ -1,6 +1,5 @@
-import { tdm } from '@tdm/core';
-
-import { ARHookableMethods, ARHooks, TDMError, DecoratorError } from '../../fw';
+import { tdm, errors } from '@tdm/core';
+import { ARHookableMethods, ARHooks } from '../../fw';
 
 export interface StoredHook {
   before?: HookMetadata;
@@ -21,24 +20,13 @@ function factory(this: tdm.MetaClassMetadata<HookMetadataArgs, HookMetadata>,
   const { action } = metaArgs;
 
   if (!ARHooks.hasOwnProperty(action)) {
-    throw new TDMError(`Invalid hook '${action}'`);
+    errors.throw.decorator(target, `Invalid hook '${action}'`, key);
   }
 
-  switch (ARHooks[action].type) {
-    case 'instance':
-      if (info.isStatic) {
-        throw DecoratorError.hookNoStatic(target, key, action);
-      }
-      break;
-    case 'static':
-      if (!info.isStatic) {
-        throw DecoratorError.hookNoInstance(target, key, action);
-      }
-      break;
-    default:
-      break;
+  const t = ARHooks[action].type;
+  if (info.isStatic ? t === 'instance' : t === 'static') {
+    errors.throw.decorator(target, `Hook '${action}' can only decorate ${t} methods`, key);
   }
-
   return this.constructor.prototype.factory.call(this, metaArgs, target, info, key, desc);
 }
 

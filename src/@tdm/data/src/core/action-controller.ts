@@ -1,4 +1,4 @@
-import { tdm, TDMCollection } from '@tdm/core';
+import { tdm, TDMCollection, errors } from '@tdm/core';
 import { dispatchEvent, eventFactory, CancellationTokenResourceEvent, ExecuteInitResourceEvent } from '../events';
 import { defaultConfig } from '../default-config';
 import { findProp, noop } from '../utils';
@@ -8,8 +8,6 @@ import {
   ActionOptions,
   Adapter,
   ExecuteResponse,
-  ResourceValidationError,
-  ResourceError,
   ARHookableMethods
 } from '../fw';
 
@@ -69,7 +67,7 @@ export class ActionController<T = any, Z = any> {
       const err = eventFactory.error(ctx.instance, new Error('An action is already running'));
       return ret === 'promise' ? Promise.reject(err) : dispatchEvent(err);
     } else if (!!action.isCollection !== TDMCollection.instanceOf(ctx.instance)) {
-      const err = eventFactory.error(ctx.instance, ResourceError.coll_obj(ctx.instance, action.isCollection));
+      const err = eventFactory.error(ctx.instance, errors.modelSingleCol(ctx.instance, action.isCollection));
       return ret === 'promise' ? Promise.reject(err) : dispatchEvent(err);
     }
 
@@ -162,7 +160,7 @@ export class ActionController<T = any, Z = any> {
       return this.targetMetadata.validate(ctx.instance)
         .then((validationErrors: any) => {
           if (validationErrors.length > 0) {
-            throw new ResourceValidationError(ctx.instance, validationErrors);
+            errors.throw.validation(ctx.instance, validationErrors);
           }
         });
     } else {

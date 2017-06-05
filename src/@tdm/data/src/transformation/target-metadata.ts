@@ -1,7 +1,7 @@
 import { Tixin } from '@tdm/tixin';
-import { tdm, TDMCollection, Constructor } from '@tdm/core';
+import { errors, tdm, TDMCollection, Constructor } from '@tdm/core';
 
-import { AdapterError, AdapterStatic, ARHookableMethods } from '../fw';
+import { AdapterStatic, ARHookableMethods } from '../fw';
 import {
   ExtendActionMetadata,
   HookMetadata,
@@ -92,9 +92,9 @@ class CoreTargetMetadata<T = any, Z = any>extends tdm.TargetMetadata<T, Z> {
 
   private registerAdapter(adapterClass: AdapterStatic<any, any>): ActionController {
     if (!tdm.targetStore.hasAdapter(adapterClass)) {
-      throw AdapterError.notRegistered(adapterClass)
+      errors.throw.adapterNotRegistered(adapterClass, this.target);
     } else if (this.adapters.has(adapterClass)) {
-      throw AdapterError.registered(adapterClass, tdm.stringify(this.target))
+      errors.throw.adapterRegistered(adapterClass, this.target);
     } else {
       return this.adapters.set(adapterClass, new ActionController(this, adapterClass)).get(adapterClass);
     }

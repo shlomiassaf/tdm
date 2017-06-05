@@ -1,6 +1,5 @@
-import { TDMModel, TDMCollection } from '@tdm/core';
+import { TDMModel, TDMCollection, errors } from '@tdm/core';
 
-import { ResourceError } from './fw';
 import {
   events$,
   ResourceEventDispatcher,
@@ -88,11 +87,11 @@ export class ResourceControl<T> implements RecordControlState<T> {
    */
   replay(): void {
     if (this.busy) {
-      throw new ResourceError(this.parent, `Can not replay while busy.`);
+      errors.throw.model(this.parent, `Can not replay while busy.`);
     }
 
     if (!this.lastExecute) {
-      throw new ResourceError(this.parent, `No replay data`);
+      errors.throw.model(this.parent, `No replay data`);
     }
 
     const last = this.lastExecute;
@@ -113,11 +112,11 @@ export class ResourceControl<T> implements RecordControlState<T> {
    */
   replayAfter(resources: TDMModel<any> | Array<TDMModel<any>>, ignoreError: 'always' | 'some' | 'never' = 'never'): void {
     if (this.busy) {
-      throw new ResourceError(this.parent, `Can not replay while busy.`);
+      errors.throw.model(this.parent, `Can not replay while busy.`);
     }
 
     if (!this.lastExecute) {
-      throw new ResourceError(this.parent, `No replay data`);
+      errors.throw.model(this.parent, `No replay data`);
     }
 
     this.set('busy', true);
@@ -156,7 +155,7 @@ export class ResourceControl<T> implements RecordControlState<T> {
    */
   next(): Promise<T> {
     if (!this.busy) {
-      return Promise.reject(new ResourceError(this.parent, 'Call to next() while not in an active action.'));
+      return Promise.reject(errors.model(this.parent, 'Call to next() while not in an active action.'));
     } else {
       return new Promise<T>( (resolve, reject) => {
         const subs = this.events$.subscribe( event => {

@@ -8,7 +8,7 @@ describe('@tdm/data', () => {
     const bucket = bucketFactory();
     afterEach(() => bucket.clear() );
 
-    it('should apply transform function for incoming & outgoing', (done) => {
+    it('should apply transform function for incoming & outgoing', () => {
       class User_ {
         @Prop({
           validation: {
@@ -33,14 +33,16 @@ describe('@tdm/data', () => {
         validatable: 'validatable'
       };
 
-      const user = bucket.create(User);
+      return expect(
+        bucket.create(User).$refresh({returnValue}).$rc.next()
+          .catch( err => {
+            expect(err.errors.length).toBe(1);
+            expect(err.errors[0].errors['test-validator']).toBe('error');
+            expect(err.message).toBe('Validation Error [User]');
+            throw null;
+          })
+      ).rejects.toEqual(null);
 
-      user.$refresh({returnValue}).$rc.next()
-        .then( data => done.fail(new Error('Validation not triggered')) )
-        .catch( err => {
-          expect(err.validationErrors[0].errors['test-validator']).toBe('error');
-          done();
-        });
     });
 
   });

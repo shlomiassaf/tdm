@@ -1,5 +1,4 @@
-import { Constructor } from '@tdm/core';
-import { PluginError } from '../fw/errors';
+import { Constructor, errors } from '@tdm/core';
 
 export interface PluginStatic extends Constructor<Plugin> {
   prototype: Plugin;
@@ -15,7 +14,7 @@ export class PluginStore {
 
   assertPlugin(name: string) {
     if (!this[name]) {
-      throw PluginError.missing(name);
+      errors.throw.pluginMissing(name);
     }
   }
 

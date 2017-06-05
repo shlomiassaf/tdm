@@ -74,6 +74,11 @@ module.exports = function(metadata) {
     },
 
     plugins: [
+      new webpack.ProvidePlugin({
+        '__assign': ['tslib', '__assign'],
+        '__extends': ['tslib', '__extends'],
+      }),
+
       new TsConfigPathsPlugin(),
 
       // fix the warning in ./~/@angular/core/src/linker/system_js_ng_module_factory_loader.js

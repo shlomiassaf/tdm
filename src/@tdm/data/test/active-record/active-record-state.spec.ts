@@ -43,7 +43,7 @@ describe('@tdm/data', () => {
 
     it('should reject the next action if no action is running', () => {
       return bucket.create(User).$rc.next()
-        .catch( err => expect(err.message).toEqual('Call to next() while not in an active action.') );
+        .catch( err => expect(err.message).toEqual('Model Error [User]: Call to next() while not in an active action.') );
     });
 
     it('should reject the next action on error', () => {
