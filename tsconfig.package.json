@@ -10,7 +10,6 @@
     "sourceMap": true,
     "inlineSources": true,
     "strictNullChecks": false,
-    "noEmitHelpers": true,
     "lib": [
       "es2015",
       "dom"

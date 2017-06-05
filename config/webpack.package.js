@@ -74,10 +74,10 @@ module.exports = function(metadata) {
     },
 
     plugins: [
-      new webpack.ProvidePlugin({
-        '__assign': ['tslib', '__assign'],
-        '__extends': ['tslib', '__extends'],
-      }),
+      // new webpack.ProvidePlugin({
+      //   '__assign': ['tslib', '__assign'],
+      //   '__extends': ['tslib', '__extends'],
+      // }),
 
       new TsConfigPathsPlugin(),
 

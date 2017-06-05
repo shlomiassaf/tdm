@@ -42,7 +42,11 @@ function extend(from: Map<PropertyKey, UrlParamMetadata[]>, to: Map<PropertyKey,
 @tdm.MetaClass<UrlParamMetadataArgs, UrlParamMetadata>({
   allowOn: ['member'],
   extend,
-  register: tdm.registerHelpers.array
+  register: tdm.registerHelpers.array,
+  proxy: {
+    host: tdm.PropMetadata,
+    containerKey: 'urlParam'
+  }
 })
 export class UrlParamMetadata extends tdm.BaseMetadata {
   urlTemplateParamName: string;
@@ -70,5 +74,11 @@ export class UrlParamMetadata extends tdm.BaseMetadata {
     } else {
       this.methods = [];
     }
+  }
+}
+
+declare module '@tdm/core/metadata/prop' {
+  interface PropMetadataArgs {
+    urlParam?: UrlParamMetadataArgs | undefined
   }
 }
