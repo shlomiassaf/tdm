@@ -1,11 +1,11 @@
-import { tdm, directMapper } from '@tdm/core';
+import { directMapper, MapperFactory, SerializeMapper, DeserializeMapper } from '@tdm/core/tdm';
 
 
-export const packageMapper: tdm.MapperFactory = {
-  serializer(source: any): tdm.SerializeMapper {
+export const packageMapper: MapperFactory = {
+  serializer(source: any): SerializeMapper {
     return directMapper.serializer(source);
   },
-  deserializer(source: any, sourceType: any): tdm.DeserializeMapper {
+  deserializer(source: any, sourceType: any): DeserializeMapper {
     if (source) {
       if (!source.hasOwnProperty('analyzedAt')) {
         const keys = Object.keys(source);

@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 
 import { RenderInstruction } from '../interfaces';
-import { TDMModelForm } from '../tdm-model-form';
+import { TDMModelForm } from '../tdm-model-form/index';
 import { DynamicFormComponent } from './dynamic-form.component';
 
 export interface DynamicFormControlRenderer {

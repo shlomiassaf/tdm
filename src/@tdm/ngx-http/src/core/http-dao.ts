@@ -1,4 +1,4 @@
-import { tdm } from '@tdm/core';
+import { isPrimitive } from '@tdm/core/tdm';
 import { TDMCollection as ARecordColl, TargetDAO, IdentityValueType, ExecuteContext } from '@tdm/data';
 
 import { HttpActionOptions } from './interfaces';
@@ -70,7 +70,7 @@ export const HttpDAOActions = {
     validation: 'skip' as 'skip',
     pre: (ctx: ExecuteContext<HttpActionMetadata>, id: IdentityValueType | any, options?: HttpActionOptions) => {
 
-      if (tdm.isPrimitive(id)) {
+      if (isPrimitive(id)) {
         ctx.setIdentity(id);
       } else if (ctx.instanceOf(id)) {
         ctx.setInstance(id);

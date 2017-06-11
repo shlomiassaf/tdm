@@ -1,11 +1,10 @@
-import { tdm, Constructor } from '@tdm/core';
-import { MetaClassInstanceDetails } from '@tdm/core/tdm'; // leave for angular AOT compiler.
+import { targetStore, MapExt, Constructor, MetaClass, MetaClassInstanceDetails } from '@tdm/core/tdm';
 import {
   FormModelMetadata,
   FormModelMetadataArgs,
   FormPropMetadata,
   FormPropMetadataArgs // leave for angular AOT compiler.
-} from './metadata';
+} from './metadata/index';
 
 
 /**
@@ -15,18 +14,18 @@ import {
 export function FormModel(metaArgs?: FormModelMetadataArgs): (target: Function) => any {
   return formModel(metaArgs) as any;
 }
-export const formModel = tdm.MetaClass.decorator(FormModelMetadata, true);
+export const formModel = MetaClass.decorator(FormModelMetadata, true);
 // Split due to angular AOT
 
 /**
  * @propertyDecorator instance
  * @param metaArgs
  */
-export const FormProp = tdm.MetaClass.decorator(FormPropMetadata, true);
+export const FormProp = MetaClass.decorator(FormPropMetadata, true);
 
-tdm.targetStore.on
+targetStore.on
   .processType((target: Constructor<any>) => {
-    const tMeta = tdm.targetStore.getTargetMeta(target);
+    const tMeta = targetStore.getTargetMeta(target);
     const modelProps = tMeta.getMetaFor(FormPropMetadata);
     if (modelProps) {
       let formModel = tMeta.getMetaFor(FormModelMetadata, true);
@@ -35,7 +34,7 @@ tdm.targetStore.on
         formModel = tMeta.getMetaFor(FormModelMetadata, true);
       }
 
-      tdm.MapExt.asKeyValArray(modelProps)
+      MapExt.asKeyValArray(modelProps)
         .forEach(([k, v]) => {
           formModel.addProp(tMeta.getCreateProp(k as any), v);
         });

@@ -1,11 +1,15 @@
 import { Tixin } from '@tdm/tixin';
-import { tdm, Constructor } from '@tdm/core';
+import {
+  Constructor,
+  MetaClass,
+  TargetStore
+} from '@tdm/core/tdm';
 
 import { AdapterStatic } from '../fw';
 import { ActionController } from '../core/action-controller';
 import { AdapterMetadata, AdapterMetadataArgs } from '../metadata';
 
-class CoreTargetStore extends tdm.TargetStore {
+class CoreTargetStore extends TargetStore {
 
 
   getAdapter(adapterClass: AdapterStatic<any, any>): AdapterMetadata {
@@ -18,7 +22,7 @@ class CoreTargetStore extends tdm.TargetStore {
   }
 
   registerAdapter(adapterClass: AdapterStatic<any, any>, metaArgs: AdapterMetadataArgs): void {
-    tdm.MetaClass.get(AdapterMetadata).create(metaArgs, adapterClass);
+    MetaClass.get(AdapterMetadata).create(metaArgs, adapterClass);
   }
 
   getAC(target: Constructor<any>): ActionController | undefined;
@@ -34,7 +38,7 @@ class CoreTargetStore extends tdm.TargetStore {
 
 }
 
-declare module '@tdm/core/metadata/target-store' {
+declare module '@tdm/core/tdm/src/metadata/target-store' {
   interface TargetStore {
     getAdapter(adapterClass: AdapterStatic<any, any>): AdapterMetadata | undefined;
     hasAdapter(adapterClass: AdapterStatic<any, any>): boolean;
@@ -51,4 +55,4 @@ declare module '@tdm/core/metadata/target-store' {
     getAC(target: Constructor<any>, adapterClass: AdapterStatic<any, any>): ActionController | undefined;
   }
 }
-Tixin(tdm.TargetStore as any, CoreTargetStore as any);
+Tixin(TargetStore as any, CoreTargetStore as any);

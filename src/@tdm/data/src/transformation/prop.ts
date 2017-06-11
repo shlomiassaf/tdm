@@ -1,8 +1,16 @@
-import { tdm, PropMetadataArgs, Constructor } from '@tdm/core';
+import {
+  isFunction,
+  PropMetadataArgs,
+  Constructor,
+  PropMetadata,
+  RelationMetadata,
+  targetStore
+} from '@tdm/core/tdm';
+
 import { BelongsToMetadata, OwnsMetadata, RelationshipType } from '../metadata';
 import { Validator } from '../fw';
 
-declare module '@tdm/core/metadata/prop' {
+declare module '@tdm/core/tdm/src/metadata/prop' {
   interface PropMetadataArgs {
     validation?: Validator | Validator[];
   }
@@ -14,8 +22,8 @@ declare module '@tdm/core/metadata/prop' {
   }
 }
 
-tdm.PropMetadata.prototype.setCoreRelationship = function(rel: BelongsToMetadata | OwnsMetadata): void {
-  this.setRelationship(new tdm.RelationMetadata({foreignKey: rel.foreignKey}, rel.decoratorInfo));
+PropMetadata.prototype.setCoreRelationship = function(rel: BelongsToMetadata | OwnsMetadata): void {
+  this.setRelationship(new RelationMetadata({foreignKey: rel.foreignKey}, rel.decoratorInfo));
 
   if (rel instanceof BelongsToMetadata) {
     this.rel = 'belongsTo';
@@ -24,15 +32,15 @@ tdm.PropMetadata.prototype.setCoreRelationship = function(rel: BelongsToMetadata
   }
 };
 
-tdm.targetStore.on
-  .metaInit(tdm.PropMetadata)
-  .run((target: Constructor<any>, prop: tdm.PropMetadata, metaArgs?: PropMetadataArgs) => {
+targetStore.on
+  .metaInit(PropMetadata)
+  .run((target: Constructor<any>, prop: PropMetadata, metaArgs?: PropMetadataArgs) => {
     if (!metaArgs) {
       metaArgs = {};
     }
 
     prop.validation = Array.isArray(metaArgs.validation)
       ? metaArgs.validation.slice()
-      : metaArgs.validation && tdm.isFunction(metaArgs.validation.validate) ? [metaArgs.validation] : []
+      : metaArgs.validation && isFunction(metaArgs.validation.validate) ? [metaArgs.validation] : []
     ;
   });

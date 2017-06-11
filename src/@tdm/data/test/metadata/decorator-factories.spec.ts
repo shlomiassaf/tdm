@@ -1,8 +1,6 @@
-import { tdm } from '@tdm/core';
+import { targetStore, TargetMetadata } from '@tdm/core/tdm';
 import { MockMixin, MockResource, MockActionOptions, bucketFactory } from '@tdm/data/testing';
 import { ActiveRecord, Constructor, Prop } from '@tdm/data';
-
-const { targetStore, TargetMetadata } = tdm;
 
 describe('@tdm/data', () => {
   describe('Decorator Factories', () => {

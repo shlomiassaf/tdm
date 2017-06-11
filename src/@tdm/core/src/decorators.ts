@@ -1,5 +1,6 @@
-import { Constructor, MetaClass } from './fw';
 import {
+  Constructor,
+  MetaClass,
   targetStore,
   TypeMetadata,
   ExcludeMetadata,
@@ -9,7 +10,7 @@ import {
   TypeDefinition,         // leave for angular AOT compiler.
   PropMetadataArgs,       // leave for angular AOT compiler.
   RelationMetadataArgs    // leave for angular AOT compiler.
-} from './metadata';
+} from '@tdm/core/tdm';
 
 targetStore.on
   .processType((target: Constructor<any>) => {

@@ -1,26 +1,27 @@
 {
-  "name": "@tdm/data",
-  "version": "1.0.1-alpha.7",
+  "version": "1.0.1-alpha.10",
   "description": "Typed data models (@tdm) core data library",
-  "main": "bundle/tdm.data.umd.js",
-  "module": "index.js",
-  "typings": "bundle.d.ts",
   "keywords": [
     "@tdm"
   ],
   "peerDependencies": {
-    "rxjs": "^5.0.1",
     "@tdm/tixin": "*",
     "@tdm/core": "*"
   },
-  "umdPlugins": [
-    {
-      "name": "active-record",
-      "entry": "plugin/active-record/index.ts"
-    },
-    {
-      "name": "rx-resource-control",
-      "entry": "plugin/rx-resource-control/index.ts"
-    }
-  ]
+  "libConfig": {
+    "entry": "data",
+    "libExtensions": [
+      {
+        "name": "testing"
+      },
+      {
+        "name": "active-record",
+        "dir": "plugin/active-record"
+      },
+      {
+        "name": "rx-resource-control",
+        "dir": "plugin/rx-resource-control"
+      }
+    ]
+  }
 }

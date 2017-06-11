@@ -1,9 +1,17 @@
-import { tdm } from '@tdm/core';
+import {
+  isFunction,
+  isString,
+  targetStore,
+  stringify,
+  MapExt,
+  DecoratorInfo,
+  BaseMetadata,
+  MetaClassMetadata,
+  MetaClassInstanceDetails
+} from '@tdm/core/tdm';
 
 import { ExecuteResponse, ActionOptions, ValidationSchedule, AdapterStatic } from '../../fw';
 import { ExecuteContext } from '../../core';
-
-const { isFunction, isString, targetStore, stringify } = tdm;
 
 export enum ActionMethodType {
   /**
@@ -75,7 +83,7 @@ export interface ActionMetadataArgs<T = any> {
   paramHint?: number;
 }
 
-export abstract class ActionMetadata extends tdm.BaseMetadata {
+export abstract class ActionMetadata extends BaseMetadata {
   method: ActionMethodType;
   isCollection: boolean | undefined;
   collInstance: boolean | undefined;
@@ -85,7 +93,7 @@ export abstract class ActionMetadata extends tdm.BaseMetadata {
   alias?: string[];
   paramHint: number;
 
-  constructor(public readonly metaArgs: ActionMetadataArgs<any>, info: tdm.DecoratorInfo) {
+  constructor(public readonly metaArgs: ActionMetadataArgs<any>, info: DecoratorInfo) {
     super(info);
 
     Object.assign(this, metaArgs);
@@ -102,8 +110,8 @@ export abstract class ActionMetadata extends tdm.BaseMetadata {
     this.paramHint = metaArgs.paramHint || 0;
   }
 
-  static register(this: tdm.MetaClassMetadata<ActionMetadataArgs, ActionMetadata>,
-                  meta: tdm.MetaClassInstanceDetails<ActionMetadataArgs<any>, ActionMetadata>): void {
+  static register(this: MetaClassMetadata<ActionMetadataArgs, ActionMetadata>,
+                  meta: MetaClassInstanceDetails<ActionMetadataArgs<any>, ActionMetadata>): void {
     if (!this.target.adapterClass) {
       throw new Error(`Class ${stringify(this)} must implement a static property 'adapterClass' that points to the Adapter it uses`);
     } else if (!isFunction(this.target.adapterClass.prototype.execute)) {
@@ -114,11 +122,11 @@ export abstract class ActionMetadata extends tdm.BaseMetadata {
   }
 
   static extend(from: Map<PropertyKey, ActionMetadata>, to: Map<PropertyKey, ActionMetadata> | undefined, meta): Map<PropertyKey, ActionMetadata> {
-    tdm.MapExt.asValArray(from)
+    MapExt.asValArray(from)
       .forEach( v => targetStore.getAdapter(this.adapterClass).addAction(v, meta.to) );
 
     return to
-      ? tdm.MapExt.mergeInto(to, from) // TODO: on mixins we override, on "extends" class we dont... this overrides at all times (wrong behaviour for class extends)
+      ? MapExt.mergeInto(to, from) // TODO: on mixins we override, on "extends" class we dont... this overrides at all times (wrong behaviour for class extends)
       : new Map<PropertyKey, ActionMetadata>(from.entries())
       ;
   }

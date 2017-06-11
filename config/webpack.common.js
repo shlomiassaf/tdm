@@ -4,7 +4,7 @@
 const fs = require('fs');
 const webpack = require('webpack');
 const helpers = require('./helpers');
-const moduleHelpers = require('./module-helpers');
+require('ts-node/register');
 
 /*
  * Webpack Plugins
@@ -22,6 +22,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
 const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
 const ngcWebpack = require('ngc-webpack');
+
+const util = require('../scripts/util');
 
 
 /*
@@ -42,6 +44,7 @@ const METADATA = {
  */
 module.exports = function (options) {
   isProd = options.env === 'production';
+
   return {
 
     /*
@@ -84,7 +87,7 @@ module.exports = function (options) {
       // An array of directory names to be resolved to the current directory
       modules: [helpers.root('src'), helpers.root('src/demo/modules'), helpers.root('node_modules')],
 
-      alias: moduleHelpers.getAlias()
+      alias: util.webpackAlias()
     },
 
     /*
@@ -115,7 +118,13 @@ module.exports = function (options) {
                 aot: AOT
               }
             },
-            'awesome-typescript-loader?{configFileName: "tsconfig.webpack.json"}',
+            {
+              loader: 'awesome-typescript-loader',
+              options: {
+                configFileName: 'tsconfig.webpack.json',
+                useCache: !isProd
+              }
+            },
             'angular2-template-loader'
           ],
           exclude: [/\.(spec|e2e)\.ts$/]

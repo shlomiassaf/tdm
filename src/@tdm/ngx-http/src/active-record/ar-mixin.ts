@@ -1,7 +1,7 @@
 /* tslint:disable:max-line-length */
 
 import { Tixin, Type } from '@tdm/tixin';
-import { tdm } from '@tdm/core';
+import { targetStore } from '@tdm/core/tdm';
 import { TDMModel, store, plugins } from '@tdm/data';
 import { HttpAdapter } from '../core';
 
@@ -26,7 +26,7 @@ export function ARMixin<Model, TypeofModel, TMIXIN, CMIXIN>(model?: TypeofModel 
     model = <any>class {};
   }
   // a model might not be a target at this point (i.e. it has no metadata)
-  tdm.targetStore.registerTarget(model);
+  targetStore.registerTarget(model);
 
 
   /**
@@ -40,7 +40,7 @@ export function ARMixin<Model, TypeofModel, TMIXIN, CMIXIN>(model?: TypeofModel 
   // we can't send ...mixin to Tixin since the type limits the ..mixins amount
   const result = (Tixin as any)(model, HttpActiveRecord, ...mixins);
 
-  const tMeta = tdm.targetStore.getTargetMeta(result);
+  const tMeta = targetStore.getTargetMeta(result);
   if (tMeta.hasModel) {
     tMeta.model().build(true);
   }

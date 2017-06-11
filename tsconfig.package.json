@@ -1,4 +1,5 @@
 {
+  "extends": "./tsconfig",
   "compilerOptions": {
     "target": "es5",
     "module": "es2015",
@@ -7,88 +8,30 @@
     "emitDecoratorMetadata": true,
     "allowSyntheticDefaultImports": true,
     "removeComments": false,
-    "sourceMap": true,
-    "inlineSources": true,
+    "inlineSourceMap": true,
     "strictNullChecks": false,
     "lib": [
       "es2015",
       "dom"
     ],
+    "typeRoots": [
+      "node_modules/@types"
+    ],
     "types": [
       "jasmine",
       "hammerjs",
-      "node",
-      "selenium-webdriver",
-      "source-map",
-      "uglify-js",
-      "webpack"
+      "node"
     ],
-    "baseUrl": "./src",
-    "paths": {
-      "@tdm/ngx-dynamic-forms": [
-        "@tdm/ngx-dynamic-forms/src/index.ts"
-      ],
-      "@tdm/ngx-dynamic-forms/*": [
-        "@tdm/ngx-dynamic-forms/src/*"
-      ],
-      "@tdm/ngx-http": [
-        "@tdm/ngx-http/src/index.ts"
-      ],
-      "@tdm/ngx-http/*": [
-        "@tdm/ngx-http/src/*"
-      ],
-      "@tdm/data": [
-        "@tdm/data/src/index.ts"
-      ],
-      "@tdm/data/*": [
-        "@tdm/data/src/*"
-      ],
-      "@tdm/json-api-mapper": [
-        "@tdm/json-api-mapper/src/index.ts"
-      ],
-      "@tdm/json-api-mapper/*": [
-        "@tdm/json-api-mapper/src/*"
-      ],
-      "@tdm/tixin": [
-        "@tdm/tixin/src/index.ts"
-      ],
-      "@tdm/tixin/*": [
-        "@tdm/tixin/src/*"
-      ],
-      "@tdm/core": [
-        "@tdm/core/src/index.ts"
-      ],
-      "@tdm/core/*": [
-        "@tdm/core/src/*"
-      ]
-    },
-
-
-
+    "noEmit": false,
     "declaration": true,
-    "outDir": "dist_package/@tdm"
+    "outDir": "."
   },
   "exclude": [
     "node_modules",
     "dist",
     "dist_package",
     "e2e",
-
-
     "src/**/*.spec.ts",
-
-
     "src/demo"
-  ],
-  "awesomeTypescriptLoaderOptions": {
-    "forkChecker": true,
-    "useWebpackText": true
-  },
-  "angularCompilerOptions": {
-   "genDir": "./compiled",
-   "skipMetadataEmit": false
-  },
-  "compileOnSave": false,
-  "buildOnSave": false,
-  "atom": { "rewriteTsconfig": false }
+  ]
 }

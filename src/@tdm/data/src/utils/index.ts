@@ -1,8 +1,6 @@
-import { tdm } from '@tdm/core';
+import { isString, isNumber } from '@tdm/core/tdm';
 export * from './type-utils';
 export * from './plain-serializer';
-
-const { isString, isNumber } = tdm;
 
 /**
  * Search search each object in "objects", right to left, for a key and returns the value.

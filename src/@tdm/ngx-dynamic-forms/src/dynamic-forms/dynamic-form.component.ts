@@ -21,7 +21,7 @@ import {
 import { AbstractControl } from '@angular/forms';
 
 import { RenderInstruction } from '../interfaces';
-import { TDMModelForm, TDMModelFormService } from '../tdm-model-form';
+import { TDMModelForm, TDMModelFormService } from '../tdm-model-form/index';
 
 import { DynamicFormOverrideDirective } from './dynamic-form-override.directive';
 import { BeforeRenderEventHandler } from './before-render-event-handler';

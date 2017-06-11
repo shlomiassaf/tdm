@@ -1,4 +1,4 @@
-import { tdm } from '@tdm/core';
+import { DecoratorInfo, MetaClass } from '@tdm/core/tdm';
 
 import { ActionMetadata, ActionMetadataArgs } from '@tdm/data';
 import { HttpAdapter } from '../core';
@@ -15,7 +15,7 @@ export interface HttpActionMetadataArgs extends ActionMetadataArgs<HttpActionMet
   endpoint?: string;
 }
 
-@tdm.MetaClass<HttpActionMetadataArgs, HttpActionMetadata>({
+@MetaClass<HttpActionMetadataArgs, HttpActionMetadata>({
   allowOn: ['staticMember', 'member'],
   extend: ActionMetadata.extend,
   register: ActionMetadata.register
@@ -30,7 +30,7 @@ export class HttpActionMetadata extends ActionMetadata {
   trailingSlashes?: TrailingSlashesStrategy;
 
 
-  constructor(obj: HttpActionMetadataArgs, info: tdm.DecoratorInfo) {
+  constructor(obj: HttpActionMetadataArgs, info: DecoratorInfo) {
     super(obj, info);
 
     if (!obj.hasOwnProperty('method')) {

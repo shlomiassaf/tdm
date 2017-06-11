@@ -2,14 +2,14 @@ import { ANALYZE_FOR_ENTRY_COMPONENTS, Type, NgModule, ModuleWithProviders } fro
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 
-import { TDMModelFormService, TDMModelFormDirective } from './tdm-model-form';
+import { TDMModelFormService, TDMModelFormDirective } from './tdm-model-form/index';
 import {
   DynamicFormControlRenderer,
   DynamicFormOverrideDirective,
   DynamicFormControlDirective,
   DynamicFormComponent,
   FORM_CONTROL_COMPONENT
-} from './dynamic-forms';
+} from './dynamic-forms/index';
 
 @NgModule({
   declarations: [

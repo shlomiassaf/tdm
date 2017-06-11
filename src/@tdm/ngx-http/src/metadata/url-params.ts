@@ -1,4 +1,12 @@
-import { tdm } from '@tdm/core';
+import {
+  isString,
+  registerHelpers,
+  MapExt,
+  BaseMetadata,
+  DecoratorInfo,
+  PropMetadata,
+  MetaClass
+} from '@tdm/core/tdm';
 import { mapMethod, MappedMethod, HttpActionMethodType } from './method-mapper';
 
 export interface UrlParamMetadataArgs {
@@ -26,7 +34,7 @@ function extend(from: Map<PropertyKey, UrlParamMetadata[]>, to: Map<PropertyKey,
     to = new Map<PropertyKey, UrlParamMetadata[]>();
   }
 
-  tdm.MapExt.asKeyValArray(from)
+  MapExt.asKeyValArray(from)
     .forEach( ([k, v]) => {
       if (!to.has(k)) {
         to.set(k, v.slice())
@@ -39,25 +47,25 @@ function extend(from: Map<PropertyKey, UrlParamMetadata[]>, to: Map<PropertyKey,
   return to;
 }
 
-@tdm.MetaClass<UrlParamMetadataArgs, UrlParamMetadata>({
+@MetaClass<UrlParamMetadataArgs, UrlParamMetadata>({
   allowOn: ['member'],
   extend,
-  register: tdm.registerHelpers.array,
+  register: registerHelpers.array,
   proxy: {
-    host: tdm.PropMetadata,
+    host: PropMetadata,
     containerKey: 'urlParam'
   }
 })
-export class UrlParamMetadata extends tdm.BaseMetadata {
+export class UrlParamMetadata extends BaseMetadata {
   urlTemplateParamName: string;
   methods: MappedMethod[] = [];
 
-  constructor(metaArgs: UrlParamMetadataArgs | string | undefined, info: tdm.DecoratorInfo)  {
+  constructor(metaArgs: UrlParamMetadataArgs | string | undefined, info: DecoratorInfo)  {
     super(info);
 
     const urlParamsMeta: UrlParamMetadataArgs = {};
 
-    if (tdm.isString(metaArgs)) {
+    if (isString(metaArgs)) {
       Object.assign(urlParamsMeta, { urlTemplateParamName: metaArgs });
     } else {
       metaArgs && Object.assign(urlParamsMeta, metaArgs);
@@ -77,7 +85,7 @@ export class UrlParamMetadata extends tdm.BaseMetadata {
   }
 }
 
-declare module '@tdm/core/metadata/prop' {
+declare module '@tdm/core/tdm/src/metadata/prop' {
   interface PropMetadataArgs {
     urlParam?: UrlParamMetadataArgs | undefined
   }
