@@ -1,6 +1,12 @@
+try { require('gulplog').info = function() {}; } catch (err) {}
+try { require('fancy-log').apply = function() {}; } catch (err) {}
+
 const path = require('path');
 const gulp = require('gulp');
 const runSequence = require('run-sequence');
+const chalk = require('chalk');
+
+
 
 require('ts-node/register');
 require('require-dir')(path.join(__dirname, 'scripts', 'gulp'));
@@ -48,15 +54,15 @@ gulp.task('compile', ['clean:dist'], (done) => {
 
     const errHandler = (err) => {
       if (err) {
-        util.log('ERROR:', err.message);
+        util.log(chalk.red(`ERROR: ${err.message}`));
         cleanup().then( () => done(err) );
       } else {
         const timeEnd = process.hrtime(timeStart);
 
-        util.log(
-          `=============================================
+        util.log(chalk.green(
+`=============================================
 Compile OK: ${getName()} (${Math.round((timeEnd[0] * 1000) + (timeEnd[1] / 1000000))} ms)
-=============================================`);
+=============================================`));
 
         if (util.currentPackage().libExtensions) {
           util.log(`Extensions found (${util.currentPackage().libExtensions.length}), compiling...`);
@@ -81,13 +87,13 @@ Compile OK: ${getName()} (${Math.round((timeEnd[0] * 1000) + (timeEnd[1] / 10000
       util.saveTempTsConfig(curPkg);
 
       if (curPkg.parent) {
-        util.log(`\n\n=============================================
+        util.log(chalk.yellow(`\n\n=============================================
 Compiling extension ${curPkg.dirName} for library ${curPkg.parent.dirName}
-=============================================\n\n`);
+=============================================\n\n`));
       } else {
-        util.log(`\n\n=============================================
+        util.log(chalk.yellow(`\n\n=============================================
 Compiling library ${curPkg.dirName}
-=============================================\n\n`);
+=============================================\n\n`));
       }
 
 
@@ -96,9 +102,11 @@ Compiling library ${curPkg.dirName}
       runSequence(
         'build:webpack',
         'build:rollup:fesm',
+        'build:fesm:es5',
         'build:rollup:umd',
-        'sourcemaps',
+        // 'sourcemaps',
         'minifyAndGzip',
+        'pureAnnotation',
         'manifest',
         errHandler
       );

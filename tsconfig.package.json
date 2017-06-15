@@ -1,14 +1,15 @@
 {
   "extends": "./tsconfig",
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2015",
     "module": "es2015",
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "allowSyntheticDefaultImports": true,
     "removeComments": false,
-    "inlineSourceMap": true,
+    "sourceMap": true,
+    "inlineSources": true,
     "strictNullChecks": false,
     "lib": [
       "es2015",

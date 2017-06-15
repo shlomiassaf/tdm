@@ -1,14 +1,15 @@
-import * as gulp from 'gulp';
 import * as fs from 'fs-extra';
 import * as Path from 'path';
 import { execSync as spawn } from 'child_process';
 import * as webpack from 'webpack';
+import * as jsonfile from 'jsonfile';
+import { ScriptTarget, ModuleKind } from 'typescript';
 
 import * as util from '../util';
+
 const rollup = require('rollup-stream');
 const source = require('vinyl-source-stream');
 const buffer = require('vinyl-buffer');
-const sourcemaps = require('gulp-sourcemaps');
 const rename = require('gulp-rename');
 const sorcery = require('sorcery');
 const convert = require('convert-source-map');
@@ -20,15 +21,34 @@ export class Gulpfile {
   buildWebpack() {
     const config = util.resolveWebpackConfig(util.root(util.FS_REF.WEBPACK_CONFIG), util.currentPackage());
 
-    const compiler = webpack(config);
+    /* There are 2 webpack processes running one after the other.
+        - 1st webpack pass: es2015 output
+        - 2nd webpack pass: es5 output.
 
-    const runWebpack = {
-      compiler,
-      done: new Promise( (RSV, RJT) => compiler.run((err, stats) => err ? RJT(err) : RSV(stats)) )
-    };
+        In theory we should use only 1 pass (es2015) and bundle it to an ES2015 bundle.
+        We then take that bundle and use TS to down grade it to a ES5 bundle.
 
-    return runWebpack
-      .done
+        This works great except for source maps.
+        When trying to use 'sorcery' to map the code it throws due to memory allocation (probably some kind of recursion)
+
+        If we remove set  'sourceMap: false' & 'inlineSources: false' when doing the down grade
+        the output source map is miss aligned (it refers to the ES2015 map)
+
+        see task "build:fesm:es5" (and the commented code) for more details.1
+     */
+
+
+    return new Promise( (resolve, reject) => webpack(config).run((err, stats) => err ? reject(err) : resolve(stats)) )
+      .then( () => {
+        const p = util.root(util.currentPackage().tsConfigObj.compilerOptions.outDir);
+        spawn(`rm -rf ${Path.resolve(p, '..')}`);
+
+        const tsConfig = jsonfile.readFileSync(util.root(util.FS_REF.TS_CONFIG_TMP));
+        tsConfig.compilerOptions.target = 'es5';
+        jsonfile.writeFileSync(util.root(util.FS_REF.TS_CONFIG_TMP), tsConfig, {spaces: 2});
+
+        return new Promise( (resolve, reject) => webpack(config).run((err, stats) => err ? reject(err) : resolve(stats)) );
+      })
       .then( () => {
         const p = util.root(util.currentPackage().tsConfigObj.compilerOptions.outDir);
         const copyInst = util.getCopyInstruction(util.currentPackage());
@@ -58,25 +78,61 @@ export class Gulpfile {
     const meta = util.currentPackage();
     const copyInst = util.getCopyInstruction(meta);
 
-    const rollupConfig = {
-      external: meta.externals
+    const rollupConfig: any = {
+      external: meta.externals,
+      moduleName: meta.moduleName
     };
 
     util.tryRunHook(meta.dir, 'rollupFESM', rollupConfig);
 
-    Object.assign(rollupConfig, {
+    return util.createRollupBundle({
+      moduleName: rollupConfig.moduleName,
       entry: `${copyInst.toSrc}/${util.getMainOutputFileName(meta)}.js`,
+      dest: Path.join(copyInst.toBundle, `${meta.umd}.js`),
       format: 'es',
-      sourceMap: true
-    });
+      external: rollupConfig.external,
+      globals: rollupConfig.globals
+    }).then( () => sorcery.load(Path.join(copyInst.toBundle, `${meta.umd}.js`)).then( chain => chain.write() ));
+  }
 
-    return rollup(rollupConfig)
-      .pipe(source(`${util.getMainOutputFileName(meta)}.js`, `${copyInst.toSrc}`))
-      .pipe(buffer())
-      .pipe(sourcemaps.init({loadMaps: true}))
-      .pipe(rename(`${meta.umd}.es5.js`))
-      .pipe(sourcemaps.write('.'))
-      .pipe(gulp.dest(copyInst.toBundle));
+  @util.GulpClass.Task('build:fesm:es5')
+  buildFesmEs5() {
+    const meta = util.currentPackage();
+    const copyInst = util.getCopyInstruction(meta);
+
+    const rollupConfig: any = {
+      external: meta.externals,
+      moduleName: meta.moduleName
+    };
+
+    util.tryRunHook(meta.dir, 'rollupFESM', rollupConfig);
+
+    return util.createRollupBundle({
+      moduleName: rollupConfig.moduleName,
+      entry: `${copyInst.toSrc}/${util.getMainOutputFileName(meta)}.js`,
+      dest: Path.join(copyInst.toBundle, `${meta.umd}.es5.js`),
+      format: 'es',
+      external: rollupConfig.external,
+      globals: rollupConfig.globals
+    }).then( () => sorcery.load(Path.join(copyInst.toBundle, `${meta.umd}.es5.js`)).then( chain => chain.write() ));
+
+    // const meta = util.currentPackage();
+    // const copyInst = util.getCopyInstruction(meta);
+    //
+    // // Downlevel FESM-2015 file to ES5.
+    // util.transpileFile(
+    //   Path.join(copyInst.toBundle, `${meta.umd}.js`),
+    //   Path.join(copyInst.toBundle, `${meta.umd}.es5.js`),
+    //   {
+    //     importHelpers: true,
+    //     target: ScriptTarget.ES5,
+    //     module: ModuleKind.ES2015,
+    //     allowJs: true,
+    //     sourceMap: true,
+    //     inlineSources: true
+    //   });
+    //
+    // return sorcery.load(Path.join(copyInst.toBundle, `${meta.umd}.es5.js`)).then( chain => chain.write() );
   }
 
   @util.GulpClass.Task('build:rollup:umd') // or use provided callback instead
@@ -95,20 +151,14 @@ export class Gulpfile {
 
     util.tryRunHook(meta.dir, 'rollupUMD', rollupConfig);
 
-    Object.assign(rollupConfig, {
-      entry: `${copyInst.toSrc}/${util.getMainOutputFileName(meta)}.js`,
+    return util.createRollupBundle({
+      moduleName: rollupConfig.moduleName,
+      entry: Path.join(copyInst.toBundle, `${meta.umd}.es5.js`),
+      dest: Path.join(copyInst.toBundle, `${meta.umd}.rollup.umd.js`),
       format: 'umd',
-      exports: 'named',
-      sourceMap: true
-    });
-
-    return rollup(rollupConfig)
-      .pipe(source(`${util.getMainOutputFileName(meta)}.js`, `${copyInst.toSrc}`))
-      .pipe(buffer())
-      .pipe(sourcemaps.init({loadMaps: true}))
-      .pipe(rename(`${meta.umd}.rollup.umd.js`))
-      .pipe(sourcemaps.write('.'))
-      .pipe(gulp.dest(copyInst.toBundle));
+      external: rollupConfig.external,
+      globals: rollupConfig.globals
+    }).then( () => sorcery.load(Path.join(copyInst.toBundle, `${meta.umd}.rollup.umd.js`)).then( chain => chain.write() ));
   }
 
   @util.GulpClass.Task()
@@ -117,13 +167,18 @@ export class Gulpfile {
 
     const copyInst = util.getCopyInstruction(meta);
 
-    const promises = [`${meta.umd}.es5.js`, /* `${meta.umd}.webpack.umd.js`, */ `${meta.umd}.rollup.umd.js`]
-      .map( file => {
-        return sorcery.load(Path.join(copyInst.toBundle, file))
-          .then( chain => chain.write() );
-      });
+    const files = [`${meta.umd}.es5.js`, `${meta.umd}.rollup.umd.js`];
+    const mapSource = () => {
+      if (files.length > 0) {
+        return sorcery.load(Path.join(copyInst.toBundle, files.shift()))
+          .then( chain => chain.write() )
+          .then( () => mapSource() );
+      } else {
+        return Promise.resolve(false);
+      }
+    };
 
-    return Promise.all(promises);
+    return mapSource();
   }
 
   @util.GulpClass.Task()
@@ -132,8 +187,22 @@ export class Gulpfile {
       const meta = util.currentPackage();
       const copyInst = util.getCopyInstruction(meta);
 
-      util.minifyAndGzip(copyInst.toBundle, `${meta.umd}.webpack.umd`);
+      // util.minifyAndGzip(copyInst.toBundle, `${meta.umd}.webpack.umd`);
       util.minifyAndGzip(copyInst.toBundle, `${meta.umd}.rollup.umd`);
+      done()
+    } catch (err) {
+      done(err);
+    }
+  }
+
+  @util.GulpClass.Task()
+  pureAnnotation(done) {
+    try {
+      const meta = util.currentPackage();
+      const copyInst = util.getCopyInstruction(meta);
+
+      util.addPureAnnotationsToFile(Path.join(copyInst.toBundle, `${meta.umd}.es5.js`));
+
       done()
     } catch (err) {
       done(err);

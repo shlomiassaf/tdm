@@ -1,6 +1,6 @@
-import * as resolve from 'rollup-plugin-node-resolve';
-
 const globals = {
+  'tslib': 'tslib',
+
   '@tdm/tixin': 'tdm.tixin',
   '@tdm/core': 'tdm.core',
   '@tdm/core/tdm': 'tdm.core.tdm',
@@ -31,11 +31,6 @@ export function tsconfig(config) {
 }
 
 export function rollupFESM(config) {
-  if (!config.plugins) {
-    config.plugins = [];
-  }
-  config.plugins.push(resolve({ jsnext: true, main: true }));
-
   if (config.external) {
     config.external = config.external.concat(Object.keys(globals));
   } else {

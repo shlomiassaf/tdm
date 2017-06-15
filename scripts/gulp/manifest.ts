@@ -35,6 +35,7 @@ gulp.task('manifest', function () {
   pkgJson.name = meta.dir;
   pkgJson.main = `${util.FS_REF.BUNDLE_DIR}/${meta.umd}.rollup.umd.js`;
   pkgJson.module = `${util.FS_REF.BUNDLE_DIR}/${meta.umd}.es5.js`;
+  pkgJson.es2015 = `${util.FS_REF.BUNDLE_DIR}/${meta.umd}.js`;
   pkgJson.typings = `${util.FS_REF.SRC_CONTAINER}/${util.getMainOutputFileName(meta)}.d.ts`;
 
   util.tryRunHook(meta.dir, 'packageJSON', pkgJson);

@@ -40,12 +40,13 @@ export class ActionController<T = any, Z = any> {
   }
 
 
-  createExecFactory<T>(action: ActionMetadata, ret: 'promise'): (self: T, async: boolean, ...args: any[]) => Promise<T>;
-  createExecFactory<T>(action: ActionMetadata, ret?: 'instance'): (self: T, async: boolean, ...args: any[]) => T;
-  createExecFactory<T>(action: ActionMetadata, ret?: 'instance' | 'promise'): (self: T, async: boolean, ...args: any[]) => T | Promise<T> {
+  createExecFactory<T>(action: ActionMetadata, ret: 'promise'): (self: T, isAsync: boolean, ...args: any[]) => Promise<T>;
+  createExecFactory<T>(action: ActionMetadata, ret?: 'instance'): (self: T, isAsync: boolean, ...args: any[]) => T;
+  createExecFactory<T>(action: ActionMetadata, ret?: 'instance' | 'promise'): (self: T, isAsync: boolean, ...args: any[]) => T | Promise<T> {
     const ac = this;
-    return function (self: T, async: boolean, ...args: any[]) {
-      return ac.execute(this.clone(self), {async, args}, <any>ret);
+    return function (self: T, isAsync: boolean, ...args: any[]) {
+      // TODO: once rollup support "async" as obj shorthand, change back isAsync to async
+      return ac.execute(this.clone(self), {async: isAsync, args}, <any>ret);
     }.bind(new ExecuteContext(this.targetMetadata, action));
   }
 
@@ -54,7 +55,7 @@ export class ActionController<T = any, Z = any> {
   execute(ctx: ExecuteContext<any>, params: ExecuteParams, ret?: 'instance' | 'promise'): any {
     const action = ctx.action;
     const args = params.args || [];
-    let async = params.async;
+    let isAsync = params.async;
 
     if (args.length < action.paramHint) {
       args[action.paramHint -1] = {};
@@ -78,7 +79,8 @@ export class ActionController<T = any, Z = any> {
 
     state.set('busy', true);
 
-    dispatchEvent(new ExecuteInitResourceEvent(ctx.instance, {ac: this, action, async, args}));
+    // TODO: once rollup support "async" as obj shorthand, change back isAsync to async
+    dispatchEvent(new ExecuteInitResourceEvent(ctx.instance, {ac: this, action, async: isAsync, args}));
     dispatchEvent(eventFactory.actionStart(ctx.instance));
 
     const eState: ExecuteState = {};
@@ -109,7 +111,7 @@ export class ActionController<T = any, Z = any> {
         eState.id = adapterResponse.id;
 
         if (action.post) {
-          async = true;
+          isAsync = true;
         }
 
         // TODO: If user cancelled and the adapter does not throw an error on cancellation
