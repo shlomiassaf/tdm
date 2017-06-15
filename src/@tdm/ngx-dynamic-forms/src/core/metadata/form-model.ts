@@ -1,5 +1,5 @@
 import { ValidatorFn, AsyncValidatorFn } from '@angular/forms';
-import { tdm } from '@tdm/core';
+import { MetaClass, PropMetadata, ModelMetadata, BaseMetadata, DecoratorInfo } from '@tdm/core/tdm';
 
 import { FormPropMetadata } from './form-prop';
 
@@ -8,20 +8,20 @@ export interface FormModelMetadataArgs {
   asyncValidator?: AsyncValidatorFn;
 }
 
-@tdm.MetaClass<FormModelMetadataArgs, FormModelMetadata>({
+@MetaClass<FormModelMetadataArgs, FormModelMetadata>({
   single: true,
   allowOn: ['class'],
   proxy: {
-    host: tdm.ModelMetadata,
+    host: ModelMetadata,
     containerKey: 'form'
   }
 })
-export class FormModelMetadata extends tdm.BaseMetadata implements FormModelMetadataArgs {
+export class FormModelMetadata extends BaseMetadata implements FormModelMetadataArgs {
   validator: ValidatorFn | null;
   asyncValidator: AsyncValidatorFn | null;
   props = new Map<string, FormPropMetadata>();
 
-  constructor(metaArgs: FormModelMetadataArgs | undefined, info: tdm.DecoratorInfo) {
+  constructor(metaArgs: FormModelMetadataArgs | undefined, info: DecoratorInfo) {
     super(info);
 
     if (metaArgs) {
@@ -30,7 +30,7 @@ export class FormModelMetadata extends tdm.BaseMetadata implements FormModelMeta
     }
   }
 
-  addProp(prop: tdm.PropMetadata, metaArgs: FormPropMetadata) {
+  addProp(prop: PropMetadata, metaArgs: FormPropMetadata) {
     if (!metaArgs.exclude && !metaArgs.render.type) {
       switch (prop.type.ref) {
         case Boolean:
@@ -55,7 +55,7 @@ export class FormModelMetadata extends tdm.BaseMetadata implements FormModelMeta
   }
 }
 
-declare module '@tdm/core/metadata/model-metadata' {
+declare module '@tdm/core/tdm/src/metadata/model-metadata' {
   interface ModelMetadataArgs {
     form?: FormModelMetadataArgs | undefined
   }

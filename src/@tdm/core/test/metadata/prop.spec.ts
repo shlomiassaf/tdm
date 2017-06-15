@@ -1,5 +1,5 @@
 import { Model, Prop, Relation } from '@tdm/core';
-import { PropMetadata } from '@tdm/core/tdm';
+import { PropMetadata } from '@tdm/core/src/tdm';
 import { TargetMetaModifier } from '@tdm/core/testing';
 
 @Model()

@@ -1,4 +1,11 @@
-import { tdm, ModelMetadataArgs, RelationMetadataArgs } from '@tdm/core'; // RelationMetadataArgs - leave to satisfy angular compiler
+import {
+  targetStore,
+  ModelMetadataArgs,
+  RelationMetadataArgs,     // RelationMetadataArgs - leave to satisfy angular compiler
+  ModelMetadata,
+  MetaClass
+} from '@tdm/core/tdm';
+
 import { ExecuteResponse, ARHookableMethods } from '../fw';
 import {
   HookMetadata,
@@ -31,10 +38,10 @@ export class NoopAdapter implements Adapter<any, any> {
   cancel(id: number): void {};
 }
 
-tdm.targetStore.registerAdapter(NoopAdapter, {
+targetStore.registerAdapter(NoopAdapter, {
   actionMetaClass: <any>class {},
   DAOClass: class {},
-  resourceMetaClass: tdm.ModelMetadata
+  resourceMetaClass: ModelMetadata
 });
 
 /**
@@ -45,28 +52,28 @@ tdm.targetStore.registerAdapter(NoopAdapter, {
 export function Resource(metaArgs: ModelMetadataArgs) {
   return _Resource(metaArgs) as any;
 }
-const _Resource = tdm.MetaClass.get(tdm.ModelMetadata).createResourceDecorator(NoopAdapter); // FOR AOT
+const _Resource = MetaClass.get(ModelMetadata).createResourceDecorator(NoopAdapter); // FOR AOT
 
 /**
  * @propertyDecorator instance
  * @param metaArgs
  */
-export const ExtendAction = tdm.MetaClass.decorator(ExtendActionMetadata);
+export const ExtendAction = MetaClass.decorator(ExtendActionMetadata);
 
 /**
  * @propertyDecorator instance
  * @param def
  */
-export const BelongsTo = tdm.MetaClass.decorator(BelongsToMetadata, true);
+export const BelongsTo = MetaClass.decorator(BelongsToMetadata, true);
 
 
 /**
  * @propertyDecorator instance
  * @param def
  */
-export const Owns = tdm.MetaClass.decorator(OwnsMetadata, true);
+export const Owns = MetaClass.decorator(OwnsMetadata, true);
 
-export const Hook = tdm.MetaClass.decorator(HookMetadata);
+export const Hook = MetaClass.decorator(HookMetadata);
 
 export function BeforeHook(action: ARHookableMethods) {
   return Hook({event: 'before', action});

@@ -1,4 +1,5 @@
-import pathToRegexp from 'path-to-regexp';
+import { Key } from 'path-to-regexp';
+import { pathToRegexp, compile } from './path-to-regexp';
 
 export interface Params {
   [param: string]: string | string[];
@@ -8,7 +9,7 @@ export type CompiledPatternFactory = (params: Params) => string;
 
 export interface ParsedPattern {
   regexp: RegExp;
-  keys: pathToRegexp.Key[];
+  keys: Key[];
 }
 
 export interface ParsedPath {
@@ -22,7 +23,7 @@ const COMPILED_CACHE = new Map<string, CompiledPatternFactory>();
 
 export function getRegexp(pattern: string): ParsedPattern {
   if (!REGEXP_CACHE.has(pattern)) {
-    const keys: pathToRegexp.Key[] = [];
+    const keys: Key[] = [];
     const regexp = pathToRegexp(pattern, keys, { end: false });
     REGEXP_CACHE.set(pattern, { keys, regexp });
   }
@@ -32,7 +33,7 @@ export function getRegexp(pattern: string): ParsedPattern {
 
 export function getCompiled(pattern: string): CompiledPatternFactory {
   if (!COMPILED_CACHE.has(pattern)) {
-    COMPILED_CACHE.set(pattern, pathToRegexp.compile(pattern));
+    COMPILED_CACHE.set(pattern, <any>compile(pattern));
   }
 
   return COMPILED_CACHE.get(pattern);

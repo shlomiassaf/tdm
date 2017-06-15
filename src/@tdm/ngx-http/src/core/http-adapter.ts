@@ -2,9 +2,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { map } from 'rxjs/operator/map';
 
 import { RequestOptions, URLSearchParams, Headers } from '@angular/http';
-import { tdm } from '@tdm/core';
-
-const { isUndefined, stringify } = tdm;
+import { isUndefined, stringify, TargetMetadata } from '@tdm/core/tdm';
 
 import {
   Adapter,
@@ -111,7 +109,7 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
     return headers;
   }
 
-  protected getParams(ctx: ExecuteContext<HttpActionMetadata>, meta: tdm.TargetMetadata, resource: HttpResourceMetadata, options: HttpActionOptions): Params {
+  protected getParams(ctx: ExecuteContext<HttpActionMetadata>, meta: TargetMetadata, resource: HttpResourceMetadata, options: HttpActionOptions): Params {
     const params = Object.assign({}, findProp('urlParams', httpDefaultConfig, resource, ctx.action));
 
     if (ctx.instance) {

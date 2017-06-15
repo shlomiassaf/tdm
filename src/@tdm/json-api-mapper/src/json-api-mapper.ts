@@ -1,18 +1,24 @@
-import { tdm } from '@tdm/core';
-
-import '@tdm/core/add/mapping';
+import {
+  targetStore,
+  transformValueOut,
+  PlainSerializer,
+  PropMetadata,
+  PoClassPropertyMap,
+  PropertyContainer,
+  DeserializeMapper,
+  SerializeMapper,
+  MapperFactory
+} from '@tdm/core/tdm';
 
 import { TopLevel, ResourceObject, ResourceIdentifierObject } from './json-api';
 import * as japiUtils from './json-api-utils';
-
-const { targetStore } = tdm;
 
 /**
  * A mapper that has no mapping effect.
  * Maps every property on the source to the same property on the target.
  *
  */
-export class JSONAPIDeserializeMapper extends tdm.DeserializeMapper {
+export class JSONAPIDeserializeMapper extends DeserializeMapper {
   setRef(value: any): void {
     if (this.current) {
       this.existing.set(this.uuid(this.current.type, this.current.id), value);
@@ -35,7 +41,7 @@ export class JSONAPIDeserializeMapper extends tdm.DeserializeMapper {
   constructor(public source: TopLevel, sourceType: any) {
     super(source, sourceType);
 
-    if (! (this instanceof JSONAPIChildDeserializeMapper)) {
+    if (!(this instanceof JSONAPIChildDeserializeMapper)) {
       this.existing = new Map<string, any>();
     }
 
@@ -65,7 +71,7 @@ export class JSONAPIDeserializeMapper extends tdm.DeserializeMapper {
     return this.keys.att.concat(this.keys.rel);
   }
 
-  getValue(key: string, prop?: tdm.PropMetadata): any | undefined {
+  getValue(key: string, prop?: PropMetadata): any | undefined {
     if (this.keys.att.indexOf(key) > -1) {
       return this.getAttrValue(key, prop);
     } else if (this.keys.rel.indexOf(key) > -1) {
@@ -77,23 +83,23 @@ export class JSONAPIDeserializeMapper extends tdm.DeserializeMapper {
     return `${type}-${id}`;
   }
 
-  protected getAttrValue(key: string, prop?: tdm.PropMetadata): any {
+  protected getAttrValue(key: string, prop?: PropMetadata): any {
     return this.current.attributes[key];
   }
 
-  protected getRelatedValue(key: string, prop?: tdm.PropMetadata): any | undefined {
+  protected getRelatedValue(key: string, prop?: PropMetadata): any | undefined {
     const relObject = this.current.relationships[key];
 
     if (relObject && relObject.data) {
       if (Array.isArray(relObject.data)) {
-        return relObject.data.map( rel => this.getIncluded(rel, prop) );
+        return relObject.data.map(rel => this.getIncluded(rel, prop));
       } else {
         return this.getIncluded(relObject.data, prop);
       }
     }
   }
 
-  protected getIncluded(rel: ResourceIdentifierObject, prop?: tdm.PropMetadata): any {
+  protected getIncluded(rel: ResourceIdentifierObject, prop?: PropMetadata): any {
 
     const uuid = this.uuid(rel.type, rel.id);
 
@@ -110,7 +116,10 @@ export class JSONAPIDeserializeMapper extends tdm.DeserializeMapper {
       ;
 
       const mapper = this.ref // event if no target we use ChildDes because the type can be found be "type" keys of child resources.
-        ? new JSONAPIChildDeserializeMapper({ data: included, included: this.source.included }, target, this.existing)
+        ? new JSONAPIChildDeserializeMapper({
+          data: included,
+          included: this.source.included
+        }, target, this.existing)
         : jsonAPIMapper.deserializer({data: included}, target)
       ;
 
@@ -127,25 +136,25 @@ export class JSONAPIChildDeserializeMapper extends JSONAPIDeserializeMapper {
 }
 
 
-export class JSONAPISerializeMapper extends tdm.SerializeMapper {
+export class JSONAPISerializeMapper extends SerializeMapper {
   protected cache: Map<string, ResourceObject>;
   private doc: TopLevel;
 
-  serialize(container: tdm.PropertyContainer): TopLevel {
+  serialize(container: PropertyContainer): TopLevel {
 
     if (!this.cache) {
       this.cache = new Map<string, ResourceObject>();
     }
 
     if (Array.isArray(this.source)) {
-      this.doc = { data: [] as any, included: [] };
+      this.doc = {data: [] as any, included: []};
       this.doc.data = this.serializeCollection(this.source, this.doc, container);
     } else {
-      this.doc = { data: {} as any, included: [] };
+      this.doc = {data: {} as any, included: []};
       this.doc.data = this.serializeObject(this.source, this.doc, container);
     }
 
-    if ( (!(this instanceof JSONAPIChildSerializeMapper)) && this.cache.size > 0) {
+    if ((!(this instanceof JSONAPIChildSerializeMapper)) && this.cache.size > 0) {
       const includedArr = this.doc.included = [];
       const data: any = this.doc.data;
       const canInclude = Array.isArray(data)
@@ -154,7 +163,7 @@ export class JSONAPISerializeMapper extends tdm.SerializeMapper {
       ;
 
       Array.from(this.cache.values())
-        .forEach( toInclude => {
+        .forEach(toInclude => {
           if (!japiUtils.isIdentObject(toInclude) && canInclude(toInclude)) {
             includedArr.push(toInclude);
           }
@@ -166,10 +175,10 @@ export class JSONAPISerializeMapper extends tdm.SerializeMapper {
     return this.doc;
   }
 
-  private cleanDoc(doc: TopLevel, container: tdm.PropertyContainer): void {
+  private cleanDoc(doc: TopLevel, container: PropertyContainer): void {
 
     if (Array.isArray(doc.data)) {
-      for (let i=0, len=doc.data.length; i<len; i++) {
+      for (let i = 0, len = doc.data.length; i < len; i++) {
         this.cleanResourceObject(doc.data[i], container)
       }
     } else if (doc.data && Object.keys(doc.data).length === 0) {
@@ -198,7 +207,7 @@ export class JSONAPISerializeMapper extends tdm.SerializeMapper {
     }
   }
 
-  private serializeObject(obj: any, doc: TopLevel, container: tdm.PropertyContainer): ResourceObject | ResourceIdentifierObject {
+  private serializeObject(obj: any, doc: TopLevel, container: PropertyContainer): ResourceObject | ResourceIdentifierObject {
     const id = obj[targetStore.getIdentityKey(container.target)];
     const type = targetStore.getTargetName(container.target);
 
@@ -216,7 +225,7 @@ export class JSONAPISerializeMapper extends tdm.SerializeMapper {
 
     this.cache.set(uuid, data);
 
-    const cb = (pMap: tdm.PoClassPropertyMap) => {
+    const cb = (pMap: PoClassPropertyMap) => {
       const p = pMap.prop;
       if (p && p.relation) {
         const type = p.type.ref;
@@ -229,23 +238,23 @@ export class JSONAPISerializeMapper extends tdm.SerializeMapper {
 
         const isArray = p.relation && p.type.isArray && Array.isArray(obj[pMap.cls]);
         const idKey = targetStore.getIdentityKey(type as any);
-        const createRel = (id: string) => ({ id, type: name });
+        const createRel = (id: string) => ({id, type: name});
 
         if (isArray) {
           const relList = [];
-          data.relationships[pMap.cls] = { data: relList };
-          obj[pMap.cls].forEach( item => {
+          data.relationships[pMap.cls] = {data: relList};
+          obj[pMap.cls].forEach(item => {
             relList.push(createRel(item[idKey]));
             this.serializeChild(item, type)
           });
 
         } else {
-          data.relationships[pMap.cls] = { data: createRel(obj[pMap.cls][idKey]) };
+          data.relationships[pMap.cls] = {data: createRel(obj[pMap.cls][idKey])};
           this.serializeChild(obj[pMap.cls], type);
         }
       } else {
-        const value = tdm.transformValueOut(obj[pMap.cls], p);
-        data.attributes[pMap.obj] = new tdm.PlainSerializer().serialize(value);
+        const value = transformValueOut(obj[pMap.cls], p);
+        data.attributes[pMap.obj] = new PlainSerializer().serialize(value);
       }
     };
 
@@ -262,8 +271,8 @@ export class JSONAPISerializeMapper extends tdm.SerializeMapper {
     targetStore.serialize(type, new JSONAPIChildSerializeMapper(obj, this.cache));
   }
 
-  private serializeCollection(arr: any[], doc: TopLevel, container: tdm.PropertyContainer): Array<ResourceObject | ResourceIdentifierObject> {
-    return arr.map( s => this.serializeObject(s, doc, container));
+  private serializeCollection(arr: any[], doc: TopLevel, container: PropertyContainer): Array<ResourceObject | ResourceIdentifierObject> {
+    return arr.map(s => this.serializeObject(s, doc, container));
   }
 }
 
@@ -274,7 +283,7 @@ export class JSONAPIChildSerializeMapper extends JSONAPISerializeMapper {
 }
 
 
-export const jsonAPIMapper: tdm.MapperFactory = {
+export const jsonAPIMapper: MapperFactory = {
   serializer(source: any): JSONAPISerializeMapper {
     return new JSONAPISerializeMapper(source);
   },

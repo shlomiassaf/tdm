@@ -1,7 +1,16 @@
-import { tdm, ModelMetadataArgs, TDMModelBase } from '@tdm/core';
+import {
+  targetStore,
+  stringify,
+  isFunction,
+  PropMetadata,
+  MetaClassMetadata,
+  ModelMetadataArgs,
+  ModelMetadata,
+  TDMModelBase
+} from '@tdm/core/tdm';
 import { AdapterStatic } from '../fw';
 
-declare module '@tdm/core/fw/metadata-framework/meta-class' {
+declare module '@tdm/core/tdm/src/fw/metadata-framework/meta-class' {
   interface MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
     createResourceDecorator(adapterClass: AdapterStatic<any, any>): (def: TMetaArgs) => (target: Function) => any;
   }
@@ -15,7 +24,7 @@ const ADAPTER_REF = Symbol('Adapter Ref');
  * @param adapterClass
  */
 export function resource<TMetaArgs extends ModelMetadataArgs>(
-  this: tdm.MetaClassMetadata<ModelMetadataArgs, tdm.ModelMetadata>,
+  this: MetaClassMetadata<ModelMetadataArgs, ModelMetadata>,
   adapterClass: AdapterStatic<any, any>): (metaArgs: TMetaArgs) => ClassDecorator {
 
   const metaClass = this;
@@ -23,8 +32,8 @@ export function resource<TMetaArgs extends ModelMetadataArgs>(
   return function ResourceDecorator(metaArgs: TMetaArgs) {
     return (target: any) => {
 
-      if (tdm.targetStore.getAdapter(adapterClass).resourceMetaClass !== metaClass.target) {
-        throw new Error(`Adapter ${tdm.stringify(adapterClass)} resource metadata mismatch`)
+      if (targetStore.getAdapter(adapterClass).resourceMetaClass !== metaClass.target) {
+        throw new Error(`Adapter ${stringify(adapterClass)} resource metadata mismatch`)
       }
 
       if (metaArgs.factory) {
@@ -36,24 +45,24 @@ export function resource<TMetaArgs extends ModelMetadataArgs>(
       TDMModel[ADAPTER_REF] = adapterClass;
 
       const modelMeta = metaClass.create(metaArgs || {}, target);
-      // tdm.targetStore.registerTarget(target);
-      const meta = tdm.targetStore.getTargetMeta(target);
+      // targetStore.registerTarget(target);
+      const meta = targetStore.getTargetMeta(target);
 
 
       // check for properties that set the type to self (same class)
       // the class will point to the base class (target) that TDModel extends.
       // this is fine if the user didn't set `typeGetter`, if he did we get TDModel
       meta
-        .getValues(tdm.PropMetadata)
+        .getValues(PropMetadata)
         .forEach( p => {
           const desc = Object.getOwnPropertyDescriptor(p, 'type');
 
-          if (desc && desc.configurable && tdm.isFunction(desc.get) && desc.get() === target) {
+          if (desc && desc.configurable && isFunction(desc.get) && desc.get() === target) {
             Object.defineProperty(p, 'type', { configurable: true, value: TDMModel });
           }
         });
 
-      tdm.targetStore.registerTarget(TDMModel);
+      targetStore.registerTarget(TDMModel);
       const tdmModelMeta = metaClass.extendSingle(modelMeta, undefined, { from: target, to: TDMModel });
 
       if (metaArgs.skip !== true) {
@@ -65,10 +74,10 @@ export function resource<TMetaArgs extends ModelMetadataArgs>(
   }
 }
 
-tdm.MetaClassMetadata.prototype.createResourceDecorator = resource;
+MetaClassMetadata.prototype.createResourceDecorator = resource;
 
-tdm.targetStore.on.beforeProcessType( target => {
-  const tMeta = tdm.targetStore.getTargetMeta(target);
+targetStore.on.beforeProcessType( target => {
+  const tMeta = targetStore.getTargetMeta(target);
   // default behaviour, register the first adapter, if multiple...
   if (target[ADAPTER_REF]) {
     if (!tMeta.activeAdapter) {

@@ -6,9 +6,6 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "allowSyntheticDefaultImports": true,
-    "removeComments": false,
-    "sourceMap": true,
-    "strictNullChecks": false,
     "lib": [
       "es2015",
       "dom"
@@ -22,37 +19,79 @@
       "uglify-js",
       "webpack"
     ],
+    "noEmit": true,
     "baseUrl": "./src",
     "paths": {
+      "@tdm/tixin": [
+        "@tdm/tixin/src/tixin.ts"
+      ],
+      "@tdm/tixin/src/*": [
+        "@tdm/tixin/src/*"
+      ],
+      "@tdm/core": [
+        "@tdm/core/src/core.ts"
+      ],
+      "@tdm/core/tdm": [
+        "@tdm/core/tdm/src/tdm.ts"
+      ],
+      "@tdm/core/tdm/src/*": [
+        "@tdm/core/tdm/src/*"
+      ],
+      "@tdm/core/testing": [
+        "@tdm/core/testing/src/index.ts"
+      ],
+      "@tdm/core/testing/src/*": [
+        "@tdm/core/testing/src/*"
+      ],
+      "@tdm/core/src/*": [
+        "@tdm/core/src/*"
+      ],
+      "@tdm/data": [
+        "@tdm/data/src/data.ts"
+      ],
+      "@tdm/data/testing": [
+        "@tdm/data/testing/src/index.ts"
+      ],
+      "@tdm/data/testing/src/*": [
+        "@tdm/data/testing/src/*"
+      ],
+      "@tdm/data/plugin/active-record": [
+        "@tdm/data/plugin/active-record/src/index.ts"
+      ],
+      "@tdm/data/plugin/active-record/src/*": [
+        "@tdm/data/plugin/active-record/src/*"
+      ],
+      "@tdm/data/plugin/rx-resource-control": [
+        "@tdm/data/plugin/rx-resource-control/src/index.ts"
+      ],
+      "@tdm/data/plugin/rx-resource-control/src/*": [
+        "@tdm/data/plugin/rx-resource-control/src/*"
+      ],
+      "@tdm/data/src/*": [
+        "@tdm/data/src/*"
+      ],
+      "@tdm/ngx-http": [
+        "@tdm/ngx-http/src/index.ts"
+      ],
+      "@tdm/ngx-http/src/*": [
+        "@tdm/ngx-http/src/*"
+      ],
       "@tdm/ngx-dynamic-forms": [
         "@tdm/ngx-dynamic-forms/src/index.ts"
       ],
-      "@tdm/ngx-dynamic-forms/*": [
+      "@tdm/ngx-dynamic-forms/src/*": [
         "@tdm/ngx-dynamic-forms/src/*"
       ],
-      
-      "@tdm/tixin": ["@tdm/tixin/src/index.ts"],
-      "@tdm/tixin/*": ["@tdm/tixin/src/*"],
-
-      "@tdm/core": ["@tdm/core/src/index.ts"],
-      "@tdm/core/*": ["@tdm/core/src/*"],
-
-      "@tdm/data": ["@tdm/data/src/index.ts"],
-      "@tdm/data/*": ["@tdm/data/src/*"],
-
-      "@tdm/ngx-http": ["@tdm/ngx-http/src/index.ts"],
-      "@tdm/ngx-http/*": ["@tdm/ngx-http/src/*"],
-
-      "@tdm/json-api-mapper": ["@tdm/json-api-mapper/src/index.ts"],
-      "@tdm/json-api-mapper/*": ["@tdm/json-api-mapper/src/*"]
-
-    },
-
-
-
-    "noEmit": true,
-    "noEmitHelpers": true,
-    "importHelpers": true
+      "@tdm/json-api-mapper": [
+        "@tdm/json-api-mapper/src/index.ts"
+      ],
+      "@tdm/json-api-mapper/src/*": [
+        "@tdm/json-api-mapper/src/*"
+      ],
+      "@*": [
+        "demo/modules/@*"
+      ]
+    }
   },
   "exclude": [
     "node_modules",
@@ -64,11 +103,9 @@
     "forkChecker": true,
     "useWebpackText": true
   },
-  "angularCompilerOptions": {
-   "genDir": "./compiled",
-   "skipMetadataEmit": true
-  },
   "compileOnSave": false,
   "buildOnSave": false,
-  "atom": { "rewriteTsconfig": false }
+  "atom": {
+    "rewriteTsconfig": false
+  }
 }

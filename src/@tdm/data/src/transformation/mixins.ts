@@ -1,13 +1,13 @@
-import { tdm } from '@tdm/core';
+import { ModelMetadata, TargetStore, SetExt, KeySet } from '@tdm/core/tdm';
 import { AdapterStatic } from '../fw';
 
-declare module '@tdm/core/add/model/model' {
+declare module '@tdm/core/tdm/src/add/model/model' {
   interface ModelMetadata {
-    mixins: tdm.KeySet<AdapterStatic<any, any>, any>;
+    mixins: KeySet<AdapterStatic<any, any>, any>;
   }
 }
 
-declare module '@tdm/core/metadata/target-store' {
+declare module '@tdm/core/tdm/src/metadata/target-store' {
   interface TargetStore {
     /**
      * Registers mixins to a target, under a specific adapter type.
@@ -46,24 +46,24 @@ declare module '@tdm/core/metadata/target-store' {
 //   }
 // }
 
-tdm.TargetStore.prototype.registerMixins = function registerMixins(target: any, adapterClass: AdapterStatic<any, any>, ...mixins: any[]): void {
+TargetStore.prototype.registerMixins = function registerMixins(target: any, adapterClass: AdapterStatic<any, any>, ...mixins: any[]): void {
   if (mixins.length > 0) {
     const model = this.getTargetMeta(target).model();
 
-    let registered: tdm.KeySet<AdapterStatic<any, any>, any> = model.mixins;
+    let registered: KeySet<AdapterStatic<any, any>, any> = model.mixins;
     if (!registered) {
-      model.mixins = registered = new tdm.KeySet<AdapterStatic<any, any>, any>();
+      model.mixins = registered = new KeySet<AdapterStatic<any, any>, any>();
     }
 
     const set = registered.has(adapterClass) ? registered.get(adapterClass) : registered.set(adapterClass);
-    tdm.SetExt.combine(set, mixins);
+    SetExt.combine(set, mixins);
 
     // seems to much, maybe a decorator will be better...
     // mixins.forEach( m => extendMixin(m) );
   }
 };
 
-tdm.TargetStore.prototype.getMixins = function getMixins(target: any, adapterClass: AdapterStatic<any, any>): Set<any> {
+TargetStore.prototype.getMixins = function getMixins(target: any, adapterClass: AdapterStatic<any, any>): Set<any> {
   const model = this.getTargetMeta(target).model();
   return (model.mixins && model.mixins.get(adapterClass)) || new Set<any>();
 };

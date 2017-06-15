@@ -1,11 +1,9 @@
-import { Errors, tdm } from '@tdm/core';
+import { Errors, stringify } from '@tdm/core/tdm';
 import { AdapterStatic, ValidationError } from './interfaces';
-
-const { stringify } = tdm;
 
 const pt = Errors.prototype;
 
-declare module '@tdm/core/fw/errors' {
+declare module '@tdm/core/tdm/src/fw/errors' {
   interface Errors {
     validation(model: any, errors: ValidationError[]): Error & { errors: ValidationError[] };
     validationConfig(validationName: string, message: string): Error;

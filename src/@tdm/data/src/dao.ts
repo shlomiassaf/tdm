@@ -1,4 +1,9 @@
-import { Constructor, tdm, errors } from '@tdm/core';
+import {
+  isFunction,
+  targetStore,
+  errors,
+  Constructor
+} from '@tdm/core/tdm';
 
 import { AdapterStatic, ActionOptions, IdentityValueType, DAOMethods, DAOTarget, DAOAdapter } from './fw'
 
@@ -62,10 +67,10 @@ export class DAO {
   create<T>(instance: T, options?: ActionOptions): Promise<T | void>;
   create<T>(target: Constructor<T>, obj: Partial<T>, options?: ActionOptions): Promise<T | void>;
   create<T>(target: Constructor<T> | T, obj?: Partial<T> | ActionOptions, options?: ActionOptions): Promise<T | void> {
-    if (tdm.isFunction(target)) {
+    if (isFunction(target)) {
       return this.run(target, 'create', obj, options);
     } else {
-      if (tdm.targetStore.hasTarget(target.constructor)) {
+      if (targetStore.hasTarget(target.constructor)) {
         return this.run(<any>target.constructor, 'create', target, options);
       }
       // TODO: got down proto chain and search for target.
@@ -78,10 +83,10 @@ export class DAO {
   update<T>(instance: T, options?: ActionOptions): Promise<T | void>;
   update<T>(target: Constructor<T>, obj: Partial<T>, options?: ActionOptions): Promise<T | void>;
   update<T>(target: Constructor<T> | T, obj?: Partial<T> | ActionOptions, options?: ActionOptions): Promise<T | void> {
-    if (tdm.isFunction(target)) {
+    if (isFunction(target)) {
       return this.run(target, 'update', obj, options);
     } else {
-      if (tdm.targetStore.hasTarget(target.constructor)) {
+      if (targetStore.hasTarget(target.constructor)) {
         return this.run(<any>target.constructor, 'update', target, options);
       }
       // TODO: got down proto chain and search for target.
@@ -94,10 +99,10 @@ export class DAO {
   remove<T>(instance: T, options?: ActionOptions): Promise<void>;
   remove<T>(target: Constructor<T>, id: IdentityValueType, options?: ActionOptions): Promise<void>;
   remove<T>(target: Constructor<T> | T, id?: IdentityValueType | ActionOptions, options?: ActionOptions): Promise<void> {
-    if (tdm.isFunction(target)) {
+    if (isFunction(target)) {
       return this.run(target, 'remove', id, options);
     } else {
-      if (tdm.targetStore.hasTarget(target.constructor)) {
+      if (targetStore.hasTarget(target.constructor)) {
         return this.run(<any>target.constructor, 'remove', target, options);
       }
       // TODO: got down proto chain and search for target.
@@ -109,19 +114,19 @@ export class DAO {
 
 
   private run(target: Constructor<any>, cmd: keyof typeof DAOMethods, ...args: any[]): any {
-    if (!tdm.targetStore.hasTarget(target)) {
+    if (!targetStore.hasTarget(target)) {
       // TODO: normalize error.
       return Promise.reject(new Error('Target does not exist'));
     }
 
-    const meta = tdm.targetStore.getTargetMeta(target);
+    const meta = targetStore.getTargetMeta(target);
     if (!meta.activeAdapter) {
       return Promise.reject(errors.modelNoAdapter(target));
     }
 
-    const action = tdm.targetStore.getAdapter(meta.activeAdapter).getDAOAction(cmd);
+    const action = targetStore.getAdapter(meta.activeAdapter).getDAOAction(cmd);
 
-    return tdm.targetStore.getAC(target, meta.activeAdapter)
+    return targetStore.getAC(target, meta.activeAdapter)
       .createExecFactory(action, 'promise')(undefined, true, ...args);
   }
 
@@ -132,7 +137,7 @@ export class DAO {
    * @returns {any}
    */
   static of<T, Z, Options>(adapterClass: AdapterStatic<any, Options>, target: Z &  Constructor<T>): TargetDAO<T, Options> {
-    const clz = tdm.targetStore.getAdapter(adapterClass).DAOClass;
+    const clz = targetStore.getAdapter(adapterClass).DAOClass;
     return Object.create(clz.prototype, { [DAOTarget]: { value: target }, [DAOAdapter]: { value: adapterClass } });
   }
 }

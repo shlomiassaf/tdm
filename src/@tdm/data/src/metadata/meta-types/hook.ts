@@ -1,4 +1,14 @@
-import { tdm, errors } from '@tdm/core';
+import {
+  errors,
+  targetStore,
+  MapExt,
+  DecoratorInfo,
+  MetaClassInstanceDetails,
+  MetaClassMetadata,
+  MetaClass,
+  BaseMetadata
+} from '@tdm/core/tdm';
+
 import { ARHookableMethods, ARHooks } from '../../fw';
 
 export interface StoredHook {
@@ -11,12 +21,12 @@ export interface HookMetadataArgs {
   action: ARHookableMethods;
 }
 
-function factory(this: tdm.MetaClassMetadata<HookMetadataArgs, HookMetadata>,
+function factory(this: MetaClassMetadata<HookMetadataArgs, HookMetadata>,
                  metaArgs: HookMetadataArgs,
                  target: Object,
-                 info: tdm.DecoratorInfo,
+                 info: DecoratorInfo,
                  key: PropertyKey,
-                 desc: PropertyDescriptor): tdm.MetaClassInstanceDetails<HookMetadataArgs, HookMetadata> {
+                 desc: PropertyDescriptor): MetaClassInstanceDetails<HookMetadataArgs, HookMetadata> {
   const { action } = metaArgs;
 
   if (!ARHooks.hasOwnProperty(action)) {
@@ -30,12 +40,12 @@ function factory(this: tdm.MetaClassMetadata<HookMetadataArgs, HookMetadata>,
   return this.constructor.prototype.factory.call(this, metaArgs, target, info, key, desc);
 }
 
-function register(this: tdm.MetaClassMetadata<HookMetadataArgs, HookMetadata>,
-                  meta: tdm.MetaClassInstanceDetails<HookMetadataArgs, HookMetadata>): void {
+function register(this: MetaClassMetadata<HookMetadataArgs, HookMetadata>,
+                  meta: MetaClassInstanceDetails<HookMetadataArgs, HookMetadata>): void {
   const hook: StoredHook = {[meta.metaValue.event]: meta.metaValue};
 
-  const currHook = tdm.targetStore.getMetaFor<any, StoredHook>(meta.target, HookMetadata, meta.metaValue.action) || {} as any;
-  tdm.targetStore.setMetaFor<any, StoredHook>(meta.target, HookMetadata, meta.metaValue.action as any, Object.assign(currHook, hook));
+  const currHook = targetStore.getMetaFor<any, StoredHook>(meta.target, HookMetadata, meta.metaValue.action) || {} as any;
+  targetStore.setMetaFor<any, StoredHook>(meta.target, HookMetadata, meta.metaValue.action as any, Object.assign(currHook, hook));
 }
 
 function extend(from: Map<PropertyKey, StoredHook>, to: Map<PropertyKey, StoredHook> | undefined): Map<PropertyKey, StoredHook> {
@@ -43,7 +53,7 @@ function extend(from: Map<PropertyKey, StoredHook>, to: Map<PropertyKey, StoredH
     to = new Map<PropertyKey, StoredHook>(from.entries());
   } else {
     // TODO: Refactor to support static/instance like ExtendAction in case 2 hooks with same prop name
-    tdm.MapExt.asKeyValArray(from)
+    MapExt.asKeyValArray(from)
       .forEach(([k, hookFrom]) => {
         if (!to.has(k)) {
           to.set(k, hookFrom);
@@ -61,18 +71,18 @@ function extend(from: Map<PropertyKey, StoredHook>, to: Map<PropertyKey, StoredH
   return to;
 }
 
-@tdm.MetaClass<HookMetadataArgs, HookMetadata>({
+@MetaClass<HookMetadataArgs, HookMetadata>({
   allowOn: ['staticMember', 'member'],
   factory,
   extend,
   register
 })
-export class HookMetadata extends tdm.BaseMetadata {
+export class HookMetadata extends BaseMetadata {
 
   event: 'before' | 'after';
   action: ARHookableMethods;
 
-  constructor(obj: HookMetadataArgs, info: tdm.DecoratorInfo) {
+  constructor(obj: HookMetadataArgs, info: DecoratorInfo) {
     super(info);
 
     this.event = obj.event;

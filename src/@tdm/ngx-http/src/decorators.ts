@@ -1,4 +1,4 @@
-import { tdm } from '@tdm/core';
+import { MetaClass } from '@tdm/core/tdm';
 
 import { HttpAdapter } from './core';
 import {
@@ -14,19 +14,19 @@ import {
  * @propertyDecorator both
  * @param def
  */
-export const HttpAction = tdm.MetaClass.decorator(HttpActionMetadata);
+export const HttpAction = MetaClass.decorator(HttpActionMetadata);
 
 /**
  * @propertyDecorator instance
  * @param metaArgs
  */
-export const UrlParam = tdm.MetaClass.decorator(UrlParamMetadata, true);
+export const UrlParam = MetaClass.decorator(UrlParamMetadata, true);
 
 
 
 // FOR AOT
 // export const HttpResource = df.resource<HttpResourceMetadataArgs>(HttpAdapter);
-const httpResource = tdm.MetaClass.get(HttpResourceMetadata).createResourceDecorator(HttpAdapter);
+const httpResource = MetaClass.get(HttpResourceMetadata).createResourceDecorator(HttpAdapter);
 
 /**
  * @classDecorator

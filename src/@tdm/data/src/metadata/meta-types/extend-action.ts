@@ -1,4 +1,4 @@
-import { tdm } from '@tdm/core';
+import { MapExt, MetaClass, registerHelpers, DecoratorInfo } from '@tdm/core/tdm';
 import { ActionMetadata, ActionMetadataArgs } from './action';
 
 function extend(from: Map<PropertyKey, ExtendActionMetadata[]>, to: Map<PropertyKey, ExtendActionMetadata[]> | undefined): Map<PropertyKey, ExtendActionMetadata[]> {
@@ -6,7 +6,7 @@ function extend(from: Map<PropertyKey, ExtendActionMetadata[]>, to: Map<Property
     to = new Map<PropertyKey, ExtendActionMetadata[]>();
   }
 
-  tdm.MapExt.asKeyValArray(from)
+  MapExt.asKeyValArray(from)
     .forEach( ([k, v]) => {
       if (!to.has(k)) {
         to.set(k, v.slice())
@@ -24,13 +24,13 @@ function extend(from: Map<PropertyKey, ExtendActionMetadata[]>, to: Map<Property
   return to;
 }
 
-@tdm.MetaClass<ActionMetadataArgs<any>, ExtendActionMetadata>({
+@MetaClass<ActionMetadataArgs<any>, ExtendActionMetadata>({
   allowOn: ['staticMember', 'member'],
   extend,
-  register: tdm.registerHelpers.array
+  register: registerHelpers.array
 })
 export class ExtendActionMetadata extends ActionMetadata {
-  constructor(metaArgs: Partial<ActionMetadataArgs<any>>, info: tdm.DecoratorInfo)  {
+  constructor(metaArgs: Partial<ActionMetadataArgs<any>>, info: DecoratorInfo)  {
     super(metaArgs as any, info);
     Object.assign(this, metaArgs)
   }

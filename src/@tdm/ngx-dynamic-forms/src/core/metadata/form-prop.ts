@@ -1,5 +1,5 @@
 import { ValidatorFn, AsyncValidatorFn } from '@angular/forms';
-import { tdm } from '@tdm/core';
+import { MetaClass, PropMetadata, BaseMetadata, DecoratorInfo } from '@tdm/core/tdm';
 import { RenderDef } from '../../interfaces';
 
 export interface FormPropMetadataArgs {
@@ -47,15 +47,15 @@ export interface FormPropMetadataArgs {
   asyncValidators?: AsyncValidatorFn | Array<AsyncValidatorFn>;
 }
 
-@tdm.MetaClass<FormPropMetadataArgs, FormPropMetadata>({
+@MetaClass<FormPropMetadataArgs, FormPropMetadata>({
   allowOn: ['member'],
   extend: 'prop',
   proxy: {
-    host: tdm.PropMetadata,
+    host: PropMetadata,
     containerKey: 'form'
   }
 })
-export class FormPropMetadata extends tdm.BaseMetadata {
+export class FormPropMetadata extends BaseMetadata {
   transform: (value: any) => any;
   exclude: boolean;
   required: boolean;
@@ -65,7 +65,7 @@ export class FormPropMetadata extends tdm.BaseMetadata {
   asyncValidators: Array<AsyncValidatorFn> | null;
   childForm: boolean;
 
-  constructor(metaArgs: FormPropMetadataArgs, info: tdm.DecoratorInfo) {
+  constructor(metaArgs: FormPropMetadataArgs, info: DecoratorInfo) {
     super(info);
     if (metaArgs) {
       this.transform = metaArgs.transform;
@@ -88,7 +88,7 @@ export class FormPropMetadata extends tdm.BaseMetadata {
   static EMPTY = new FormPropMetadata({} as any, { type: 'class'} );
 }
 
-declare module '@tdm/core/metadata/prop' {
+declare module '@tdm/core/tdm/src/metadata/prop' {
   interface PropMetadataArgs {
     form?: FormPropMetadataArgs | undefined
   }

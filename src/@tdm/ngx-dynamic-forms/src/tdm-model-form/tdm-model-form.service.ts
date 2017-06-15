@@ -1,11 +1,9 @@
 import { Injectable, Type } from '@angular/core';
-import { tdm } from '@tdm/core';
+import { targetStore, PropMetadata } from '@tdm/core/tdm';
 import { TDMModelForm } from './tdm-model-form';
 
-import { FormModelMetadata } from '../core';
+import { FormModelMetadata } from '../core/index';
 import { RenderInstruction } from '../interfaces';
-
-const { targetStore } = tdm;
 
 /**
  * A service for creating new instances of TDMModelForm
@@ -31,7 +29,7 @@ export class TDMModelFormService {
   }
 
   private _getInstructions(type: Type<any>): RenderInstruction[] {
-    const props = targetStore.getTargetMeta(type).getValues(tdm.PropMetadata);
+    const props = targetStore.getTargetMeta(type).getValues(PropMetadata);
     const formMeta = this.getMeta(type);
     return props.map( p => {
       const formProp = formMeta.getProp(p.name as string);

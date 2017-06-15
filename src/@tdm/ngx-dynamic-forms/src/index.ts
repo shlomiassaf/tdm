@@ -1,3 +1,5 @@
+import '@tdm/core';
+
 export {
   FormElementType,
   RenderDef,
@@ -11,15 +13,22 @@ export {
   FormPropMetadataArgs,
   ngFormsMapper,
   NgFormsBoundMapper
-} from './core';
+} from './core/index';
 
 export {
   TDMModelFormDirective,
   TDMModelFormService,
   TDMModelForm
-} from './tdm-model-form';
+} from './tdm-model-form/index';
 
-export * from './dynamic-forms';
+export {
+  DynamicFormComponent,
+  DynamicFormControlDirective,
+  DynamicFormOverrideDirective,
+  DynamicFormControlRenderer,
+  BeforeRenderEventHandler,
+  FORM_CONTROL_COMPONENT
+} from './dynamic-forms/index';
 
 export { TDMFormsModule } from './module';
 

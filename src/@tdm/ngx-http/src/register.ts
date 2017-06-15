@@ -1,10 +1,10 @@
-import { Constructor, tdm } from '@tdm/core';
+import { targetStore, Constructor } from '@tdm/core/tdm';
 import { DAO } from '@tdm/data';
 import { HttpDao } from './core/http-dao';
 import { HttpAdapter } from './core';
 import { HttpActionMetadata, HttpResourceMetadata } from './metadata';
 
-tdm.targetStore.registerAdapter(HttpAdapter, {
+targetStore.registerAdapter(HttpAdapter, {
   actionMetaClass: HttpActionMetadata,
   DAOClass: HttpDao,
   resourceMetaClass: HttpResourceMetadata
@@ -21,7 +21,7 @@ export class NgDAO {
 
 DAO.angularHttp = NgDAO.prototype.get;
 
-declare module '@tdm/data/dao' {
+declare module '@tdm/data/src/dao' {
   module DAO {
     /**
      * Data Access Object for Angular HTTP adapter.

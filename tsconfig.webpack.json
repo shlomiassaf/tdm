@@ -1,17 +1,23 @@
 {
+  "extends": "./tsconfig",
   "compilerOptions": {
     "target": "es5",
     "module": "es2015",
     "moduleResolution": "node",
-    "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "removeComments": false,
     "sourceMap": true,
+    "noEmit": true,
+    "noEmitHelpers": true,
+    "importHelpers": true,
     "strictNullChecks": false,
     "lib": [
       "es2015",
       "dom"
+    ],
+    "typeRoots": [
+      "node_modules/@types"
     ],
     "types": [
       "jasmine",
@@ -21,55 +27,7 @@
       "source-map",
       "uglify-js",
       "webpack"
-    ],
-    "baseUrl": "./src",
-    "paths": {
-      "@tdm/ngx-dynamic-forms": [
-        "@tdm/ngx-dynamic-forms/src/index.ts"
-      ],
-      "@tdm/ngx-dynamic-forms/*": [
-        "@tdm/ngx-dynamic-forms/src/*"
-      ],
-      "@tdm/ngx-http": [
-        "@tdm/ngx-http/src/index.ts"
-      ],
-      "@tdm/ngx-http/*": [
-        "@tdm/ngx-http/src/*"
-      ],
-      "@tdm/data": [
-        "@tdm/data/src/index.ts"
-      ],
-      "@tdm/data/*": [
-        "@tdm/data/src/*"
-      ],
-      "@tdm/json-api-mapper": [
-        "@tdm/json-api-mapper/src/index.ts"
-      ],
-      "@tdm/json-api-mapper/*": [
-        "@tdm/json-api-mapper/src/*"
-      ],
-      "@tdm/tixin": [
-        "@tdm/tixin/src/index.ts"
-      ],
-      "@tdm/tixin/*": [
-        "@tdm/tixin/src/*"
-      ],
-      "@tdm/core": [
-        "@tdm/core/src/index.ts"
-      ],
-      "@tdm/core/*": [
-        "@tdm/core/src/*"
-      ],
-
-
-      "@*": ["demo/modules/@*"]
-    },
-
-
-
-    "noEmit": true,
-    "noEmitHelpers": true,
-    "importHelpers": true
+    ]
   },
   "exclude": [
     "node_modules",
@@ -85,10 +43,12 @@
     "useWebpackText": true
   },
   "angularCompilerOptions": {
-   "genDir": "./compiled",
-   "skipMetadataEmit": true
+    "genDir": "./compiled",
+    "skipMetadataEmit": true
   },
   "compileOnSave": false,
   "buildOnSave": false,
-  "atom": { "rewriteTsconfig": false }
+  "atom": {
+    "rewriteTsconfig": false
+  }
 }

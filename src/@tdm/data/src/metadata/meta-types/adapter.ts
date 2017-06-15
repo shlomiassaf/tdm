@@ -1,4 +1,13 @@
-import { tdm, Constructor } from '@tdm/core';
+import {
+  isFunction,
+  targetStore,
+  Constructor,
+  DecoratorInfo,
+  MetadataClassStatic,
+  MetaClass,
+  MetaClassMetadata,
+  MetaClassInstanceDetails
+} from '@tdm/core/tdm';
 import { ActionMetadata, ActionMetadataArgs } from './action';
 import { array } from '../../utils';
 import { DAOMethods, DAOAdapter, DAOTarget } from '../../fw';
@@ -9,13 +18,13 @@ function unsupportedDAOCmd() {
 }
 
 export interface AdapterMetadataArgs {
-  actionMetaClass: tdm.MetadataClassStatic;
+  actionMetaClass: MetadataClassStatic;
   DAOClass: Constructor<any>;
   /**
    * The resource metadata class.
    * If not set the metadata arguments are registered to the target metadata instance
    */
-  resourceMetaClass?: tdm.MetadataClassStatic;
+  resourceMetaClass?: MetadataClassStatic;
 }
 
 // this is here so we don't break the flow.
@@ -24,39 +33,39 @@ export interface AdapterMetadataArgs {
 // this workaround prevents the need for an adapter store, the meta is used as the store.
 // to support that we allow setting the metadata args in a later period.
 // the register() method is aware of that and knows how to handle this scenario.
-function factory(this: tdm.MetaClassMetadata<AdapterMetadataArgs, AdapterMetadata>,
+function factory(this: MetaClassMetadata<AdapterMetadataArgs, AdapterMetadata>,
                  metaArgs: AdapterMetadataArgs,
                  target: Object,
-                 info: tdm.DecoratorInfo): tdm.MetaClassInstanceDetails<AdapterMetadataArgs, AdapterMetadata> {
+                 info: DecoratorInfo): MetaClassInstanceDetails<AdapterMetadataArgs, AdapterMetadata> {
   return <any>Object.assign(this.constructor.prototype.factory.call(this, metaArgs, target, info), { metaArgs });
 }
 
-function register(this: tdm.MetaClassMetadata<AdapterMetadataArgs, AdapterMetadata>,
-                  meta: tdm.MetaClassInstanceDetails<AdapterMetadataArgs, AdapterMetadata>): void {
+function register(this: MetaClassMetadata<AdapterMetadataArgs, AdapterMetadata>,
+                  meta: MetaClassInstanceDetails<AdapterMetadataArgs, AdapterMetadata>): void {
 
-  const adapter = tdm.targetStore.getAdapter(meta.target);
+  const adapter = targetStore.getAdapter(meta.target);
   Object.assign(adapter, meta['metaArgs']);
 
   adapter.buildDAO();
 }
 
-@tdm.MetaClass<AdapterMetadataArgs, AdapterMetadata>({
+@MetaClass<AdapterMetadataArgs, AdapterMetadata>({
   allowOn: ['class'],
   factory,
   register
 })
 export class AdapterMetadata {
-  actionMetaClass: tdm.MetadataClassStatic;
+  actionMetaClass: MetadataClassStatic;
   DAOClass: Constructor<any>;
-  resourceMetaClass?: tdm.MetadataClassStatic;
+  resourceMetaClass?: MetadataClassStatic;
 
   private actions = new Map<any, ActionMetadata[]>();
 
 
   addAction(meta: ActionMetadata, target: Constructor<any>): void;
-  addAction(meta: tdm.MetaClassInstanceDetails<ActionMetadataArgs, ActionMetadata>): void;
-  addAction(meta: ActionMetadata | tdm.MetaClassInstanceDetails<ActionMetadataArgs, ActionMetadata>, target?: Constructor<any>): void {
-    if (!tdm.isFunction(target)) {
+  addAction(meta: MetaClassInstanceDetails<ActionMetadataArgs, ActionMetadata>): void;
+  addAction(meta: ActionMetadata | MetaClassInstanceDetails<ActionMetadataArgs, ActionMetadata>, target?: Constructor<any>): void {
+    if (!isFunction(target)) {
       target = (<any>meta).target;
       meta = (<any>meta).metaValue;
     }
@@ -87,7 +96,7 @@ export class AdapterMetadata {
       }
 
       daoProto[action.name] = function (...args: any[]) {
-        return tdm.targetStore.getAC(this[DAOTarget], this[DAOAdapter])
+        return targetStore.getAC(this[DAOTarget], this[DAOAdapter])
           .createExecFactory(action, 'promise')(undefined, true, ...args);
       };
 

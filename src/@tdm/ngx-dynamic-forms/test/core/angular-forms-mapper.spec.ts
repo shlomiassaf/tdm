@@ -1,14 +1,15 @@
-import { tdm, Model, Exclude } from '@tdm/core';
+import { Model, Exclude } from '@tdm/core';
+import { targetStore } from '@tdm/core/tdm';
 import { TestTargetStore } from '@tdm/core/testing';
 
 import { FormGroup, FormControl, AbstractControl } from '@angular/forms';
 
 import { FormModel, FormProp } from '@tdm/ngx-dynamic-forms';
-import { NgFormsSerializeMapper } from "@tdm/ngx-dynamic-forms/core";
+import { NgFormsSerializeMapper } from '@tdm/ngx-dynamic-forms/src/core';
 
 
 function serialize(instance: any): FormGroup {
-  return tdm.targetStore.serialize(instance.constructor, new NgFormsSerializeMapper(instance));
+  return targetStore.serialize(instance.constructor, new NgFormsSerializeMapper(instance));
 }
 
 describe('@tdm/ngx-dynamic-forms', () => {

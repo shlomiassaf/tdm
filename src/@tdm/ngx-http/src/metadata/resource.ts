@@ -1,5 +1,8 @@
-import { tdm, ModelMetadataArgs } from '@tdm/core';
-
+import {
+  ModelMetadataArgs,
+  ModelMetadata,
+  MetaClass
+} from '@tdm/core/tdm';
 import { Params } from '../utils/match-pattern';
 import { BaseHttpConfig, TrailingSlashesStrategy } from '../core/interfaces';
 
@@ -10,10 +13,10 @@ export interface HttpResourceMetadataArgs extends ModelMetadataArgs, BaseHttpCon
   endpoint: string;
 }
 
-@tdm.MetaClass<HttpResourceMetadataArgs, HttpResourceMetadata>({
-  inherit: tdm.ModelMetadata
+@MetaClass<HttpResourceMetadataArgs, HttpResourceMetadata>({
+  inherit: ModelMetadata
 })
-export class HttpResourceMetadata extends tdm.ModelMetadata implements HttpResourceMetadataArgs {
+export class HttpResourceMetadata extends ModelMetadata implements HttpResourceMetadataArgs {
   /**
    * The url for this resource.
    * This property does not extend from a base type.

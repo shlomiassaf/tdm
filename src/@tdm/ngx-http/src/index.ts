@@ -1,3 +1,5 @@
+import '@tdm/core';
+
 export { Params } from './utils/match-pattern';
 
 export {

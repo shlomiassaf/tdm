@@ -1,7 +1,7 @@
-import { TransformStrategy, NamingStrategyConfig, tdm, directMapper } from '@tdm/core';
+import { TransformStrategy, NamingStrategyConfig, directMapper, MapperFactory } from '@tdm/core/tdm';
 
 export interface DefaultConfig {
-  mapper: tdm.MapperFactory;
+  mapper: MapperFactory;
 
   /**
    * How to treat an object when transforming it.

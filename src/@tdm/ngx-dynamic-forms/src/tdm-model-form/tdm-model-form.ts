@@ -1,7 +1,7 @@
 import { Type } from '@angular/core';
 import { AbstractControl, FormGroup } from '@angular/forms';
 
-import { FormModelMetadata, NgFormsBoundMapper } from '../core';
+import { FormModelMetadata, NgFormsBoundMapper } from '../core/index';
 import { TDMModelFormService } from './tdm-model-form.service';
 import { RenderInstruction } from '../interfaces';
 

@@ -24,11 +24,6 @@ function mixObjects(base: any, mixins: any[]): void {
 
 /**
  * Typeless mixin
- * @param base
- * @param mixins
- * @param extend extend class, prototype or both.
- * @returns {any}
- * @constructor
  */
 export function TixinFree(base: any, mixin: any, extend: 'class' | 'proto' | 'both' = 'both'): any {
   if (extend === 'proto' || extend === 'both') {

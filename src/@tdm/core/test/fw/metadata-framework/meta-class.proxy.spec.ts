@@ -1,29 +1,30 @@
-import { tdm, Prop, Model } from '@tdm/core';
+import { targetStore, registerHelpers, PropMetadata, MetaClass, BaseMetadata, DecoratorInfo, ModelMetadata } from '@tdm/core/tdm';
+import { Prop, Model } from '@tdm/core';
 
 import { TargetMetaModifier } from '@tdm/core/testing';
-import { targetStore } from "@tdm/core/metadata";
+
 
 export interface ExtendMeMetadataArgs {
   testProp: string;
 }
 
-declare module '@tdm/core/metadata/prop' {
+declare module '@tdm/core/tdm/src/metadata/prop' {
   interface PropMetadataArgs {
     extendMe?: true | ExtendMeMetadataArgs;
     extendMe1?: true | ExtendMeMetadataArgs;
   }
 }
 
-@tdm.MetaClass<ExtendMeMetadataArgs, ExtendMeMetadata>({
+@MetaClass<ExtendMeMetadataArgs, ExtendMeMetadata>({
   proxy: {
-    host: tdm.PropMetadata,
+    host: PropMetadata,
     containerKey: 'extendMe'
   }
 })
-class ExtendMeMetadata extends tdm.BaseMetadata {
+class ExtendMeMetadata extends BaseMetadata {
   testProp: string;
 
-  constructor(obj: ExtendMeMetadataArgs, info: tdm.DecoratorInfo) {
+  constructor(obj: ExtendMeMetadataArgs, info: DecoratorInfo) {
     super(info);
 
     if (typeof obj === 'object') {
@@ -33,9 +34,9 @@ class ExtendMeMetadata extends tdm.BaseMetadata {
 
 }
 
-@tdm.MetaClass<ExtendMeMetadataArgs, ExtendMeMetadata1>({
+@MetaClass<ExtendMeMetadataArgs, ExtendMeMetadata1>({
   proxy: {
-    host: tdm.PropMetadata,
+    host: PropMetadata,
     containerKey: 'extendMe1',
     before: (metaArgs: ExtendMeMetadataArgs) => {
       metaArgs.testProp = 'test1';
@@ -48,29 +49,29 @@ class ExtendMeMetadata1 extends ExtendMeMetadata {}
 export interface TopLevelMetadataArgs {
   value: number;
 }
-@tdm.MetaClass<TopLevelMetadataArgs, TopLevelMetadata>({
+@MetaClass<TopLevelMetadataArgs, TopLevelMetadata>({
   single: true,
   allowOn: ['class'],
   proxy: {
-    host: tdm.ModelMetadata,
+    host: ModelMetadata,
     containerKey: 'top',
     forEach: true
   },
-  register: tdm.registerHelpers.array
+  register: registerHelpers.array
 })
-class TopLevelMetadata extends tdm.BaseMetadata {
+class TopLevelMetadata extends BaseMetadata {
   value: number;
-  constructor(metaArgs: TopLevelMetadataArgs, info: tdm.DecoratorInfo) {
+  constructor(metaArgs: TopLevelMetadataArgs, info: DecoratorInfo) {
     super(info);
     this.value = metaArgs.value;
   }
 }
-declare module '@tdm/core/metadata/model-metadata' {
+declare module '@tdm/core/tdm/src/metadata/model-metadata' {
   interface ModelMetadataArgs {
     top?: TopLevelMetadataArgs[]
   }
 }
-const TopLevel = tdm.MetaClass.decorator(TopLevelMetadata, 'class');
+const TopLevel = MetaClass.decorator(TopLevelMetadata, 'class');
 
 @TopLevel({ value: 4 })
 @Model({
@@ -120,25 +121,25 @@ describe('@tdm/core', () => {
         expect(userModifier.getProp('prop1')['extendMe']).toBeUndefined();
         expect(userModifier.getProp('prop2')['extendMe']).toBeUndefined();
 
-        const extendMe = tdm.targetStore.getMetaFor(User, ExtendMeMetadata, 'prop2');
+        const extendMe = targetStore.getMetaFor(User, ExtendMeMetadata, 'prop2');
         expect(extendMe.testProp).toEqual('test');
 
-        expect(tdm.targetStore.getMetaFor(User, ExtendMeMetadata, 'prop1')).toBeUndefined();
+        expect(targetStore.getMetaFor(User, ExtendMeMetadata, 'prop1')).toBeUndefined();
       });
 
       it('should be able to transform defined metadata from a remote metadata host', () => {
 
-        const extendMe = tdm.targetStore.getMetaFor(User, ExtendMeMetadata1, 'prop3');
+        const extendMe = targetStore.getMetaFor(User, ExtendMeMetadata1, 'prop3');
         expect(extendMe.testProp).toEqual('test1');
 
       });
 
       it('should be able to handle multiple defined metadata from a remote metadata host', () => {
 
-        const extendMe = tdm.targetStore.getMetaFor(User, ExtendMeMetadata, 'prop4');
+        const extendMe = targetStore.getMetaFor(User, ExtendMeMetadata, 'prop4');
         expect(extendMe.testProp).toEqual('test');
 
-        const extendMe1 = tdm.targetStore.getMetaFor(User, ExtendMeMetadata1, 'prop4');
+        const extendMe1 = targetStore.getMetaFor(User, ExtendMeMetadata1, 'prop4');
         expect(extendMe1.testProp).toEqual('test1');
 
       });
