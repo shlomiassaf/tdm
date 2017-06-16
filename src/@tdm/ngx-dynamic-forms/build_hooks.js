@@ -9,6 +9,11 @@ const globals = {
   'rxjs/operator/toPromise': 'Rx.Observable.prototype',
 };
 
+module.exports.tsconfig = function tsconfig(config) {
+  config.angularCompilerOptions.skipTemplateCodegen = false;
+}
+
+
 module.exports.rollupFESM = function(config) {
   if (config.external) {
     config.external = config.external.concat(Object.keys(globals));

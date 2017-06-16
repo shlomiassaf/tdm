@@ -41,6 +41,11 @@ export function buildPackageMetadata(dirName: string): PackageMetadata {
   tryRunHook(meta.dir, 'tsconfig', tsConfig);
   meta.tsConfigObj = tsConfig;
 
+  if (!tsConfig.angularCompilerOptions.skipTemplateCodegen) {
+    // only when skipTemplateCodegen = false
+    tsConfig.angularCompilerOptions.genDir = `${FS_REF.TEMP_DIR}/.compiled`;
+  }
+
   return PKG_METADATA_CACHE[dirName] = meta;
 }
 
@@ -71,6 +76,13 @@ export function buildExtensionMetadata(pkg: PackageMetadata): Array<PackageMetad
 
     tsConfigUpdate(meta.tsConfigObj, meta);
     tryRunHook(meta.dir, 'tsconfig', meta.tsConfigObj);
+
+    if (!meta.tsConfigObj.angularCompilerOptions.skipTemplateCodegen) {
+      // only when skipTemplateCodegen = false
+      meta.tsConfigObj.angularCompilerOptions.genDir = `${FS_REF.TEMP_DIR}/.compiled`;
+    } else {
+      delete meta.tsConfigObj.angularCompilerOptions.genDir;
+    }
 
     meta.libExtensions = undefined;
 

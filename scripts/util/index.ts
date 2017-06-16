@@ -8,4 +8,6 @@ export * from './hooks';
 export * from './pure-annotations';
 export * from './typescript-transpile';
 export * from './rollup';
+export * from './metadata-inlining';
+export * from './inline-resources';
 export { GulpClass } from './gulpclass';

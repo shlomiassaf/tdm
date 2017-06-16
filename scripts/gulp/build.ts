@@ -53,6 +53,12 @@ export class Gulpfile {
         const p = util.root(util.currentPackage().tsConfigObj.compilerOptions.outDir);
         const copyInst = util.getCopyInstruction(util.currentPackage());
 
+        if (!util.currentPackage().tsConfigObj.angularCompilerOptions.skipTemplateCodegen) {
+          util.inlinePackageMetadataFiles(copyInst.from);
+          util.inlineResourcesForDirectory(copyInst.from, true);
+        }
+
+
         spawn(`mv ${copyInst.from} ${copyInst.toSrc}`);
         spawn(`rm -rf ${Path.resolve(p, '..')}`);
 

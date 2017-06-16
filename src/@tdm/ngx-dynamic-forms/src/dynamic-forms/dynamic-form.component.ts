@@ -51,20 +51,7 @@ export interface LocalRenderInstruction extends RenderInstruction {
  */
 @Component({
   selector: 'dynamic-form',
-  template:
-`<form #formElRef [formGroup]="tdmForm.form">
-  <div *ngFor="let item of controls | async; trackBy: tdmForm.trackBy" [ngClass]="controlClass" [style.display]="item.display">
-    <ng-container *ngIf="!item.override; else override">
-      <ng-container *dynamicFormControl="item"></ng-container>
-    </ng-container>
-    <ng-template #override
-                 [ngTemplateOutlet]="item.override?.template"
-                 [ngTemplateOutletContext]="{ $implicit: item.override, dynamicFormOverride: item.override, meta: item }">
-    </ng-template>
-  </div>
-
-  <ng-content></ng-content>
-</form>`
+  templateUrl: './dynamic-form.component.html'
 })
 export class DynamicFormComponent<T = any> implements AfterContentInit, AfterViewInit, OnChanges, DoCheck, OnDestroy {
   tdmForm: TDMModelForm<any>;

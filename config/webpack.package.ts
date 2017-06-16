@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const helpers = require('./helpers');
 const webpack = require('webpack');
+import * as mkdirp from 'mkdirp';
 
 
 /**
@@ -37,6 +38,24 @@ module.exports = function(metadata: PackageMetadata) {
   const entry = {
     [metadata.umd]: path.join(getOutDir(metadata, true, getMainOutputFileName(metadata) + '.js'))
   };
+
+  const ngcWebpackConfig = {
+    tsConfig: metadata.tsConfig,
+    resourceTransformer: function(filePath, data) {
+      if (data) {
+        const relativePath = path.relative(root('src', metadata.dir, FS_REF.SRC_CONTAINER), filePath);
+        const absPath = path.resolve(getCopyInstruction(metadata).from, relativePath);
+        mkdirp.sync(path.dirname(absPath));
+        fs.writeFileSync(absPath, data, 'utf-8');
+      }
+      return data;
+    }
+  };
+
+  // don't transform resource if we don't have inlined resources
+  if (metadata.tsConfigObj.angularCompilerOptions.skipTemplateCodegen) {
+    delete ngcWebpackConfig.resourceTransformer;
+  }
 
   return {
     bail: true,
@@ -77,7 +96,34 @@ module.exports = function(metadata: PackageMetadata) {
             }
           ],
           exclude: [/\.e2e\.ts$/]
-        }
+        },
+        {
+          test: /\.css$/,
+          use: ['to-string-loader', 'css-loader'],
+          exclude: [root('src', 'demo')]
+        },
+
+        /*
+         * to string and sass loader support for *.scss files (from Angular components)
+         * Returns compiled css content as string
+         *
+         */
+        {
+          test: /\.scss$/,
+          use: ['to-string-loader', 'css-loader', 'sass-loader'],
+          exclude: [root('src', 'demo')]
+        },
+
+        /* Raw loader support for *.html
+         * Returns file content as string
+         *
+         * See: https://github.com/webpack/raw-loader
+         */
+        {
+          test: /\.html$/,
+          use: 'raw-loader',
+          exclude: [root('src/demo/index.html')]
+        },
       ]
     },
 
@@ -95,9 +141,7 @@ module.exports = function(metadata: PackageMetadata) {
         helpers.root('./src')
       ),
 
-      new NgcWebpackPlugin({
-        tsConfig: metadata.tsConfig
-      }),
+      new NgcWebpackPlugin(ngcWebpackConfig),
 
       new BannerPlugin({
         banner: banner,

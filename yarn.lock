@@ -213,6 +213,10 @@
   version "2.0.29"
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-2.0.29.tgz#5002e14f75e2d71e564281df0431c8c1b4a2a36a"
 
+"@types/mkdirp@^0.3.29":
+  version "0.3.29"
+  resolved "https://registry.yarnpkg.com/@types/mkdirp/-/mkdirp-0.3.29.tgz#7f2ad7ec55f914482fc9b1ec4bb1ae6028d46066"
+
 "@types/node@*", "@types/node@^7.0.5":
   version "7.0.5"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-7.0.5.tgz#96a0f0a618b7b606f1ec547403c00650210bfbb7"
@@ -4810,9 +4814,9 @@ ng-router-loader@^2.1.0:
     loader-utils "^0.2.16"
     recast "^0.11.20"
 
-ngc-webpack@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/ngc-webpack/-/ngc-webpack-1.2.0.tgz#d4b71f733997b8ee26c669ffb77dbfae21c221ba"
+ngc-webpack@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ngc-webpack/-/ngc-webpack-2.0.0.tgz#ebd1f6937b7b81cbcd6d9d1bd1fa9001c6be145f"
   dependencies:
     minimist "^1.2.0"
     reflect-metadata "^0.1.2"
