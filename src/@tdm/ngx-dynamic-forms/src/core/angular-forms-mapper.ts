@@ -19,10 +19,10 @@ import {
   PropertyContainer,
   MapperFactory,
   PoClassPropertyMap,
-  PlainSerializer,
   SerializeMapper,
   DeserializeMapper,
-  DirectDeserializeMapper
+  DirectDeserializeMapper,
+  PlainObjectMapper
 } from '@tdm/core/tdm';
 
 import { FormModelMetadata, FormPropMetadata } from './metadata/index';
@@ -34,7 +34,6 @@ export class NgFormsDeserializeMapper extends DirectDeserializeMapper {
 
 export class NgFormsSerializeMapper extends SerializeMapper {
   protected cache: Map<any, any>;
-  private plainSer = new PlainSerializer();
 
   serialize(container: PropertyContainer): any {
     if (!this.cache) {
@@ -132,7 +131,7 @@ export class NgFormsSerializeMapper extends SerializeMapper {
   }
 
   protected serializeChild(meta: PropMetadata, obj: any): FormGroup | FormArray {
-    return targetStore.serialize(meta.type.ref as any, new NgFormsChildSerializeMapper(obj, this.cache));
+    return targetStore.serialize(meta.type.ref as any, new NgFormsChildSerializeMapper(obj, this.cache, this.plainMapper));
   }
 
   protected serializePlain(obj: any): FormGroup | FormArray {
@@ -141,7 +140,7 @@ export class NgFormsSerializeMapper extends SerializeMapper {
       data = new FormArray(obj.map(o => this.serializePlain(o)));
     } else {
       data = new FormGroup({});
-      const serialized = this.plainSer.serialize(obj);
+      const serialized = this.plainMapper.serialize(obj);
 
       Object.keys(serialized)
         .forEach(key => {
@@ -163,17 +162,17 @@ export class NgFormsSerializeMapper extends SerializeMapper {
 }
 
 export class NgFormsChildSerializeMapper extends NgFormsSerializeMapper {
-  constructor(source: any, protected cache: any /*Map<string, Map<any, any>> */) {
-    super(source);
+  constructor(source: any, protected cache: any /*Map<string, Map<any, any>> */, plainMapper: PlainObjectMapper) {
+    super(source, plainMapper);
   }
 }
 
 
 export const ngFormsMapper: MapperFactory = {
-  serializer(source: any): NgFormsSerializeMapper {
-    return new NgFormsSerializeMapper(source);
+  serializer(source: any, plainMapper?: PlainObjectMapper): NgFormsSerializeMapper {
+    return new NgFormsSerializeMapper(source, plainMapper);
   },
-  deserializer(source: any, sourceType: any): DeserializeMapper {
-    return directMapper.deserializer(source, sourceType) as any;
+  deserializer(source: any, sourceType: any, plainMapper?: PlainObjectMapper): DeserializeMapper {
+    return directMapper.deserializer(source, sourceType, plainMapper) as any;
   }
 };

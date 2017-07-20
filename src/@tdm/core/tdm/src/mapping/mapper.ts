@@ -1,9 +1,10 @@
 import { PropertyContainer } from './prop-container';
 import { PropMetadata } from '../metadata';
+import { PlainObjectMapper } from './plain-object-mapper';
 
 export interface MapperFactory {
-  serializer(source: any): SerializeMapper;
-  deserializer(source: any, sourceType: any): DeserializeMapper;
+  serializer(source: any, plainMapper?: PlainObjectMapper): SerializeMapper;
+  deserializer(source: any, sourceType: any, plainMapper?: PlainObjectMapper): DeserializeMapper;
 }
 
 /**
@@ -19,8 +20,11 @@ export interface MapperFactory {
  * The library helps with metadata.
  */
 export abstract class SerializeMapper {
-  constructor(public source: any | any[]) {}
+  protected plainMapper: PlainObjectMapper;
 
+  constructor(public source: any | any[], plainMapper?: PlainObjectMapper) {
+    this.plainMapper = plainMapper || new PlainObjectMapper();
+  }
 
   abstract serialize(container: PropertyContainer): any;
 }
@@ -73,7 +77,11 @@ export abstract class DeserializeMapper {
    */
   raw?: boolean;
 
-  constructor(public source: any, public sourceType: any) {}
+  protected plainMapper: PlainObjectMapper;
+
+  constructor(public source: any, public sourceType: any, plainMapper?: PlainObjectMapper) {
+    this.plainMapper = plainMapper || new PlainObjectMapper();
+  }
 
   /**
    * A value stating if the input is a collection or not.

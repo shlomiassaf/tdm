@@ -1,9 +1,7 @@
-const env = 'production';
-const flags = [
-  'build',
-  'prod',
-  'aot'
-];
+// const env = 'production';
+// const flags = [ 'build', 'prod', 'aot' ];
+const env = 'development';
+const flags = [];
 
 
 
@@ -14,7 +12,7 @@ const isDev = env.indexOf('dev') === 0;
 process.env.npm_lifecycle_event = flags.join(':');
 process.env.NODE_ENV = env;
 
-const webpackConfig = require('./config/webpack.prod')({env: env});
+const webpackConfig = require(`./config/webpack.${isDev ? 'dev' : 'prod'}`)({env: env});
 
 if (isDev) {
   webpackConfig.plugins.unshift(new webpack.HotModuleReplacementPlugin());

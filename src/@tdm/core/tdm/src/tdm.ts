@@ -66,7 +66,7 @@ export {
   PropertyContainer,
   PoClassPropertyMap,
   transformValueOut,
-  PlainSerializer,
+  PlainObjectMapper,
 } from './mapping/index';
 
 export { TDMCollection, TDMModel, TDMModelBase } from './model/index';

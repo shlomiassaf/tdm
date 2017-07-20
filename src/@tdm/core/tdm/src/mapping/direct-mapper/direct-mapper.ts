@@ -2,7 +2,7 @@ import { isPrimitive, DualKeyMap } from '../../fw';
 import { PropMetadata, targetStore } from '../../metadata';
 import { MapperFactory, DeserializeMapper, SerializeMapper } from '../mapper';
 import { PropertyContainer, PoClassPropertyMap, transformValueOut } from '../prop-container';
-import { PlainSerializer } from '../plain-serializer';
+import { PlainObjectMapper } from '../plain-object-mapper';
 
 /**
  * A mapper that has no mapping effect.
@@ -31,8 +31,8 @@ export class DirectDeserializeMapper extends DeserializeMapper {
   private identity: string;
 
 
-  constructor(source: any, sourceType: any) {
-    super(source, sourceType);
+  constructor(source: any, sourceType: any, plainMapper?: PlainObjectMapper) {
+    super(source, sourceType, plainMapper);
 
     if (! (this instanceof DirectChildDeserializeMapper)) {
       this.existing = new DualKeyMap<any, string, any>();
@@ -87,14 +87,17 @@ export class DirectDeserializeMapper extends DeserializeMapper {
       }
     }
 
-    return value;
+    return typeof value === 'object'
+      ? this.plainMapper.deserialize(value)
+      : value
+    ;
   }
 
   protected deserialize(value: any, prop: PropMetadata): any {
 
     const mapper = this.ref
-        ? new DirectChildDeserializeMapper(value, prop.type.ref, this.existing)
-        : directMapper.deserializer(value, prop.type.ref)
+        ? new DirectChildDeserializeMapper(value, prop.type.ref, this.existing, this.plainMapper)
+        : directMapper.deserializer(value, prop.type.ref, this.plainMapper)
       ;
 
     return targetStore.deserialize(mapper);
@@ -111,8 +114,8 @@ export class DirectDeserializeMapper extends DeserializeMapper {
 }
 
 export class DirectChildDeserializeMapper extends DirectDeserializeMapper {
-  constructor(source: any, sourceType: any, protected existing: DualKeyMap<any, string, any>) {
-    super(source, sourceType);
+  constructor(source: any, sourceType: any, protected existing: DualKeyMap<any, string, any>, plainMapper: PlainObjectMapper) {
+    super(source, sourceType, plainMapper);
   }
 }
 
@@ -120,7 +123,6 @@ export class DirectChildDeserializeMapper extends DirectDeserializeMapper {
 
 export class DirectSerializeMapper extends SerializeMapper {
   protected cache: Map<any, any>;
-  private plainSer = new PlainSerializer();
 
   serialize(container: PropertyContainer): any {
     if (!this.cache) {
@@ -146,10 +148,10 @@ export class DirectSerializeMapper extends SerializeMapper {
           // if the rel points to a different fk property name, @tdm will make sure prop.obj is that fk.
           data[pMap.obj] = obj[pMap.cls][idKey];
         } else {
-          data[pMap.obj] = targetStore.serialize(type, new DirectChildSerializeMapper(obj[pMap.cls], this.cache))
+          data[pMap.obj] = targetStore.serialize(type, new DirectChildSerializeMapper(obj[pMap.cls], this.cache, this.plainMapper))
         }
       } else {
-        const newVal = this.plainSer.serialize(transformValueOut(obj[pMap.cls], p));
+        const newVal = this.plainMapper.serialize(transformValueOut(obj[pMap.cls], p));
         data[pMap.obj] = newVal;
       }
     };
@@ -170,16 +172,16 @@ export class DirectSerializeMapper extends SerializeMapper {
 }
 
 export class DirectChildSerializeMapper extends DirectSerializeMapper {
-  constructor(source: any, protected cache: Map<any, any>) {
-    super(source);
+  constructor(source: any, protected cache: Map<any, any>, plainMapper: PlainObjectMapper) {
+    super(source, plainMapper);
   }
 }
 
 export const directMapper: MapperFactory = {
-  serializer(source: any): DirectSerializeMapper {
-    return new DirectSerializeMapper(source);
+  serializer(source: any, plainMapper?: PlainObjectMapper): DirectSerializeMapper {
+    return new DirectSerializeMapper(source, plainMapper);
   },
-  deserializer(source: any, sourceType: any): DirectDeserializeMapper {
-    return new DirectDeserializeMapper(source, sourceType);
+  deserializer(source: any, sourceType: any, plainMapper?: PlainObjectMapper): DirectDeserializeMapper {
+    return new DirectDeserializeMapper(source, sourceType, plainMapper);
   }
 };

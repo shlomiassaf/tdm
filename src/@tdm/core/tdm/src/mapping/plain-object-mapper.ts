@@ -1,11 +1,23 @@
 const PRIMITIVES = ['boolean', 'string', 'number', 'symbol'];
 
-export class PlainSerializer {
+/**
+ * A plain object (POJO/POCO) serializer/deserializer.
+ * Extend for custom behaviour.
+ */
+export class PlainObjectMapper {
+  deserialize(obj: any): any {
+    return this._deserialize(obj);
+  }
+
   serialize(obj: any): any {
     return this._serialize(obj, new Map<any, any>());
   }
 
-  private _serialize(obj: any, cache: Map<any, any>): any {
+  protected _deserialize(obj: any): any {
+    return obj;
+  }
+
+  protected _serialize(obj: any, cache: Map<any, any>): any {
     if (obj === null || obj === undefined) {
       return null;
     }

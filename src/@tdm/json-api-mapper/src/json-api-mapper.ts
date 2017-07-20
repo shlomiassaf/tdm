@@ -1,13 +1,13 @@
 import {
   targetStore,
   transformValueOut,
-  PlainSerializer,
   PropMetadata,
   PoClassPropertyMap,
   PropertyContainer,
   DeserializeMapper,
   SerializeMapper,
-  MapperFactory
+  MapperFactory,
+  PlainObjectMapper
 } from '@tdm/core/tdm';
 
 import { TopLevel, ResourceObject, ResourceIdentifierObject } from './json-api';
@@ -38,8 +38,8 @@ export class JSONAPIDeserializeMapper extends DeserializeMapper {
     }
   }
 
-  constructor(public source: TopLevel, sourceType: any) {
-    super(source, sourceType);
+  constructor(public source: TopLevel, sourceType: any, plainMapper?: PlainObjectMapper) {
+    super(source, sourceType, plainMapper);
 
     if (!(this instanceof JSONAPIChildDeserializeMapper)) {
       this.existing = new Map<string, any>();
@@ -119,7 +119,7 @@ export class JSONAPIDeserializeMapper extends DeserializeMapper {
         ? new JSONAPIChildDeserializeMapper({
           data: included,
           included: this.source.included
-        }, target, this.existing)
+        }, target, this.existing, this.plainMapper)
         : jsonAPIMapper.deserializer({data: included}, target)
       ;
 
@@ -130,8 +130,8 @@ export class JSONAPIDeserializeMapper extends DeserializeMapper {
 }
 
 export class JSONAPIChildDeserializeMapper extends JSONAPIDeserializeMapper {
-  constructor(public source: TopLevel, sourceType: any, protected existing: Map<string, any>) {
-    super(source, sourceType);
+  constructor(public source: TopLevel, sourceType: any, protected existing: Map<string, any>, plainMapper: PlainObjectMapper) {
+    super(source, sourceType, plainMapper);
   }
 }
 
@@ -254,7 +254,7 @@ export class JSONAPISerializeMapper extends SerializeMapper {
         }
       } else {
         const value = transformValueOut(obj[pMap.cls], p);
-        data.attributes[pMap.obj] = new PlainSerializer().serialize(value);
+        data.attributes[pMap.obj] = this.plainMapper.serialize(value);
       }
     };
 
@@ -268,7 +268,7 @@ export class JSONAPISerializeMapper extends SerializeMapper {
   }
 
   private serializeChild(obj: any, type: any): void {
-    targetStore.serialize(type, new JSONAPIChildSerializeMapper(obj, this.cache));
+    targetStore.serialize(type, new JSONAPIChildSerializeMapper(obj, this.cache, this.plainMapper));
   }
 
   private serializeCollection(arr: any[], doc: TopLevel, container: PropertyContainer): Array<ResourceObject | ResourceIdentifierObject> {
@@ -277,17 +277,17 @@ export class JSONAPISerializeMapper extends SerializeMapper {
 }
 
 export class JSONAPIChildSerializeMapper extends JSONAPISerializeMapper {
-  constructor(source: any, protected cache: Map<string, ResourceObject>) {
-    super(source);
+  constructor(source: any, protected cache: Map<string, ResourceObject>, plainMapper: PlainObjectMapper) {
+    super(source, plainMapper);
   }
 }
 
 
 export const jsonAPIMapper: MapperFactory = {
-  serializer(source: any): JSONAPISerializeMapper {
-    return new JSONAPISerializeMapper(source);
+  serializer(source: any, plainMapper?: PlainObjectMapper): JSONAPISerializeMapper {
+    return new JSONAPISerializeMapper(source, plainMapper);
   },
-  deserializer(source: any, sourceType: any): JSONAPIDeserializeMapper {
-    return new JSONAPIDeserializeMapper(source, sourceType);
+  deserializer(source: any, sourceType: any, plainMapper?: PlainObjectMapper): JSONAPIDeserializeMapper {
+    return new JSONAPIDeserializeMapper(source, sourceType, plainMapper);
   }
 };

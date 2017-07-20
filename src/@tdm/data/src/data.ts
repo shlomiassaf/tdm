@@ -64,7 +64,6 @@ export {
 
 export {
   findProp,
-  PlainSerializer,
   isSymbol,
   isPropertyKey,
   promiser,
