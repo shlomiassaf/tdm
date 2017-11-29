@@ -23,15 +23,8 @@ export type PropAliasConfig = { [ P in TransformDir ]: string };
 
 export type PropTransformConfig = { [ P in TransformDir ]: TransformFn };
 
-
-/**
- * @public
- */
 export interface NamingStrategyFn extends Function{
   (propertyName: string): string;
 }
 
-/**
- * @public
- */
 export type NamingStrategyConfig =  { [P in TransformDir]: NamingStrategyFn }

@@ -4,7 +4,7 @@ export abstract class BaseMetadata {
 
   /**
    * The property name that the decorator wraps, if it wraps a property, member or constructor param.
-   * @returns {PropertyKey}
+   * @returns
    */
   readonly name: PropertyKey | undefined;
 

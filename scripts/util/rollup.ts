@@ -29,11 +29,11 @@ export function createRollupBundle(config: BundleConfig): Promise<any> {
     globals: config.globals,
     sourceMap: true
   };
+  bundleOptions.plugins = [resolve()];
 
   // When creating a UMD, we want to exclude tslib from the `external` bundle option so that it
   // is inlined into the bundle.
   if (config.format === 'umd') {
-    bundleOptions.plugins = [resolve()];
 
     if (bundleOptions.external && bundleOptions.external.indexOf('tslib') > -1) {
       bundleOptions.external.splice(bundleOptions.external.indexOf('tslib'), 1);

@@ -1,4 +1,5 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",
@@ -20,34 +21,16 @@
       "node",
       "source-map",
       "webpack"
-    ],
-    "baseUrl": "./src",
-    "paths": {
-      "@tdm/ngx-dynamic-forms": [
-        "@tdm/ngx-dynamic-forms/src/index.ts"
-      ],
-      "@tdm/ngx-dynamic-forms/*": [
-        "@tdm/ngx-dynamic-forms/src/*"
-      ],
-
-      "@tdm/tixin": ["@tdm/tixin/src/index.ts"],
-      "@tdm/tixin/*": ["@tdm/tixin/src/*"],
-
-      "@tdm/core": ["@tdm/core/src/index.ts"],
-      "@tdm/core/*": ["@tdm/core/src/*"],
-
-      "@tdm/data": ["@tdm/data/src/index.ts"],
-      "@tdm/data/*": ["@tdm/data/src/*"],
-
-      "@tdm/ngx-http": ["@tdm/ngx-http/src/index.ts"],
-      "@tdm/ngx-http/*": ["@tdm/ngx-http/src/*"],
-
-      "@tdm/json-api-mapper": ["@tdm/json-api-mapper/src/index.ts"],
-      "@tdm/json-api-mapper/*": ["@tdm/json-api-mapper/src/*"]
-
-    }
+    ]
   },
-
+  "exclude": [
+    "examples/**/*.ts",
+    "scripts",
+    "node_modules",
+    "dist",
+    "dist_package",
+    "src/demo"
+  ],
   "awesomeTypescriptLoaderOptions": {
     "forkChecker": true,
     "useWebpackText": true

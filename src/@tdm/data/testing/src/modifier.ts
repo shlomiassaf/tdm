@@ -76,7 +76,7 @@ export class TargetMetaModifier<T, Z> extends _TargetMetaModifier<T, Z> {
    * otherwise replace the hook
    * @param key
    * @param meta
-   * @returns {TargetMetaModifier}
+   * @returns
    */
   hook(key: ARHookableMethods, meta: HookMetadataArgs | 'before' | 'after' | false): this {
     TestTargetStore.hook(this.target, key, meta);

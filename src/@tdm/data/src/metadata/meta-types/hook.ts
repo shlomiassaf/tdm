@@ -21,7 +21,8 @@ export interface HookMetadataArgs {
   action: ARHookableMethods;
 }
 
-function factory(this: MetaClassMetadata<HookMetadataArgs, HookMetadata>,
+/** @internal */
+export function factory(this: MetaClassMetadata<HookMetadataArgs, HookMetadata>,
                  metaArgs: HookMetadataArgs,
                  target: Object,
                  info: DecoratorInfo,
@@ -40,7 +41,8 @@ function factory(this: MetaClassMetadata<HookMetadataArgs, HookMetadata>,
   return this.constructor.prototype.factory.call(this, metaArgs, target, info, key, desc);
 }
 
-function register(this: MetaClassMetadata<HookMetadataArgs, HookMetadata>,
+/** @internal */
+export function register(this: MetaClassMetadata<HookMetadataArgs, HookMetadata>,
                   meta: MetaClassInstanceDetails<HookMetadataArgs, HookMetadata>): void {
   const hook: StoredHook = {[meta.metaValue.event]: meta.metaValue};
 
@@ -48,7 +50,8 @@ function register(this: MetaClassMetadata<HookMetadataArgs, HookMetadata>,
   targetStore.setMetaFor<any, StoredHook>(meta.target, HookMetadata, meta.metaValue.action as any, Object.assign(currHook, hook));
 }
 
-function extend(from: Map<PropertyKey, StoredHook>, to: Map<PropertyKey, StoredHook> | undefined): Map<PropertyKey, StoredHook> {
+/** @internal */
+export function extend(from: Map<PropertyKey, StoredHook>, to: Map<PropertyKey, StoredHook> | undefined): Map<PropertyKey, StoredHook> {
   if (!to) {
     to = new Map<PropertyKey, StoredHook>(from.entries());
   } else {

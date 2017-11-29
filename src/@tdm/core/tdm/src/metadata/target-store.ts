@@ -18,7 +18,7 @@ export class TargetStore {
 
   /**
    * register listeners for metadata lifecycle events on a target.
-   * @returns {TargetEvents}
+   * @returns
    */
   get on(): TargetEvents {
     return targetEvents;
@@ -41,7 +41,7 @@ export class TargetStore {
    * Returns a single local item.
    * @param key
    * @param index optional, if not set returns the first.
-   * @returns {undefined|T}
+   * @returns
    */
   protected local<T>(key: any, index: number = 0): T | undefined {
     const set = this.locals.get(key);
@@ -171,7 +171,7 @@ export class TargetStore {
   /**
    * Creates a new TargetStore instance.
    * @param instance optional, used internally
-   * @returns {TargetStore}
+   * @returns
    */
   static create(instance?: TargetStore): TargetStore {
     const targetStore: TargetStore = instance || Object.create(TargetStore.prototype);

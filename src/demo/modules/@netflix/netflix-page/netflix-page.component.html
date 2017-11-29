@@ -2,48 +2,98 @@
   <form [formGroup]="form" (ngSubmit)="search()">
     <div fxLayout="row" fxLayout.sm="column-reverse" fxLayout.xs="column-reverse">
       <div fxFlex="2 2 auto" fxLayout="row">
-        <md-input-container fxFlex="auto" >
-          <input mdInput formControlName="searchValue" type='text' placeholder="Search... (e.g. 'Attack on titan')">
-        </md-input-container>
+        <mat-form-field fxFlex="auto" >
+          <input matInput formControlName="searchValue" type='text' placeholder="Search... (e.g. 'Attack on titan')">
+        </mat-form-field>
         <div style="margin: 0 5px" fxFlex="0 0 auto" fxFlexAlign="center">
-          <button md-mini-fab [disabled]="!form.get('searchValue').value">
-            <md-icon class="md-24">search</md-icon>
+          <button mat-mini-fab [disabled]="!form.get('searchValue').value">
+            <mat-icon class="mat-24">search</mat-icon>
           </button>
         </div>
       </div>
       <div fxFlex="1 1 auto" fxLayout="row" fxLayoutAlign="center center">
-        <md-radio-group fxFlex name="searchType" formControlName="searchType">
-          <md-radio-button value="title">Title</md-radio-button>
-          <md-radio-button value="actor">Actor</md-radio-button>
-          <md-radio-button value="director">Director</md-radio-button>
-          <md-radio-button value="year">Year</md-radio-button>
-        </md-radio-group>
+        <mat-radio-group fxFlex name="searchType" formControlName="searchType">
+          <mat-radio-button value="title">Title</mat-radio-button>
+          <mat-radio-button value="actor">Actor</mat-radio-button>
+          <mat-radio-button value="director">Director</mat-radio-button>
+          <mat-radio-button value="year">Year</mat-radio-button>
+        </mat-radio-group>
       </div>
     </div>
   </form>
 
   <div>
-    <ngx-datatable
-      class="material"
-      [rows]="obs$ | async"
-      [loadingIndicator]="(titles || title)?.$rc.busy$ | async"
-      [columns]="columns"
-      [columnMode]="'force'"
-      [headerHeight]="50"
-      [footerHeight]="50"
-      [rowHeight]="'auto'">
-    </ngx-datatable>
+    <mat-table #table [dataSource]="dataSource">
+
+      <ng-container matColumnDef="unit">
+        <mat-header-cell *matHeaderCellDef> Unit </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.unit}} </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="showId">
+        <mat-header-cell *matHeaderCellDef> Show Id </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.showId}} </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="showTitle">
+        <mat-header-cell *matHeaderCellDef> Show Title </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.showTitle}} </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="releaseYear">
+        <mat-header-cell *matHeaderCellDef> Release Year </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.releaseYear}} </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="rating">
+        <mat-header-cell *matHeaderCellDef> Rating </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.rating}} </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="category">
+        <mat-header-cell *matHeaderCellDef> Category </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.category}} </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="showCast">
+        <mat-header-cell *matHeaderCellDef> Show Cast </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <ul>
+            <li *ngFor="let item of split(element.showCast)">
+              <a href="javascript:void(0)" (click)="goTo(item, 'showCast')">{{item}}</a>
+            </li>
+          </ul>
+        </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="director">
+        <mat-header-cell *matHeaderCellDef> Director </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <ul>
+            <li *ngFor="let item of split(element.director)">
+              <a href="javascript:void(0)" (click)="goTo(item, 'director')">{{item}}</a>
+            </li>
+          </ul>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="summary">
+        <mat-header-cell *matHeaderCellDef> Summary </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.summary}} </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="poster">
+        <mat-header-cell *matHeaderCellDef> Poster </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <img *ngIf="element.poster" [src]="element.poster"/>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="mediatype">
+        <mat-header-cell *matHeaderCellDef> Media Type </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.mediatype}} </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="runtime">
+        <mat-header-cell *matHeaderCellDef> Runtime </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.runtime}} </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
   </div>
-
-  <template #linkedTpl let-row="row" let-value="value" let-column="column">
-    <ul>
-      <li *ngFor="let item of split(value)">
-        <a href="javascript:void(0)" (click)="goTo(item, column)">{{item}}</a>
-      </li>
-    </ul>
-  </template>
-
-  <template #imgTpl let-row="row" let-value="value" let-column="column">
-    <img *ngIf="value" [src]="value"/>
-  </template>
 </div>

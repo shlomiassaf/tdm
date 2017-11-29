@@ -31,7 +31,7 @@ export class TDMModelForm<T = any> {
 
   /**
    * The render instructions for the TDMModel type of this instance.
-   * @returns {RenderInstruction[]}
+   * @returns
    */
   get renderData(): RenderInstruction[] {
     return this.modelFormService.getInstructions(this.type);
@@ -48,7 +48,7 @@ export class TDMModelForm<T = any> {
   /**
    * Returns the control for a given key
    * @param key
-   * @returns {AbstractControl|null}
+   * @returns
    */
   get(key: keyof T): AbstractControl | null {
     return this.form.get(key);
@@ -87,7 +87,7 @@ export class TDMModelForm<T = any> {
    * A helper function for an *ngFor "trackBy" handler.
    * @param idx
    * @param item
-   * @returns {string}
+   * @returns
    */
   trackBy(idx: number, item: RenderInstruction): any {
     return item.name;
@@ -101,7 +101,7 @@ export class TDMModelForm<T = any> {
    * If onlyIfDirty is true and the form is NOT dirty, only then the response is false.
    *
    * @param onlyIfDirty if true will commit only if the form is dirty
-   * @returns {boolean} Did it commit (deserialize)
+   * @returns Did it commit (deserialize)
    */
   commitToModel(onlyIfDirty?: boolean): boolean {
     if (onlyIfDirty === true && !this.form.dirty) {

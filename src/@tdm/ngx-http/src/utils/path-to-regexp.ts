@@ -4,8 +4,6 @@ import { Path, Key, RegExpOptions , ParseOptions, PathRegExp } from 'path-to-reg
 
 /**
  * The main path matching regexp utility.
- *
- * @type {RegExp}
  */
 var PATH_REGEXP = new RegExp([
   // Match escaped characters that would otherwise appear in future matches.
@@ -22,10 +20,6 @@ var PATH_REGEXP = new RegExp([
 
 /**
  * Parse a string for the raw tokens.
- *
- * @param  {string}  str
- * @param  {Object=} options
- * @return {!Array}
  */
 export function parse (str, options) {
   var tokens = []
@@ -95,10 +89,6 @@ export function parse (str, options) {
 
 /**
  * Compile a string to a template function for the path.
- *
- * @param  {string}             str
- * @param  {Object=}            options
- * @return {!function(Object=, Object=)}
  */
 export function compile (str, options?) {
   return tokensToFunction(parse(str, options))
@@ -106,9 +96,6 @@ export function compile (str, options?) {
 
 /**
  * Prettier encoding of URI path segments.
- *
- * @param  {string}
- * @return {string}
  */
 function encodeURIComponentPretty (str) {
   return encodeURI(str).replace(/[\/?#]/g, function (c) {
@@ -118,9 +105,6 @@ function encodeURIComponentPretty (str) {
 
 /**
  * Encode the asterisk parameter. Similar to `pretty`, but allows slashes.
- *
- * @param  {string}
- * @return {string}
  */
 function encodeAsterisk (str) {
   return encodeURI(str).replace(/[?#]/g, function (c) {
@@ -214,9 +198,6 @@ export function tokensToFunction (tokens) {
 
 /**
  * Escape a regular expression string.
- *
- * @param  {string} str
- * @return {string}
  */
 function escapeString (str) {
   return str.replace(/([.+*?=^!:${}()[\]|\/\\])/g, '\\$1')
@@ -224,9 +205,6 @@ function escapeString (str) {
 
 /**
  * Escape the capturing group by escaping special characters and meaning.
- *
- * @param  {string} group
- * @return {string}
  */
 function escapeGroup (group) {
   return group.replace(/([=!:$\/()])/g, '\\$1')
@@ -234,10 +212,6 @@ function escapeGroup (group) {
 
 /**
  * Attach the keys as a property of the regexp.
- *
- * @param  {!RegExp} re
- * @param  {Array}   keys
- * @return {!RegExp}
  */
 function attachKeys (re, keys) {
   re.keys = keys
@@ -246,9 +220,6 @@ function attachKeys (re, keys) {
 
 /**
  * Get the flags for a regexp from the options.
- *
- * @param  {Object} options
- * @return {string}
  */
 function flags (options) {
   return options.sensitive ? '' : 'i'
@@ -256,10 +227,6 @@ function flags (options) {
 
 /**
  * Pull out keys from a regexp.
- *
- * @param  {!RegExp} path
- * @param  {!Array}  keys
- * @return {!RegExp}
  */
 function regexpToRegexp (path, keys) {
   // Use a negative lookahead to match only capturing groups.
@@ -285,11 +252,6 @@ function regexpToRegexp (path, keys) {
 
 /**
  * Transform an array into a regexp.
- *
- * @param  {!Array}  path
- * @param  {Array}   keys
- * @param  {!Object} options
- * @return {!RegExp}
  */
 function arrayToRegexp (path, keys, options) {
   var parts = []
@@ -305,11 +267,6 @@ function arrayToRegexp (path, keys, options) {
 
 /**
  * Create a path regexp from string input.
- *
- * @param  {string}  path
- * @param  {!Array}  keys
- * @param  {!Object} options
- * @return {!RegExp}
  */
 function stringToRegexp (path, keys, options) {
   return tokensToRegExp(parse(path, options), keys, options)
@@ -317,11 +274,6 @@ function stringToRegexp (path, keys, options) {
 
 /**
  * Expose a function for taking tokens and returning a RegExp.
- *
- * @param  {!Array}          tokens
- * @param  {(Array|Object)=} keys
- * @param  {Object=}         options
- * @return {!RegExp}
  */
 export function tokensToRegExp (tokens, keys, options) {
   if (!Array.isArray(keys)) {
@@ -393,11 +345,6 @@ export function tokensToRegExp (tokens, keys, options) {
  * An empty array can be passed in for the keys, which will hold the
  * placeholder key descriptions. For example, using `/user/:id`, `keys` will
  * contain `[{ name: 'id', delimiter: '/', optional: false, repeat: false }]`.
- *
- * @param  {(string|RegExp|Array)} path
- * @param  {(Array|Object)=}       keys
- * @param  {Object=}               options
- * @return {!RegExp}
  */
 
 export function pathToRegexp (path, keys?, options?): PathRegExp {

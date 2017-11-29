@@ -29,7 +29,8 @@ export interface UrlParamMetadataArgs {
   methods?: HttpActionMethodType | HttpActionMethodType[]
 }
 
-function extend(from: Map<PropertyKey, UrlParamMetadata[]>, to: Map<PropertyKey, UrlParamMetadata[]> | undefined): Map<PropertyKey, UrlParamMetadata[]> {
+/** @internal */
+export function extend(from: Map<PropertyKey, UrlParamMetadata[]>, to: Map<PropertyKey, UrlParamMetadata[]> | undefined): Map<PropertyKey, UrlParamMetadata[]> {
   if (!to) {
     to = new Map<PropertyKey, UrlParamMetadata[]>();
   }

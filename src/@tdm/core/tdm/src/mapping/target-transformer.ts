@@ -20,7 +20,6 @@ import {
  * Used for applying NamingStrategyConfig based on the TransformDir
  * @param dir
  * @param transformNameStrategy
- * @returns {[string,string]|[string,string]}
  */
 export function namingStrategyMap(dir: TransformDir, transformNameStrategy: NamingStrategyConfig): boolean {
   return transformNameStrategy && isFunction(transformNameStrategy[dir]);
@@ -36,7 +35,7 @@ export function getInstructions<T, Z>(meta: TargetMetadata<T, Z>, dir: Transform
     .filter(e => !e.from || e.from === dir);
 
   const model = meta.model();
-  
+
   // in exclusive mode there is no point in have 2 transformation strategies.
   // incoming is never there since incoming keys are not calculated, only defined Props.
   if (model.transformStrategy === 'exclusive') {

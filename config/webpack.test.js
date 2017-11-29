@@ -1,14 +1,8 @@
-'use strict';
-
 /**
  * @author: @AngularClass
  */
 
 const helpers = require('./helpers');
-const path = require('path');
-const moduleHelpers = require('./module-helpers');
-
-const webpackMerge = require('webpack-merge'); // used to merge webpack configs
 
 /**
  * Webpack Plugins
@@ -17,37 +11,11 @@ const ProvidePlugin = require('webpack/lib/ProvidePlugin');
 const DefinePlugin = require('webpack/lib/DefinePlugin');
 const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
 const ContextReplacementPlugin = require('webpack/lib/ContextReplacementPlugin');
-const TsConfigPathsPlugin = require('awesome-typescript-loader').TsConfigPathsPlugin;
 
 /**
  * Webpack Constants
  */
 const ENV = process.env.ENV = process.env.NODE_ENV = 'test';
-
-const USE_COVERAGE = helpers.useCoverage();
-const COVERAGE_CONFIG_DIFF = {
-  module: {
-    rules: [
-      /**
-       * Instruments JS files with Istanbul for subsequent code coverage reporting.
-       * Instrument only testing sources.
-       *
-       * See: https://github.com/deepsweet/istanbul-instrumenter-loader
-       */
-      {
-        enforce: 'post',
-        test: /\.(js|ts)$/,
-        loader: 'istanbul-instrumenter-loader',
-        include: helpers.root('src'),
-        exclude: [
-          /\.(e2e|spec)\.ts$/,
-          /node_modules/
-        ]
-      }
-    ]
-  }
-};
-
 
 /**
  * Webpack configuration
@@ -55,7 +23,7 @@ const COVERAGE_CONFIG_DIFF = {
  * See: http://webpack.github.io/docs/configuration.html#cli
  */
 module.exports = function (options) {
-  const config = {
+  return {
 
     /**
      * Source map for Karma from the help of karma-sourcemap-loader &  karma-webpack
@@ -82,9 +50,8 @@ module.exports = function (options) {
       /**
        * Make sure root is src
        */
-      modules: [helpers.root('src'), 'node_modules'],
+      modules: [helpers.root('src'), 'node_modules']
 
-      alias: moduleHelpers.getAlias()
     },
 
     /**
@@ -110,7 +77,9 @@ module.exports = function (options) {
           test: /\.js$/,
           loader: 'source-map-loader',
           exclude: [
-            // these packages have problems with their sourcemaps
+            /**
+             * These packages have problems with their sourcemaps
+             */
             helpers.root('node_modules/rxjs'),
             helpers.root('node_modules/@angular')
           ]
@@ -127,14 +96,19 @@ module.exports = function (options) {
             {
               loader: 'awesome-typescript-loader',
               query: {
+                /**
+                 * Use inline sourcemaps for "karma-remap-coverage" reporter
+                 */
+                sourceMap: false,
+                inlineSourceMap: true,
                 compilerOptions: {
-                  // use inline sourcemaps for "karma-remap-coverage" reporter
-                  sourceMap: !USE_COVERAGE,
-                  inlineSourceMap: USE_COVERAGE,
 
-                  // Remove TypeScript helpers to be injected
-                  // below by DefinePlugin
+                  /**
+                   * Remove TypeScript helpers to be injected
+                   * below by DefinePlugin
+                   */
                   removeComments: true
+
                 }
               },
             },
@@ -151,7 +125,7 @@ module.exports = function (options) {
         {
           test: /\.json$/,
           loader: 'json-loader',
-          exclude: [helpers.root('src/index.html')]
+          exclude: [helpers.root('src/demo/index.html')]
         },
 
         /**
@@ -163,7 +137,18 @@ module.exports = function (options) {
         {
           test: /\.css$/,
           loader: ['to-string-loader', 'css-loader'],
-          exclude: [helpers.root('src/index.html')]
+          exclude: [helpers.root('src/demo/index.html')]
+        },
+
+        /**
+         * Raw loader support for *.scss files
+         *
+         * See: https://github.com/webpack/raw-loader
+         */
+        {
+            test: /\.scss$/,
+            loader: ['raw-loader', 'sass-loader'],
+            exclude: [helpers.root('src/demo/index.html')]
         },
 
         /**
@@ -175,8 +160,26 @@ module.exports = function (options) {
         {
           test: /\.html$/,
           loader: 'raw-loader',
-          exclude: [helpers.root('src/index.html')]
+          exclude: [helpers.root('src/demo/index.html')]
         },
+
+        /**
+         * Instruments JS files with Istanbul for subsequent code coverage reporting.
+         * Instrument only testing sources.
+         *
+         * See: https://github.com/deepsweet/istanbul-instrumenter-loader
+         */
+        {
+          enforce: 'post',
+          test: /\.(js|ts)$/,
+          loader: 'istanbul-instrumenter-loader',
+          include: helpers.root('src'),
+          exclude: [
+            /\.(e2e|spec)\.ts$/,
+            /node_modules/
+          ]
+        }
+
       ]
     },
 
@@ -186,7 +189,6 @@ module.exports = function (options) {
      * See: http://webpack.github.io/docs/configuration.html#plugins
      */
     plugins: [
-      new TsConfigPathsPlugin(),
 
       /**
        * Plugin: DefinePlugin
@@ -196,14 +198,15 @@ module.exports = function (options) {
        * Environment helpers
        *
        * See: https://webpack.github.io/docs/list-of-plugins.html#defineplugin
+       *
+       * NOTE: when adding more properties make sure you include them in custom-typings.d.ts
        */
-      // NOTE: when adding more properties make sure you include them in custom-typings.d.ts
       new DefinePlugin({
         'ENV': JSON.stringify(ENV),
         'HMR': false,
         'process.env': {
           'ENV': JSON.stringify(ENV),
-          'NODE_ENV': JSON.stringify(process.env),
+          'NODE_ENV': JSON.stringify(ENV),
           'HMR': false,
         }
       }),
@@ -216,11 +219,15 @@ module.exports = function (options) {
        * See: https://github.com/angular/angular/issues/11580
        */
       new ContextReplacementPlugin(
-        // The (\\|\/) piece accounts for path separators in *nix and Windows
-        /angular(\\|\/)core(\\|\/)(esm(\\|\/)src|src)(\\|\/)linker/,
+        /**
+         * The (\\|\/) piece accounts for path separators in *nix and Windows
+         */
+        /angular(\\|\/)core(\\|\/)@angular/,
         helpers.root('src'), // location of your src
         {
-          // your Angular Async Route paths relative to this root directory
+          /**
+           * your Angular Async Route paths relative to this root directory
+           */
         }
       ),
 
@@ -232,7 +239,9 @@ module.exports = function (options) {
       new LoaderOptionsPlugin({
         debug: false,
         options: {
-          // legacy options go here
+          /**
+           * legacy options go here
+           */
         }
       }),
 
@@ -263,6 +272,4 @@ module.exports = function (options) {
     }
 
   };
-
-  return USE_COVERAGE ? webpackMerge(COVERAGE_CONFIG_DIFF, config) : config;
-};
+}

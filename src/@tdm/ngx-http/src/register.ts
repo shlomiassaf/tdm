@@ -15,7 +15,7 @@ targetStore.registerAdapter(HttpAdapter, {
  */
 export class NgDAO {
   get<T, Z>(target: Z & Constructor<T>): HttpDao<T> {
-    return DAO.of(HttpAdapter, target);
+    return <any> DAO.of(HttpAdapter, target);
   }
 }
 

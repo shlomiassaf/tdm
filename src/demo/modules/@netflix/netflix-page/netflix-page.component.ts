@@ -1,8 +1,8 @@
-import { Observable } from "rxjs/Observable";
+import { Observable } from 'rxjs/Observable';
 import { Component, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 
-import { UiBlockService, UiBlock } from '@shared';
+import { UiBlockService, UiBlock, DataSourceContainer } from '@shared';
 import { Title, TitleCollection } from '../models';
 
 @Component({
@@ -14,9 +14,21 @@ import { Title, TitleCollection } from '../models';
 export class NetflixPageComponent {
   title: Title;
   titles: TitleCollection;
-
-  columns: any;
-
+  dataSource = new DataSourceContainer([]);
+  displayedColumns = [
+    'unit',
+    'showId',
+    'showTitle',
+    'releaseYear',
+    'rating',
+    'category',
+    'showCast',
+    'director',
+    'summary',
+    'poster',
+    'mediatype',
+    'runtime'
+  ];
 
   form: FormGroup;
 
@@ -37,25 +49,8 @@ export class NetflixPageComponent {
     });
   }
 
-  ngOnInit() {
-    this.columns = [
-      { prop: 'unit' },
-      { prop: 'showId' },
-      { prop: 'showTitle' },
-      { prop: 'releaseYear' },
-      { prop: 'rating' },
-      { prop: 'category' },
-      { prop: 'showCast', cellTemplate: this.linkedTpl },
-      { prop: 'director', cellTemplate: this.linkedTpl },
-      { prop: 'summary' },
-      { prop: 'poster', cellTemplate: this.imgTpl },
-      { prop: 'mediatype' },
-      { prop: 'runtime' }
-    ];
-  }
-
   goTo(value: string, col: any) {
-    switch (col.prop) {
+    switch (col) {
       case 'director':
         this.form.get('searchType').setValue('director');
         break;
@@ -80,10 +75,12 @@ export class NetflixPageComponent {
     if (type === 'title') {
       this.titles = undefined;
       this.title = Title.findById(value);
+      this.title.$rc.next().then( () => this.dataSource.updateSource(this.obs$) );
       this.uiBlock.closeWithPromise(this.title.$rc.next()).open(UiBlock);
     } else {
       if (!this.titles) {
         this.titles = Title.query(type, value);
+        this.titles.$rc.next().then( () => this.dataSource.updateSource(this.obs$) );
       } else {
         this.titles.query(type, value);
       }

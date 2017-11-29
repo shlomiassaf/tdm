@@ -151,7 +151,7 @@ export class ResourceControl<T> implements RecordControlState<T> {
   /**
    * Returns a promise, resolving on the next response from the current resource.
    * Will throw is there is no active action for this resource (i.e. not busy)
-   * @returns {Promise<never>}
+   * @returns
    */
   next(): Promise<T> {
     if (!this.busy) {

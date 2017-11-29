@@ -1,17 +1,17 @@
 <ng-container [formGroup]="tdmForm.form" [ngSwitch]="item.type">
-  <md-checkbox *ngSwitchCase="'boolean'"
-               [formControlName]="item.name">{{ item.label }}</md-checkbox>
+  <mat-checkbox *ngSwitchCase="'boolean'"
+               [formControlName]="item.name">{{ item.label }}</mat-checkbox>
 
-  <md-slide-toggle *ngSwitchCase="'slideToggle'"
-                   [formControlName]="item.name">{{ item.label }}</md-slide-toggle>
+  <mat-slide-toggle *ngSwitchCase="'slideToggle'"
+                   [formControlName]="item.name">{{ item.label }}</mat-slide-toggle>
 
 
   <ng-container *ngSwitchCase="'slider'">
     <span>{{item.label}}</span>
-    <md-slider [formControlName]="item.name"
+    <mat-slider [formControlName]="item.name"
                thumbLabel="true"
                [tickInterval]="1"
-               [min]="item.data?.min" [max]="item.data?.max"></md-slider>
+               [min]="item.data?.min" [max]="item.data?.max"></mat-slider>
   </ng-container>
 
 
@@ -21,25 +21,25 @@
 
   <ng-container *ngSwitchCase="'radio'">
     <span>{{item.label}}</span>
-    <md-radio-group *ngSwitchCase="'radio'" [formControlName]="item.name">
-      <md-radio-button *ngFor="let sel of item.data.selections" [value]="sel.value">{{sel.label || sel.value}}</md-radio-button>
-    </md-radio-group>
+    <mat-radio-group *ngSwitchCase="'radio'" [formControlName]="item.name">
+      <mat-radio-button *ngFor="let sel of item.data.selections" [value]="sel.value">{{sel.label || sel.value}}</mat-radio-button>
+    </mat-radio-group>
   </ng-container>
 
 
-  <md-select *ngSwitchCase="'select'"
+  <mat-select *ngSwitchCase="'select'"
              [formControlName]="item.name"
              [placeholder]="item.label">
-    <md-option *ngFor="let sel of item.data.selections" [value]="sel.value">{{sel.label || sel.value}}</md-option>
-  </md-select>
+    <mat-option *ngFor="let sel of item.data.selections" [value]="sel.value">{{sel.label || sel.value}}</mat-option>
+  </mat-select>
 
-  <md-input-container *ngSwitchDefault>
-    <input mdInput
+  <mat-form-field *ngSwitchDefault>
+    <input matInput
            [type]="item.type"
            [formControlName]="item.name"
            [placeholder]="item.label"
            [min]="item.data?.min" [max]="item.data?.max">
-    <md-error *ngIf="tdmForm.hasError('required', item.name)">Required</md-error>
-  </md-input-container>
+    <mat-error *ngIf="tdmForm.hasError('required', item.name)">Required</mat-error>
+  </mat-form-field>
 
 </ng-container>

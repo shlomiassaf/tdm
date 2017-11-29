@@ -1,7 +1,8 @@
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import { Injectable } from '@angular/core';
-import { MdDialog, MdDialogRef, MdDialogConfig, ComponentType } from '@angular/material';
+import { MatDialog, MatDialogRef, MatDialogConfig } from '@angular/material';
+import { ComponentType } from '@angular/cdk/portal';
 
 interface ActiveStream {
   subs: Subscription,
@@ -14,17 +15,20 @@ export interface UiBlockOptions {
   promise?: Promise<any>;
 }
 
-export type UiBlockRef<T> =  MdDialogRef<T> & { blocking: BlockingRef };
-
+export type UiBlockRef<T> =  MatDialogRef<T> & { blocking: BlockingRef };
 
 export class BlockingRef implements UiBlockOptions {
+  block?: boolean;
+  timeout?: number;
+  promise?: Promise<any>;
+
   private closed: boolean;
 
   get isClosed(): boolean {
     return this.closed;
   }
 
-  constructor(private dialogRef: MdDialogRef<any>, private options: UiBlockOptions) {
+  constructor(private dialogRef: MatDialogRef<any>, private options: UiBlockOptions) {
 
     if (this.options.timeout > 0) {
       setTimeout(() => this.onTimeout(), this.options.timeout);
@@ -73,7 +77,7 @@ export class UiBlockService {
   private activeStreams = new Map<Observable<boolean>, ActiveStream>();
   private options: UiBlockOptions = {} as any;
 
-  constructor(protected dialog: MdDialog) {
+  constructor(protected dialog: MatDialog) {
 
   }
 
@@ -93,7 +97,7 @@ export class UiBlockService {
   }
 
   fromObservable<T>(obs$: Observable<boolean> ,component: ComponentType<T>,
-                 config?: MdDialogConfig): void {
+                 config?: MatDialogConfig): void {
     const next = value => {
       if (value && !this.activeStreams.get(obs$).ref ) {
         const ref = this.open(component, config);
@@ -132,7 +136,7 @@ export class UiBlockService {
   }
 
   open<T>(component: ComponentType<T>,
-          config?: MdDialogConfig): UiBlockRef<T> {
+          config?: MatDialogConfig): UiBlockRef<T> {
 
     if (config && !config.hasOwnProperty('disableClose')) {
       config.disableClose = !this.options.block;

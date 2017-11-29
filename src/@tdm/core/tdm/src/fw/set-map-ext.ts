@@ -194,7 +194,6 @@ export class KeySet<K, V> {
    * Set's the Set for a key.
    * @param key
    * @param set An optional set, if not supplied a new Set is created.
-   * @returns {Set<V>}
    */
   set(key: K, set?: Set<V>): Set<V> {
     if (!set) {
@@ -238,7 +237,6 @@ export class KeySet<K, V> {
 
   /**
    * Returns the amount of map entries
-   * @returns {number}
    */
   get size(): number {
     return this.map.size;
@@ -307,7 +305,7 @@ export class SetExt<T> extends Set<T> {
    * Returns all the items that are in this set, but not in the target set.
    * Returns a new SetExt instance.
    * @param set
-   * @returns {any}
+   * @returns
    */
   difference(set: Set<T>): SetExt<T> {
     return SetExt.difference(this, set as any, true);
@@ -317,7 +315,7 @@ export class SetExt<T> extends Set<T> {
    * Returns all the items that were not in this set and the supplied set.
    * Returns a new SetExt instance.
    * @param set
-   * @returns {any}
+   * @returns
    */
   negative(set: Set<T>): SetExt<T> {
     return SetExt.negative(this, set as any, true);
@@ -415,7 +413,7 @@ export class SetExt<T> extends Set<T> {
    * @param source
    * @param target
    * @param initSetExt
-   * @returns {any}
+   * @returns
    */
   static difference<T extends Set<any>>(source: T, target: T, initSetExt?: boolean): T {
     const difference = initSetExt ? new SetExt<any>(source) : new Set<any>(source);
@@ -432,7 +430,7 @@ export class SetExt<T> extends Set<T> {
    * @param source
    * @param target
    * @param initSetExt
-   * @returns {any}
+   * @returns
    */
   static negative<T extends Set<any>>(source: T, target: T, initSetExt?: boolean): T {
     const negative = initSetExt ? new SetExt<any>(source) : new Set<any>(source);
@@ -472,7 +470,7 @@ export class MapExt {
    * @param keySelector A function returning the key to be used in the map
    * @param map The map to set on, optional. If not set a new map is created.
    * @param diffOnly Set only new values, optional. Valid only if a map is supplied.
-   * @returns {Map<K, V>}
+   * @returns
    */
   static fromArray<K, V>(arr: Array<V>, keySelector: (value: V) => K, map?: Map<K, V>, diffOnly?: boolean): Map<K, V> {
     if (!(map instanceof Map)) {

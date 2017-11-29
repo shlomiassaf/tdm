@@ -134,7 +134,7 @@ export class DAO {
    * Returns the DAO of an adapter, attached to a target.
    * @param adapterClass
    * @param target
-   * @returns {any}
+   * @returns
    */
   static of<T, Z, Options>(adapterClass: AdapterStatic<any, Options>, target: Z &  Constructor<T>): TargetDAO<T, Options> {
     const clz = targetStore.getAdapter(adapterClass).DAOClass;

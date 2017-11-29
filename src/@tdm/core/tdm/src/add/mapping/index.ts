@@ -50,7 +50,7 @@ export function initMapping(): void {
    * Deserialize and instance of "DeserializeMapper" into an instance of tge target supplied
    * @param target
    * @param mapper
-   * @returns {any}
+   * @returns
    */
   TargetStore.prototype.deserialize = function deserialize(mapper: DeserializeMapper, instance?: any): any | any[] | undefined {
     if (this.hasTarget(mapper.sourceType)) {

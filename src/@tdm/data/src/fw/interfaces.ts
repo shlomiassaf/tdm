@@ -19,24 +19,15 @@ export interface ExecuteResponse {
   request?: any;
 }
 
-/**
- *
- */
 export interface ActionOptions {
 
 }
 
-/**
- * @public
- */
 export interface AdapterStatic<T extends ActionMetadata, Z extends ActionOptions> {
   new(): Adapter<T, Z>;
   prototype: Adapter<T, Z>;
 }
 
-/**
- * @public
- */
 export interface Adapter<T extends ActionMetadata, Z extends ActionOptions> {
   supports: {
     cancel: boolean;
@@ -53,7 +44,4 @@ export interface Adapter<T extends ActionMetadata, Z extends ActionOptions> {
   cancel(id: any): void;
 }
 
-/**
- * @public
- */
 export type IdentityValueType = string | number;

@@ -3,7 +3,7 @@ import { Component } from "@angular/core";
 @Component({
   selector: 'ui-block',
   template: `
-<md-spinner color="primary"></md-spinner>
+<mat-spinner color="primary"></mat-spinner>
 <span>Please wait...</span>
 `
 })

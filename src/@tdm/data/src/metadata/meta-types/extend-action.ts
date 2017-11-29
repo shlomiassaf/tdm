@@ -1,7 +1,7 @@
 import { MapExt, MetaClass, registerHelpers, DecoratorInfo } from '@tdm/core/tdm';
 import { ActionMetadata, ActionMetadataArgs } from './action';
 
-function extend(from: Map<PropertyKey, ExtendActionMetadata[]>, to: Map<PropertyKey, ExtendActionMetadata[]> | undefined): Map<PropertyKey, ExtendActionMetadata[]> {
+export function extend(from: Map<PropertyKey, ExtendActionMetadata[]>, to: Map<PropertyKey, ExtendActionMetadata[]> | undefined): Map<PropertyKey, ExtendActionMetadata[]> {
   if (!to) {
     to = new Map<PropertyKey, ExtendActionMetadata[]>();
   }

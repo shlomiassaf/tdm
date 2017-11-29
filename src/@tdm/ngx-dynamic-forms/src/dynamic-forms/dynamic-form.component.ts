@@ -292,7 +292,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   /**
    * Returns the form control for a given key
    * @param key
-   * @returns {AbstractControl|null}
+   * @returns
    */
   getControl(key: keyof T): AbstractControl | null {
     return this.tdmForm.get(key);

@@ -29,7 +29,7 @@ import {
  *
  * @param target
  * @param adapterClass
- * @returns {ActionMetadata[]}
+ * @returns
  */
 function getActions(target: Constructor<any>, adapterClass: AdapterStatic<any, any>): ActionMetadata[] {
   const chain = getProtoChain(target);

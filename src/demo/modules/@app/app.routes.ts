@@ -7,10 +7,10 @@ import { DataResolver } from './app.resolver';
 
 export const ROUTES: Routes = [
   { path: '',      component: HomeComponent },
-  { path: 'playground', loadChildren: '@playground#PlaygroundModule?loader=sync' },
+  { path: 'playground', loadChildren: '@playground#PlaygroundModule' },
   { path: 'netflix', loadChildren: '@netflix#NetflixModule' },
-  { path: 'vehicles', loadChildren: '@vehicle#VehicleModule?loader=sync' },
-  { path: 'npms', loadChildren: '@npms#NpmsModule' },
+  { path: 'vehicles', loadChildren: '@vehicle#VehicleModule' },
+  // { path: 'npms', loadChildren: '@npms#NpmsModule' },
   { path: 'forms', loadChildren: '@forms#FormsDemoModule' },
   { path: '**',    component: NoContentComponent },
 ];
