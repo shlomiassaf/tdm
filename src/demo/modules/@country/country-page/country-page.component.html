@@ -1,0 +1,69 @@
+<div>
+  <form [formGroup]="form" (ngSubmit)="search()">
+    <div fxLayout="row" fxLayout.sm="column-reverse" fxLayout.xs="column-reverse">
+      <div fxFlex="2 2 auto" fxLayout="row">
+        <mat-form-field fxFlex="auto" >
+          <input matInput formControlName="searchValue" type='text' placeholder="Search... (e.g. 'united states')">
+        </mat-form-field>
+        <div style="margin: 0 5px" fxFlex="0 0 auto" fxFlexAlign="center">
+          <button mat-mini-fab [disabled]="!form.get('searchValue').value">
+            <mat-icon class="mat-24">search</mat-icon>
+          </button>
+        </div>
+      </div>
+      <div fxFlex="1 1 auto" fxLayout="row" fxLayoutAlign="center center">
+        <mat-radio-group fxFlex name="searchType" formControlName="searchType">
+          <mat-radio-button value="name">Country Name</mat-radio-button>
+          <mat-radio-button value="countryCode">Country Code</mat-radio-button>
+        </mat-radio-group>
+      </div>
+    </div>
+  </form>
+
+  <div>
+    <mat-table #table [dataSource]="dataSource">
+
+      <ng-container matColumnDef="flag">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <img [src]="element.flag" height="36" />
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="name">
+        <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.name}} </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="nativeName">
+        <mat-header-cell *matHeaderCellDef> Native Name </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.nativeName}} </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="region">
+        <mat-header-cell *matHeaderCellDef> Region </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.region}} </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="map">
+        <mat-header-cell *matHeaderCellDef> Map </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <a *ngIf="element.latlng"
+             target="_blank"
+             mat-icon-button
+             (click)="$event.stopPropagation()"
+             [href]="'https://www.google.com/maps/@?api=1&map_action=map&center=' + element.latlng[0] + ',' + element.latlng[1] + '&zoom=7'">
+            <mat-icon>place</mat-icon>
+          </a>
+        </mat-cell>
+      </ng-container>
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"
+               class="element-row"
+               matRipple
+               [cdkDetailRow]="row" [cdkDetailRowTpl]="tpl"></mat-row>    </mat-table>
+  </div>
+</div>
+
+<ng-template #tpl let-element>
+  <div [@detailExpand] class="mat-row" style="overflow: hidden">
+    <pre>{{element | json}}</pre>
+  </div>
+</ng-template>

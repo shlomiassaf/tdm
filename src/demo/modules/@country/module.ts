@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { SharedModule } from '@shared';
-import { NetflixPageComponent } from './netflix-page';
+import { CountryPageComponent } from './country-page';
 import { ROUTES } from './routes';
 
 /**
@@ -13,7 +13,7 @@ import { ROUTES } from './routes';
  */
 @NgModule({
   declarations: [
-    NetflixPageComponent
+    CountryPageComponent
   ],
   imports: [
     SharedModule,
@@ -21,5 +21,5 @@ import { ROUTES } from './routes';
     RouterModule.forChild(ROUTES)
   ],
 })
-export class NetflixModule {
+export class CountryModule {
 }

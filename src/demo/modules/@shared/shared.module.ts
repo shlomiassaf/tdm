@@ -3,12 +3,13 @@ import { NgModule, ModuleWithProviders } from '@angular/core';
 import { MODULES, ROOT_MODULES } from './modules';
 import { UiBlockService } from './services/ui-block';
 import { UiBlock } from './components/ui-block.component';
+import { CdkDetailRowDirective } from './cdk-detail-row.directive';
 
 @NgModule({
-  declarations: [ UiBlock ],
+  declarations: [ UiBlock, CdkDetailRowDirective ],
   imports: MODULES,
   entryComponents: [ UiBlock ],
-  exports: [ UiBlock ]
+  exports: [ UiBlock, CdkDetailRowDirective ]
 })
 export class DeclarationSharedModule {
 }

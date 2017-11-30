@@ -18,6 +18,7 @@ export class FormsDemoPageComponent {
   hotBind: boolean;
 
   postColumns = [
+    '$$EDIT',
     'id',
     'title',
     'tldr',
@@ -34,8 +35,8 @@ export class FormsDemoPageComponent {
   posts: TDMCollection<Post> = posts;
   users: TDMCollection<User> = users;
 
-  postsDatatSource = new DataSourceContainer(this.posts.$rc.self$);
-  usersDatatSource = new DataSourceContainer(this.users.$rc.self$);
+  postsDatatSource = new DataSourceContainer(this.posts);
+  usersDatatSource = new DataSourceContainer(this.users);
 
   controlState = { disabled: ['id'], hidden: ['title'] };
 
@@ -44,13 +45,17 @@ export class FormsDemoPageComponent {
 
   addUser() {
     const newUser = new User();
-    this.dialog.open(DynamicFormContainerComponent, { data: { instance: newUser } });
+    this.dialog.open(DynamicFormContainerComponent, { data: { instance: newUser } })
+      .afterClosed().subscribe( value => {
+        if (value === true) {
+          this.usersDatatSource.updateSource([newUser], true);
+        }
+    } );
   }
 
-  addPost() {
-    this.dialog.open(this.postTemplate)
-      .afterClosed().subscribe( value => {
-    });
+  onEdit(element: any): void {
+    this.dialog.open(this.postTemplate, { data: element })
+      .afterClosed().subscribe( value => {  });
   }
 
   handleControlState(stateKey: 'disabled' | 'hidden', name: string): void {
@@ -65,16 +70,17 @@ export class FormsDemoPageComponent {
   }
 
   beforeRenderPost(event: BeforeRenderEventHandler) {
-    let resolve, p = new Promise<void>( res => { resolve = res });
-
-    // faking async server call
-    // event.async(p);
-
     if (event.instruction.name === 'author') {
+      let resolve, p = new Promise<void>( res => { resolve = res });
+
+      // faking async server call
+      event.async(p);
+
       event.instruction.type = 'select';
       event.instruction.data = { selections: this.users.map( u => ({ value: u, label: u.name}) ) };
+
+      setTimeout(() => resolve(), 1000);
     }
 
-    setTimeout(() => resolve(), 1000);
   }
 }

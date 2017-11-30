@@ -8,9 +8,9 @@ import { DataResolver } from './app.resolver';
 export const ROUTES: Routes = [
   { path: '',      component: HomeComponent },
   { path: 'playground', loadChildren: '@playground#PlaygroundModule' },
-  { path: 'netflix', loadChildren: '@netflix#NetflixModule' },
+  { path: 'country', loadChildren: '@country#CountryModule' },
   { path: 'vehicles', loadChildren: '@vehicle#VehicleModule' },
-  // { path: 'npms', loadChildren: '@npms#NpmsModule' },
+  { path: 'npms', loadChildren: '@npms#NpmsModule' },
   { path: 'forms', loadChildren: '@forms#FormsDemoModule' },
   { path: '**',    component: NoContentComponent },
 ];

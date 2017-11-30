@@ -20,8 +20,19 @@
       <mat-row *matRowDef="let row; columns: userColumns;"></mat-row>
     </mat-table>
 
-    <button mat-mini-fab (click)="addPost()"><mat-icon>add</mat-icon></button>
+    <br>
+    <br>
+    
     <mat-table #table [dataSource]="postsDatatSource">
+      <ng-container matColumnDef="$$EDIT">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <button mat-icon-button (click)="onEdit(element)">
+            <mat-icon aria-label="Edit">edit</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
+
       <ng-container matColumnDef="id">
         <mat-header-cell *matHeaderCellDef> ID </mat-header-cell>
         <mat-cell *matCellDef="let element"> {{element.id}} </mat-cell>
@@ -49,13 +60,14 @@
   </div>
 </div>
 
-<ng-template #postTemplate>
+<ng-template #postTemplate let-element>
   <dynamic-form #dyn
-                [model]="posts[0]"
+                [model]="element"
                 [controlClass]="'dynamic-control-container'"
                 [hotBind]="hotBind"
                 (beforeRender)="beforeRenderPost($event)"
-                [disabledState]="controlState.disabled" [hiddenState]="controlState.hidden">
+                [disabledState]="controlState.disabled"
+                [hiddenState]="controlState.hidden">
     <div *dynamicFormOverride="'author'; let d" [formGroup]="d.formGroup">
       <mat-select formControlName="author" [placeholder]="d.meta.label">
         <mat-option *ngFor="let user of users" [value]="user">{{user.name}}</mat-option>

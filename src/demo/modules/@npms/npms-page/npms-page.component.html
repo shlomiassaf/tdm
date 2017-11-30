@@ -15,51 +15,56 @@
   </form>
 
   <div>
-    <ngx-datatable #table
-      class="material"
-      [rows]="obs$ | async"
-      [loadingIndicator]="(packages || package)?.$rc.busy$ | async"
-      [columns]="columns"
-      [columnMode]="'force'"
-      [headerHeight]="50"
-      [footerHeight]="50"
-      [rowHeight]="'auto'">
+    <mat-table #table [dataSource]="dataSource">
 
-      <ngx-datatable-row-detail rowHeight="400px" #myDetailRow>
-        <template let-row="row" let-metadata="row.collected.metadata" let-github="row.collected.github" let-npm="row.collected.npm" let-score="row.score" ngx-datatable-row-detail-template>
-          <mat-tab-group dynamicHeight>
-            <mat-tab>
-              <template mat-tab-label>Metadata</template>
-              <div class="tab-content">
-                <pre>{{ metadata | json }}</pre>
-              </div>
-            </mat-tab>
-            <mat-tab>
-              <template mat-tab-label>Github</template>
-              <div class="tab-content">
-                <pre>{{ github | json }}</pre>
-              </div>
-            </mat-tab>
-            <mat-tab>
-              <template mat-tab-label>Npm</template>
-              <div class="tab-content">
-                <pre>{{ npm | json }}</pre>
-              </div>
-            </mat-tab>
-            <mat-tab>
-              <template mat-tab-label>Score</template>
-              <div class="tab-content">
-                <pre>{{ score | json }}</pre>
-              </div>
-            </mat-tab>
-          </mat-tab-group>
-        </template>
-      </ngx-datatable-row-detail>
+      <ng-container matColumnDef="name">
+        <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
+        <mat-cell *matCellDef="let element">{{element.name}}</mat-cell>
+      </ng-container>
 
-    </ngx-datatable>
+      <ng-container matColumnDef="analyzedAt">
+        <mat-header-cell *matHeaderCellDef> Analyzed At </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.analyzedAt}} </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: columns;"
+               class="element-row"
+               matRipple
+               [cdkDetailRow]="row" [cdkDetailRowTpl]="tpl"></mat-row>
+    </mat-table>
+
   </div>
 
-  <template #rowExpendTpl let-row="row" let-value="value" let-column="column">
-    <a href="javascript:void(0)" (click)="toggleExpandRow(row)">{{value}}</a>
-  </template>
 </div>
+
+<ng-template #tpl let-element>
+  <div [@detailExpand] class="mat-row" style="overflow: hidden">
+    <mat-tab-group>
+      <mat-tab>
+        <ng-template mat-tab-label>Metadata</ng-template>
+        <div class="tab-content">
+          <pre>{{ element.collected.metadata | json }}</pre>
+        </div>
+      </mat-tab>
+      <mat-tab>
+        <ng-template mat-tab-label>Github</ng-template>
+        <div class="tab-content">
+          <pre>{{ element.collected.github | json }}</pre>
+        </div>
+      </mat-tab>
+      <mat-tab>
+        <ng-template mat-tab-label>Npm</ng-template>
+        <div class="tab-content">
+          <pre>{{ element.collected.npm | json }}</pre>
+        </div>
+      </mat-tab>
+      <mat-tab>
+        <ng-template mat-tab-label>Score</ng-template>
+        <div class="tab-content">
+          <pre>{{ element.score | json }}</pre>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</ng-template>

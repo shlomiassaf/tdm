@@ -1,1 +1,0 @@
-export { NetflixModule } from './module';

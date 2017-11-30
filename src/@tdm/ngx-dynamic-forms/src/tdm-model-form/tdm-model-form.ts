@@ -28,7 +28,6 @@ export class TDMModelForm<T = any> {
   get ready(): boolean {
     return this._ready;
   }
-
   /**
    * The render instructions for the TDMModel type of this instance.
    * @returns

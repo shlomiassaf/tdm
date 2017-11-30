@@ -1,28 +1,37 @@
-import { Observable } from "rxjs/Observable";
-import { Component, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
-import { TDMCollection } from "@tdm/data";
+import { animate, state, style, transition, trigger } from '@angular/animations';
 
-import { UiBlockService, UiBlock } from '@shared';
+import { TDMCollection } from '@tdm/data';
+
+import { UiBlockService, UiBlock, DataSourceContainer } from '@shared';
 import { Package } from '../models';
 
 @Component({
   selector: 'npms-page',
   styleUrls: [ './npms-page.component.css' ],
   templateUrl: './npms-page.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('detailExpand', [
+      state('void', style({height: '0px', minHeight: '0', visibility: 'hidden'})),
+      state('*', style({height: '*', visibility: 'visible'})),
+      transition('void <=> *', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)'))
+    ]),
+  ],
 })
 export class NpmsPageComponent {
   package: Package;
   packages: TDMCollection<Package>;
+  dataSource = new DataSourceContainer([]);
 
-  columns: any;
+  columns = [
+    'name',
+    'analyzedAt'
+  ];
 
   form: FormGroup;
-
-  @ViewChild('table') table: any;
-  @ViewChild('rowExpendTpl') rowExpendTpl: any;
-
 
   get obs$(): Observable<any> {
     if (this.packages) {
@@ -37,17 +46,6 @@ export class NpmsPageComponent {
     });
   }
 
-  ngOnInit() {
-    this.columns = [
-      { prop: 'name', cellTemplate: this.rowExpendTpl },
-      { prop: 'analyzedAt' }
-    ];
-  }
-
-  toggleExpandRow(row: any) {
-    this.table.rowDetail.toggleExpandRow(row);
-  }
-
   search(): void {
     const value = this.form.get('searchValue').value.split(', ').map( v => v.trim()).filter( v => !!v);
 
@@ -59,10 +57,15 @@ export class NpmsPageComponent {
       this.packages = undefined;
       this.package = <any>Package.findById(value[0]);
       this.uiBlock.closeWithPromise(this.package.$rc.next()).open(UiBlock);
-      this.package.$rc.next().then( self => self.name = value[0] );
+      this.package.$rc.next().then( self => {
+        self.name = value[0];
+        this.dataSource.updateSource(this.obs$);
+      });
     } else {
       this.packages = <any>Package.query(value);
+      this.packages.$rc.next().then( () => this.dataSource.updateSource(this.obs$) );
       this.uiBlock.closeWithPromise(this.packages.$rc.next()).open(UiBlock);
     }
   }
+
 }
