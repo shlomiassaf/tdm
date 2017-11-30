@@ -29,7 +29,8 @@
     "node_modules",
     "dist",
     "dist_package",
-    "src/demo"
+    "src/demo",
+    "src/@tdm/ngx-http"
   ],
   "awesomeTypescriptLoaderOptions": {
     "forkChecker": true,

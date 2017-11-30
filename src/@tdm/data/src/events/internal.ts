@@ -20,8 +20,7 @@ export class CancellationTokenResourceEvent extends ResourceEvent {
 export interface ExecuteInitResourceEventArgs {
   ac: ActionController;
   action: ActionMetadata;
-  async: boolean;
-  args: any[]
+  args: any[];
 }
 
 /**

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { DAO } from '@tdm/data';
-import { NgDAO } from '@tdm/ngx-http';
+import { NgDAO } from '@tdm/ngx-http-client';
 
 import { UserBaseClass, UserConst, UsersInterface, UserDAO } from '../models';
 

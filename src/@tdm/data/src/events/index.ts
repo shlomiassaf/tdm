@@ -12,8 +12,12 @@ export let events$: ResourceEventEmitter;
 
 dispatcher = events$ = new SimpleEvents();
 
-export function dispatchEvent(event: ResourceEvent): void {
-  dispatcher.next(event);
+export function dispatchEvent(event: ResourceEvent, async?: number): void {
+  if (async >= 0) {
+    setTimeout( () => dispatcher.next(event), async);
+  } else {
+    dispatcher.next(event);
+  }
 }
 
 /* An example of an rxjs based event system  */

@@ -1,0 +1,55 @@
+{
+  "setupTestFrameworkScriptFile": "<rootDir>/config/setup-jest.ts",
+  "globals": {
+    "ts-jest": {
+      "tsConfigFile": "tsconfig.spec.json"
+    },
+    "__TRANSFORM_HTML__": true
+  },
+  "transform": {
+    "^.+\\.(ts|js|html)$": "<rootDir>/node_modules/jest-preset-angular/preprocessor.js"
+  },
+  "testRegex": "src\\/(?!demo).+\\/.+\\.spec\\.ts$",
+  "moduleFileExtensions": [
+    "ts",
+    "js",
+    "html",
+    "json"
+  ],
+  "mapCoverage": true,
+  "moduleDirectories": [
+    "node_modules",
+    "src"
+  ],
+  "testPathIgnorePatterns": [
+    "/tdm/ngx-http/",
+    "/node_modules/"
+  ],
+  "transformIgnorePatterns": [
+    "node_modules/(?!@ngrx)"
+  ],
+  "moduleNameMapper": {
+    "^@tdm/tixin$": "<rootDir>/src/@tdm/tixin/src/tixin.ts",
+    "^@tdm/tixin/src/(.*)": "<rootDir>/src/@tdm/tixin/src/$1",
+    "^@tdm/core$": "<rootDir>/src/@tdm/core/src/core.ts",
+    "^@tdm/core/src/(.*)": "<rootDir>/src/@tdm/core/src/$1",
+    "^@tdm/core/tdm$": "<rootDir>/src/@tdm/core/tdm/src/tdm.ts",
+    "^@tdm/core/tdm/src/(.*)": "<rootDir>/src/@tdm/core/tdm/src/$1",
+    "^@tdm/core/testing$": "<rootDir>/src/@tdm/core/testing/src/index.ts",
+    "^@tdm/core/testing/src/(.*)": "<rootDir>/src/@tdm/core/testing/src/$1",
+    "^@tdm/data$": "<rootDir>/src/@tdm/data/src/data.ts",
+    "^@tdm/data/src/(.*)": "<rootDir>/src/@tdm/data/src/$1",
+    "^@tdm/data/testing$": "<rootDir>/src/@tdm/data/testing/src/index.ts",
+    "^@tdm/data/testing/src/(.*)": "<rootDir>/src/@tdm/data/testing/src/$1",
+    "^@tdm/data/plugin/active-record$": "<rootDir>/src/@tdm/data/plugin/active-record/src/index.ts",
+    "^@tdm/data/plugin/active-record/src/(.*)": "<rootDir>/src/@tdm/data/plugin/active-record/src/$1",
+    "^@tdm/data/plugin/rx-resource-control$": "<rootDir>/src/@tdm/data/plugin/rx-resource-control/src/index.ts",
+    "^@tdm/data/plugin/rx-resource-control/src/(.*)": "<rootDir>/src/@tdm/data/plugin/rx-resource-control/src/$1",
+    "^@tdm/ngx-http-client$": "<rootDir>/src/@tdm/ngx-http-client/src/index.ts",
+    "^@tdm/ngx-http-client/src/(.*)": "<rootDir>/src/@tdm/ngx-http-client/src/$1",
+    "^@tdm/ngx-dynamic-forms$": "<rootDir>/src/@tdm/ngx-dynamic-forms/src/index.ts",
+    "^@tdm/ngx-dynamic-forms/src/(.*)": "<rootDir>/src/@tdm/ngx-dynamic-forms/src/$1",
+    "^@tdm/json-api-mapper$": "<rootDir>/src/@tdm/json-api-mapper/src/index.ts",
+    "^@tdm/json-api-mapper/src/(.*)": "<rootDir>/src/@tdm/json-api-mapper/src/$1"
+  }
+}

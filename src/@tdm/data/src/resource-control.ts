@@ -98,7 +98,7 @@ export class ResourceControl<T> implements RecordControlState<T> {
     if (TDMCollection.instanceOf(this.parent)) {
       this.parent.splice(0, this.parent.length);
     }
-    last.ac.createExecFactory(last.action)(this.parent, last.async, ...last.args);
+    last.ac.createExecFactory(last.action)(this.parent, ...last.args);
   }
 
   /**

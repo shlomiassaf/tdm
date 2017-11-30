@@ -1,4 +1,4 @@
-import { ARMixin } from '@tdm/ngx-http';
+import { ARMixin } from '@tdm/ngx-http-client';
 import * as models from './models';
 
 
@@ -7,4 +7,3 @@ export type Make = ARMixin<models.Make>;
 
 export const Model = ARMixin(models.Model);
 export type Model = ARMixin<models.Model>;
-

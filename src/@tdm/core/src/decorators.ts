@@ -61,6 +61,6 @@ export const Type = MetaClass.decorator(TypeMetadata);
  */
 export function Identity(): Function {
   return (target: Object, key: PropertyKey) => {
-    targetStore.getTargetMeta(<any>target.constructor).model().identity = key;
-  }
+    targetStore.getTargetMeta(<any> target.constructor).model().identity = key;
+  };
 }

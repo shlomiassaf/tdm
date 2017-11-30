@@ -129,7 +129,7 @@ export class TargetStore {
            MapExt.asKeyValArray(singleTypes)
              .forEach( ([type, instance]) => {
                // type is a class, using <any> since for TS its a PropertyKey
-               const metaClass = MetaClass.get(<any>type);
+               const metaClass = MetaClass.get(<any> type);
                if (metaClass.extendSingle) {
                  const toInstance = toSingleTypes.get(<any>type);
                  const value = metaClass.extendSingle(instance, toInstance, {from, to});

@@ -63,7 +63,6 @@ export class AdapterMetadata {
 
   private actions = new Map<any, ActionMetadata[]>();
 
-
   addAction(meta: ActionMetadata, target: Constructor<any>): void;
   addAction(meta: MetaClassInstanceDetails<ActionMetadataArgs, ActionMetadata>): void;
   addAction(meta: ActionMetadata | MetaClassInstanceDetails<ActionMetadataArgs, ActionMetadata>, target?: Constructor<any>): void {
@@ -99,7 +98,7 @@ export class AdapterMetadata {
 
       daoProto[action.name] = function (...args: any[]) {
         return targetStore.getAC(this[DAOTarget], this[DAOAdapter])
-          .createExecFactory(action, 'promise')(undefined, true, ...args);
+          .createExecFactory(action, 'promise')(undefined, ...args);
       };
 
       if (action.alias) {

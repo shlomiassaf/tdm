@@ -1,5 +1,5 @@
 import { Prop, Exclude, ExtendAction, ExecuteContext } from '@tdm/data';
-import { HttpResource, ARMixin, HttpActionOptions, UrlParam } from '@tdm/ngx-http';
+import { HttpResource, ARMixin, HttpActionOptions, UrlParam } from '@tdm/ngx-http-client';
 
 import { vehicleMapper } from '../mapper';
 

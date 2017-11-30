@@ -91,7 +91,6 @@ TargetStore.prototype.getIdentityKey = function getIdentityKey(this: TargetStore
         return identity;
       }
 
-
       const propMeta = meta.getMetaFor(PropMetadata, identity);
 
       // apply naming strategy when DONT HAVE ALIAS!

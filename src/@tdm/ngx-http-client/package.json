@@ -1,0 +1,21 @@
+{
+  "version": "1.0.1-alpha.9",
+  "description": "Angular http-client adapter for typed data models.",
+  "keywords": [
+    "@tdm",
+    "adapter",
+    "angular",
+    "http"
+  ],
+  "peerDependencies": {
+    "rxjs": "^5.0.1",
+    "@angular/core": "^5.0.0",
+    "@angular/common": "^5.0.0",
+    "@tdm/tixin": "*",
+    "@tdm/core": "*",
+    "@tdm/data": "*"
+  },
+  "devDependencies": {
+    "path-to-regexp": "^1.7.0"
+  }
+}

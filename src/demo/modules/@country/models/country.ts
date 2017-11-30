@@ -1,12 +1,12 @@
 import { camelCase, snakeCase } from 'voca';
 import { ExtendAction, ExecuteContext, Identity, TDMCollection } from '@tdm/data';
-import { ARMixin, HttpResource, UrlParam, HttpActionOptions, HttpAction, HttpActionMethodType } from '@tdm/ngx-http';
+import { ARMixin, HttpResource, UrlParam, HttpActionOptions, HttpAction, HttpActionMethodType } from '@tdm/ngx-http-client';
 
 export function toCamelCase(propertyName: string) { return camelCase(propertyName) }
 export function toSnakeCase(propertyName: string) { return snakeCase(propertyName) }
 
 // https://restcountries.eu/#api-endpoints-name
-
+debugger;
 /**
  * This resource wraps a single endpoint REST API which means it is not resource oriented.
  * The API uses query parameters to identify the request.

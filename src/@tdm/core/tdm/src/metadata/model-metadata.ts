@@ -89,14 +89,9 @@ export interface ModelMetadataArgs {
    * export type UserConst = ARMixin<UserConst_>;
    * ```
    *
+   * Manually processing is required to finish the model build.
    * @optional
    * @default false
-   */
-
-  /**
-   * When true will skip processing the model.
-   *
-   * Manually processing is required to finish the model build.
    */
   skip?: true;
 }

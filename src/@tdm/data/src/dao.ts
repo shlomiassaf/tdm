@@ -127,7 +127,7 @@ export class DAO {
     const action = targetStore.getAdapter(meta.activeAdapter).getDAOAction(cmd);
 
     return targetStore.getAC(target, meta.activeAdapter)
-      .createExecFactory(action, 'promise')(undefined, true, ...args);
+      .createExecFactory(action, 'promise')(undefined, ...args);
   }
 
   /**

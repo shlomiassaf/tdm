@@ -15,3 +15,11 @@ Object.defineProperty(window, 'sessionStorage', {value: mock()});
 Object.defineProperty(window, 'getComputedStyle', {
   value: () => ['-webkit-appearance']
 });
+
+import { plugins } from '@tdm/data';
+import '@tdm/data/plugin/active-record';
+import '@tdm/data/plugin/rx-resource-control';
+import '@tdm/data/plugin/active-record/src/$rc';
+
+plugins.ActiveRecord.init({ resourceControl: '$rc' });
+plugins.RxResourceControl.init();

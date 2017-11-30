@@ -1,9 +1,13 @@
 import { TargetMetadata } from '../../metadata';
 import { ModelMetadata, MODEL_PH } from './model';
 
-
 declare module '@tdm/core/tdm/src/metadata/target-metadata' {
   interface TargetMetadata<T = any, Z = any> {
+    /**
+     * Indicates if the model returned from model() is a placeholder or a {@link ModelMetadata} instance.
+     */
+    hasModel: boolean;
+
     /**
      * Returns a placeholder or the {@link ModelMetadata} instance (or a derived class instance) for the target.
      *
@@ -13,11 +17,6 @@ declare module '@tdm/core/tdm/src/metadata/target-metadata' {
      * Use the `hasModel` property to check if it is a plain object or a {@link ModelMetadata} instance
      */
     model<T extends ModelMetadata>(): T | undefined;
-
-    /**
-     * Indicates if the model returned from model() is a placeholder or a {@link ModelMetadata} instance.
-     */
-    hasModel: boolean;
   }
 }
 
