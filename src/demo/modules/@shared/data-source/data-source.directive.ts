@@ -9,7 +9,6 @@ import { DataSourceContainer } from './data-source-container';
 })
 export class DataSourceDirective<T> {
 
-
   get dataSource(): DataSourceContainer<T> { return this._dataSource; }
   @Input() set dataSource(value: DataSourceContainer<T>) {
     this._dataSource = value;

@@ -17,8 +17,8 @@ declare module '@tdm/core/tdm/src/model/tdm-model' {
   }
 }
 
-
-export interface StatefulActiveRecordCollection<T> extends TDMCollection<T>, TDMModel<StatefulActiveRecordCollection<T>> { }
+export interface StatefulActiveRecordCollection<T>
+  extends TDMCollection<T>, TDMModel<StatefulActiveRecordCollection<T>> { }
 
 declare module '@tdm/core/tdm/src/model/tdm-collection' {
   interface TDMCollection<T> {

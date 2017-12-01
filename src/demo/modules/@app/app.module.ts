@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule, ApplicationRef } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule,  PreloadAllModules } from '@angular/router';
 
 import { SharedModule } from '@shared';

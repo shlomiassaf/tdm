@@ -63,7 +63,6 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   /**
    * The [[FormGroup]] instance used by [[TDMModelForm]].
    * Available after [[TDMModelForm]] instance is created.
-   * @returns {}
    */
   get form(): FormGroup | undefined {
     return this.tdmForm && this.tdmForm.form;

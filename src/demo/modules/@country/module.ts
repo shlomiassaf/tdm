@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-
 import { SharedModule } from '@shared';
+
 import { CountryPageComponent } from './country-page';
 import { ROUTES } from './routes';
 
@@ -17,7 +17,6 @@ import { ROUTES } from './routes';
   ],
   imports: [
     SharedModule,
-
     RouterModule.forChild(ROUTES)
   ],
 })

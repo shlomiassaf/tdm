@@ -1,5 +1,5 @@
 {
-  "version": "1.0.1-alpha.6",
+  "version": "1.0.2-alpha.0",
   "description": "TypeScript mixins library with support for staic & instance member relfection",
   "keywords": [
     "@tdm",
@@ -8,5 +8,9 @@
   ],
   "libConfig": {
     "entry": "tixin"
+  },
+  "peerDependencies": {
+    "typescript": "^2.4.2",
+    "tslib": "^1.6.0"
   }
 }

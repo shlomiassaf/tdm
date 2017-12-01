@@ -6,6 +6,7 @@ import { NgcWebpackPlugin } from 'ngc-webpack';
 
 import { root, FS_REF, jsonPatch, cleanOnNext } from './fs';
 import { tsConfigPaths, tsConfigPathsForSimulation } from './config';
+import { libConfig } from './state';
 import { webpackAlias } from './util';
 
 function findPluginIndex<T>(plugins: Plugin[], type: new(...args: any[]) => T): number {
@@ -46,8 +47,6 @@ export function applySimulation(webpackConfig: Configuration, isProd: boolean): 
    */
   const paths = tsConfigPathsForSimulation();
 
-
-
   const ngcWebpackPluginIdx = findPluginIndex(webpackConfig.plugins, NgcWebpackPlugin);
   const ngcWebpackPlugin: NgcWebpackPlugin = <any> webpackConfig.plugins[ngcWebpackPluginIdx];
   const { tsConfigPath } = ngcWebpackPlugin.ngcWebpackPluginOptions;
@@ -74,6 +73,8 @@ export function applySimulation(webpackConfig: Configuration, isProd: boolean): 
     .update( tsConfig => {
       tsConfig.extends = `./${Path.basename(tsConfigPath, '.json')}`;
       tsConfig.compilerOptions.paths = paths;
+      const scope = libConfig.scope ? `${libConfig.scope}/` : '';
+      tsConfig['exclude'].push(...libConfig.packages.map( p => 'src/' + scope + p ));
     })
     .save(simulatorTsConfigPath);
 

@@ -1,7 +1,6 @@
 import 'rxjs';
 
 import { Identity } from '@tdm/core';
-import { HttpParams } from '@angular/common/http';
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 

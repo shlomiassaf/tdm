@@ -1,6 +1,8 @@
 const helpers = require('./helpers');
 const buildUtils = require('./build-utils');
 
+require('ngc-webpack/src/patch-angular-compiler-cli');
+
 /**
  * Used to merge webpack configs
 */

@@ -6,6 +6,9 @@ import {
   FormPropMetadataArgs // leave for angular AOT compiler.
 } from './metadata/index';
 
+/** @internal */
+export let formModel: any = {};
+formModel = MetaClass.decorator(FormModelMetadata, true);
 
 /**
  * @propertyDecorator static
@@ -14,8 +17,6 @@ import {
 export function FormModel(metaArgs?: FormModelMetadataArgs): (target: Function) => any {
   return formModel(metaArgs) as any;
 }
-export const formModel = MetaClass.decorator(FormModelMetadata, true);
-// Split due to angular AOT
 
 /**
  * @propertyDecorator instance

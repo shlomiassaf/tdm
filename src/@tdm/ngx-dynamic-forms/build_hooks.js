@@ -9,9 +9,7 @@ const globals = {
   'rxjs/operator/toPromise': 'Rx.Observable.prototype',
 };
 
-module.exports.tsconfig = function tsconfig(config) {
-  config.angularCompilerOptions.skipTemplateCodegen = false;
-}
+// module.exports.tsconfig = function tsconfig(config) { }
 
 
 module.exports.rollupFESM = function(config) {

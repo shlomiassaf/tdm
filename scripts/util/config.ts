@@ -230,6 +230,8 @@ export function tsConfigPathsForSimulation(...packages: string[]): { [id: string
       });
     }
 
+    curr[`${scope + pkg}/src/*`] = [`${scope + pkg}/src/*`];  // for internal use
+
     return curr;
   }, {});
 }
