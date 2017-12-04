@@ -65,7 +65,7 @@ export class TDMCollection<T /* extends ActiveRecord<any, any> */> extends Array
   /**
    * Creates a new TDMCollection class mixed in with the proto object.
    * @param proto An object literal used as a mixin to the TDMCollection prototype.
-   * @returns {RuntimeTDMCollection}
+   * @returns
    */
   static factory<T>(proto: any): typeof TDMCollection & Constructor<TDMCollection<T>> {
     const clz = class RuntimeTDMCollection<T> extends TDMCollection<T> {

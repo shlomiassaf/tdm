@@ -35,7 +35,7 @@ export class TargetMetadata<T = any, Z = any> {
    *
    * This is a safe metadata collection extractor.
    * @param type
-   * @returns {Array<T>|Array}
+   * @returns
    */
   getValues<T, Z>(type: T & Constructor<Z>): Array<Z> {
     const values = this.config.get(type);
@@ -91,7 +91,7 @@ export class TargetMetadata<T = any, Z = any> {
 
   /**
    * Create a new instance of the TDMCollection for this type.
-   * @returns {TDMCollection}
+   * @returns
    */
   createCollection(): TDMCollection<T> {
     return new TDMCollection<T>();

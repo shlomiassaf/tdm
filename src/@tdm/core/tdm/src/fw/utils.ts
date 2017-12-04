@@ -36,7 +36,7 @@ export function isPrimitive(obj: any): boolean {
 /**
  * See https://github.com/angular/angular/blob/2.0.0-rc.4/modules/%40angular/facade/src/lang.ts#L149
  * @param token
- * @returns {any}
+ * @returns
  */
 export function stringify(token: any): string {
   if (typeof token === 'string') {
@@ -100,7 +100,6 @@ export const array = function() {
  * Returns the chain of prototypes up to Object (not included)
  * @pluginApi
  * @param cls
- * @returns {Array}
  */
 export function getProtoChain(cls: Constructor<any>): Constructor<any>[] {
   const classes = [];

@@ -33,7 +33,7 @@ export function resource<TMetaArgs extends ModelMetadataArgs>(
     return (target: any) => {
 
       if (targetStore.getAdapter(adapterClass).resourceMetaClass !== metaClass.target) {
-        throw new Error(`Adapter ${stringify(adapterClass)} resource metadata mismatch`)
+        throw new Error(`Adapter ${stringify(adapterClass)} resource metadata mismatch`);
       }
 
       if (metaArgs.factory) {
@@ -44,6 +44,7 @@ export function resource<TMetaArgs extends ModelMetadataArgs>(
       const TDMModel = TDMModelBase.factory(target);
       TDMModel[ADAPTER_REF] = adapterClass;
 
+      // Creating ModelMetadata instance (or a derived class of ModelMetadata)
       const modelMeta = metaClass.create(metaArgs || {}, target);
       // targetStore.registerTarget(target);
       const meta = targetStore.getTargetMeta(target);

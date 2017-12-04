@@ -34,15 +34,17 @@ targetStore.on
  */
 export const Prop = MetaClass.decorator(PropMetadata, true);
 
+/** @internal */
+export let exclude: any = {};
+exclude = MetaClass.decorator(ExcludeMetadata, true, 'both'); // for Angular AOT
+
 /**
  * @propertyDecorator instance
  * @param def
  */
-
 export function Exclude(metaArgs?: ExcludeMetadataArgs): (target: Object | Function, key?: PropertyKey, desc?: PropertyDescriptor) => any {
   return exclude(metaArgs) as any;
 }
-export const exclude = MetaClass.decorator(ExcludeMetadata, true, 'both'); // for Angular AOT
 
 /**
  * @propertyDecorator instance
@@ -61,6 +63,6 @@ export const Type = MetaClass.decorator(TypeMetadata);
  */
 export function Identity(): Function {
   return (target: Object, key: PropertyKey) => {
-    targetStore.getTargetMeta(<any>target.constructor).model().identity = key;
-  }
+    targetStore.getTargetMeta(<any> target.constructor).model().identity = key;
+  };
 }

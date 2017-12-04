@@ -18,7 +18,7 @@ export class Errors {
     // support for post instantiation mixins on the prototype (plugins) - don't use new.
     Errors.create(this);
   }
-  
+
   decorator(target: any, message: string, propertyName?: PropertyKey): Error {
     const CLS = isFunction(target) ? target : target.constructor;
 
@@ -40,7 +40,7 @@ export class Errors {
       : `Expected an OBJECT but got a COLLECTION [Target: ${stringify(model)}]`
     );
   }
-  
+
   /**
    * @internal
    */
@@ -54,11 +54,10 @@ export class Errors {
       return <any>err;
     }
   }
-  
+
   /**
    * Creates a new TargetStore instance.
    * @param instance optional, used internally
-   * @returns {TargetStore}
    */
   static create(instance?: Errors): Errors {
     const errors: Errors = instance || Object.create(Errors.prototype);

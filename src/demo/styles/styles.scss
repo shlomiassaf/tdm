@@ -13,9 +13,6 @@ $theme: mat-light-theme($primary, $accent);
 
 @include angular-material-theme($theme);
 
-@import '~@swimlane/ngx-datatable/src/themes/material.scss';
-
-
 .main-view {
   margin: 25px;
   padding: 10px;

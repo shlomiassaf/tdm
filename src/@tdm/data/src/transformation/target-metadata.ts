@@ -91,7 +91,8 @@ class CoreTargetMetadata<T = any, Z = any>extends TargetMetadata<T, Z> {
 
   }
 
-  private getProtoChainWithMixins(target: Constructor<any>, adapterClass: AdapterStatic<any, any>): Set<Constructor<any>> {
+  private getProtoChainWithMixins(target: Constructor<any>,
+                                  adapterClass: AdapterStatic<any, any>): Set<Constructor<any>> {
     return getProtoChain(target)
       .reduce((protoSet, proto) => {
         protoSet.add(proto);

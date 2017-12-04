@@ -33,14 +33,16 @@ export interface AdapterMetadataArgs {
 // this workaround prevents the need for an adapter store, the meta is used as the store.
 // to support that we allow setting the metadata args in a later period.
 // the register() method is aware of that and knows how to handle this scenario.
-function factory(this: MetaClassMetadata<AdapterMetadataArgs, AdapterMetadata>,
+/** @internal */
+export function factory(this: MetaClassMetadata<AdapterMetadataArgs, AdapterMetadata>,
                  metaArgs: AdapterMetadataArgs,
                  target: Object,
                  info: DecoratorInfo): MetaClassInstanceDetails<AdapterMetadataArgs, AdapterMetadata> {
   return <any>Object.assign(this.constructor.prototype.factory.call(this, metaArgs, target, info), { metaArgs });
 }
 
-function register(this: MetaClassMetadata<AdapterMetadataArgs, AdapterMetadata>,
+/** @internal */
+export function register(this: MetaClassMetadata<AdapterMetadataArgs, AdapterMetadata>,
                   meta: MetaClassInstanceDetails<AdapterMetadataArgs, AdapterMetadata>): void {
 
   const adapter = targetStore.getAdapter(meta.target);
@@ -60,7 +62,6 @@ export class AdapterMetadata {
   resourceMetaClass?: MetadataClassStatic;
 
   private actions = new Map<any, ActionMetadata[]>();
-
 
   addAction(meta: ActionMetadata, target: Constructor<any>): void;
   addAction(meta: MetaClassInstanceDetails<ActionMetadataArgs, ActionMetadata>): void;
@@ -97,7 +98,7 @@ export class AdapterMetadata {
 
       daoProto[action.name] = function (...args: any[]) {
         return targetStore.getAC(this[DAOTarget], this[DAOAdapter])
-          .createExecFactory(action, 'promise')(undefined, true, ...args);
+          .createExecFactory(action, 'promise')(undefined, ...args);
       };
 
       if (action.alias) {

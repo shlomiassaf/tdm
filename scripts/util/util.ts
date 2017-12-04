@@ -9,13 +9,23 @@ const zlib = require('zlib');
 const deepcopy = require('deepcopy');
 
 import { root, FS_REF } from './fs';
-import { PackageMetadata } from './types';
+import { PackageMetadata, LocalLibConfig } from './types';
 import { libConfig, currentPackage } from './state';
 import { normalizeLibExtension } from './config';
 
-export function log(msg: string): void {
-  process.stdout.write(msg + '\n');
+export interface FluentLog {
+  log: (msg: string, newLineAfter?: number, newLineBefore?: number) => FluentLog;
 }
+
+export function log(msg: string, newLineAfter: number = 1, newLineBefore: number = 0): FluentLog {
+  for (let i = 0; i < newLineBefore; i++) { process.stdout.write('\n'); }
+  process.stdout.write(msg);
+  for (let i = 0; i < newLineAfter; i++) { process.stdout.write('\n'); }
+
+  return fluentLog;
+}
+
+const fluentLog: FluentLog = { log };
 
 /**
  * Returns the package name.
@@ -50,7 +60,7 @@ export function getPackageRoot(dirName: string, ...args: string[]): string {
  * @param dirName
  * @return {any}
  */
-export function getLocalPackageJSON(dirName: string): any {
+export function getLocalPackageJSON(dirName: string): { [index: string]: any } & { libConfig: LocalLibConfig } {
   return jsonfile.readFileSync(root(FS_REF.SRC_CONTAINER, getPackageName(dirName), 'package.json'));
 }
 
@@ -85,8 +95,25 @@ export function resolveWebpackConfig(config: string | any, ...args: any[]): any 
  * @param umd the umd name (from metadata, not the while filename) of the bundle
  */
 export function minifyAndGzip(destDir: string, srcNameNoExt: string) {
-  const unminified = fs.readFileSync(Path.join(destDir, `${srcNameNoExt}.js`)).toString();
-  const minified = uglify.minify(unminified);
+  const sourcePath = Path.join(destDir, `${srcNameNoExt}.js`);
+
+  const unminified = fs.readFileSync(sourcePath).toString();
+
+  const minified = uglify.minify(unminified, {
+    sourceMap: {
+      content: fs.readFileSync(sourcePath + '.map').toString(),
+      url: Path.basename(sourcePath + '.map')
+    },
+    parse: {
+      bare_returns: true,
+    },
+    ie8: true,
+    warnings: true,
+    output: {
+      comments: 'some'
+    }
+  });
+
   const gzipBuffer = zlib.gzipSync(Buffer.from(minified.code));
 
   fs.writeFileSync(Path.join(destDir, `${srcNameNoExt}.min.js`), minified.code, 'utf-8');
@@ -170,4 +197,12 @@ export function jestAlias(...packages: string[]): { [id: string]: string } {
 
     return curr;
   }, {})
+}
+
+export type Promisify<T> = { promise: Promise<T>; resolve: (value?: T) => void; reject: (err: any) => void };
+
+export function promisify<T>(): Promisify<T> {
+  let resolve, reject;
+  const promise = new Promise( (rs, rj) => { resolve = rs; reject = rj; });
+  return <any>{ promise, resolve, reject };
 }

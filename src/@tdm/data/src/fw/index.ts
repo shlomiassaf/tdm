@@ -2,16 +2,13 @@ export * from './interfaces';
 export * from './errors';
 export * from './plugin';
 
-
 /**
  * @internal
- * @type {symbol}
  */
 export const DAOTarget = Symbol('DAO target prop');
 
 /**
  * @internal
- * @type {symbol}
  */
 export const DAOAdapter = Symbol('DAO adapter prop');
 

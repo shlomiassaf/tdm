@@ -31,10 +31,10 @@ export {
   ValidationSchedule,
   Validator,
   store
-} from './metadata';
+} from './metadata/index';
 
-import './transformation'; // extending @tdm/core
-export * from './core';
+import './transformation/index'; // extending @tdm/core
+export * from './core/index';
 
 export { validators } from './core-validators';
 
@@ -48,7 +48,7 @@ export {
   ActionOptions,
   plugins,
   PluginStore
-} from './fw';
+} from './fw/index';
 
 export {
   events$,
@@ -60,14 +60,14 @@ export {
   ActionEndResourceEvent,
   eventFactory,
   StateChangeResourceEvent
-} from './events';
+} from './events/index';
 
 export {
   findProp,
   isSymbol,
   isPropertyKey,
   promiser,
-} from './utils';
+} from './utils/index';
 
 // re-export common types from core
 export {

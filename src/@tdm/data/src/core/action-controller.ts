@@ -7,8 +7,7 @@ import {
 } from '@tdm/core/tdm';
 
 import { dispatchEvent, eventFactory, CancellationTokenResourceEvent, ExecuteInitResourceEvent } from '../events';
-import { defaultConfig } from '../default-config';
-import { findProp, noop } from '../utils';
+import { noop } from '../utils';
 import { AdapterMetadata, ActionMetadata, ValidationSchedule } from '../metadata';
 import {
   AdapterStatic,
@@ -40,13 +39,12 @@ export class ActionController<T = any, Z = any> {
   }
 
 
-  createExecFactory<T>(action: ActionMetadata, ret: 'promise'): (self: T, isAsync: boolean, ...args: any[]) => Promise<T>;
-  createExecFactory<T>(action: ActionMetadata, ret?: 'instance'): (self: T, isAsync: boolean, ...args: any[]) => T;
-  createExecFactory<T>(action: ActionMetadata, ret?: 'instance' | 'promise'): (self: T, isAsync: boolean, ...args: any[]) => T | Promise<T> {
+  createExecFactory<T>(action: ActionMetadata, ret: 'promise'): (self: T, ...args: any[]) => Promise<T>;
+  createExecFactory<T>(action: ActionMetadata, ret?: 'instance'): (self: T, ...args: any[]) => T;
+  createExecFactory<T>(action: ActionMetadata, ret?: 'instance' | 'promise'): (self: T, ...args: any[]) => T | Promise<T> {
     const ac = this;
-    return function (self: T, isAsync: boolean, ...args: any[]) {
-      // TODO: once rollup support "async" as obj shorthand, change back isAsync to async
-      return ac.execute(this.clone(self), {async: isAsync, args}, <any>ret);
+    return function (self: T, ...args: any[]) {
+      return ac.execute(this.clone(self), {args}, <any> ret);
     }.bind(new ExecuteContext(this.targetMetadata, action));
   }
 
@@ -55,10 +53,9 @@ export class ActionController<T = any, Z = any> {
   execute(ctx: ExecuteContext<any>, params: ExecuteParams, ret?: 'instance' | 'promise'): any {
     const action = ctx.action;
     const args = params.args || [];
-    let isAsync = params.async;
 
     if (args.length < action.paramHint) {
-      args[action.paramHint -1] = {};
+      args[action.paramHint - 1] = {};
     }
 
     const options = isFunction(action.pre) ? action.pre(ctx, ...args) : args[0];
@@ -69,24 +66,25 @@ export class ActionController<T = any, Z = any> {
 
     const state = ResourceControl.get(ctx.instance);
 
-    if (state && state.busy) {
-      const err = eventFactory.error(ctx.instance, new Error('An action is already running'));
-      return ret === 'promise' ? Promise.reject(err) : dispatchEvent(err);
-    } else if (!!action.isCollection !== TDMCollection.instanceOf(ctx.instance)) {
-      const err = eventFactory.error(ctx.instance, errors.modelSingleCol(ctx.instance, action.isCollection));
-      return ret === 'promise' ? Promise.reject(err) : dispatchEvent(err);
+    const err = state && state.busy
+      ? eventFactory.error(ctx.instance, new Error('An action is already running'))
+      : (!!action.isCollection !== TDMCollection.instanceOf(ctx.instance))
+        ? eventFactory.error(ctx.instance, errors.modelSingleCol(ctx.instance, action.isCollection))
+        : undefined
+    ;
+    if (err) {
+      return ret === 'promise' ? Promise.reject(err) : dispatchEvent(err, 0);
     }
 
     state.set('busy', true);
 
-    // TODO: once rollup support "async" as obj shorthand, change back isAsync to async
-    dispatchEvent(new ExecuteInitResourceEvent(ctx.instance, {ac: this, action, async: isAsync, args}));
-    dispatchEvent(eventFactory.actionStart(ctx.instance));
+    dispatchEvent(new ExecuteInitResourceEvent(ctx.instance, {ac: this, action, args}), 0);
+    dispatchEvent(eventFactory.actionStart(ctx.instance), 0);
 
     const eState: ExecuteState = {};
 
     if (this.adapter.supports.cancel) {
-      dispatchEvent(new CancellationTokenResourceEvent(ctx.instance, () => this.cancel(eState, ctx)))
+      dispatchEvent(new CancellationTokenResourceEvent(ctx.instance, () => this.cancel(eState, ctx)), 0);
     }
 
     // TODO: move this to be part of the promise flow
@@ -109,10 +107,6 @@ export class ActionController<T = any, Z = any> {
         const adapterResponse = this.adapter.execute(ctx, options, args);
 
         eState.id = adapterResponse.id;
-
-        if (action.post) {
-          isAsync = true;
-        }
 
         // TODO: If user cancelled and the adapter does not throw an error on cancellation
         //       this means that the promise chain will continue, need to fix it.

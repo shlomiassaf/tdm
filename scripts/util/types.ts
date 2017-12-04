@@ -1,5 +1,32 @@
 import { CompilerOptions } from 'typescript';
-import { AngularCompilerOptions } from '@angular/tsc-wrapped';
+import { AngularCompilerOptions } from '@angular/compiler-cli';
+
+export interface GlobalLibConfig {
+  scope?: string;
+  packages: string[]
+}
+
+export interface LocalLibConfig {
+
+  /**
+   * The entry file name, without extension.
+   * defaults to 'index' if not set.
+   *
+   * Use in multi-library configuration to avoid AOT compilation hell with 'index' addition
+   */
+  entry?: string;
+
+  /**
+   * Internal extensions for the library.
+   * If a library declares a "libExtensions" property in it's internal package.json file
+   * it is considered as instructions for creating internal umd bundles.
+   *
+   * THIS OBJECT IS SUBJECT TO CHANGE.
+   * Most probably it will be an array of string where metadata for each extension
+   * will be set inside it's package.json and not in the parent.
+   */
+  libExtensions?: Array<LibraryExtension>;
+}
 
 export interface PackageMetadata {
   name: string;
@@ -53,7 +80,7 @@ export interface PackageMetadata {
   entry: string;
 
   tsConfig: string;
-  tsConfigObj: { compilerOptions: CompilerOptions, angularCompilerOptions: AngularCompilerOptions };
+  tsConfigObj: { compilerOptions: CompilerOptions, angularCompilerOptions: AngularCompilerOptions, files: string[] };
 
   /**
    * Internal extensions for the library.

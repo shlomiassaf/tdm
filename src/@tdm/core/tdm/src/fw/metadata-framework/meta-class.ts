@@ -9,7 +9,6 @@ const store = new Map<Constructor<any>, MetaClassMetadata>();
 /**
  * A token representing single items (see {@link MetaClassMetadataArgs.single})
  * Use this token as a key for single items in TargetMetadata
- * @type {symbol}
  */
 export class GLOBAL_KEY {}
 
@@ -68,7 +67,7 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
    * @param target
    * @param key
    * @param desc
-   * @returns {TMetaClass}
+   * @returns
    */
   create(metaArgs: TMetaArgs, target: Object | Function, key?: PropertyKey, desc?: PropertyDescriptor): TMetaClass {
     return this.createCurry(metaArgs, target, key, desc)();
@@ -184,7 +183,7 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
    * registered is the extending one, if we will not register the ModelMetadata token as well logic
    * that expects to find it will fail.
    * @param meta
-   * @returns {[any,any]|[any]}
+   * @returns
    */
   private singleChain(meta: MetaClassInstanceDetails<TMetaArgs, TMetaClass>): MetaClassInstanceDetails<TMetaArgs, TMetaClass>[] | undefined {
     if (this.metaArgs.single === true && this.metaArgs.inherit) {
@@ -242,7 +241,7 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
    *
    * @param target
    * @param metaArgs
-   * @returns {MetaClassMetadata<TMetaArgs, TMetaClass>}
+   * @returns
    */
   static create<TMetaArgs = any, TMetaClass = any>(target: MetadataClassStatic<TMetaArgs, TMetaClass>, metaArgs?: MetaClassMetadataArgs<TMetaArgs, TMetaClass>): MetaClassMetadata<TMetaArgs, TMetaClass> {
     return new MetaClassMetadata<TMetaArgs, TMetaClass>(target, metaArgs);
@@ -274,7 +273,6 @@ export module MetaClass {
    * @param target
    * @param key
    * @param desc
-   * @return {TMetaClass}
    */
   export function create<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
                                                    metaArgs: TMetaArgs,

@@ -21,7 +21,6 @@ export interface DynamicFormControlRenderer {
 
 /**
  * A Token for the component that renders form controls
- * @type {InjectionToken<DynamicFormControlRenderer>}
  */
 export const FORM_CONTROL_COMPONENT = new InjectionToken<DynamicFormControlRenderer>('DynamicFormControlRenderer');
 

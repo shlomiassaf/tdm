@@ -49,7 +49,7 @@ export class DynamicFormOverrideDirective {
 
   /**
    * A Shortcut for the parent's DynamicFormComponent#.tdmForm.form
-   * @returns {any}
+   * @returns
    */
   get formGroup(): FormGroup {
     return this.dynForm.tdmForm.form;

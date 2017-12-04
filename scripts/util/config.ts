@@ -41,11 +41,6 @@ export function buildPackageMetadata(dirName: string): PackageMetadata {
   tryRunHook(meta.dir, 'tsconfig', tsConfig);
   meta.tsConfigObj = tsConfig;
 
-  if (!tsConfig.angularCompilerOptions.skipTemplateCodegen) {
-    // only when skipTemplateCodegen = false
-    tsConfig.angularCompilerOptions.genDir = `${FS_REF.TEMP_DIR}/.compiled`;
-  }
-
   return PKG_METADATA_CACHE[dirName] = meta;
 }
 
@@ -76,13 +71,6 @@ export function buildExtensionMetadata(pkg: PackageMetadata): Array<PackageMetad
 
     tsConfigUpdate(meta.tsConfigObj, meta);
     tryRunHook(meta.dir, 'tsconfig', meta.tsConfigObj);
-
-    if (!meta.tsConfigObj.angularCompilerOptions.skipTemplateCodegen) {
-      // only when skipTemplateCodegen = false
-      meta.tsConfigObj.angularCompilerOptions.genDir = `${FS_REF.TEMP_DIR}/.compiled`;
-    } else {
-      delete meta.tsConfigObj.angularCompilerOptions.genDir;
-    }
 
     meta.libExtensions = undefined;
 
@@ -140,8 +128,9 @@ export function tsConfigUpdate<T extends any>(config: T, meta: PackageMetadata):
 
   config.angularCompilerOptions = {
     annotateForClosureCompiler: true,
-    strictMetadataEmit: true,
+    skipMetadataEmit: false,
     skipTemplateCodegen: true,
+    strictMetadataEmit: true,
     flatModuleOutFile: `${meta.umd}${FS_REF.NG_FLAT_MODULE_EXT}.js`,
     flatModuleId: meta.dir // needs to be the dir name, if has scope add it as well.
   };
@@ -176,11 +165,6 @@ export function getCopyInstruction(meta: PackageMetadata): { from: string; to: s
   const to = root(FS_REF.PKG_DIST, meta.dir);
   const toSrc = root(FS_REF.PKG_DIST, meta.dir, FS_REF.SRC_CONTAINER);
 
-  // const toBundle = meta.parent
-  //   ? Path.join(getCopyInstruction(meta.parent).to, FS_REF.BUNDLE_DIR)
-  //   : Path.join(to, FS_REF.BUNDLE_DIR)
-  // ;
-
   const toBundle = Path.join(to, FS_REF.BUNDLE_DIR);
 
   return { from, to, toSrc, toBundle };
@@ -210,6 +194,39 @@ export function tsConfigPaths(...packages: string[]): { [id: string]: string } {
         // TODO: remove object 'ext', only string... move everything to local package.json of extension
         curr[`${scope + pkg}/${ext.dir}`] = [`${scope + pkg}/${ext.dir}/src/${ext.entry}`];
         curr[`${scope + pkg}/${ext.dir}/src/*`] = [`${scope + pkg}/${ext.dir}/src/*`];
+      });
+    }
+
+    curr[`${scope + pkg}/src/*`] = [`${scope + pkg}/src/*`];  // for internal use
+
+    return curr;
+  }, {});
+}
+
+/**
+ * Returns an alias list for tsConfig's configuration path property based on a packages list.
+ * If no list supplied the whole list from package.json is used.
+ * @param packages
+ */
+export function tsConfigPathsForSimulation(...packages: string[]): { [id: string]: string[] } {
+  if (packages.length === 0) {
+    packages = libConfig.packages;
+  }
+
+  const scope = libConfig.scope ? `${libConfig.scope}/` : '';
+
+  return packages.reduce((curr, pkg) => {
+    const pkgJson = getLocalPackageJSON(pkg);
+    const entry = pkgJson.libConfig && pkgJson.libConfig.entry || 'index';
+
+    // "paths" are relative to baseUrl so we ..
+    curr[scope + pkg] = [`../${FS_REF.PKG_DIST}/${scope + pkg}`];
+
+    if (pkgJson.libConfig && Array.isArray(pkgJson.libConfig.libExtensions)) {
+      pkgJson.libConfig.libExtensions.forEach( ext => {
+        normalizeLibExtension(ext);
+        // TODO: remove object 'ext', only string... move everything to local package.json of extension
+        curr[`${scope + pkg}/${ext.dir}`] = [`../${FS_REF.PKG_DIST}/${scope + pkg}/${ext.dir}`];
       });
     }
 

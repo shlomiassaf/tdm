@@ -50,7 +50,7 @@ import {
  * @param mapper
  * @param instance
  * @param type optional, if not set taken from instance.constructor
- * @returns {any}
+ * @returns
  */
 export function serialize<T, Z>(mapper: MapperFactory, instance: T, type?: Z & Constructor<T>): any {
   return targetStore.serialize(type || instance.constructor as any, mapper.serializer(instance));
@@ -61,7 +61,7 @@ export function serialize<T, Z>(mapper: MapperFactory, instance: T, type?: Z & C
  * @param mapper
  * @param plainObject
  * @param type
- * @returns {any|any[]|undefined}
+ * @returns
  */
 export function deserialize<T, Z>(mapper: MapperFactory, plainObject: any, type: Z & Constructor<T>): T {
   return targetStore.deserialize(mapper.deserializer(plainObject, type));

@@ -10,7 +10,7 @@ declare module '../../metadata/target-metadata' {
      * Returns the target's identity key without initiating a target build.
      * @param target
      * @param direction
-     * @returns {any}
+     * @returns
      */
     getIdentityKey(direction?: TransformDir): string | undefined;
   }
@@ -22,7 +22,7 @@ declare module '../../metadata/target-store' {
      * Returns the target's identity key without initiating a target build.
      * @param target
      * @param direction
-     * @returns {any}
+     * @returns
      */
     getIdentityKey(target: Constructor<any>, direction?: TransformDir): string | undefined;
 
@@ -30,14 +30,14 @@ declare module '../../metadata/target-store' {
      * Returns metadata, if not built, builds it
      * @param target
      * @param register when true will also register if not exists
-     * @returns {TargetMetadata}
+     * @returns
      */
     getTargetMeta<T, Z>(target: Z & Constructor<T>): TargetMetadata<T, Z> | undefined;
 
     /**
      * Returns the target's name key without initiating a target build.
      * @param target
-     * @returns {string}
+     * @returns
      */
     getTargetName(target: Constructor<any>): string | undefined
   }
@@ -90,7 +90,6 @@ TargetStore.prototype.getIdentityKey = function getIdentityKey(this: TargetStore
       if (!direction) {
         return identity;
       }
-
 
       const propMeta = meta.getMetaFor(PropMetadata, identity);
 

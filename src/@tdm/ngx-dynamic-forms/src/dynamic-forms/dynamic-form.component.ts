@@ -18,7 +18,7 @@ import {
   KeyValueDiffers,
   KeyValueChangeRecord, ElementRef, ViewChild, Renderer2, AfterViewInit, DoCheck, OnChanges, SimpleChanges
 } from '@angular/core';
-import { AbstractControl } from '@angular/forms';
+import { AbstractControl, FormGroup } from '@angular/forms';
 
 import { RenderInstruction } from '../interfaces';
 import { TDMModelForm, TDMModelFormService } from '../tdm-model-form/index';
@@ -54,7 +54,19 @@ export interface LocalRenderInstruction extends RenderInstruction {
   templateUrl: './dynamic-form.component.html'
 })
 export class DynamicFormComponent<T = any> implements AfterContentInit, AfterViewInit, OnChanges, DoCheck, OnDestroy {
+  /**
+   * The [[TDMModelForm]] instance that is used by the component
+   * > This is created after a model is set.
+   */
   tdmForm: TDMModelForm<any>;
+
+  /**
+   * The [[FormGroup]] instance used by [[TDMModelForm]].
+   * Available after [[TDMModelForm]] instance is created.
+   */
+  get form(): FormGroup | undefined {
+    return this.tdmForm && this.tdmForm.form;
+  }
 
   @ContentChildren(DynamicFormOverrideDirective) overrides: QueryList<DynamicFormOverrideDirective>;
 
@@ -292,7 +304,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   /**
    * Returns the form control for a given key
    * @param key
-   * @returns {AbstractControl|null}
+   * @returns
    */
   getControl(key: keyof T): AbstractControl | null {
     return this.tdmForm.get(key);

@@ -1,0 +1,4 @@
+<dynamic-form #dynForm [model]="model"></dynamic-form>
+<button matButton
+        [disabled]="dynForm.form.status !== 'VALID' || !dynForm.form.dirty"
+        (click)="onClick()">Save</button>

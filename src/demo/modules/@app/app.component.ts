@@ -21,7 +21,7 @@ import { AppState } from './app.service';
   template: `
     <nav>
       <a [routerLink]=" ['./'] " routerLinkActive="active">Home</a>
-      <a [routerLink]=" ['./netflix'] " routerLinkActive="active">Netflix Roulette</a>
+      <a [routerLink]=" ['./country'] " routerLinkActive="active">Country API</a>
       <a [routerLink]=" ['./vehicles'] " routerLinkActive="active">Vehicles</a>
       <a [routerLink]=" ['./npms'] " routerLinkActive="active">Npms</a>
       <a [routerLink]=" ['./forms'] " routerLinkActive="active">@forms</a>

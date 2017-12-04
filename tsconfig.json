@@ -10,6 +10,9 @@
       "es2015",
       "dom"
     ],
+    "typeRoots": [
+      "node_modules/@types"
+    ],
     "types": [
       "jest",
       "jasmine",
@@ -19,7 +22,6 @@
       "uglify-js",
       "webpack"
     ],
-    "noEmit": true,
     "baseUrl": "./src",
     "paths": {
       "@tdm/tixin": [
@@ -70,11 +72,11 @@
       "@tdm/data/src/*": [
         "@tdm/data/src/*"
       ],
-      "@tdm/ngx-http": [
-        "@tdm/ngx-http/src/index.ts"
+      "@tdm/ngx-http-client": [
+        "@tdm/ngx-http-client/src/index.ts"
       ],
-      "@tdm/ngx-http/src/*": [
-        "@tdm/ngx-http/src/*"
+      "@tdm/ngx-http-client/src/*": [
+        "@tdm/ngx-http-client/src/*"
       ],
       "@tdm/ngx-dynamic-forms": [
         "@tdm/ngx-dynamic-forms/src/index.ts"
@@ -94,18 +96,16 @@
     }
   },
   "exclude": [
+    "examples/**/*.ts",
+    "scripts/**/*.ts",
     "node_modules",
     "dist",
     "dist_package",
-    "e2e"
+    "e2e",
+    "src/**/*.spec.ts",
+    "src/**/*.type-spec.ts",
+    "src/@tdm/ngx-http"
   ],
-  "awesomeTypescriptLoaderOptions": {
-    "forkChecker": true,
-    "useWebpackText": true
-  },
   "compileOnSave": false,
-  "buildOnSave": false,
-  "atom": {
-    "rewriteTsconfig": false
-  }
+  "buildOnSave": false
 }

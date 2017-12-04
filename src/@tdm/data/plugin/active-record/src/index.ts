@@ -29,7 +29,7 @@ import {
  *
  * @param target
  * @param adapterClass
- * @returns {ActionMetadata[]}
+ * @returns
  */
 function getActions(target: Constructor<any>, adapterClass: AdapterStatic<any, any>): ActionMetadata[] {
   const chain = getProtoChain(target);
@@ -63,14 +63,14 @@ function registerAction(this: ActionController, action: ActionMetadata, collProt
   if (action.decoratorInfo.isStatic) {
     if (override || !isFunction(this.target[action.name])) {
       composeAction(this.target, action, function (this: AdapterStatic<any, any>, ...args: any[]) {
-        return self.execute(ctx.clone(), {async: true, args});
+        return self.execute(ctx.clone(), {args});
       });
     }
 
     if (action.isCollection && action.collInstance && (override || !isFunction(collProto[action.name]))) {
       composeAction(collProto, action, function (this: TDMCollection<any>, ...args: any[]): any {
         this.splice(0, this.length);
-        return self.execute(ctx.clone(this), {async: true, args});
+        return self.execute(ctx.clone(this), {args});
       });
     }
   } else {
@@ -80,7 +80,7 @@ function registerAction(this: ActionController, action: ActionMetadata, collProt
 
     if (override || !isFunction(this.target.prototype[action.name])) {
       composeAction(this.target.prototype, action, function (this: TDMModel<any>, ...args: any[]) {
-        return self.execute(ctx.clone(this), {async: true, args});
+        return self.execute(ctx.clone(this), {args});
       });
     }
   }

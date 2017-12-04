@@ -123,7 +123,7 @@ export class TargetMetaModifier<T, Z> {
    * > Clears the model from the registry before trying to register.
    * @param metaArgs
    * @param type
-   * @returns {TargetMetaModifier}
+   * @returns
    */
   setModel<T extends ModelMetadataArgs>(metaArgs: T = undefined): this {
     this.clear();
@@ -135,7 +135,7 @@ export class TargetMetaModifier<T, Z> {
    * Set/Update/Remove the identity field.
    * If key is empty will remove identity.
    * @param key
-   * @returns {TargetMetaModifier}
+   * @returns
    */
   setIdentity(key?: keyof T): this {
     Identity()(this.target.prototype, key);
@@ -145,7 +145,7 @@ export class TargetMetaModifier<T, Z> {
   /**
    * Set exclusion/inclusion at the class level
    * @param exclude
-   * @returns {TargetMetaModifier}
+   * @returns
    */
   setExclude(exclude: boolean): this {
     if (!exclude) {
@@ -187,7 +187,7 @@ export class TargetMetaModifier<T, Z> {
    * @param key
    * @param meta
    * @param type
-   * @returns {any}
+   * @returns
    */
   prop(key: keyof T, meta?: PropMetadataArgs | false | Function, type?: Function): this {
     TestTargetMetadata.removeProp(this.target, key);
@@ -212,7 +212,7 @@ export class TargetMetaModifier<T, Z> {
    * Add or remove exclude, to remove set meta to false
    * @param key
    * @param meta
-   * @returns {any}
+   * @returns
    */
   exclude(key: keyof T, meta?: ExcludeMetadataArgs | false): this {
     TestTargetMetadata.removeExclude(this.target, key);

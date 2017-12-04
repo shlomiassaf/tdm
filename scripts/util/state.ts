@@ -1,10 +1,11 @@
 import * as jsonfile from 'jsonfile';
 import { root } from './fs';
-import { PackageMetadata } from './types';
+import { PackageMetadata, GlobalLibConfig } from './types';
 
 export const PKG_METADATA_CACHE: { [dirName: string]: PackageMetadata } = {};
 
-export const libConfig = jsonfile.readFileSync(root('package.json')).libConfig;
+export const libConfig: GlobalLibConfig = jsonfile.readFileSync(root('package.json')).libConfig;
+
 if (libConfig.scope && libConfig.scope.substr(0, 1) !== '@') {
   libConfig.scope = '@' + libConfig.scope;
 }

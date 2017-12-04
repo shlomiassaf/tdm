@@ -149,7 +149,7 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
    * From a collection of parameters return those belong to the url (path) and those that are not (query).
    * @param url
    * @param params
-   * @returns {{path: {}, query: {}}}
+   * @returns
    */
   protected splitParams(url: string, params: Params): {path: Params, query: Params} {
     const pathParamNames = getParamNames(url);

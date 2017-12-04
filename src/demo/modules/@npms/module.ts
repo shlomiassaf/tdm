@@ -17,7 +17,6 @@ import { ROUTES } from './routes';
   ],
   imports: [
     SharedModule,
-
     RouterModule.forChild(ROUTES)
   ],
 })

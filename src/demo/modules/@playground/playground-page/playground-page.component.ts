@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { DAO } from '@tdm/data';
-import { NgDAO } from '@tdm/ngx-http';
+import { NgDAO } from '@tdm/ngx-http-client';
 
 import { UserBaseClass, UserConst, UsersInterface, UserDAO } from '../models';
 
@@ -29,7 +29,6 @@ export class PlaygroundPageComponent {
       }, err => alert(err));
     // this.user = new User();
     this.user = User.findById(5);
-
 
     // this.user.rawDeserialized({trailingSlashes: 'force'}).$rc.next()
     //   .then( () => this.user.raw({withCredentials: true}).$rc.next() )

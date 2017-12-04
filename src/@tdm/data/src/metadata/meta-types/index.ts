@@ -1,6 +1,6 @@
 export * from './action';
-export * from './extend-action';
-export * from './adapter';
+export { ExtendActionMetadata } from './extend-action';
+export { AdapterMetadata, AdapterMetadataArgs } from './adapter';
 export * from './relations';
-export * from './hook';
+export { HookMetadata, HookMetadataArgs, StoredHook } from './hook';
 export * from './schema';

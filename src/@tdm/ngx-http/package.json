@@ -1,5 +1,5 @@
 {
-  "version": "1.0.1-alpha.9",
+  "version": "1.0.2-alpha.0",
   "description": "Angular http adapter for typed data models.",
   "keywords": [
     "@tdm",

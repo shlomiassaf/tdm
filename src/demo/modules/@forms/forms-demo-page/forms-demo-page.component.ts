@@ -1,14 +1,13 @@
 import { Component, ViewChild, TemplateRef } from '@angular/core';
-import { MdDialog } from '@angular/material';
+import { MatDialog } from '@angular/material';
 
 import { TDMCollection } from '@tdm/core';
 import { BeforeRenderEventHandler } from '@tdm/ngx-dynamic-forms';
 
+import { DataSourceContainer } from '@shared';
 import { DynamicFormContainerComponent } from './dynamic-form-container/dynamic-form-container.component';
 import { User, Post } from '../models';
 import { posts, users } from '../db';
-
-
 
 @Component({
   selector: 'forms-demo-page',
@@ -18,41 +17,45 @@ import { posts, users } from '../db';
 export class FormsDemoPageComponent {
   hotBind: boolean;
 
-  postColumns: any;
-  userColumns: any;
+  postColumns = [
+    '$$EDIT',
+    'id',
+    'title',
+    'tldr',
+    'content',
+    'author'
+  ];
+
+  userColumns = [
+    'id',
+    'name',
+    'email'
+  ];
 
   posts: TDMCollection<Post> = posts;
   users: TDMCollection<User> = users;
 
+  postsDatatSource = new DataSourceContainer(this.posts);
+  usersDatatSource = new DataSourceContainer(this.users);
+
   controlState = { disabled: ['id'], hidden: ['title'] };
 
   @ViewChild('postTemplate') postTemplate: TemplateRef<any>;
-  constructor(public dialog: MdDialog) {}
+  constructor(public dialog: MatDialog) {}
 
   addUser() {
     const newUser = new User();
     this.dialog.open(DynamicFormContainerComponent, { data: { instance: newUser } })
-  }
-
-  addPost() {
-    this.dialog.open(this.postTemplate)
       .afterClosed().subscribe( value => {
-    });
+        if (value === true) {
+          this.usersDatatSource.updateSource([newUser], true);
+        }
+    } );
   }
 
-  ngOnInit() {
-    this.postColumns = [
-      { prop: 'id' },
-      { prop: 'title' },
-      { prop: 'tldr' },
-      { prop: 'content' },
-      { name: 'author', prop: 'author.name' }
-    ];
-    this.userColumns = [
-      { prop: 'id' },
-      { prop: 'name' },
-      { prop: 'email' }
-    ];
+  onEdit(element: any): void {
+    this.dialog.open(this.postTemplate, { data: element })
+      .afterClosed().subscribe( value => {  });
   }
 
   handleControlState(stateKey: 'disabled' | 'hidden', name: string): void {
@@ -67,16 +70,17 @@ export class FormsDemoPageComponent {
   }
 
   beforeRenderPost(event: BeforeRenderEventHandler) {
-    let resolve, p = new Promise<void>( res => { resolve = res });
-
-    // faking async server call
-    // event.async(p);
-
     if (event.instruction.name === 'author') {
+      let resolve, p = new Promise<void>( res => { resolve = res });
+
+      // faking async server call
+      event.async(p);
+
       event.instruction.type = 'select';
       event.instruction.data = { selections: this.users.map( u => ({ value: u, label: u.name}) ) };
+
+      setTimeout(() => resolve(), 1000);
     }
 
-    setTimeout(() => resolve(), 1000);
   }
 }

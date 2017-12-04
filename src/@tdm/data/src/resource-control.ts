@@ -98,7 +98,7 @@ export class ResourceControl<T> implements RecordControlState<T> {
     if (TDMCollection.instanceOf(this.parent)) {
       this.parent.splice(0, this.parent.length);
     }
-    last.ac.createExecFactory(last.action)(this.parent, last.async, ...last.args);
+    last.ac.createExecFactory(last.action)(this.parent, ...last.args);
   }
 
   /**
@@ -151,7 +151,7 @@ export class ResourceControl<T> implements RecordControlState<T> {
   /**
    * Returns a promise, resolving on the next response from the current resource.
    * Will throw is there is no active action for this resource (i.e. not busy)
-   * @returns {Promise<never>}
+   * @returns
    */
   next(): Promise<T> {
     if (!this.busy) {

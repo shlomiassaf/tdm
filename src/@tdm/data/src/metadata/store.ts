@@ -8,10 +8,6 @@ import {
 } from '@tdm/core/tdm';
 import { AdapterStatic } from '../fw';
 
-/**
- *
- * @public
- */
 export class Store {
 
   protected constructor() {
@@ -36,7 +32,7 @@ export class Store {
    * Deserialize and instance of "DeserializeMapper" into an instance of tge target supplied
    * @param target
    * @param mapper
-   * @returns {any}
+   * @returns
    */
   deserialize(mapper: DeserializeMapper): TDMModel<any> | TDMModel<any>[] | undefined {
     return targetStore.deserialize(mapper);
@@ -78,18 +74,12 @@ export class Store {
   /**
    * Creates a new Store instance.
    * @param instance optional, used internally
-   * @returns {Store}
+   * @returns
    */
   static create(instance?: Store): Store {
     const store: Store = instance || Object.create(Store.prototype);
-
-
     return store;
   }
 }
 
-/**
- *
- * @public
- */
 export const store = Store.create();

@@ -7,7 +7,7 @@ export * from './type-utils';
  * @param key
  * @param fallback
  * @param objects
- * @returns {any}
+ * @returns
  */
 export function findProp<T, P extends keyof T>(key: P, fallback: T, ...objects: any[]): T[P] {
   for (let i = objects.length - 1; i>=0; i--) {
@@ -32,7 +32,7 @@ export function noop(...args: any[]): void { };
 
 /**
  * returns an object with a promise, resolver and rejector.
- * @returns {{resolve: ((result:T)=>void), reject: ((error:any)=>void), promise: Promise<T>}}
+ * @returns
  */
 export function promiser<T>(): { resolve: (result?: T) => void, reject: (error: any) => void, promise: Promise<T> }  {
   let resolve: (result?: T) => void;

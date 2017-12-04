@@ -6,8 +6,7 @@ import { ActionMetadata } from '../metadata';
 import { IdentityValueType } from '../fw';
 
 export interface ExecuteParams {
-  async?: boolean;
-  args?: any[]
+  args?: any[];
 }
 
 // TODO: TS 2.3 (set the instance type)
