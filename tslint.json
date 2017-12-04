@@ -9,6 +9,7 @@
     "only-arrow-functions": false,
     "no-trailing-whitespace": [true, "ignore-comments", "ignore-jsdoc"],
     "member-access": false,
+    "member-ordering": false,
     "arrow-parens": false,
     // Custom
     "trailing-comma": [false, {"multiline": "always", "singleline": "never"}],

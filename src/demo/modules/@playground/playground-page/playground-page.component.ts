@@ -30,7 +30,6 @@ export class PlaygroundPageComponent {
     // this.user = new User();
     this.user = User.findById(5);
 
-
     // this.user.rawDeserialized({trailingSlashes: 'force'}).$rc.next()
     //   .then( () => this.user.raw({withCredentials: true}).$rc.next() )
     //   .then( () => this.gogo());

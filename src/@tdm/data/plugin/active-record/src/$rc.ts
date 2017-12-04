@@ -6,14 +6,14 @@ declare module '@tdm/core/tdm/src/model/tdm-model' {
     /**
      * @extension '@tdm/data/plugin/active-record'
      */
-    readonly $rc: ResourceControl<T>;
+    readonly $rc: ResourceControl<this & T>;
   }
 
   interface TDMModelBase<T> {
     /**
      * @extension '@tdm/data/plugin/active-record'
      */
-    readonly $rc: ResourceControl<T>;
+    readonly $rc: ResourceControl<this & T>;
   }
 }
 
@@ -25,6 +25,6 @@ declare module '@tdm/core/tdm/src/model/tdm-collection' {
     /**
      * @extension '@tdm/data/plugin/active-record'
      */
-    readonly $rc: ResourceControl<StatefulActiveRecordCollection<T>>;
+    readonly $rc: ResourceControl<this & StatefulActiveRecordCollection<T>>;
   }
 }

@@ -5,6 +5,8 @@
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "noEmit": true,
     "allowSyntheticDefaultImports": true,
     "lib": [
       "es2015",
@@ -14,13 +16,9 @@
       "node_modules/@types"
     ],
     "types": [
-      "jest",
       "jasmine",
       "hammerjs",
-      "node",
-      "source-map",
-      "uglify-js",
-      "webpack"
+      "node"
     ],
     "baseUrl": "./src",
     "paths": {
@@ -95,6 +93,9 @@
       ]
     }
   },
+  "include": [
+    "src/test-type/**/*.type-spec.ts"
+  ],
   "exclude": [
     "examples/**/*.ts",
     "scripts/**/*.ts",
@@ -103,7 +104,6 @@
     "dist_package",
     "e2e",
     "src/**/*.spec.ts",
-    "src/**/*.type-spec.ts",
     "src/@tdm/ngx-http"
   ],
   "compileOnSave": false,

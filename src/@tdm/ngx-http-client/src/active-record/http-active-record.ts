@@ -65,19 +65,16 @@ export type ActiveRecordCollection<T> =
   ARecordColl<Tixin<T, TDMModel<T> & HttpActiveRecord>>
     & { query: ActiveRecordCollection<T> };
 
-
 export interface HttpActiveRecordStatic<T>  {
   findById(id: IdentityValueType, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
 
   find(options: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
   findOne(options: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
 
-  query(options?: HttpActionOptions): ActiveRecordCollection<T>;
-  findAll(options?: HttpActionOptions): ActiveRecordCollection<T>;
+  query(options?: HttpActionOptions): this & ActiveRecordCollection<T>;
+  findAll(options?: HttpActionOptions): this & ActiveRecordCollection<T>;
 
   create(data: T, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
   update(data: Partial<T>, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
   remove(id: IdentityValueType | T, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
 }
-
-
