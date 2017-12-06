@@ -9342,9 +9342,9 @@ tslint@~4.5.1:
     tsutils "^1.1.0"
     update-notifier "^2.0.0"
 
-tssert@^0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/tssert/-/tssert-0.0.3.tgz#045cb11b703625788a071173d308c68a0c2cf01d"
+tssert@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/tssert/-/tssert-0.0.4.tgz#1ffd8faa185019a67deb3ff75e1a934e371c242d"
   dependencies:
     chalk "^2.3.0"
     chokidar "^1.7.0"

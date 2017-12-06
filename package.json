@@ -192,7 +192,7 @@
     "tslib": "^1.6.1",
     "tslint": "~4.5.1",
     "tslint-loader": "^3.5.2",
-    "tssert": "^0.0.3",
+    "tssert": "^0.0.4",
     "tsutils": "^2.13.0",
     "typedoc": "^0.7.1",
     "typescript": "~2.4.2",
