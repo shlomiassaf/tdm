@@ -11,6 +11,7 @@
     "member-access": false,
     "member-ordering": false,
     "arrow-parens": false,
+    "no-bitwise": false,
     // Custom
     "trailing-comma": [false, {"multiline": "always", "singleline": "never"}],
     "interface-name": [false, "always-prefix"],

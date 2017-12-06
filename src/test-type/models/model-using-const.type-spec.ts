@@ -74,21 +74,21 @@ UserConst.findById(2).username;
 UserConst.num;
 
 /**
- * @typeTest keep property type information.
+ * @tssert keep property type information.
  * @tsError 2352
  * @loc 1
  */
 UserConst.findById(2).username as number;
 
 /**
- * @typeTest keep property type information.
+ * @tssert keep property type information.
  * @tsError 2352
  * @loc 1
  */
 UserConst.num as string;
 
 /**
- * @typeTest not cast to any
+ * @tssert not cast to any
  * @tsError 2339
  * @loc 23
  */
@@ -101,7 +101,7 @@ const user: UserConst = new UserConst();
 user.$refresh().username;
 
 /**
- * @typeTest not cast to any
+ * @tssert not cast to any
  * @tsError 2339
  * @loc 17
  */
@@ -114,6 +114,7 @@ user.$rc.next().then( u => u.id );
 
 /**
  * Keep type information in promise chain - non existing property
+ * @tssert
  * @tsError 2339
  * @loc 30
  */
@@ -125,7 +126,7 @@ user.$rc.next().then( u => u.f34 );
 user.$rc.next().then( u => u.method(15) );
 
 /**
- * @typeTest
+ * @tssert
  * @tsError 2345
  * @loc 37
  */
@@ -133,6 +134,7 @@ user.$rc.next().then( u => u.method('dd') );
 
 /**
  * Keep type information in promise chain - active record method
+ * @tssert
  * @tsType Promise<ARMixin<User_>>
  * @loc 16
  */
@@ -140,6 +142,7 @@ user.$rc.next().then( u => u.$remove() );
 
 /**
  * Keep type information in promise chain - active record method
+ * @tssert
  * @tsType Promise<ARMixin<User_>>
  * @loc 37
  */
@@ -149,6 +152,7 @@ UserConst.query().$rc.next().then(coll => coll.push );
 
 /**
  * Keep type information in promise chain - collection - non existing property
+ * @tssert
  * @tsError 2339
  * @loc 48
  */
@@ -158,14 +162,14 @@ UserConst.query().query().findById(15);
 UserConst.query().query();
 
 /**
- * @typeTest
+ * @tssert
  * @tsError 2554
  * @loc 1
  */
 UserConst.query().find();
 
 /**
- * @typeTest
+ * @tssert
  * @tsError 2322
  * @loc 2:23
  */
@@ -173,7 +177,7 @@ UserConst.findOne(null).$rc.next()
   .then( u => { const x: UserConst = ''; });
 
 /**
- * @typeTest
+ * @tssert
  * @tsError 2339
  * @loc 19
  */
@@ -188,7 +192,7 @@ UserConst.findOne(null)
   .then( u => u.method(15));
 
 /**
- * @typeTest
+ * @tssert
  * @tsError 2345
  * @loc 6:24
  */
@@ -203,14 +207,14 @@ UserConst.find('CatA');
 UserConst.find({ urlParams: { } });
 
 /**
- * @typeTest
+ * @tssert
  * @tsError 2353
  * @loc 18
  */
 UserConst.find({ urlParams123: { } });
 
 /**
- * @typeTest extend action
+ * @tssert extend action
  * @tsError 2559
  * @tsErrorMsg Type '"dfdf"' has no properties in common with type 'HttpActionOptions'.
  * @loc 16
@@ -228,7 +232,6 @@ export class UserConstExt extends UserConst {
   extMmethod(value: number): string {
     return '';
   }
-
 }
 
 UserConstExt.findById(2).username;
@@ -237,7 +240,7 @@ UserConstExt.findById(2).username;
  * This shows the limitation of not being able to reflect instance members of classes deriving from ARMixin<Base...>
  * when the type is returned from a static member.
  *
- * @typeTest keep property type information.
+ * @tssert keep property type information.
  * @tsError 2339
  * @tsErrorMsg Property 'valueOnDerived' does not exist on type 'ARMixin<User_>'.
  * @loc 26
@@ -247,21 +250,21 @@ UserConstExt.findById(2).valueOnDerived;
 UserConstExt.num;
 
 /**
- * @typeTest keep property type information.
+ * @tssert keep property type information.
  * @tsError 2352
  * @loc 1
  */
 UserConstExt.findById(2).username as number;
 
 /**
- * @typeTest keep property type information.
+ * @tssert keep property type information.
  * @tsError 2352
  * @loc 1
  */
 UserConstExt.num as string;
 
 /**
- * @typeTest not cast to any
+ * @tssert not cast to any
  * @tsError 2339
  * @loc 26
  */
@@ -274,7 +277,7 @@ const userExt: UserConstExt = new UserConstExt();
 userExt.$refresh().username;
 
 /**
- * @typeTest not cast to any
+ * @tssert not cast to any
  * @tsError 2339
  * @loc 20
  */
@@ -287,6 +290,7 @@ userExt.$rc.next().then( u => u.id );
 
 /**
  * Keep type information in promise chain - non existing property
+ * @tssert
  * @tsError 2339
  * @loc 33
  */
@@ -298,7 +302,7 @@ userExt.$rc.next().then( u => u.f34 );
 userExt.$rc.next().then( u => u.method(15) );
 
 /**
- * @typeTest
+ * @tssert
  * @tsError 2345
  * @loc 40
  */
@@ -306,6 +310,7 @@ userExt.$rc.next().then( u => u.method('dd') );
 
 /**
  * Keep type information in promise chain - active record method
+ * @tssert
  * @tsType Promise<UserConstExt & User_>
  * @loc 19
  */
@@ -322,6 +327,7 @@ UserConstExt.query().$rc.next().then(coll => coll.push );
 
 /**
  * Keep type information in promise chain - collection - non existing property
+ * @tssert
  * @tsError 2339
  * @loc 51
  */
@@ -331,14 +337,14 @@ UserConstExt.query().query().findById(15);
 UserConstExt.query().query();
 
 /**
- * @typeTest
+ * @tssert
  * @tsError 2554
  * @loc 1
  */
 UserConstExt.query().find();
 
 /**
- * @typeTest
+ * @tssert
  * @tsError 2322
  * @loc 2:23
  */
@@ -346,7 +352,7 @@ UserConstExt.findOne(null).$rc.next()
   .then( u => { const x: UserConstExt = ''; });
 
 /**
- * @typeTest
+ * @tssert
  * @tsError 2339
  * @loc 22
  */
@@ -361,7 +367,7 @@ UserConstExt.findOne(null)
   .then( u => u.method(15));
 
 /**
- * @typeTest
+ * @tssert
  * @tsError 2345
  * @loc 6:24
  */
@@ -376,14 +382,14 @@ UserConstExt.find('CatA');
 UserConstExt.find({ urlParams: { } });
 
 /**
- * @typeTest
+ * @tssert
  * @tsError 2353
  * @loc 21
  */
 UserConstExt.find({ urlParams123: { } });
 
 /**
- * @typeTest extend action
+ * @tssert extend action
  * @tsError 2559
  * @tsErrorMsg Type '"dfdf"' has no properties in common with type 'HttpActionOptions'.
  * @loc 19
