@@ -30,6 +30,7 @@
     "dist",
     "dist_package",
     "src/demo",
+    "src/**/*.type-spec.ts",
     "src/@tdm/ngx-http"
   ],
   "awesomeTypescriptLoaderOptions": {

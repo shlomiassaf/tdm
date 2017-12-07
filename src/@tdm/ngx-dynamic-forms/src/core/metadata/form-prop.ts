@@ -8,9 +8,7 @@ export interface FormPropMetadataArgs {
    * By default every class property decorated with @Prop or @FormProp is included in the output of
    * a serialization process. Setting Exclude will make sure it is not part of the form.
    *
-   * > NOTE: A property decorated with @Prop and @Exclude and WITHOUT a @FormProp decorated is also
-   * excluded.
-   *
+   * > NOTE: Setting exclude via `@Exclude` or `@Prop` with `exclude` does not exclude the `@FormProp`.
    */
   exclude?: boolean;
 
@@ -47,6 +45,10 @@ export interface FormPropMetadataArgs {
   asyncValidators?: AsyncValidatorFn | Array<AsyncValidatorFn>;
 }
 
+export const BASE_RENDERER: RenderDef = {
+  ordinal: Number.MAX_SAFE_INTEGER
+};
+
 @MetaClass<FormPropMetadataArgs, FormPropMetadata>({
   allowOn: ['member'],
   extend: 'prop',
@@ -67,6 +69,7 @@ export class FormPropMetadata extends BaseMetadata {
 
   constructor(metaArgs: FormPropMetadataArgs, info: DecoratorInfo) {
     super(info);
+    this.render = Object.create(BASE_RENDERER);
     if (metaArgs) {
       this.transform = metaArgs.transform;
       this.exclude = metaArgs.exclude;
@@ -74,10 +77,10 @@ export class FormPropMetadata extends BaseMetadata {
       this.validators = this.normValidators(metaArgs.validators);
       this.required = metaArgs.required;
       this.asyncValidators = this.normValidators(metaArgs.asyncValidators);
-      this.render = !this.exclude && metaArgs.render ? metaArgs.render : {};
+      if (!this.exclude && metaArgs.render) {
+        Object.assign(this.render, metaArgs.render);
+      }
       this.childForm = metaArgs.childForm;
-    } else {
-      this.render = {};
     }
   }
 

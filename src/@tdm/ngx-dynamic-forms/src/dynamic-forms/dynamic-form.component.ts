@@ -120,6 +120,11 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    * @param value {*|[*, *]}
    */
   @Input() set model(value: T | [T, Type<T>]) {
+    if (this.slaveMode) {
+      throw new Error('Setting a model is not allowed when in slave mode.');
+    }
+    this.slaveMode = false;
+
     const [instance, type] = Array.isArray(value) ? value : [value, <any>value.constructor];
     this.instance = instance;
     this.type = type;
@@ -133,6 +138,38 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
       this.tdmForm.setContext(this.instance, this.type);
     }
     this.update();
+  }
+
+  /**
+   * Setting the dynamic form as a slave of another dynamic form.
+   * You can this feature to split forms of complex models.
+   *
+   * A form in slave mode has very limited functionality, it can only exclude controls and override controls.
+   * All other options (hidden state, disabled state, hot binding etc..) are not supported in the slave and should be
+   * handled in the master.
+   *
+   * Make sure you are not rendering the same controls more then once. A group of master and all of it's slave should
+   * render only one instance of a control across the whole group. If you render the same control multiple times
+   * you will get unexpected behaviour and unsynced controls.
+   *
+   * You can set any number of slaves.
+   * You can not change or remove the master.
+   * You can not set a model when using slave mode.
+   *
+   * A slave does not handle form state, it only handles internal rendering and this is why only exclude and override
+   * are supported, hidden and disabled are drived by the form state...
+   * @param dynForm
+   */
+  @Input() set slaveOf(dynForm: DynamicFormComponent<T>) {
+    if (this.slaveMode === true) {
+      return; // TODO: warn? error? slave mode can only be set once.
+    } else if (this.slaveMode === false) {
+      throw new Error('Slave mode does not work when setting a model');
+    }
+    this.tdmForm = dynForm.tdmForm;
+    this.instance = dynForm.instance;
+    this.type = dynForm.type;
+    this.slaveMode = true;
   }
 
   @Input() set exclude(value: string[]) {
@@ -233,6 +270,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   private afterInit: boolean;
   private rendering$ = new BehaviorSubject<boolean>(false);
   private _ngNativeValidate: any = false;
+  private slaveMode: boolean;
 
   constructor(private tdmModelFormService: TDMModelFormService,
               private kvDiffers: KeyValueDiffers,

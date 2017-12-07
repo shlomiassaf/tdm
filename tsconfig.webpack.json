@@ -35,6 +35,7 @@
     "dist",
     "e2e",
     "src/**/*.spec.ts",
+    "src/**/*.type-spec.ts",
     "src/@tdm/ngx-http"
   ],
   "compileOnSave": false

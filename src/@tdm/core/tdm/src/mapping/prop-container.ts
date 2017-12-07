@@ -9,12 +9,12 @@ export interface PoClassPropertyMap {
   cls: PropertyKey;
   obj: string;
   exclude?: ExcludeMetadata;
-  prop?: PropMetadata
+  prop?: PropMetadata;
 }
 
 export interface CompiledTransformation {
   /**
-   * Excluded members that are doesn't have a @Prop decorators.
+   * Excluded members that doesn't have a @Prop decorator.
    * All @Exclude instructions on members with @Prop instructions are add to the PoClassPropertyMap
    */
   excluded: ExcludeMetadata[];

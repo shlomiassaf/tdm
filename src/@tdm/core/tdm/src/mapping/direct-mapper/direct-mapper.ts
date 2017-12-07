@@ -148,7 +148,7 @@ export class DirectSerializeMapper extends SerializeMapper {
           // if the rel points to a different fk property name, @tdm will make sure prop.obj is that fk.
           data[pMap.obj] = obj[pMap.cls][idKey];
         } else {
-          data[pMap.obj] = targetStore.serialize(type, new DirectChildSerializeMapper(obj[pMap.cls], this.cache, this.plainMapper))
+          data[pMap.obj] = targetStore.serialize(type, new DirectChildSerializeMapper(obj[pMap.cls], this.cache, this.plainMapper));
         }
       } else {
         const newVal = this.plainMapper.serialize(transformValueOut(obj[pMap.cls], p));

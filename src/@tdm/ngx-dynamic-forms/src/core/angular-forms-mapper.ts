@@ -51,7 +51,7 @@ export class NgFormsSerializeMapper extends SerializeMapper {
     const formModel = targetStore.getMetaFor(container.target, FormModelMetadata, true);
 
     if (!formModel) {
-      throw new Error(`Target '${stringify(container.target)}' is not a registered FormModel`)
+      throw new Error(`Target '${stringify(container.target)}' is not a registered FormModel`);
     }
 
     const data: FormGroup = new FormGroup({}, formModel.validator, formModel.asyncValidator);
@@ -59,11 +59,7 @@ export class NgFormsSerializeMapper extends SerializeMapper {
     const cb = (prop: PoClassPropertyMap) => {
       const meta = prop.prop;
 
-      /*
-       Decorated by @Prop, @FormProp or both.
-       FormPropMetadataArgs.exclude is not true.
-       */
-      if (!meta || prop.exclude) {
+      if (!meta) {
         return;
       }
 
@@ -166,7 +162,6 @@ export class NgFormsChildSerializeMapper extends NgFormsSerializeMapper {
     super(source, plainMapper);
   }
 }
-
 
 export const ngFormsMapper: MapperFactory = {
   serializer(source: any, plainMapper?: PlainObjectMapper): NgFormsSerializeMapper {

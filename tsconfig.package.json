@@ -41,6 +41,7 @@
     "dist_package",
     "e2e",
     "src/**/*.spec.ts",
+    "src/**/*.type-spec.ts",
     "src/demo",
     "src/@tdm/ngx-http"
   ]

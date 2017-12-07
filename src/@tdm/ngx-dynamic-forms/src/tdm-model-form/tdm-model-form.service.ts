@@ -2,7 +2,7 @@ import { Injectable, Type } from '@angular/core';
 import { targetStore, PropMetadata } from '@tdm/core/tdm';
 import { TDMModelForm } from './tdm-model-form';
 
-import { FormModelMetadata } from '../core/index';
+import { BASE_RENDERER, FormModelMetadata } from '../core/index';
 import { RenderInstruction } from '../interfaces';
 
 /**
@@ -16,6 +16,7 @@ export class TDMModelFormService {
     return type
       ? targetStore.getMetaFor(type, FormModelMetadata, true)
       : undefined
+    ;
   }
 
   getInstructions(type: Type<any>): RenderInstruction[] {
@@ -36,7 +37,10 @@ export class TDMModelFormService {
       if (formProp && formProp.exclude) {
         return undefined;
       } else {
-        return Object.assign( { name: p.name as string }, (formProp && formProp.render) || {} )
+        return Object.create(
+          formProp ? formProp.render : BASE_RENDERER,
+          { name: { value: p.name } }
+        );
       }
     })
       .filter( v => !!v);

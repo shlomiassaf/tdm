@@ -1,4 +1,4 @@
-import * as chalk from 'chalk';
+import chalk from 'chalk';
 const runSequence = require('run-sequence');
 
 import { validateDeps } from '../util/validate_deps';
@@ -16,8 +16,8 @@ function filterPackageSelection(packages) {
   const idx = process.argv.indexOf('--select');
 
   if (idx > -1) {
-    if (!process.argv[idx+1]) {
-      throw new Error('Invalid library selection.')
+    if (!process.argv[idx + 1]) {
+      throw new Error('Invalid library selection.');
     }
     const selected = process.argv[idx + 1].split(',').map( v => v.trim() );
     selected.forEach( s => {

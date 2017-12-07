@@ -63,7 +63,7 @@ export class TDMModelForm<T = any> {
    */
   setContext(instance: T, type?: Type<T>) {
     if (!type) {
-      type = <any>instance.constructor;
+      type = <any> instance.constructor;
     }
 
     if (this._model === instance && this._type === type) {

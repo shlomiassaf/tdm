@@ -33,11 +33,11 @@ export function factory(this: MetaClassMetadata<ExcludeMetadataArgs, ExcludeMeta
   } else {
     return {
       info,
-      target: <any>target.constructor,
+      target: <any> target.constructor,
       metaClassKey: ExcludeMetadata,
       metaPropKey: info.name,
       metaValue: new ExcludeMetadata(metaArgs, info)
-    }
+    };
   }
 }
 
@@ -62,7 +62,7 @@ export class ExcludeMetadata extends BaseMetadata {
   }
 }
 
-//to make it easy on generics later
+// to make it easy on generics later
 declare module '../fw/metadata-framework/meta-class' {
   module MetaClass {
     function get(target: typeof ExcludeMetadata): MetaClassMetadata<ExcludeMetadataArgs, ExcludeMetadata>;
