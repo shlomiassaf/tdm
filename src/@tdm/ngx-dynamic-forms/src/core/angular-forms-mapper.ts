@@ -31,7 +31,6 @@ export class NgFormsDeserializeMapper extends DirectDeserializeMapper {
   readonly raw: boolean = true;
 }
 
-
 export class NgFormsSerializeMapper extends SerializeMapper {
   protected cache: Map<any, any>;
 
@@ -85,7 +84,7 @@ export class NgFormsSerializeMapper extends SerializeMapper {
           : this.serializePlain(value)
         ;
       } else {
-        ctrl = new FormControl(value || '');
+        ctrl = new FormControl(value);
       }
 
       const validators = this.getValidators(formProp);
