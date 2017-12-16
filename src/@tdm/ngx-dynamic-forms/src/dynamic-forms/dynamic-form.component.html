@@ -1,13 +1,8 @@
 <form #formElRef [formGroup]="tdmForm.form">
     <div *ngFor="let item of controls | async; trackBy: tdmForm.trackBy" [ngClass]="controlClass" [style.display]="item.display">
-        <ng-container *ngIf="!item.override; else override">
-            <ng-container *dynamicFormControl="item"></ng-container>
-        </ng-container>
-        <ng-template #override
-                     [ngTemplateOutlet]="item.override?.template"
-                     [ngTemplateOutletContext]="{ $implicit: item.override, dynamicFormOverride: item.override, meta: item }">
-        </ng-template>
+      <div>
+        <ng-container *dynamicFormControl="item"></ng-container>
+      </div>
     </div>
-
     <ng-content></ng-content>
 </form>

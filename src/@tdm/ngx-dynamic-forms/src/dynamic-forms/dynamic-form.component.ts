@@ -28,11 +28,6 @@ import { BeforeRenderEventHandler } from './before-render-event-handler';
 
 export interface LocalRenderInstruction extends RenderInstruction {
   /**
-   * If set, indicates that the instruction is overridden by a user-defined content template.
-   */
-  override: DynamicFormOverrideDirective | undefined;
-
-  /**
    * User to show/hide controls
    * @internal
    */
@@ -169,6 +164,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     this.tdmForm = dynForm.tdmForm;
     this.instance = dynForm.instance;
     this.type = dynForm.type;
+    this.overrideMap = dynForm.overrideMap;
     this.slaveMode = true;
   }
 
@@ -271,12 +267,17 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   private rendering$ = new BehaviorSubject<boolean>(false);
   private _ngNativeValidate: any = false;
   private slaveMode: boolean;
+  private overrideMap = new Map<RenderInstruction, DynamicFormOverrideDirective>();
 
   constructor(private tdmModelFormService: TDMModelFormService,
               private kvDiffers: KeyValueDiffers,
               private itDiffers: IterableDiffers,
               private renderer: Renderer2) {
     this.renderState = this.rendering$.asObservable();
+  }
+
+  getOverride(item : RenderInstruction): DynamicFormOverrideDirective | undefined {
+    return this.overrideMap.get(item);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -361,12 +362,15 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     const controlsReady: Promise<any>[] = [];
     const controls: LocalRenderInstruction[] = [];
     const controlsPromiseSetter = done => controlsReady.push(done);
+    this.overrideMap.clear();
 
     this.tdmForm.renderData.forEach(rd => {
       if (!this.filters.exc || this.filters.exc.indexOf(rd.name) === -1) {
         const localRd: LocalRenderInstruction = Object.create(rd);
-        localRd.override = this.overrides.find(ow => ow.dynamicFormOverride === localRd.name);
-
+        const override = this.overrides.find(ow => ow.dynamicFormOverride === localRd.name);
+        if (override) {
+          this.overrideMap.set(localRd, override);
+        }
         const renderEvent = new BeforeRenderEventHandler(localRd, controlsPromiseSetter);
         this.beforeRender.emit(renderEvent);
 

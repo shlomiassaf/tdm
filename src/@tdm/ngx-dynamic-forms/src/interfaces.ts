@@ -70,4 +70,13 @@ export interface RenderDef<T = any> {
  */
 export interface RenderInstruction extends RenderDef {
   name: string;
+  /**
+   * When set indicated this is form control flattened from a nested object.
+   * The string represents the path **from the root control** (NgForm) to the parent of this flattened control.
+   *
+   * The path support the same values accepted by the `get` method in `AbstractControl`, i.e.
+   * you can use dot notation / Array<string | number> to describe deep paths.
+   * See https://angular.io/api/forms/AbstractControl#get
+   */
+  flattened?: Array<string | number>;
 }

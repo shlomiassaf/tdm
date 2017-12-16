@@ -26,10 +26,9 @@ export class DirectDeserializeMapper extends DeserializeMapper {
     }
   }
 
+  protected current: any;
+  protected identity: string;
   private idx: number = -1;
-  private current: any;
-  private identity: string;
-
 
   constructor(source: any, sourceType: any, plainMapper?: PlainObjectMapper) {
     super(source, sourceType, plainMapper);
@@ -47,7 +46,7 @@ export class DirectDeserializeMapper extends DeserializeMapper {
   }
 
   getIdentity(): string {
-    // TODO: Move compare to the global store, so logic can change without bugs.
+    // TODO: Move to the global store, so logic can change without bugs.
     return this.current[this.identity];
   }
 
@@ -77,9 +76,10 @@ export class DirectDeserializeMapper extends DeserializeMapper {
       // this relationship handling logic makes this whole adapter support only primitive ID properties.
       // if we have primitives we treat them as id's and create an object.
       // later we wil check if this value is in cache, if not create it.
-      /// if its not a primitive, it will process as a full object inlcuded in the payload.
-      if (prop.relation && isPrimitive(value)) {
-        value = { [targetStore.getIdentityKey(prop.type.ref as any, 'outgoing')]: value };
+      // if its not a primitive, it will process as a full object included in the payload.
+      const rel = this.getRelationQuery(prop, value);
+      if (rel) {
+        value = rel;
       }
 
       if (targetStore.hasTarget(prop.type.ref)) {
@@ -103,11 +103,21 @@ export class DirectDeserializeMapper extends DeserializeMapper {
     return targetStore.deserialize(mapper);
   }
 
-  private getCache(type: any, value: any): any | undefined {
+  /**
+   *  Returns a relationship object with the identity property set.
+   *  This object can then be used by the cache to identify if a value is cached or not (using the type & identity comb)
+   */
+  protected getRelationQuery(prop: PropMetadata, value: any): any {
+    if (prop.relation && isPrimitive(value)) {
+     return { [targetStore.getIdentityKey(prop.type.ref as any, 'outgoing')]: value };
+    }
+  }
+
+  protected getCache(type: any, value: any): any | undefined {
     const idKey = targetStore.getIdentityKey(type, 'outgoing');
     const idVal = idKey && value[idKey];
     if (idVal) {
-      return this.existing.get(type, idVal)
+      return this.existing.get(type, idVal);
     }
   }
 

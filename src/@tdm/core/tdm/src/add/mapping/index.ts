@@ -34,7 +34,6 @@ declare module '@tdm/core/tdm/src/metadata/target-metadata' {
   }
 }
 
-
 export function initMapping(): void {
   @Model({ resName: 'InternalPlainObject' })
   class PlainObject {}
@@ -123,8 +122,6 @@ export function initMapping(): void {
       }
     }
   }
-
-
 
   Tixin(TargetMetadata, MappingTargetMetadata);
 }

@@ -1,7 +1,15 @@
 <div>
   <div>
-    <button mat-mini-fab (click)="addUser()"><mat-icon>add</mat-icon></button>
+    <button mat-mini-fab (click)="addEditUser()"><mat-icon>add</mat-icon></button>
     <mat-table #table [dataSource]="usersDatatSource">
+      <ng-container matColumnDef="edit">
+        <mat-header-cell *matHeaderCellDef></mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <button mat-icon-button (click)="addEditUser(element)">
+            <mat-icon aria-label="Edit">edit</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
       <ng-container matColumnDef="id">
         <mat-header-cell *matHeaderCellDef> ID </mat-header-cell>
         <mat-cell *matCellDef="let element"> {{element.id}} </mat-cell>
@@ -16,7 +24,10 @@
       </ng-container>
 
       <mat-header-row *matHeaderRowDef="userColumns"></mat-header-row>
-      <mat-row *matRowDef="let row; columns: userColumns;"></mat-row>
+      <mat-row *matRowDef="let row; columns: userColumns;"
+               class="element-row"
+               matRipple
+               [cdkDetailRow]="row" [cdkDetailRowTpl]="tpl"></mat-row>
     </mat-table>
 
     <br>
@@ -58,6 +69,12 @@
     </mat-table>
   </div>
 </div>
+
+<ng-template #tpl let-element>
+  <div [@detailExpand] class="mat-row" style="overflow: hidden">
+    <pre>{{element|json}}</pre>
+  </div>
+</ng-template>
 
 <ng-template #postTemplate let-element>
   <dynamic-form #dyn
