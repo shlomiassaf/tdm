@@ -8,11 +8,19 @@ import { DataSourceContainer } from '@shared';
 import { DynamicFormContainerComponent } from './dynamic-form-container/dynamic-form-container.component';
 import { User, Post } from '../models';
 import { posts, users } from '../db';
+import { animate, state, style, transition, trigger } from '@angular/animations';
 
 @Component({
   selector: 'forms-demo-page',
   styleUrls: [ './forms-demo-page.component.css' ],
-  templateUrl: './forms-demo-page.component.html'
+  templateUrl: './forms-demo-page.component.html',
+  animations: [
+    trigger('detailExpand', [
+      state('void', style({height: '0px', minHeight: '0', visibility: 'hidden'})),
+      state('*', style({height: '*', visibility: 'visible'})),
+      transition('void <=> *', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)'))
+    ]),
+  ],
 })
 export class FormsDemoPageComponent {
   hotBind: boolean;
@@ -27,6 +35,7 @@ export class FormsDemoPageComponent {
   ];
 
   userColumns = [
+    'edit',
     'id',
     'name',
     'email'
@@ -43,12 +52,16 @@ export class FormsDemoPageComponent {
   @ViewChild('postTemplate') postTemplate: TemplateRef<any>;
   constructor(public dialog: MatDialog) {}
 
-  addUser() {
-    const newUser = new User();
-    this.dialog.open(DynamicFormContainerComponent, { data: { instance: newUser } })
+  addEditUser(user?: User) {
+    let isNew = false;
+    if (!user) {
+      user = new User();
+      isNew = true;
+    }
+    this.dialog.open(DynamicFormContainerComponent, { data: { instance: user } })
       .afterClosed().subscribe( value => {
-        if (value === true) {
-          this.usersDatatSource.updateSource([newUser], true);
+        if (value === true && isNew) {
+          this.usersDatatSource.updateSource([user], true);
         }
     } );
   }

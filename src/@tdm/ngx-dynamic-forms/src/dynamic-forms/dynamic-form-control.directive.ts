@@ -9,6 +9,7 @@ import {
   Inject,
   InjectionToken
 } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 
 import { RenderInstruction } from '../interfaces';
 import { TDMModelForm } from '../tdm-model-form/index';
@@ -17,6 +18,7 @@ import { DynamicFormComponent } from './dynamic-form.component';
 export interface DynamicFormControlRenderer {
   item: RenderInstruction;
   tdmForm: TDMModelForm<any>;
+  formGroup: FormGroup;
 }
 
 /**
@@ -42,7 +44,9 @@ export class DynamicFormControlDirective {
   }
 
   @Input() set dynamicFormControl(value: RenderInstruction) {
-    if (this.render === value) return;
+    if (this.render === value) {
+      return;
+    }
     this.render = value;
 
     this.vcRef.clear();
@@ -51,10 +55,25 @@ export class DynamicFormControlDirective {
       const injector = this.vcRef.parentInjector;
       const resolver = injector.get(ComponentFactoryResolver);
       const componentFactory = resolver.resolveComponentFactory(this.component);
-
-      this.cmpRef = this.vcRef.createComponent<DynamicFormControlRenderer>(componentFactory, this.vcRef.length, injector);
-      this.cmpRef.instance.tdmForm = this.dynForm.tdmForm;
-      this.cmpRef.instance.item = value;
+      const override = this.dynForm.getOverride(value);
+      if (override) {
+        this.vcRef.createEmbeddedView(
+          override.template,
+          { $implicit: override, dynamicFormOverride: override, meta: value }
+        );
+      } else {
+        this.cmpRef = this.vcRef.createComponent<DynamicFormControlRenderer>(
+          componentFactory,
+          this.vcRef.length,
+          injector
+        );
+        this.cmpRef.instance.tdmForm = this.dynForm.tdmForm;
+        this.cmpRef.instance.formGroup = value.flattened
+          ? this.dynForm.tdmForm.form.get(value.flattened) as FormGroup
+          : this.dynForm.tdmForm.form
+        ;
+        this.cmpRef.instance.item = value;
+      }
     }
   }
 

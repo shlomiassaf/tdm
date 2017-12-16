@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { RenderInstruction, TDMModelForm, DynamicFormControlRenderer } from '@tdm/ngx-dynamic-forms';
+import { FormGroup } from '@angular/forms';
 
 /**
  * Allow rendering a form element using @tdm/ngx-dynamic-forms
@@ -19,4 +20,12 @@ import { RenderInstruction, TDMModelForm, DynamicFormControlRenderer } from '@td
 export class DynamicFormElementComponent implements DynamicFormControlRenderer {
   @Input() item: RenderInstruction;
   @Input() tdmForm: TDMModelForm<any>;
+  @Input() formGroup: FormGroup;
+
+  hasError(errorName: string): boolean {
+    return this.item.flattened
+      ? this.tdmForm.form.get(this.item.flattened.concat([this.item.name])).hasError(errorName)
+      : this.tdmForm.hasError(errorName, this.item.name)
+    ;
+  }
 }

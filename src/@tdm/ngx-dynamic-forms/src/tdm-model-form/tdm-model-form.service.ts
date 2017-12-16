@@ -2,7 +2,7 @@ import { Injectable, Type } from '@angular/core';
 import { targetStore, PropMetadata } from '@tdm/core/tdm';
 import { TDMModelForm } from './tdm-model-form';
 
-import { BASE_RENDERER, FormModelMetadata } from '../core/index';
+import { BASE_RENDERER, FormModelMetadata, FormPropMetadata } from '../core/index';
 import { RenderInstruction } from '../interfaces';
 
 /**
@@ -32,17 +32,32 @@ export class TDMModelFormService {
   private _getInstructions(type: Type<any>): RenderInstruction[] {
     const props = targetStore.getTargetMeta(type).getValues(PropMetadata);
     const formMeta = this.getMeta(type);
-    return props.map( p => {
+    const instructions: RenderInstruction[] = [];
+    props.forEach( p => {
       const formProp = formMeta.getProp(p.name as string);
-      if (formProp && formProp.exclude) {
-        return undefined;
-      } else {
-        return Object.create(
-          formProp ? formProp.render : BASE_RENDERER,
-          { name: { value: p.name } }
-        );
+      if (!formProp) {
+        instructions.push(Object.create(BASE_RENDERER, { name: { value: p.name } }));
+      } else if (!formProp.exclude) {
+        if (formProp.flatten) {
+          this.applyFlatten(formProp.flatten, [p.name as string], instructions);
+        } else {
+          instructions.push(Object.create(formProp.render, { name: { value: p.name } }));
+        }
       }
-    })
-      .filter( v => !!v);
+    });
+    return instructions;
+  }
+
+  private applyFlatten(props: { [keys: string]: FormPropMetadata },
+                       path: Array<string | number>,
+                       instructions: RenderInstruction[]): void {
+    for (let key of Object.keys(props)) {
+      const p = props[key];
+      if (p.flatten) {
+        this.applyFlatten(p.flatten, path.concat([key]), instructions);
+      } else {
+        instructions.push(Object.create(p.render, { name: { value: key }, flattened: { value: path } }));
+      }
+    }
   }
 }

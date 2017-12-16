@@ -43,8 +43,10 @@ export class FormModelMetadata extends BaseMetadata implements FormModelMetadata
           metaArgs.render.type = 'number';
           break;
         default:
-          // TODO: throw an informative error
-          throw new Error('Invalid form type or type not set.');
+          if (!metaArgs.flatten) {
+            // TODO: throw an informative error
+            throw new Error('Invalid form type or type not set.');
+          }
       }
     }
     this.props.set(prop.name as any, metaArgs);

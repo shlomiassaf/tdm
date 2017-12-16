@@ -31,4 +31,78 @@ export class User {
     }
   })
   email: string;
+
+  @FormProp({
+    flatten: {
+      street: {
+        required: true,
+        render: {
+          type: 'text',
+          label: 'STREET'
+        }
+      },
+      city: {
+        required: true,
+        render: {
+          type: 'text',
+          label: 'CITY'
+        }
+      },
+      zip: {
+        render: {
+          type: 'number',
+          label: 'ZIP'
+        }
+      },
+      state: {
+        defaultValue: 'CA',
+        render: {
+          label: 'STATE',
+          type: 'select',
+          data: {
+            selections: [
+              { value: 'CA', label: 'California' },
+              { value: 'NY', label: 'New York' },
+              { value: 'WA', label: 'Washington' },
+              { value: 'NJ', label: 'New Jersey' }
+            ]
+          }
+        }
+      },
+      nested: {
+        flatten: {
+          nested1: {
+            required: true,
+            render: {
+              type: 'text',
+              label: 'Nested 1 - Required'
+            }
+          },
+          nested2: {
+            render: {
+              type: 'number',
+              label: 'Nested 2'
+            }
+          },
+          nested3: {
+            render: {
+              type: 'number',
+              label: 'Nested 3'
+            }
+          },
+        }
+      }
+    }
+  })
+  address: {
+    street: string;
+    city: string;
+    zip: number;
+    state: 'CA' | 'NY' | 'GA' | 'WY';
+    nested: {
+      nested1: string;
+      nested2: number;
+      nested3: number;
+    }
+  };
 }

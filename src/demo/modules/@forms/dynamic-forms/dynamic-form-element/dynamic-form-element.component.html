@@ -1,4 +1,4 @@
-<ng-container [formGroup]="tdmForm.form" [ngSwitch]="item.type">
+<ng-container [formGroup]="formGroup" [ngSwitch]="item.type">
   <mat-checkbox *ngSwitchCase="'boolean'"
                [formControlName]="item.name">{{ item.label }}</mat-checkbox>
 
@@ -26,12 +26,12 @@
     </mat-radio-group>
   </ng-container>
 
-
-  <mat-select *ngSwitchCase="'select'"
-             [formControlName]="item.name"
-             [placeholder]="item.label">
-    <mat-option *ngFor="let sel of item.data.selections" [value]="sel.value">{{sel.label || sel.value}}</mat-option>
-  </mat-select>
+  <mat-form-field *ngSwitchCase="'select'">
+    <mat-select [formControlName]="item.name"
+                [placeholder]="item.label">
+      <mat-option *ngFor="let sel of item.data.selections" [value]="sel.value">{{sel.label || sel.value}}</mat-option>
+    </mat-select>
+  </mat-form-field>
 
   <mat-form-field *ngSwitchDefault>
     <input matInput
@@ -39,7 +39,7 @@
            [formControlName]="item.name"
            [placeholder]="item.label"
            [min]="item.data?.min" [max]="item.data?.max">
-    <mat-error *ngIf="tdmForm.hasError('required', item.name)">Required</mat-error>
+    <mat-error *ngIf="hasError('required')">Required</mat-error>
   </mat-form-field>
 
 </ng-container>

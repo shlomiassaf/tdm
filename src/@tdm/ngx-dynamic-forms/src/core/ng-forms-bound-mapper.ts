@@ -1,28 +1,30 @@
-import { FormGroup } from '@angular/forms';
+import {FormGroup} from '@angular/forms';
+import {
+  targetStore,
+  Constructor,
+  PlainObjectMapper,
+  TargetMetadata
+} from '@tdm/core/tdm';
 
-import { targetStore, DualKeyMap, Constructor, TargetMetadata, PropMetadata, directMapper } from '@tdm/core/tdm';
-
-import { NgFormsSerializeMapper, NgFormsDeserializeMapper } from './angular-forms-mapper';
-
+import { DeserializableForm, NgFormsSerializeMapper, NgFormsDeserializeMapper } from './angular-forms-mapper';
+import { FormPropMetadata } from './metadata/index';
 
 class NgFormsBoundDeserializeMapper extends NgFormsDeserializeMapper {
 
-  protected deserialize(value: any, prop: PropMetadata): any {
-    const mapper = this.ref
-      ? new NgFormsChildDeserializeMapper(value, prop.type.ref, this.existing)
-      : directMapper.deserializer(value, prop.type.ref)
-    ;
+  constructor(public formGroup: DeserializableForm,
+              sourceType: any,
+              public instance: any,
+              plainMapper?: PlainObjectMapper) {
+    super(formGroup.value, sourceType, plainMapper);
+  }
 
-    return targetStore.deserialize(mapper, this.ref ? this.ref[prop.name] : undefined);
+  protected deserializeFlattened(control: DeserializableForm,
+                                 controlKey: string,
+                                 props: { [keys: string]: FormPropMetadata },
+                                 result?: any): any {
+    return super.deserializeFlattened(control, controlKey, props, this.instance[controlKey]);
   }
 }
-
-export class NgFormsChildDeserializeMapper extends NgFormsDeserializeMapper {
-  constructor(source: any, sourceType: any, protected existing: DualKeyMap<any, string, any>) {
-    super(source, sourceType);
-  }
-}
-
 
 /**
  * An instance of NgFormsSerializeMapper and NgFormsDeserializeMapper bound to the same type & instance.
@@ -42,7 +44,7 @@ export class NgFormsBoundMapper<T> {
   }
 
   deserialize(): T {
-    this.meta.deserialize(new NgFormsBoundDeserializeMapper(this.fg.getRawValue(), this.type), this.instance);
+    this.meta.deserialize(new NgFormsBoundDeserializeMapper(this.fg, this.type, this.instance), this.instance);
     return this.instance;
   }
 }

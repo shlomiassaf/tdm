@@ -6,7 +6,6 @@ export function toCamelCase(propertyName: string) { return camelCase(propertyNam
 export function toSnakeCase(propertyName: string) { return snakeCase(propertyName) }
 
 // https://restcountries.eu/#api-endpoints-name
-debugger;
 /**
  * This resource wraps a single endpoint REST API which means it is not resource oriented.
  * The API uses query parameters to identify the request.

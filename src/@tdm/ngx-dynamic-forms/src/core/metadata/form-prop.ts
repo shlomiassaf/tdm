@@ -30,6 +30,17 @@ export interface FormPropMetadataArgs {
   required?: boolean;
 
   /**
+   * Instructions for flattening the object referenced on this property.
+   * The property must reference a JS object.
+   *
+   * flatten properties does not require a render instructions.
+   * When set, the property is treated as a plain object regardless of it's type so you can also send plain JS objects.
+   *
+   * NOTE that FormPropMetadataArgs definitions in a flatten instruction might not support all features.
+   */
+  flatten?: { [key: string]: FormPropMetadataArgs },
+
+  /**
    * Declares the property as a nested child form.
    * The property type must a complex object.
    * This is has no effect on UI rendering, only used by the mapper.
@@ -66,6 +77,7 @@ export class FormPropMetadata extends BaseMetadata {
   validators: Array<ValidatorFn> | null;
   asyncValidators: Array<AsyncValidatorFn> | null;
   childForm: boolean;
+  flatten?: { [key: string]: FormPropMetadata };
 
   constructor(metaArgs: FormPropMetadataArgs, info: DecoratorInfo) {
     super(info);
@@ -73,7 +85,9 @@ export class FormPropMetadata extends BaseMetadata {
     if (metaArgs) {
       this.transform = metaArgs.transform;
       this.exclude = metaArgs.exclude;
-      this.defaultValue = metaArgs.defaultValue;
+      if (metaArgs.hasOwnProperty('defaultValue')) {
+        this.defaultValue = metaArgs.defaultValue;
+      }
       this.validators = this.normValidators(metaArgs.validators);
       this.required = metaArgs.required;
       this.asyncValidators = this.normValidators(metaArgs.asyncValidators);
@@ -81,6 +95,12 @@ export class FormPropMetadata extends BaseMetadata {
         Object.assign(this.render, metaArgs.render);
       }
       this.childForm = metaArgs.childForm;
+      if (metaArgs.flatten) {
+        this.flatten = {};
+        for (let key of Object.keys(metaArgs.flatten)) {
+          this.flatten[key] = new FormPropMetadata(metaArgs.flatten[key], { type: 'member', name: key });
+        }
+      }
     }
   }
 
