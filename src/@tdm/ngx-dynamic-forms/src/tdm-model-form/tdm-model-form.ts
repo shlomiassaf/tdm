@@ -78,9 +78,10 @@ export class TDMModelForm<T = any> {
    * @param path The path, relative to the root form. Accepts the same types as `AbstractControl.get`.
    * See {@link https://angular.io/api/forms/AbstractControl#get}
    * @param value The value to apply on the control retrieved from path
+   * @param options
    */
-  setValue(path: Array<string | number> | string, value: any): void {
-    this.form.get(path).setValue(value);
+  setValue(path: Array<string | number> | string, value: any, options?: any): void {
+    this.form.get(path).setValue(value, options);
   }
 
   hasError(errorCode: string, path: keyof T): boolean {

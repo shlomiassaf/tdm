@@ -16,7 +16,7 @@ import {
   IterableDiffers,
   KeyValueDiffer,
   KeyValueDiffers,
-  KeyValueChangeRecord, ElementRef, ViewChild, Renderer2, AfterViewInit, DoCheck, OnChanges, SimpleChanges
+  KeyValueChangeRecord, ElementRef, ViewChild, Renderer2, AfterViewInit, DoCheck, OnChanges, SimpleChanges, SimpleChange
 } from '@angular/core';
 import { AbstractControl, FormGroup } from '@angular/forms';
 
@@ -38,7 +38,13 @@ export interface LocalRenderInstruction extends RenderInstruction {
  * Represents a single change in a form.
  * This type is an alias of KeyValueChangeRecord<string, any>
  */
-export type TdmFormChange = KeyValueChangeRecord<string, any>;
+export interface TdmFormChange extends KeyValueChangeRecord<string, any> {
+  /**
+   * When true indicates that the `key` property contains a path and not a name, i.e it's a dot delimited path to a
+   * property through nested object (or objects)
+   */
+  deep?: boolean;
+}
 
 /**
  * Represents a collection of changes in a form
@@ -131,7 +137,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     }
     this.slaveMode = false;
 
-    const [instance, type] = Array.isArray(value) ? value : [value, <any>value.constructor];
+    const [instance, type] = Array.isArray(value) ? value : [value, <any> value.constructor];
     this.instance = instance;
     this.type = type;
 
@@ -199,6 +205,13 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
 
   /**
    * Event emitted when a form value changes.
+   *
+   * When a change occurs in a child property of a flattened property (nested objects) the `key` property in the change
+   * represents a path (not the name) to the value from the root object.
+   *
+   * > Note that each event is emitted synchronously and all listeners will run in sequence. While listeners run new
+   * change events are blocked which means you can change form values without the event firing again. If you do want
+   * a re-fire change the value async.
    */
   @Output() valueChanges = new EventEmitter<TdmFormChanges>();
 
@@ -274,6 +287,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   private instance: T;
   private type: Type<T>;
   private subscriptions: Subscription[] = [];
+  private freezeValueChanges: boolean;
   private valueDiffer: KeyValueDiffer<string, any>;
   private stateDiffer: { disabled?: IterableDiffer<keyof T>; hidden?: IterableDiffer<keyof T>; } = {};
   private filters = { exc: [] as string[], ow: [] as string[] };
@@ -295,31 +309,12 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-
     if (changes.disabledState) {
-      const disabled = changes.disabledState;
-      if (!disabled.currentValue && this.stateDiffer.disabled) {
-        const diff = this.stateDiffer.disabled.diff([]);
-        if (diff) {
-          this.handleDiff('disabled', diff);
-        }
-        this.stateDiffer.disabled = undefined;
-      } else if (!disabled.previousValue && disabled.currentValue) {
-        this.stateDiffer.disabled = this.itDiffers.find(disabled.currentValue).create();
-      }
+      this.onStateChange('disabled', changes.disabledState);
     }
 
     if (changes.hiddenState) {
-      const hidden = changes.hiddenState;
-      if (!hidden.currentValue && this.stateDiffer.hidden) {
-        const diff = this.stateDiffer.hidden.diff([]);
-        if (diff) {
-          this.handleDiff('hidden', diff);
-        }
-        this.stateDiffer.hidden = undefined;
-      } else if (!hidden.previousValue && hidden.currentValue) {
-        this.stateDiffer.hidden = this.itDiffers.find(hidden.currentValue).create();
-      }
+      this.onStateChange('hidden', changes.hiddenState);
     }
   }
 
@@ -381,7 +376,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
       return;
     }
 
-    const controlsReady: Promise<any>[] = [];
+    const controlsReady: Array<Promise<any>> = [];
     const controls: LocalRenderInstruction[] = [];
     const controlsPromiseSetter = done => controlsReady.push(done);
     this.overrideMap.clear();
@@ -397,7 +392,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
         this.beforeRender.emit(renderEvent);
 
         // update hidden state of each item
-        if (this.hiddenState && this.hiddenState.indexOf(<any>localRd.name) > -1) {
+        if (this.hiddenState && this.hiddenState.indexOf(<any> localRd.name) > -1) {
           localRd.display = 'none';
         }
 
@@ -419,22 +414,90 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   }
 
   private applyFormListener(): void {
+    let freeze: boolean;
     const s = this.tdmForm.form.valueChanges.subscribe(formValue => {
       const diff = this.valueDiffer.diff(formValue);
+      // we diff before freeze check so we won't pile changes to next step.
+      if (freeze || this.freezeValueChanges) {
+        return;
+      }
       if (diff) {
         const arr: TdmFormChanges = [];
         diff.forEachChangedItem(change => {
           if (this.hotBind === true) {
             this.instance[change.key] = change.currentValue;
           }
-          arr.push(change);
+          if (this.isFlattenedProp(change.key)) {
+            arr.push(...this.drillDownChange(change, [change.key]));
+          } else {
+            arr.push(change);
+          }
         });
         if (arr.length > 0) {
+          freeze = true;
           this.valueChanges.next(arr);
+          freeze = false;
         }
       }
     });
     this.subscriptions.push(s);
+  }
+
+  private isFlattenedProp(key: string, level: number = 0): boolean {
+    return this.tdmForm.renderData.some( r => !!r.flattened && r.flattened[level] === key );
+  }
+
+  /**
+   * Drills down a change in an object of a `flattened` property and returns the changes in the object.
+   * The drill down is recursive so nested flattened properties will reflect the changes as well.
+   *
+   * The `key` of each change will be in the dot notation format.
+   *
+   * ## Why?
+   * The form `valueChanges` stream will emit changes to controls on the first level, if a nested control
+   * (i.e FormGroup or FormArray) has child that changed the stream will not reflect that and will only emit an event
+   * for the top-level control itself.
+   *
+   * This resolution is an issue when using flattened rendering.
+   * While UI shows a flat form the underlying structure is left intact and each flattened property gets a `FormGroup`
+   * attached to it, emitting [[DynamicFormComponent.valueChanges]] events for flattened properties will have low
+   * resolution because the change event will include the top-level key only and the current/previous values will be
+   * the top-level objects themselves and not the actual child value that changed.
+   *
+   * To enhance the resolution this method will drill down the value of a change to find the internal changes in the
+   * object and return them, this is done by diffing the previous value with the current value.
+   * Each drill down is recursive so a flattened object with a nested flattened object will also get proper resolution.
+   *
+   * You must call this function with a change for a property that is known to be defined as flattened and include
+   * it in the `path` parameter as the first (and only) item.
+   *
+   * > Make sure not to confuse flattened nested objects with nested objects that are not defined as flattened by the
+   * user, those will not apply here.
+   * @param change
+   * @param path
+   */
+  private drillDownChange(change: KeyValueChangeRecord<string, any>,
+                          path: Array<string |  number>): Array<KeyValueChangeRecord<string, any>> {
+    const result: Array<KeyValueChangeRecord<string, any>> = [];
+    if (change.previousValue) {
+      const differ = this.kvDiffers.find(change.previousValue).create();
+      differ.diff(change.previousValue);
+      const diff = differ.diff(change.currentValue);
+      if (diff) {
+        diff.forEachChangedItem((c: any) => {
+          if (this.isFlattenedProp(c.key, path.length)) {
+            result.push(...this.drillDownChange( <any> c, path.concat([c.key]) ));
+          } else {
+            c = Object.create(c, { deep: { value: true }, key: { value: path.join('.') + `.${c.key}` } });
+            result.push(c);
+          }
+        });
+      }
+    } else if (change.currentValue) {
+      change = Object.create(change, { deep: { value: true }, key: { value: path.join('.') + `.${change.key}` } });
+      result.push(change);
+    }
+    return result;
   }
 
   private setNativeValidation(): void {
@@ -447,11 +510,27 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     }
   }
 
+  private onStateChange(type: 'disabled' | 'hidden', state: SimpleChange): void {
+    let differ: IterableDiffer<keyof T> = this.stateDiffer[type];
+    if (!state.currentValue && differ) {
+      const diff = differ.diff([]);
+      if (diff) {
+        this.handleDiff(type, diff);
+      }
+      differ = undefined;
+    } else if (!state.previousValue && state.currentValue) {
+      differ = this.itDiffers.find(state.currentValue).create();
+    }
+    this.stateDiffer[type] = differ;
+  }
+
   private handleDiff(type: 'disabled' | 'hidden', diff: IterableChanges<keyof T>): void {
     switch (type) {
       case 'disabled':
+        this.freezeValueChanges = true;
         diff.forEachAddedItem( record => this.getControl(record.item).disable());
         diff.forEachRemovedItem( record => this.getControl(record.item).enable());
+        this.freezeValueChanges = false;
         break;
       case 'hidden':
         diff.forEachAddedItem( record => {
