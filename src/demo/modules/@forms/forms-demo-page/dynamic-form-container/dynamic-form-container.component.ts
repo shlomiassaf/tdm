@@ -1,8 +1,8 @@
 import { Component, Inject, ViewChild } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { MatDialogRef, MAT_DIALOG_DATA, MatSnackBar } from '@angular/material';
 
 import { Constructor } from '@tdm/core';
-import { DynamicFormComponent } from '@tdm/ngx-dynamic-forms';
+import { DynamicFormComponent, TdmFormChanges } from '@tdm/ngx-dynamic-forms';
 
 export class DynamicFormContainerData<T> {
   instance: T;
@@ -20,7 +20,9 @@ export class DynamicFormContainerComponent<T> {
 
   @ViewChild('dynForm') dynForm: DynamicFormComponent<T>;
 
-  constructor(public dialogRef: MatDialogRef<any>, @Inject(MAT_DIALOG_DATA) public data: DynamicFormContainerData<any>) {
+  constructor(public snackBar: MatSnackBar,
+              public dialogRef: MatDialogRef<any>,
+              @Inject(MAT_DIALOG_DATA) public data: DynamicFormContainerData<any>) {
     this.model = data.type
       ? [data.instance, data.type]
       : data.instance
@@ -30,5 +32,12 @@ export class DynamicFormContainerComponent<T> {
   onClick() {
     this.dynForm.tdmForm.commitToModel();
     this.dialogRef.close(true);
+  }
+
+  valueChanges(event: TdmFormChanges): void {
+    const message = event.map( change => `Key "${change.key}" changed`).join('\n');
+    this.snackBar.open(message, '', {
+      duration: 2000,
+    });
   }
 }

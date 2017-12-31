@@ -1,8 +1,8 @@
 import { Component, ViewChild, TemplateRef } from '@angular/core';
-import { MatDialog } from '@angular/material';
+import { MatDialog, MatSnackBar } from '@angular/material';
 
 import { TDMCollection } from '@tdm/core';
-import { BeforeRenderEventHandler } from '@tdm/ngx-dynamic-forms';
+import { BeforeRenderEventHandler, TdmFormChanges } from '@tdm/ngx-dynamic-forms';
 
 import { DataSourceContainer } from '@shared';
 import { DynamicFormContainerComponent } from './dynamic-form-container/dynamic-form-container.component';
@@ -50,7 +50,7 @@ export class FormsDemoPageComponent {
   controlState = { disabled: ['id'], hidden: ['title'] };
 
   @ViewChild('postTemplate') postTemplate: TemplateRef<any>;
-  constructor(public dialog: MatDialog) {}
+  constructor(public dialog: MatDialog, public snackBar: MatSnackBar) {}
 
   addEditUser(user?: User) {
     let isNew = false;
@@ -95,5 +95,12 @@ export class FormsDemoPageComponent {
       setTimeout(() => resolve(), 1000);
     }
 
+  }
+
+  valueChanges(event: TdmFormChanges): void {
+    const message = event.map( change => `Key "${change.key}" changed`).join('\n');
+    this.snackBar.open(message, '', {
+      duration: 2000,
+    });
   }
 }

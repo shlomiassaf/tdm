@@ -1,4 +1,4 @@
-export { DynamicFormComponent } from './dynamic-form.component';
+export { DynamicFormComponent, TdmFormChange, TdmFormChanges } from './dynamic-form.component';
 
 export {
   DynamicFormOverrideDirective,

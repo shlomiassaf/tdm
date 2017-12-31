@@ -1,5 +1,6 @@
 <div>
   <div>
+    <h2>Authors</h2>
     <button mat-mini-fab (click)="addEditUser()"><mat-icon>add</mat-icon></button>
     <mat-table #table [dataSource]="usersDatatSource">
       <ng-container matColumnDef="edit">
@@ -32,7 +33,7 @@
 
     <br>
     <br>
-
+    <h2>Content</h2>
     <mat-table #table [dataSource]="postsDatatSource">
       <ng-container matColumnDef="$$EDIT">
         <mat-header-cell *matHeaderCellDef></mat-header-cell>
@@ -81,9 +82,10 @@
                 [model]="element"
                 [controlClass]="'dynamic-control-container'"
                 [hotBind]="hotBind"
-                (beforeRender)="beforeRenderPost($event)"
                 [disabledState]="controlState.disabled"
-                [hiddenState]="controlState.hidden">
+                [hiddenState]="controlState.hidden"
+                (beforeRender)="beforeRenderPost($event)"
+                (valueChanges)="valueChanges($event)">
     <div *dynamicFormOverride="'author'; let d" [formGroup]="d.formGroup">
       <mat-select formControlName="author" [placeholder]="d.meta.label">
         <mat-option *ngFor="let user of users" [value]="user">{{user.name}}</mat-option>

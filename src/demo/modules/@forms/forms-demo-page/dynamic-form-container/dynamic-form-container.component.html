@@ -1,4 +1,6 @@
-<dynamic-form #dynForm [model]="model"></dynamic-form>
+<dynamic-form #dynForm
+              [model]="model"
+              (valueChanges)="valueChanges($event)"></dynamic-form>
 <button matButton
         [disabled]="dynForm.form.status !== 'VALID' || !dynForm.form.dirty"
         (click)="onClick()">Save</button>

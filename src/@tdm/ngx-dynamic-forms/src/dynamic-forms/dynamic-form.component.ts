@@ -34,6 +34,17 @@ export interface LocalRenderInstruction extends RenderInstruction {
   display: 'none' | undefined;
 }
 
+/**
+ * Represents a single change in a form.
+ * This type is an alias of KeyValueChangeRecord<string, any>
+ */
+export type TdmFormChange = KeyValueChangeRecord<string, any>;
+
+/**
+ * Represents a collection of changes in a form
+ * This type is an alias of Array<KeyValueChangeRecord<string, any>> (TdmFormChange[])
+ */
+export type TdmFormChanges = TdmFormChange[];
 
 /**
  * Allow rendering a form using @tdm/ngx-dynamic-forms and DynamicFormElementComponent
@@ -94,7 +105,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    * Pass through for @angular/forms `ngNativeValidate` attribute that enables native browser validation
    *
    */
-  @Input() get ngNativeValidate(): any { return this._ngNativeValidate };
+  @Input() get ngNativeValidate(): any { return this._ngNativeValidate; };
   set ngNativeValidate(value: any) {
     const native = value != null && `${value}` !== 'false';
     if (this._ngNativeValidate !== native) {
@@ -128,6 +139,9 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
 
     if (!this.tdmForm) {
       this.tdmForm = this.tdmModelFormService.create(this.instance, this.type);
+      const formValue = this.tdmForm.form.getRawValue();
+      this.valueDiffer = this.kvDiffers.find(formValue).create();
+      this.valueDiffer.diff(formValue); // for some reason objects do not commit the 1st time
       this.applyFormListener();
     } else {
       this.tdmForm.setContext(this.instance, this.type);
@@ -186,7 +200,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   /**
    * Event emitted when a form value changes.
    */
-  @Output() valueChanges = new EventEmitter<KeyValueChangeRecord<string, any>[]>();
+  @Output() valueChanges = new EventEmitter<TdmFormChanges>();
 
   /**
    * Event emitted before rendering a form control.
@@ -276,7 +290,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     this.renderState = this.rendering$.asObservable();
   }
 
-  getOverride(item : RenderInstruction): DynamicFormOverrideDirective | undefined {
+  getOverride(item: RenderInstruction): DynamicFormOverrideDirective | undefined {
     return this.overrideMap.get(item);
   }
 
@@ -286,7 +300,9 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
       const disabled = changes.disabledState;
       if (!disabled.currentValue && this.stateDiffer.disabled) {
         const diff = this.stateDiffer.disabled.diff([]);
-        diff && this.handleDiff('disabled', diff);
+        if (diff) {
+          this.handleDiff('disabled', diff);
+        }
         this.stateDiffer.disabled = undefined;
       } else if (!disabled.previousValue && disabled.currentValue) {
         this.stateDiffer.disabled = this.itDiffers.find(disabled.currentValue).create();
@@ -297,7 +313,9 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
       const hidden = changes.hiddenState;
       if (!hidden.currentValue && this.stateDiffer.hidden) {
         const diff = this.stateDiffer.hidden.diff([]);
-        diff && this.handleDiff('hidden', diff);
+        if (diff) {
+          this.handleDiff('hidden', diff);
+        }
         this.stateDiffer.hidden = undefined;
       } else if (!hidden.previousValue && hidden.currentValue) {
         this.stateDiffer.hidden = this.itDiffers.find(hidden.currentValue).create();
@@ -308,12 +326,16 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   ngDoCheck() {
     if (this.disabledState && this.stateDiffer.disabled) {
       const diff = this.stateDiffer.disabled.diff(this.disabledState);
-      diff && this.handleDiff('disabled', diff);
+      if (diff) {
+        this.handleDiff('disabled', diff);
+      }
     }
 
     if (this.hiddenState && this.stateDiffer.hidden) {
       const diff = this.stateDiffer.hidden.diff(this.hiddenState);
-      diff && this.handleDiff('hidden', diff);
+      if (diff) {
+        this.handleDiff('hidden', diff);
+      }
     }
   }
 
@@ -398,22 +420,18 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
 
   private applyFormListener(): void {
     const s = this.tdmForm.form.valueChanges.subscribe(formValue => {
-      if (!this.valueDiffer) {
-        this.valueDiffer = this.kvDiffers.find(formValue).create();
-        this.valueDiffer.diff(formValue); // for some reason objects do not commit the 1st time
-      } else {
-        const arr: KeyValueChangeRecord<string, any>[] = [];
-        const diff = this.valueDiffer.diff(formValue);
-        if (diff) {
-          diff.forEachChangedItem(change => {
-            if (this.hotBind === true) {
-              this.instance[change.key] = change.currentValue;
-            }
-            arr.push(change);
-          });
+      const diff = this.valueDiffer.diff(formValue);
+      if (diff) {
+        const arr: TdmFormChanges = [];
+        diff.forEachChangedItem(change => {
+          if (this.hotBind === true) {
+            this.instance[change.key] = change.currentValue;
+          }
+          arr.push(change);
+        });
+        if (arr.length > 0) {
           this.valueChanges.next(arr);
         }
-
       }
     });
     this.subscriptions.push(s);
