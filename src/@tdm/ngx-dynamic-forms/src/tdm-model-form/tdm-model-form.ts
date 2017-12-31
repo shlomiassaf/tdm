@@ -45,12 +45,42 @@ export class TDMModelForm<T = any> {
   constructor(protected modelFormService: TDMModelFormService) { }
 
   /**
-   * Returns the control for a given key
-   * @param key
+   * Returns the control for from the provided `path`.
+   *
+   * > This is method is just sugar for `tDMModelFormInstance.form.get(path)`
+   *
+   * @param path The path, relative to the root form. Accepts the same types as `AbstractControl.get`.
+   * See {@link https://angular.io/api/forms/AbstractControl#get}
    * @returns
    */
-  get(key: keyof T): AbstractControl | null {
-    return this.form.get(key);
+  get(path: Array<string | number> | string): AbstractControl | null {
+    return this.form.get(path);
+  }
+
+  /**
+   * Gets's a value from the provided `path`.
+   *
+   * > This is method is just sugar for `tDMModelFormInstance.form.get(path).value`
+   *
+   * @param path The path, relative to the root form. Accepts the same types as `AbstractControl.get`.
+   * See {@link https://angular.io/api/forms/AbstractControl#get}
+   */
+  getValue(path: Array<string | number> | string): any | null {
+    const c = this.form.get(path);
+    return c ? c.value : null;
+  }
+
+  /**
+   * Set's the provided `value` in the provided `path`. The path is applied from the root form.
+   *
+   * > This is method is just sugar for `tDMModelFormInstance.form.get(path).setValue(value)`
+   *
+   * @param path The path, relative to the root form. Accepts the same types as `AbstractControl.get`.
+   * See {@link https://angular.io/api/forms/AbstractControl#get}
+   * @param value The value to apply on the control retrieved from path
+   */
+  setValue(path: Array<string | number> | string, value: any): void {
+    this.form.get(path).setValue(value);
   }
 
   hasError(errorCode: string, path: keyof T): boolean {
