@@ -16,8 +16,8 @@
     "version": "1.0.2-alpha.0"
   },
   "ngx-dynamic-forms": {
-    "commit": "18958b91a5fcaea014ee2fac6fee434cf6679988",
-    "version": "1.0.2-alpha.3"
+    "commit": "d98425b9e2fb8040ede44fb08f6fc1ad05d9fd61",
+    "version": "1.0.2-alpha.4"
   },
   "json-api-mapper": {
     "commit": "e7755b53712c49f4c31c98b919ab5497c9ddf71e",
