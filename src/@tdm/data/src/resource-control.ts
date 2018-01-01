@@ -1,6 +1,7 @@
 import { TDMModel, TDMCollection, errors } from '@tdm/core';
 
 import {
+  eventFactory,
   events$,
   ResourceEventDispatcher,
   ResourceEventEmitter,
@@ -13,11 +14,9 @@ import {
   ActionErrorResourceEvent
 } from './events';
 
-
 // Weak map for private emitter
 // TODO: check perf, maybe symbols are "less" private but more performant
 const privateDict = new WeakMap<TDMModel<any>, ResourceControl<any>>();
-
 
 export interface RecordControlState<T = any> {
   busy: boolean;
@@ -51,7 +50,6 @@ export class ResourceControl<T> implements RecordControlState<T> {
    */
   events$: ResourceEventEmitter;
 
-
   /**
    * Indicates if the active record is busy performing an action.
    */
@@ -77,7 +75,8 @@ export class ResourceControl<T> implements RecordControlState<T> {
    */
   set<P extends keyof RecordControlState<T>>(key: P, value: RecordControlState<T>[P]): void {
     if (this.state[key] !== value) {
-      ResourceControl.emitEvent(new StateChangeResourceEvent(this.parent, key, this.state[key], this.state[key] = value));
+      const event = new StateChangeResourceEvent(this.parent, key, this.state[key], this.state[key] = value);
+      ResourceControl.emitEvent(event);
     }
   }
 
@@ -110,7 +109,8 @@ export class ResourceControl<T> implements RecordControlState<T> {
    * some: Execute the reply operation if at least one item did not throw.
    * never: Don't execute the reply operation if at least one item threw.
    */
-  replayAfter(resources: TDMModel<any> | Array<TDMModel<any>>, ignoreError: 'always' | 'some' | 'never' = 'never'): void {
+  replayAfter(resources: TDMModel<any> | Array<TDMModel<any>>,
+              ignoreError: 'always' | 'some' | 'never' = 'never'): void {
     if (this.busy) {
       errors.throw.model(this.parent, `Can not replay while busy.`);
     }
@@ -121,30 +121,43 @@ export class ResourceControl<T> implements RecordControlState<T> {
 
     this.set('busy', true);
 
-
     const arr: Array<TDMModel<any>> = Array.isArray(resources) ? resources.slice() : [resources];
 
     let catcher: (err?: Error) => any | void;
 
     switch (ignoreError) {
       case 'always':
-        catcher = () => {};
+
+        catcher = () => {}; // tslint:disable-line
         break;
       case 'some':
-        catcher = err => { arr.pop(); if (arr.length === 0) throw err; };
+        catcher = err => {
+          arr.pop();
+          if (arr.length === 0) {
+            throw err;
+          }
+        };
         break;
       default:
-        catcher = err => { throw err };
+        catcher = err => { throw err; };
         break;
     }
 
-    Promise.all(arr.map( a => ResourceControl.get(a).busy ? ResourceControl.get(a).next().catch(catcher) : Promise.resolve() ))
+    const flowControl = resource => {
+      return ResourceControl.get(resource).busy
+        ? ResourceControl.get(resource).next().catch(catcher)
+        : Promise.resolve()
+      ;
+    };
+
+    Promise.all(arr.map(flowControl))
       .then( () => {
         this.set('busy', false);
         this.replay();
       })
       .catch( err => {
         this.set('busy', false);
+        ResourceControl.emitEvent(eventFactory.error(this.parent, err));
       });
   }
 
@@ -165,14 +178,13 @@ export class ResourceControl<T> implements RecordControlState<T> {
           } else if (event.type === 'ActionEnd') {
             // TODO: ActionEnd is fired for both ActionSuccess and ActionCancel
             // since promises does not cancel this is a design hole...
-            resolve(<any>this.parent);
+            resolve(<any> this.parent);
             subs.unsubscribe();
           }
         });
       });
     }
   }
-
 
   /**
    * Cancel the current action.
@@ -196,7 +208,6 @@ export class ResourceControl<T> implements RecordControlState<T> {
     return { dispatcher: simpleEvents, emitter: simpleEvents };
   }
 
-
   static addHandler(handler: (this: ResourceControl<any>, event: ResourceEvent) => void): void {
     handlers.push(handler);
   }
@@ -209,7 +220,7 @@ export class ResourceControl<T> implements RecordControlState<T> {
   static emitEvent(event: ResourceEvent): void {
     const rc = ResourceControl.get(event.resource);
 
-    for (let i=0, len=handlers.length; i<len; i++) {
+    for (let i = 0, len = handlers.length; i < len; i++) {
       handlers[i].call(rc, event);
     }
 
@@ -229,7 +240,7 @@ export class ResourceControl<T> implements RecordControlState<T> {
     } else if (event instanceof ExecuteInitResourceEvent) {
       this.lastExecute = event.data;
     } else {
-      switch (event.type) {
+      switch (event.type) { // tslint:disable-line
         case 'ActionError':
         case 'ActionEnd':
           this.actionCancel = undefined;
