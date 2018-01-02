@@ -38,10 +38,10 @@ export class ActionController<T = any, Z = any> {
     this.adapterMeta = targetStore.getAdapter(adapterClass);
   }
 
-
   createExecFactory<T>(action: ActionMetadata, ret: 'promise'): (self: T, ...args: any[]) => Promise<T>;
   createExecFactory<T>(action: ActionMetadata, ret?: 'instance'): (self: T, ...args: any[]) => T;
-  createExecFactory<T>(action: ActionMetadata, ret?: 'instance' | 'promise'): (self: T, ...args: any[]) => T | Promise<T> {
+  createExecFactory<T>(action: ActionMetadata,
+                       ret?: 'instance' | 'promise'): (self: T, ...args: any[]) => T | Promise<T> {
     const ac = this;
     return function (self: T, ...args: any[]) {
       return ac.execute(this.clone(self), {args}, <any> ret);
@@ -65,6 +65,10 @@ export class ActionController<T = any, Z = any> {
     }
 
     const state = ResourceControl.get(ctx.instance);
+
+    if (action.post && action.post.returns) {
+      ret = 'promise';
+    }
 
     const err = state && state.busy
       ? eventFactory.error(ctx.instance, new Error('An action is already running'))
@@ -92,6 +96,7 @@ export class ActionController<T = any, Z = any> {
       state.set('busy', false);
     };
 
+    let postReturnsResult: any;
     // TODO:  fireEvent uses member name as Hook matcher, this requires member name to be one of
     //        "ARHookableMethods", let user set the action method in ActionMetadata or something
     //        - Also applied to fireEvent "after" below.
@@ -114,27 +119,27 @@ export class ActionController<T = any, Z = any> {
         //       this also applies on the first 2 steps
         return adapterResponse.response
           .then((response: ExecuteResponse) => {
-            if (!action.post || !action.post.skipDeserialize) {
+            if (!action.post || !action.post.returns) {
               ctx.deserialize(response.data);
             }
             if (action.post) {
-              action.post.handler.apply(ctx.instance, [response, options])
+              postReturnsResult = action.post.handler.apply(ctx.instance, [response, options]);
             }
 
             return (action.isCollection ? Promise.resolve() : this.validate('incoming', action.validation, ctx))
-              .then( () => this.fireHook(action.name as any, 'after', ctx.instance, options, response) )
+              .then( () => this.fireHook(action.name as any, 'after', ctx.instance, options, response) );
           });
       })
       .then(() => dispatchEvent(eventFactory.success(ctx.instance)))
       .then(() => doFinally() )
       .then(() => dispatchEvent(eventFactory.actionEnd(ctx.instance, 'success')))
-      .then(() => ctx.instance )
-      .catch(err => {
+      .then(() => action.post && action.post.returns ? postReturnsResult : ctx.instance )
+      .catch(error => {
         if (eState.cancelled !== true) {
-          dispatchEvent(eventFactory.error(ctx.instance, err));
+          dispatchEvent(eventFactory.error(ctx.instance, error));
           if (ret === 'promise') { // rethrow if the user handles the promise
             doFinally();
-            throw err;
+            throw error;
           }
         }
         doFinally();
@@ -156,7 +161,9 @@ export class ActionController<T = any, Z = any> {
     }
   }
 
-  private validate(type: 'incoming' | 'outgoing', validation: ValidationSchedule, ctx: ExecuteContext<any>): Promise<void> {
+  private validate(type: 'incoming' | 'outgoing',
+                   validation: ValidationSchedule,
+                   ctx: ExecuteContext<any>): Promise<void> {
     if (type === validation || validation === 'both') {
       return this.targetMetadata.validate(ctx.instance)
         .then((validationErrors: any) => {
@@ -169,7 +176,9 @@ export class ActionController<T = any, Z = any> {
     }
   }
 
-  private fireHook(action: ARHookableMethods, event: 'before' | 'after', self: any, options: ActionOptions, ...args: any[]): Promise<void> {
+  private fireHook(action: ARHookableMethods, event: 'before' | 'after',
+                   self: any, options: ActionOptions,
+                   ...args: any[]): Promise<void> {
     const hookMetadata = this.targetMetadata.findHookEvent(action, event);
 
     const fn = hookMetadata

@@ -26,10 +26,22 @@ export enum ActionMethodType {
 }
 
 export type PostActionHandler = (response: ExecuteResponse, options: ActionOptions) => void;
-export type PostActionMetadata =  {
+export type PostActionMetadata = {
   handler: PostActionHandler;
-  skipDeserialize?: boolean;
-}
+  /**
+   * Override mode.
+   *
+   * When set to true the action, when invoked, will not return the instance of the model, instead it will return a
+   * promise to the return value of the handler.
+   *
+   * When setting returns to true the incoming data is not managed by the library (no deserialization)
+   *
+   * This mode is useful for custom methods that does not return the instance itself but a different value, for example
+   * an action operation with an indicator (true/false)
+   * @default false
+   */
+  returns?: boolean;
+};
 
 export interface ActionMetadataArgs<T = any> {
   method: T;
@@ -101,7 +113,7 @@ export abstract class ActionMetadata extends BaseMetadata {
       if (isFunction(metaArgs.post)) {
         this.post = { handler: metaArgs.post }
       } else if (metaArgs.post && isFunction(metaArgs.post.handler)) {
-        this.post= metaArgs.post;
+        this.post = metaArgs.post;
       }
     }
     if (isString(metaArgs.alias)) {

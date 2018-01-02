@@ -72,7 +72,6 @@ export class UserDAO implements  BeforeHook<'bfRef', HttpActionOptions>,
     method: HttpActionMethodType.Get,
     post: {
       handler: UserDAO.prototype.postHandler,
-      skipDeserialize: true
     }
   })
   raw: (options?: HttpActionOptions) => ARMixin<UserDAO>;

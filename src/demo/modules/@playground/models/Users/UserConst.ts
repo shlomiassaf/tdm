@@ -82,7 +82,6 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
     method: HttpActionMethodType.Get,
     post: {
       handler: User_.prototype.postHandler,
-      skipDeserialize: true
     }
   })
   raw: (options?: HttpActionOptions) => ARMixin<User_>;

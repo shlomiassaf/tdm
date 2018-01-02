@@ -25,7 +25,6 @@ class User_ {
     method: ActionMethodType.READ,
     post: {
       handler: User_.prototype.rawHandler,
-      skipDeserialize: true
     }
   })
   raw: (options?: MockActionOptions) => MockMixin<User_>;

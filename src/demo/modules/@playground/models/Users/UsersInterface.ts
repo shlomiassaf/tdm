@@ -90,7 +90,6 @@ export class UsersInterface extends ARMixin<IUserInterface, IUserInterfaceStatic
     method: HttpActionMethodType.Get,
     post: {
       handler: UsersInterface.prototype.postHandler,
-      skipDeserialize: true
     }
   })
   raw: (options?: HttpActionOptions) => ARMixin<UsersInterface>;
