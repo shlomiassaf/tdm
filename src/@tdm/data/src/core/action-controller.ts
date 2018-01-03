@@ -65,12 +65,12 @@ export class ActionController<T = any, Z = any> {
     }
 
     const state = ResourceControl.get(ctx.instance);
-
-    if (action.post && action.post.returns) {
+    const isPostReturns = action.post && action.post.returns;
+    if (isPostReturns) {
       ret = 'promise';
     }
 
-    const err = state && state.busy
+    const err = state && state.busy && !isPostReturns
       ? eventFactory.error(ctx.instance, new Error('An action is already running'))
       : (!!action.isCollection !== TDMCollection.instanceOf(ctx.instance))
         ? eventFactory.error(ctx.instance, errors.modelSingleCol(ctx.instance, action.isCollection))
