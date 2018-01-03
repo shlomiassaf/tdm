@@ -8,8 +8,8 @@
     "version": "1.0.2-alpha.1"
   },
   "data": {
-    "commit": "68a99d738820af5b04bce7db2422b196cb876026",
-    "version": "1.0.2-alpha.2"
+    "commit": "12e5d004eea3a70a81d9ddcb6f87e48ba70b0d7c",
+    "version": "1.0.2-alpha.3"
   },
   "ngx-http-client": {
     "commit": "7461d0770ccacdef621289a353473081160dca3f",
