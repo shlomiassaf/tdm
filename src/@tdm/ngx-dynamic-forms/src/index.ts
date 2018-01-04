@@ -25,6 +25,7 @@ export {
   DynamicFormComponent,
   DynamicFormControlDirective,
   DynamicFormOverrideDirective,
+  DynamicFormOverrideContext,
   DynamicFormControlRenderer,
   BeforeRenderEventHandler,
   FORM_CONTROL_COMPONENT,
@@ -33,4 +34,3 @@ export {
 } from './dynamic-forms/index';
 
 export { TDMFormsModule } from './module';
-

@@ -11,6 +11,7 @@ import {
   AfterContentInit,
   OnDestroy,
   Type,
+  TemplateRef,
   IterableChanges,
   IterableDiffer,
   IterableDiffers,
@@ -23,7 +24,7 @@ import { AbstractControl, FormGroup } from '@angular/forms';
 import { RenderInstruction } from '../interfaces';
 import { TDMModelForm, TDMModelFormService } from '../tdm-model-form/index';
 
-import { DynamicFormOverrideDirective } from './dynamic-form-override.directive';
+import { DynamicFormOverrideDirective, DynamicFormOverrideContext } from './dynamic-form-override.directive';
 import { BeforeRenderEventHandler } from './before-render-event-handler';
 
 export interface LocalRenderInstruction extends RenderInstruction {
@@ -112,7 +113,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    *
    */
   @Input() get ngNativeValidate(): any { return this._ngNativeValidate; };
-  set ngNativeValidate(value: any) {
+  set ngNativeValidate(value: any) { // tslint:disable-line
     const native = value != null && `${value}` !== 'false';
     if (this._ngNativeValidate !== native) {
       this._ngNativeValidate = native;
@@ -296,6 +297,10 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   private _ngNativeValidate: any = false;
   private slaveMode: boolean;
   private overrideMap = new Map<RenderInstruction, DynamicFormOverrideDirective>();
+  /**
+   * Overrides that are injected by code (addOverride) and not by content projection
+   */
+  private codeOverrides: DynamicFormOverrideDirective[] = [];
 
   constructor(private tdmModelFormService: TDMModelFormService,
               private kvDiffers: KeyValueDiffers,
@@ -350,7 +355,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
 
   ngOnDestroy(): void {
     let subs: Subscription;
-    while (subs = this.subscriptions.pop()) {
+    while (subs = this.subscriptions.pop()) { // tslint:disable-line
       subs.unsubscribe();
     }
     this.beforeRender.complete();
@@ -364,6 +369,19 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    */
   getControl(key: keyof T): AbstractControl | null {
     return this.tdmForm.get(key);
+  }
+
+  /**
+   * API to manually add field override templates, use this if you want to apply overrides but can not
+   * set the content projection in the tempalte.
+   */
+  addOverride(name: string, tRef: TemplateRef<DynamicFormOverrideContext>, update: boolean = true): void {
+    const d = new DynamicFormOverrideDirective(tRef, this);
+    d.dynamicFormOverride = name;
+    this.codeOverrides.push(d);
+    if (update) {
+      this.update();
+    }
   }
 
   private updateOverrides(): void {
@@ -381,10 +399,11 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     const controlsPromiseSetter = done => controlsReady.push(done);
     this.overrideMap.clear();
 
+    const overrides = this.overrides.toArray().concat(this.codeOverrides);
     this.tdmForm.renderData.forEach(rd => {
       if (!this.filters.exc || this.filters.exc.indexOf(rd.name) === -1) {
         const localRd: LocalRenderInstruction = Object.create(rd);
-        const override = this.overrides.find(ow => ow.dynamicFormOverride === localRd.name);
+        const override = overrides.find(ow => ow.dynamicFormOverride === localRd.name);
         if (override) {
           this.overrideMap.set(localRd, override);
         }
@@ -525,7 +544,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   }
 
   private handleDiff(type: 'disabled' | 'hidden', diff: IterableChanges<keyof T>): void {
-    switch (type) {
+    switch (type) { // tslint:disable-line
       case 'disabled':
         this.freezeValueChanges = true;
         diff.forEachAddedItem( record => this.getControl(record.item).disable());
