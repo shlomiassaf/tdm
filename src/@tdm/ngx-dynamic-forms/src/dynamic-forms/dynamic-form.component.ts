@@ -426,7 +426,8 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
         this.beforeRender.emit(renderEvent);
 
         // update hidden state of each item
-        if (this.hiddenState && this.hiddenState.indexOf(<any> localRd.name) > -1) {
+        const name = localRd.flattened ? localRd.flattened.join('.') + `.${localRd.name}` : localRd.name;
+        if (this.hiddenState && this.hiddenState.indexOf(<any> name) > -1) {
           localRd.display = 'none';
         }
 
@@ -579,15 +580,33 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
         break;
       case 'hidden':
         diff.forEachAddedItem( record => {
-          const item = this.controls.value.find( c => c.name === record.item);
+          const item = this.findControlByKey(record.item);
           if (item) {
             item.display = 'none';
           }
         });
         diff.forEachRemovedItem( record => {
-          this.controls.value.find( c => c.name === record.item).display = undefined;
+          const item = this.findControlByKey(record.item);
+          if (item) {
+            item.display = undefined;
+          }
         });
         break;
     }
+  }
+
+  private findControlByKey(dotProperty: string) {
+    const path = dotProperty.split('.');
+    const name = path.pop();
+    return this.controls.value.find( c => {
+      if (c.name === name) {
+        if (!c.flattened && path.length === 0) {
+          return true;
+        } else {
+          return c.flattened.join('.') + `.${name}` === dotProperty;
+        }
+      }
+      return false;
+    });
   }
 }
