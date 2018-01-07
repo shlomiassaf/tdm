@@ -8,15 +8,15 @@
     "version": "1.0.2-alpha.1"
   },
   "data": {
-    "commit": "12e5d004eea3a70a81d9ddcb6f87e48ba70b0d7c",
+    "commit": "eb197a1e0358809ce079e19ae058b8f85d55ef63",
     "version": "1.0.2-alpha.3"
   },
   "ngx-http-client": {
-    "commit": "7461d0770ccacdef621289a353473081160dca3f",
-    "version": "1.0.2-alpha.0"
+    "commit": "3988184d633ba96aea885d010e2d46896cb6aa0c",
+    "version": "1.0.2-alpha.2"
   },
   "ngx-dynamic-forms": {
-    "commit": "70f2907d156ab545bfd3f890a1f9eda6f71148e6",
+    "commit": "eb197a1e0358809ce079e19ae058b8f85d55ef63",
     "version": "1.0.2-alpha.6"
   },
   "json-api-mapper": {
