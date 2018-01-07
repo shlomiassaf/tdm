@@ -9,7 +9,7 @@
   },
   "data": {
     "commit": "eb197a1e0358809ce079e19ae058b8f85d55ef63",
-    "version": "1.0.2-alpha.3"
+    "version": "1.0.2-alpha.2"
   },
   "ngx-http-client": {
     "commit": "3988184d633ba96aea885d010e2d46896cb6aa0c",
@@ -17,7 +17,7 @@
   },
   "ngx-dynamic-forms": {
     "commit": "eb197a1e0358809ce079e19ae058b8f85d55ef63",
-    "version": "1.0.2-alpha.6"
+    "version": "1.0.2-alpha.7"
   },
   "json-api-mapper": {
     "commit": "e7755b53712c49f4c31c98b919ab5497c9ddf71e",
