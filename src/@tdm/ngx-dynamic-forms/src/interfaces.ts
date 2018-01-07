@@ -9,7 +9,7 @@ export interface FormElementType {
    * A generic boolean type.
    * This type is auto-assigned when no type is set and the property type is Boolean
    */
-    boolean: 'boolean';
+   boolean: 'boolean';
 
   /**
    * A generic number type.
@@ -70,6 +70,9 @@ export interface RenderDef<T = any> {
  */
 export interface RenderInstruction extends RenderDef {
   name: string;
+
+  required?: boolean;
+
   /**
    * When set indicated this is form control flattened from a nested object.
    * The string represents the path **from the root control** (NgForm) to the parent of this flattened control.

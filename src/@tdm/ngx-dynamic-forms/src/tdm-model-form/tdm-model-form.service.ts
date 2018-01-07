@@ -41,7 +41,7 @@ export class TDMModelFormService {
         if (formProp.flatten) {
           this.applyFlatten(formProp.flatten, [p.name as string], instructions);
         } else {
-          instructions.push(Object.create(formProp.render, { name: { value: p.name } }));
+          instructions.push(Object.create(formProp.render, { name: { value: p.name }, required: { value: formProp.required } }));
         }
       }
     });
@@ -56,7 +56,7 @@ export class TDMModelFormService {
       if (p.flatten) {
         this.applyFlatten(p.flatten, path.concat([key]), instructions);
       } else {
-        instructions.push(Object.create(p.render, { name: { value: key }, flattened: { value: path } }));
+        instructions.push(Object.create(p.render, { name: { value: key }, required: { value: p.required }, flattened: { value: path } }));
       }
     }
   }

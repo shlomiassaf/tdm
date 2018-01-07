@@ -117,7 +117,7 @@ export abstract class ActionMetadata extends BaseMetadata {
       }
     }
     if (isString(metaArgs.alias)) {
-      this.alias = [metaArgs.alias]
+      this.alias = [metaArgs.alias];
     }
     this.paramHint = metaArgs.paramHint || 0;
   }

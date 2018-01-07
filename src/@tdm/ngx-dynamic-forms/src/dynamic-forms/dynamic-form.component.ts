@@ -298,6 +298,11 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   private slaveMode: boolean;
   private overrideMap = new Map<RenderInstruction, DynamicFormOverrideDirective>();
   /**
+   * Indicates the number of update() calls that are running/queued
+   * A number n that is > 1 does not mean the update will run n times, it will run one more time only.
+   */
+  private pendingUpdates: number = 0;
+  /**
    * Overrides that are injected by code (addOverride) and not by content projection
    */
   private codeOverrides: DynamicFormOverrideDirective[] = [];
@@ -385,7 +390,8 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   }
 
   private updateOverrides(): void {
-    this.filters.ow = this.overrides.map(ow => ow.dynamicFormOverride);
+    this.filters.ow = this.overrides
+      .map(ow => ow.dynamicFormOverride).concat(this.codeOverrides.map( ow => ow.dynamicFormOverride));
     this.update();
   }
 
@@ -394,7 +400,16 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
       return;
     }
 
-    const controlsReady: Array<Promise<any>> = [];
+    if (this.pendingUpdates > 0) {
+      this.pendingUpdates += 1;
+      return;
+    }
+
+    // we wmit the rendering state async
+    const controlsReady: Array<Promise<any>> = [new Promise((resolve) => setTimeout(() => {
+      this.emitRenderingState(true);
+      resolve();
+    }))];
     const controls: LocalRenderInstruction[] = [];
     const controlsPromiseSetter = done => controlsReady.push(done);
     this.overrideMap.clear();
@@ -419,17 +434,28 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
       }
     });
 
-    if (controlsReady.length > 0) {
-      this.rendering$.next(true);
-    }
-
+    this.pendingUpdates += 1;
     Promise.all(controlsReady)
+      // tslint:disable-next-line
+      .catch( err => {}) // we swallow errors, these should be handled by the user
       .then( () => {
-        this.controls.next(controls.sort((a, b) => a.ordinal - b.ordinal));
-        if (this.rendering$.value === true) {
-          this.rendering$.next(false);
+        this.pendingUpdates -= 1;
+
+        if (this.pendingUpdates > 0) {
+          this.pendingUpdates = 0;
+          this.update();
+          return;
+        } else {
+          this.controls.next(controls.sort((a, b) => a.ordinal - b.ordinal));
+          this.emitRenderingState(false);
         }
       });
+  }
+
+  private emitRenderingState(state: boolean): void {
+    if (this.rendering$.getValue() === !state) {
+      this.rendering$.next(state);
+    }
   }
 
   private applyFormListener(): void {
