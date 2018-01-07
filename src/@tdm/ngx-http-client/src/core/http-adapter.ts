@@ -62,7 +62,7 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
         reportProgress: false, // its the default but let be verbose
         observe: 'response',
         params: this.paramsToSearchParams(query),
-        responseType: 'json',
+        responseType: action.postResponseType || 'json',
         withCredentials
       } as { body?: any;
         headers?: HttpHeaders | {
@@ -110,13 +110,13 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
   protected getHeaders(ctx: ExecuteContext<HttpActionMetadata>,
                        resource: HttpResourceMetadata,
                        options: HttpActionOptions): HttpHeaders {
-    const headers = new HttpHeaders(findProp('headers', httpDefaultConfig, resource, ctx.action));
+    let headers = new HttpHeaders(findProp('headers', httpDefaultConfig, resource, ctx.action));
     if (options.headers) {
       Object.keys(options.headers).forEach(k => {
         if (isUndefined(options.headers[k])) {
-          headers.delete(k);
+          headers = headers.delete(k);
         } else {
-          headers.set(k, options.headers[k]);
+          headers = headers.set(k, options.headers[k]);
         }
       });
     }

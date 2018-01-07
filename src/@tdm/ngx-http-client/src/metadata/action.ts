@@ -13,6 +13,14 @@ export interface HttpActionMetadataArgs extends ActionMetadataArgs<HttpActionMet
    * @default undefined
    */
   endpoint?: string;
+
+  /**
+   * When setting a [[PostActionHandler]] (post) with the `returns` property set to true
+   * you can adjust the response type that will be set in the data property of the [[ExecuteResponse]].
+   *
+   * > This is only applicable when you set a [[PostActionHandler]] with `returns` set to true
+   */
+  postResponseType?: 'arraybuffer' | 'blob' | 'json' | 'text';
 }
 
 @MetaClass<HttpActionMetadataArgs, HttpActionMetadata>({
@@ -29,6 +37,7 @@ export class HttpActionMetadata extends ActionMetadata {
   withCredentials?: boolean;
   trailingSlashes?: TrailingSlashesStrategy;
 
+  postResponseType?: 'arraybuffer' | 'blob' | 'json' | 'text';
 
   constructor(obj: HttpActionMetadataArgs, info: DecoratorInfo) {
     super(obj, info);
@@ -39,6 +48,10 @@ export class HttpActionMetadata extends ActionMetadata {
 
     this.methodInfo = mapMethod(obj.method);
     this.method = this.methodInfo.method;
+
+    if (this.postResponseType && (!this.post || !this.post.returns)) {
+      throw new Error('"postResponseType" can only be set when using a "post" handler with "returns" set to true');
+    }
   }
 
   static adapterClass = HttpAdapter;
