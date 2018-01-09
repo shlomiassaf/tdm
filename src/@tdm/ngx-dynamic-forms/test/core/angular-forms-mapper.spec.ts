@@ -54,8 +54,8 @@ describe('@tdm/ngx-dynamic-forms', () => {
 
         const fg = serialize(new DemoForm());
 
-        expect(fg.get('modelExcluded')).toBeNull();
         expect(fg.get('formExcluded')).toBeNull();
+        expect(fg.get('modelExcluded')).toBeInstanceOf(FormControl);
         expect(fg.get('inForm')).toBeInstanceOf(FormControl);
 
       });
