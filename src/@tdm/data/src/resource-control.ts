@@ -1,4 +1,5 @@
-import { TDMModel, TDMCollection, errors } from '@tdm/core';
+import { TDMModel, TDMModelBase, TDMCollection, errors, directMapper, serialize, deserialize } from '@tdm/core';
+import { MapperFactory } from '@tdm/core/tdm';
 
 import {
   eventFactory,
@@ -57,12 +58,16 @@ export class ResourceControl<T> implements RecordControlState<T> {
     return this.state.busy;
   }
 
+  get hasSnapshot(): boolean {
+    return !!this.snapshot;
+  }
   protected dispatcher: ResourceEventDispatcher;
   protected actionCancel: () => void;
   protected lastExecute: ExecuteInitResourceEventArgs;
   protected state: RecordControlState<T> = { busy: false };
+  protected snapshot: any;
 
-  protected constructor(public parent: TDMModel<T>) {
+  protected constructor(public parent: TDMModel<T> & T) {
     const eventSys = this.initEventSys();
     this.dispatcher = eventSys.dispatcher;
     this.events$ = eventSys.emitter;
@@ -166,11 +171,11 @@ export class ResourceControl<T> implements RecordControlState<T> {
    * Will throw is there is no active action for this resource (i.e. not busy)
    * @returns
    */
-  next(): Promise<T> {
+  next(): Promise<TDMModel<T> & T> {
     if (!this.busy) {
       return Promise.reject(errors.model(this.parent, 'Call to next() while not in an active action.'));
     } else {
-      return new Promise<T>( (resolve, reject) => {
+      return new Promise<TDMModel<T> & T>( (resolve, reject) => {
         const subs = this.events$.subscribe( event => {
           if (event.type === 'ActionError') {
             reject((event as ActionErrorResourceEvent).error);
@@ -196,6 +201,43 @@ export class ResourceControl<T> implements RecordControlState<T> {
       this.actionCancel();
       this.actionCancel = undefined;
     }
+  }
+
+  /**
+   * Creates a snapshot of the current instance and stores it.
+   * Only one snapshot is stored per instance, if a new one is created the previous snapshot is overwriten.
+   * This snapshot is created using serialization which means that all rules apply (i.e @Exclude)
+   *
+   * @param mapperFactory The [[MapperFactory]] to use, defaults to [[directMapper]].
+   */
+  createSnapshot(mapperFactory: MapperFactory = directMapper): void {
+    this.snapshot = serialize(mapperFactory, this.parent);
+  }
+
+  /**
+   * Restores a previously created snapshot into the current instance (merge).
+   * If a snapshot does not exist it will not restore, nothing is thrown.
+   * Snapshot is removed after restoring.
+   * This snapshot is restored using deserialization which means that all rules apply (i.e @Exclude)
+   *
+   * @param mapperFactory The [[MapperFactory]] to use, defaults to [[directMapper]].
+   */
+  restoreSnapshot(mapperFactory: MapperFactory = directMapper): void {
+    if (this.hasSnapshot) {
+      deserialize(mapperFactory, this.snapshot, <any> this.parent.constructor, this.parent);
+      this.snapshot = undefined;
+    }
+  }
+
+  /**
+   * Clone's (deep) the resource.
+   * This is a deep clone done using serialization -> deserialization, which means that all rules apply (i.e @Exclude)
+   *
+   * @param mapperFactory The [[MapperFactory]] to use, defaults to [[directMapper]].
+   */
+  clone(mapperFactory: MapperFactory = directMapper): T {
+    return TDMModelBase.clone(this.parent, mapperFactory);
+    // return deserialize(mapperFactory, serialize(mapperFactory, this.parent), <any> this.parent.constructor);
   }
 
   /**
@@ -229,7 +271,7 @@ export class ResourceControl<T> implements RecordControlState<T> {
     }
   }
 
-  static get<T>(instance: TDMModel<T>): ResourceControl<TDMModel<T>> {
+  static get<T>(instance: TDMModel<T> & T): ResourceControl<T> {
     return privateDict.get(instance)
       || ( privateDict.set(instance, new ResourceControl<any>(instance as any)), ResourceControl.get(instance) );
   }

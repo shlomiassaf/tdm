@@ -1,16 +1,15 @@
-import { Observable } from 'rxjs/Observable'
-import { BehaviorSubject } from 'rxjs/BehaviorSubject'
-import { share } from 'rxjs/operator/share'
+import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { share } from 'rxjs/operator/share';
 
 import { TixinFree } from '@tdm/tixin';
-import { LazyInit } from '@tdm/core/tdm';
+import { LazyInit, TDMModel } from '@tdm/core/tdm';
 import {
   ResourceEvent,
   ResourceEventType,
   StateChangeResourceEvent,
   ResourceControl
 } from '@tdm/data';
-
 
 /**
  *
@@ -43,16 +42,15 @@ export class RxResourceControl<T> extends ResourceControl<T> {
   @LazyInit(function(this: RxResourceControl<any>) {
     return share.call(this._selfSubject);
   })
-  self$: Observable<T>;
-
+  self$: Observable<TDMModel<T> & T>;
 
   @LazyInit(function(this: ResourceControl<any>) {
-    return new BehaviorSubject<boolean>(this.busy)
+    return new BehaviorSubject<boolean>(this.busy);
   })
   private _busySubject: BehaviorSubject<boolean>;
 
   @LazyInit(function(this: ResourceControl<any>) {
-    return new BehaviorSubject<T>(<any>this.parent)
+    return new BehaviorSubject<T>(<any> this.parent);
   })
   private _selfSubject: BehaviorSubject<T>;
 

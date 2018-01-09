@@ -22,7 +22,7 @@
     "src"
   ],
   "testPathIgnorePatterns": [
-    "/tdm/ngx-http/",
+    "/src/@tdm/ngx-http/",
     "/node_modules/"
   ],
   "transformIgnorePatterns": [

@@ -135,7 +135,7 @@ user.$rc.next().then( u => u.method('dd') );
 /**
  * Keep type information in promise chain - active record method
  * @tssert
- * @tsType Promise<ARMixin<User_>>
+ * @tsType Promise<TDMModel<ARMixin<User_>> & User_ & TDMModel<User_> & HttpActiveRecord>
  * @loc 16
  */
 user.$rc.next().then( u => u.$remove() );
@@ -143,7 +143,7 @@ user.$rc.next().then( u => u.$remove() );
 /**
  * Keep type information in promise chain - active record method
  * @tssert
- * @tsType Promise<ARMixin<User_>>
+ * @tsType Promise<TDMModel<ARMixin<User_>> & User_ & TDMModel<User_> & HttpActiveRecord>
  * @loc 37
  */
 user.getSomething('value').$rc.next();
@@ -311,7 +311,7 @@ userExt.$rc.next().then( u => u.method('dd') );
 /**
  * Keep type information in promise chain - active record method
  * @tssert
- * @tsType Promise<UserConstExt & User_>
+ * @tsType Promise<TDMModel<UserConstExt & User_> & UserConstExt & User_>
  * @loc 19
  */
 userExt.$rc.next().then( u => u.$remove() );

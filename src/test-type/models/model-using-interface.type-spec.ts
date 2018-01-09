@@ -146,7 +146,7 @@ user.$rc.next().then( u => u.$remove() );
 /**
  * Keep type information in promise chain - active record method
  * @tssert
- * @tsType Promise<UsersInterface & IUserInterface>
+ * @tsType Promise<TDMModel<UsersInterface & IUserInterface> & UsersInterface & IUserInterface>
  * @loc 37
  */
 user.getSomething('value').$rc.next();
@@ -323,7 +323,7 @@ userExt.$rc.next().then( u => u.$remove() );
 /**
  * Keep type information in promise chain - active record method
  * @tssert
- * @tsType Promise<UsersInterfaceExt & IUserInterface>
+ * @tsType Promise<TDMModel<UsersInterfaceExt & IUserInterface> & UsersInterfaceExt & IUserInterface>
  * @loc 40
  */
 userExt.getSomething('value').$rc.next();

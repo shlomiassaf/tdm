@@ -6,7 +6,6 @@ import { ResourceControl } from '@tdm/data';
 describe('@tdm/data', () => {
   describe('Active Record', () => {
 
-
     it('should return the original name when calling toString()', () => {
       const User = TDMModelBase.factory(class User { });
       expect(new User().toString()).toEqual('User');
@@ -17,7 +16,6 @@ describe('@tdm/data', () => {
       const user = new User();
       expect(user['$rc'] instanceof ResourceControl).toBe(true);
     });
-
 
     it('should pass ctor arguments to the base class', () => {
       const User = TDMModelBase.factory(class User {

@@ -1,3 +1,5 @@
+import { directMapper, TDMModelBase } from '@tdm/core/tdm';
+
 export {
   // fw
   errors,
@@ -7,7 +9,6 @@ export {
   TransformFn,
   TransformStrategy,
   NamingStrategyConfig,
-
 
   // metadata
   ModelMetadataArgs,
@@ -44,7 +45,6 @@ import {
   targetStore
 } from '@tdm/core/tdm';
 
-
 /**
  * Serialize a class instance into a plain object.
  * @param mapper
@@ -61,8 +61,13 @@ export function serialize<T, Z>(mapper: MapperFactory, instance: T, type?: Z & C
  * @param mapper
  * @param plainObject
  * @param type
+ * @param instance Optional, if not set a new instance of the type will be created.
  * @returns
  */
-export function deserialize<T, Z>(mapper: MapperFactory, plainObject: any, type: Z & Constructor<T>): T {
-  return targetStore.deserialize(mapper.deserializer(plainObject, type));
+export function deserialize<T, Z>(mapper: MapperFactory, plainObject: any, type: Z & Constructor<T>, instance?: any): T {
+  return targetStore.deserialize(mapper.deserializer(plainObject, type), instance);
+}
+
+TDMModelBase.clone = function(resource: any, mapperFactory: MapperFactory = directMapper) {
+  return deserialize(mapperFactory, serialize(mapperFactory, resource), <any> resource.constructor);
 }

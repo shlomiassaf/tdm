@@ -146,7 +146,7 @@ user.$rc.next().then( u => u.method('dd') );
 /**
  * Keep type information in promise chain - active record method
  * @tssert
- * @tsType Promise<UserBaseClass & User_>
+ * @tsType Promise<TDMModel<UserBaseClass & User_> & UserBaseClass & User_>
  * @loc 16
  */
 user.$rc.next().then( u => u.$remove() );
@@ -154,7 +154,7 @@ user.$rc.next().then( u => u.$remove() );
 /**
  * Keep type information in promise chain - active record method
  * @tssert
- * @tsType Promise<UserBaseClass & User_>
+ * @tsType Promise<TDMModel<UserBaseClass & User_> & UserBaseClass & User_>
  * @loc 37
  */
 user.getSomething('value').$rc.next();
@@ -333,7 +333,7 @@ userExt.$rc.next().then( u => u.method('dd') );
 /**
  * Keep type information in promise chain - active record method
  * @tssert
- * @tsType Promise<UserBaseClassExt & User_>
+ * @tsType Promise<TDMModel<UserBaseClassExt & User_> & UserBaseClassExt & User_>
  * @loc 19
  */
 userExt.$rc.next().then( u => u.$remove() );
@@ -341,7 +341,7 @@ userExt.$rc.next().then( u => u.$remove() );
 /**
  * Keep type information in promise chain - active record method
  * @tssert
- * @tsType Promise<UserBaseClassExt & User_>
+ * @tsType Promise<TDMModel<UserBaseClassExt & User_> & UserBaseClassExt & User_>
  * @loc 40
  */
 userExt.getSomething('value').$rc.next();
