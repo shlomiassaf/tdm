@@ -4,12 +4,12 @@
     "version": "1.0.2-alpha.0"
   },
   "core": {
-    "commit": "7461d0770ccacdef621289a353473081160dca3f",
-    "version": "1.0.2-alpha.1"
+    "commit": "bb8dc26dab50031af665751728b294575a60ddd2",
+    "version": "1.0.2-alpha.2"
   },
   "data": {
-    "commit": "eb197a1e0358809ce079e19ae058b8f85d55ef63",
-    "version": "1.0.2-alpha.2"
+    "commit": "bb8dc26dab50031af665751728b294575a60ddd2",
+    "version": "1.0.2-alpha.4"
   },
   "ngx-http-client": {
     "commit": "3988184d633ba96aea885d010e2d46896cb6aa0c",
