@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { share } from 'rxjs/operator/share';
+import { shareReplay } from 'rxjs/operator/shareReplay';
 
 import { TixinFree } from '@tdm/tixin';
 import { LazyInit, TDMModel } from '@tdm/core/tdm';
@@ -31,7 +31,7 @@ export class RxResourceControl<T> extends ResourceControl<T> {
    * An observable that emits a value every time the busy state changes.
    */
   @LazyInit(function(this: RxResourceControl<any>) {
-    return share.call(this._busySubject);
+    return shareReplay.call(this._busySubject);
   })
   busy$: Observable<boolean>;
 
@@ -40,7 +40,7 @@ export class RxResourceControl<T> extends ResourceControl<T> {
    * If self is ActiveRecordCollection it will emit the collection property.
    */
   @LazyInit(function(this: RxResourceControl<any>) {
-    return share.call(this._selfSubject);
+    return shareReplay.call(this._selfSubject);
   })
   self$: Observable<TDMModel<T> & T>;
 
