@@ -9,11 +9,11 @@
   },
   "data": {
     "commit": "bb8dc26dab50031af665751728b294575a60ddd2",
-    "version": "1.0.2-alpha.4"
+    "version": "1.0.2-alpha.5"
   },
   "ngx-http-client": {
     "commit": "3988184d633ba96aea885d010e2d46896cb6aa0c",
-    "version": "1.0.2-alpha.2"
+    "version": "1.0.2-alpha.3"
   },
   "ngx-dynamic-forms": {
     "commit": "c763a2ddd624b3866fd1c272e7b532b213b7a0c0",
