@@ -1,0 +1,15 @@
+<div fxLayout="row" class="dyn-form-row">
+  <div fxFlex="0 1 50%" fxLayoutAlign="end center" class="dyn-form-label" >
+    <span *ngIf="item.required">*</span>
+    <span>{{item.label}}</span>
+  </div>
+  <div fxFlex="0 1 50%" class="vts-form-element-container">
+    <ng-content></ng-content>
+    <dynamic-form-element *ngIf="!custom"
+                          [tdmForm]="tdmForm"
+                          [fArray]="fArray"
+                          [fControl]="fControl"
+                          [fGroup]="fGroup"
+                          [item]="item"></dynamic-form-element>
+  </div>
+</div>

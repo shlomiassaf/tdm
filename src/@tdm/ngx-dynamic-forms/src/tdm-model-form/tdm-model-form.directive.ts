@@ -13,7 +13,7 @@ import { TDMModelForm } from './tdm-model-form';
  * ```ts
  * <div #tdmForm="tdmModelForm" [tdmModelForm]="user">
  *   <form [formGroup]="tdmForm.form" novalidate>
- *     <div *ngFor="let item of tdmForm.props; trackBy: tdmForm.trackBy" class="row">
+ *     <div *ngFor="let item of tdmForm.renderData; trackBy: tdmForm.trackBy" class="row">
  *       <div [ngSwitch]="item.type" class="row">
  *         <input *ngSwitchCase="'boolean'" type='checkbox' [formControlName]="item.name">{{ item.label }} />
  *         <input *ngSwitchCase="'text'" type='text' [formControlName]="item.name">{{ item.label }} />
@@ -30,7 +30,7 @@ import { TDMModelForm } from './tdm-model-form';
 export class TDMModelFormDirective<T> extends TDMModelForm<T> {
 
   @Input() set tdmModelForm(value: T | [T, Type<T>]) {
-    const [instance, type] = Array.isArray(value) ? value : [value, <any>value.constructor];
+    const [instance, type] = Array.isArray(value) ? value : [value, <any> value.constructor];
     this.setContext(instance, type);
   }
 

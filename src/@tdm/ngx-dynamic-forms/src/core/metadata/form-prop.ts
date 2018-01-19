@@ -1,5 +1,5 @@
 import { ValidatorFn, AsyncValidatorFn } from '@angular/forms';
-import { MetaClass, PropMetadata, BaseMetadata, DecoratorInfo } from '@tdm/core/tdm';
+import { MetaClass, PropMetadata, BaseMetadata, DecoratorInfo, TypeMetadataArgs, Constructor, TypeMetadata } from '@tdm/core/tdm';
 import { RenderDef } from '../../interfaces';
 
 export interface FormPropMetadataArgs {
@@ -36,24 +36,70 @@ export interface FormPropMetadataArgs {
    * flatten properties does not require a render instructions.
    * When set, the property is treated as a plain object regardless of it's type so you can also send plain JS objects.
    *
-   * NOTE that FormPropMetadataArgs definitions in a flatten instruction might not support all features.
+   * NOTE: [[FormPropMetadataArgs]] definitions in a flatten instruction might not support all features.
+   *       If you want to maximize use make sure to manually define the run-time types.
    */
-  flatten?: { [key: string]: FormPropMetadataArgs },
+  flatten?: { [key: string]: FormPropMetadataArgs };
 
   /**
    * Declares the property as a nested child form.
    * The property type must a complex object.
-   * This is has no effect on UI rendering, only used by the mapper.
+   * This has no effect on UI rendering, only used by the mapper.
    */
   childForm?: boolean;
+
+  // tsline:disable
+  /**
+   * Type definition declaration to be used by the form builder.
+   * Setting type definition overrides any existing type definition, explicit or implicit.
+   *
+   * ## When to use:
+   * `@tdm` identify the type automatically (implicit) but you can also use the `@Prop` decorator and explicitly set the
+   * type using a type getter or the type directly (see [[PropMetadataArgs.type]]).
+   *
+   * When `rtType` is not set the form builder will use the existing type information, this is the recommended approach.
+   *
+   * You would want to use `rtType` when:
+   *   1. The existing type information is not enough AND
+   *   2. The property is not decorated with `@Prop`
+   *
+   * (1) The existing type information is usually enough but in some cases it requires manual definition done in using
+   * the `@Prop` decorator, these are the most common scenarios:
+   *   - Circular module dependency (see https://blog.angularindepth.com/what-is-forwardref-in-angular-and-why-we-need-it-6ecefb417d48)
+   *   - When using `this` or `any` type
+   *   - When using Array of T (e.g. `string[]` or `Array<number>`) (see https://github.com/Microsoft/TypeScript/issues/7169)
+   *
+   * (2)
+   * It is not mandatory to decorate a property with `@Prop` when decorating it with `@FormProp`, i.e. `@FormProp` can
+   * be the only decorator for a property.
+   * An example would be a property in a model/resource that is only required for the form and it is not part of the
+   * resource.
+   *
+   * If both (1) and (2) exist you would need to define a the type information using `rtType`.
+   * If only (1) exists use `@Prop` to define the type information, this will help with consistency.
+   *
+   * It might be that you will need `rtType` in other scenarios, if so remember that it will override all existing type
+   * information for the form builder only.
+   *
+   * ## How to use:
+   * The builder will auto-set missing or unset type information, if exists.
+   * Set [[TypeDefinition.ref]] property to the type, or a type getter function.
+   * Set [[TypeDefinition.forwardRef]] property to true, only then using type getter function in `ref`
+   * Set [[TypeDefinition.isArray]] property when defining a property in a `flatten` definition or when the type
+   * annotation for the property is not an array, otherwise this value is automatically set by the builder
+   *
+   * SEE [[TypeMetadataArgs]] for more information
+   */
+  rtType?: TypeMetadataArgs;
+  // tsline:enable
 
   /**
    * The default value
    */
   defaultValue?: any;
 
-  validators?: ValidatorFn | Array<ValidatorFn>;
-  asyncValidators?: AsyncValidatorFn | Array<AsyncValidatorFn>;
+  validators?: ValidatorFn | ValidatorFn[];
+  asyncValidators?: AsyncValidatorFn | AsyncValidatorFn[];
 }
 
 export const BASE_RENDERER: RenderDef = {
@@ -74,12 +120,13 @@ export class FormPropMetadata extends BaseMetadata {
   required: boolean;
   defaultValue: any;
   render: RenderDef;
-  validators: Array<ValidatorFn> | null;
-  asyncValidators: Array<AsyncValidatorFn> | null;
+  validators: ValidatorFn[] | null;
+  asyncValidators: AsyncValidatorFn[] | null;
   childForm: boolean;
   flatten?: { [key: string]: FormPropMetadata };
+  rtType?: TypeMetadata;
 
-  constructor(metaArgs: FormPropMetadataArgs, info: DecoratorInfo) {
+  constructor(metaArgs: FormPropMetadataArgs, info: DecoratorInfo, target?: Constructor<any>) {
     super(info);
     this.render = Object.create(BASE_RENDERER);
     if (metaArgs) {
@@ -94,7 +141,15 @@ export class FormPropMetadata extends BaseMetadata {
       if (!this.exclude && metaArgs.render) {
         Object.assign(this.render, metaArgs.render);
       }
-      this.childForm = metaArgs.childForm;
+
+      if (metaArgs.childForm) {
+        this.childForm = true;
+      }
+
+      if (metaArgs.rtType) {
+        this.rtType = new TypeMetadata(metaArgs.rtType, info, target);
+      }
+
       if (metaArgs.flatten) {
         this.flatten = {};
         for (let key of Object.keys(metaArgs.flatten)) {
@@ -113,6 +168,6 @@ export class FormPropMetadata extends BaseMetadata {
 
 declare module '@tdm/core/tdm/src/metadata/prop' {
   interface PropMetadataArgs {
-    form?: FormPropMetadataArgs | undefined
+    form?: FormPropMetadataArgs | undefined;
   }
 }

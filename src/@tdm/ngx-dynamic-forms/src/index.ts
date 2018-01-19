@@ -2,8 +2,7 @@ import '@tdm/core';
 
 export {
   FormElementType,
-  RenderDef,
-  RenderInstruction
+  RenderDef
 } from './interfaces';
 
 export {
@@ -16,17 +15,22 @@ export {
 } from './core/index';
 
 export {
+  RenderInstruction,
+  DynamicFormControlRenderer,
   TDMModelFormDirective,
   TDMModelFormService,
   TDMModelForm
 } from './tdm-model-form/index';
 
 export {
+  ArrayActionRequestEvent,
+  ArrayActionAddRequestEvent,
+  ArrayActionRemoveRequestEvent,
+  ArrayActionMoveRequestEvent,
   DynamicFormComponent,
   DynamicFormControlDirective,
   DynamicFormOverrideDirective,
   DynamicFormOverrideContext,
-  DynamicFormControlRenderer,
   BeforeRenderEventHandler,
   FORM_CONTROL_COMPONENT,
   TdmFormChange,
@@ -34,3 +38,7 @@ export {
 } from './dynamic-forms/index';
 
 export { TDMFormsModule } from './module';
+
+export { clone, objectToForm } from './utils';
+
+export { createControl } from './create-control';

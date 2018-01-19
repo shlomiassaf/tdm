@@ -1,3 +1,4 @@
+export * from './array-action-request';
 export { DynamicFormComponent, TdmFormChange, TdmFormChanges } from './dynamic-form.component';
 
 export {
@@ -7,7 +8,6 @@ export {
 
 export {
   DynamicFormControlDirective,
-  DynamicFormControlRenderer,
   FORM_CONTROL_COMPONENT
 } from './dynamic-form-control.directive';
 

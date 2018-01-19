@@ -9,6 +9,28 @@ let user = new User();
 user.id = 1;
 user.name = 'Tom Hanks';
 user.email = 'th@gmail.com';
+user.address = {
+  street: 'Some Street',
+  city: 'Los Angels',
+  zip: 95205,
+  state: 'CA',
+  nested: {
+    nested1: 'nested1',
+    nested2: 2,
+    nested3: 3
+  }
+};
+user.alias = ['Forest Gump', 'Captain Miller'];
+user.movies = [
+  {
+    name: 'Forest Gump',
+    year: 1994
+  },
+  {
+    name: 'Saving Private Ryan',
+    year: 1998
+  }
+];
 users.push(user);
 
 user = new User();

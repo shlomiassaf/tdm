@@ -1,14 +1,13 @@
-<ng-container [formGroup]="formGroup" [ngSwitch]="item.type">
+<ng-container *ngIf="!item.isArray" [ngSwitch]="item.type">
   <mat-checkbox *ngSwitchCase="'boolean'"
-               [formControlName]="item.name">{{ item.label }}</mat-checkbox>
+               [formControl]="fControl">{{ item.label }}</mat-checkbox>
 
   <mat-slide-toggle *ngSwitchCase="'slideToggle'"
                    [formControlName]="item.name">{{ item.label }}</mat-slide-toggle>
 
-
   <ng-container *ngSwitchCase="'slider'">
     <span>{{item.label}}</span>
-    <mat-slider [formControlName]="item.name"
+    <mat-slider [formControl]="fControl"
                thumbLabel="true"
                [tickInterval]="1"
                [min]="item.data?.min" [max]="item.data?.max"></mat-slider>
@@ -21,13 +20,13 @@
 
   <ng-container *ngSwitchCase="'radio'">
     <span>{{item.label}}</span>
-    <mat-radio-group *ngSwitchCase="'radio'" [formControlName]="item.name">
+    <mat-radio-group *ngSwitchCase="'radio'" [formControl]="fControl">
       <mat-radio-button *ngFor="let sel of item.data.selections" [value]="sel.value">{{sel.label || sel.value}}</mat-radio-button>
     </mat-radio-group>
   </ng-container>
 
   <mat-form-field *ngSwitchCase="'select'">
-    <mat-select [formControlName]="item.name"
+    <mat-select [formControl]="fControl"
                 [placeholder]="item.label">
       <mat-option *ngFor="let sel of item.data.selections" [value]="sel.value">{{sel.label || sel.value}}</mat-option>
     </mat-select>
@@ -36,10 +35,29 @@
   <mat-form-field *ngSwitchDefault>
     <input matInput
            [type]="item.type"
-           [formControlName]="item.name"
+           [formControl]="fControl"
            [placeholder]="item.label"
            [min]="item.data?.min" [max]="item.data?.max">
     <mat-error *ngIf="hasError('required')">Required</mat-error>
   </mat-form-field>
 
+</ng-container>
+<ng-container *ngIf="item.isArray" [ngSwitch]="item.type" [formGroup]="fGroup">
+  <ng-container *ngSwitchDefault [formArrayName]="item.name">
+    <mat-selection-list #controls>
+      <mat-list-option *ngFor="let childItem of fArray.controls" [value]="childItem">
+        <!-- We check item.isPrimitive because in arrays, the arrays render instructions represents the type -->
+        <!-- and the children of the instructions are the keys of an object, if its non primitive so `child` is the -->
+        <!-- a key of an object that might be primitive... -->
+        <dynamic-form-element *ngFor="let child of item.children"
+                              [tdmForm]="tdmForm"
+                              [fControl]="item.isPrimitive ? childItem : childItem.get(child.name)"
+                              [item]="child"></dynamic-form-element>
+      </mat-list-option>
+    </mat-selection-list>
+    <button mat-button (click)="dynForm.emitArrayActionRequest(item, { type: 'add', formArray: fArray })">ADD</button>
+    <button mat-button
+            [disabled]="controls?.selectedOptions?.selected.length === 0"
+            (click)="arrayRemove(controls.selectedOptions)">REMOVE</button>
+  </ng-container>
 </ng-container>

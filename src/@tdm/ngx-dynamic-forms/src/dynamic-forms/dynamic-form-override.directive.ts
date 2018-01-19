@@ -1,7 +1,7 @@
 import { Directive, Input, Inject, forwardRef, TemplateRef } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
-import { RenderInstruction } from '../interfaces';
+import { RenderInstruction } from '../tdm-model-form/render-instruction';
 import { DynamicFormComponent } from './dynamic-form.component';
 
 export interface DynamicFormOverrideContext {

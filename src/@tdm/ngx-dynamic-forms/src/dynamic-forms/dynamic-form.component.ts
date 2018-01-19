@@ -21,11 +21,16 @@ import {
 } from '@angular/core';
 import { AbstractControl, FormGroup } from '@angular/forms';
 
-import { RenderInstruction } from '../interfaces';
-import { TDMModelForm, TDMModelFormService } from '../tdm-model-form/index';
-
+import { Omit } from '@tdm/core/tdm';
+import { TDMModelForm, TDMModelFormService, RenderInstruction } from '../tdm-model-form/index';
 import { DynamicFormOverrideDirective, DynamicFormOverrideContext } from './dynamic-form-override.directive';
 import { BeforeRenderEventHandler } from './before-render-event-handler';
+import {
+  ArrayActionRequestEvent,
+  ArrayActionAddRequestEvent,
+  ArrayActionMoveRequestEvent,
+  ArrayActionRemoveRequestEvent
+} from './array-action-request';
 
 export interface LocalRenderInstruction extends RenderInstruction {
   /**
@@ -55,12 +60,6 @@ export type TdmFormChanges = TdmFormChange[];
 
 /**
  * Allow rendering a form using @tdm/ngx-dynamic-forms and DynamicFormElementComponent
- *
- * <form [formGroup]="tdmForm.form" novalidate>
- *   <div *ngFor="let item of tdmForm.props; trackBy: tdmForm.trackBy" class="row">
- *     <dynamic-form-element [tdmForm]="tdmForm" [item]="item"></dynamic-form-element>
- *    </div>
- * </form>
  */
 @Component({
   selector: 'dynamic-form',
@@ -280,6 +279,27 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   @Output() renderState: Observable<boolean>;
 
   /**
+   * Event emitted when an internal request to add/remove/move an item from a [[FormArray]] is submitted.
+   * Array actions request are not managed by the library, this API exists to allow flexibility when handling
+   * form arrays.
+   *
+   * Components that implement [[DynamicFormControlRenderer]] and are set to be used by <dynamic-form> are responsible
+   * for array action request submission.
+   * This is because they implement the way a form array looks, they might implement multiple list styles some editable
+   * and some not. They encapsulate buttons and so have access to click events.
+   * These components must implement [[DynamicFormControlRenderer]] and so they have access to the API.
+   *
+   * An implementation might choose to emit events so handlers on the outside can handle the logic for add/remove/move
+   * or it can be a local implementation without exposing events, this is up to the developer.
+   *
+   * This event should be treated as external and handled by the developer.
+   *
+   * > Developers should use the `emitArrayActionRequest` method in this class to invoke events, the method requires a
+   * partial event object as input and will complete the missing information.
+   */
+  @Output() arrayActionRequest: Observable<ArrayActionRequestEvent>;
+
+  /**
    * The instructions to render
    * @internal
    */
@@ -297,6 +317,8 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   private _ngNativeValidate: any = false;
   private slaveMode: boolean;
   private overrideMap = new Map<RenderInstruction, DynamicFormOverrideDirective>();
+  private _arrayActionRequest = new EventEmitter<ArrayActionRequestEvent>();
+
   /**
    * Indicates the number of update() calls that are running/queued
    * A number n that is > 1 does not mean the update will run n times, it will run one more time only.
@@ -312,6 +334,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
               private itDiffers: IterableDiffers,
               private renderer: Renderer2) {
     this.renderState = this.rendering$.asObservable();
+    this.arrayActionRequest = this._arrayActionRequest.asObservable();
   }
 
   getOverride(item: RenderInstruction): DynamicFormOverrideDirective | undefined {
@@ -389,6 +412,20 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     }
   }
 
+  emitArrayActionRequest(renderInstruction: RenderInstruction,
+                         request: Omit<ArrayActionAddRequestEvent, 'tdmForm' | 'staticPath' | 'runtimePath'>): void;
+  emitArrayActionRequest(renderInstruction: RenderInstruction,
+                         request: Omit<ArrayActionRemoveRequestEvent, 'tdmForm' | 'staticPath' | 'runtimePath'>): void;
+  emitArrayActionRequest(renderInstruction: RenderInstruction,
+                         request: Omit<ArrayActionMoveRequestEvent, 'tdmForm' | 'staticPath' | 'runtimePath'>): void;
+  emitArrayActionRequest(renderInstruction: RenderInstruction, request: Partial<ArrayActionRequestEvent>): void {
+    // TODO: validate input.
+    request.tdmForm = this.tdmForm;
+    request.staticPath = renderInstruction.getStaticPath();
+    request.runtimePath = renderInstruction.getRuntimePath(request.formArray);
+    this._arrayActionRequest.emit(<any> request);
+  }
+
   private updateOverrides(): void {
     this.filters.ow = this.overrides
       .map(ow => ow.dynamicFormOverride).concat(this.codeOverrides.map( ow => ow.dynamicFormOverride));
@@ -415,7 +452,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     this.overrideMap.clear();
 
     const overrides = this.overrides.toArray().concat(this.codeOverrides);
-    this.tdmForm.renderData.forEach(rd => {
+    const processInstructions = (rd: RenderInstruction) => {
       if (!this.filters.exc || this.filters.exc.indexOf(rd.name) === -1) {
         const localRd: LocalRenderInstruction = Object.create(rd);
         const override = overrides.find(ow => ow.dynamicFormOverride === localRd.name);
@@ -433,7 +470,9 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
 
         controls.push(localRd);
       }
-    });
+    };
+
+    this.tdmForm.renderData.forEach(processInstructions);
 
     this.pendingUpdates += 1;
     Promise.all(controlsReady)

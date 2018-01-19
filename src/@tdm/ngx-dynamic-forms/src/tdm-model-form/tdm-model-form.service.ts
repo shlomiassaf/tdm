@@ -1,9 +1,27 @@
 import { Injectable, Type } from '@angular/core';
 import { targetStore, PropMetadata } from '@tdm/core/tdm';
 import { TDMModelForm } from './tdm-model-form';
+import { RenderInstruction } from './render-instruction';
 
 import { BASE_RENDERER, FormModelMetadata, FormPropMetadata } from '../core/index';
-import { RenderInstruction } from '../interfaces';
+
+function createRI(formProp: FormPropMetadata,
+                  name: string,
+                  assign: any,
+                  parent?: RenderInstruction): RenderInstruction {
+  const renderInstructions = new RenderInstruction(formProp.render, name, parent);
+  if (formProp.required) {
+    renderInstructions.required = true;
+  }
+  Object.assign(renderInstructions, assign);
+  return renderInstructions;
+}
+
+function createVRI(formProp: FormPropMetadata,
+                   name: string,
+                   parent?: RenderInstruction): RenderInstruction {
+  return createRI(formProp, name, { isPrimitive: false, isVirtual: true }, parent);
+}
 
 /**
  * A service for creating new instances of TDMModelForm
@@ -33,30 +51,49 @@ export class TDMModelFormService {
     const props = targetStore.getTargetMeta(type).getValues(PropMetadata);
     const formMeta = this.getMeta(type);
     const instructions: RenderInstruction[] = [];
-    props.forEach( p => {
+    for (let p of props) {
       const formProp = formMeta.getProp(p.name as string);
       if (!formProp) {
-        instructions.push(Object.create(BASE_RENDERER, { name: { value: p.name } }));
+        instructions.push(new RenderInstruction(BASE_RENDERER, p.name as string));
       } else if (!formProp.exclude) {
+        const typeMeta = formProp.rtType || p.type;
+
+        let localInstructions: RenderInstruction[] = instructions;
+        let name: PropertyKey  = p.name;
+        let parent: RenderInstruction;
+        const isPrimitive = !(formProp.flatten || formProp.childForm);
+        if (typeMeta && typeMeta.isArray) {
+          parent = createRI(formProp, name as string, { isArray: true, isPrimitive, children: localInstructions = [] });
+          instructions.push(parent);
+          // name = '[]';
+        }
+
         if (formProp.flatten) {
-          this.applyFlatten(formProp.flatten, [p.name as string], instructions);
+          this.applyFlatten(
+            formProp.flatten,
+            [name as string],
+            localInstructions,
+            createVRI(formProp, name as string, parent)
+          );
         } else {
-          instructions.push(Object.create(formProp.render, { name: { value: p.name }, required: { value: formProp.required } }));
+          localInstructions.push(createRI(formProp, name as string, { isPrimitive }, parent));
         }
       }
-    });
+    }
     return instructions;
   }
 
   private applyFlatten(props: { [keys: string]: FormPropMetadata },
                        path: Array<string | number>,
-                       instructions: RenderInstruction[]): void {
+                       instructions: RenderInstruction[],
+                       parent: RenderInstruction): void {
     for (let key of Object.keys(props)) {
       const p = props[key];
       if (p.flatten) {
-        this.applyFlatten(p.flatten, path.concat([key]), instructions);
+        this.applyFlatten(p.flatten, path.concat([key]), instructions, createVRI(p, key, parent));
       } else {
-        instructions.push(Object.create(p.render, { name: { value: key }, required: { value: p.required }, flattened: { value: path } }));
+        const isPrimitive = !p.childForm;
+        instructions.push(createRI(p, key as string, { isPrimitive, flattened: path }, parent));
       }
     }
   }

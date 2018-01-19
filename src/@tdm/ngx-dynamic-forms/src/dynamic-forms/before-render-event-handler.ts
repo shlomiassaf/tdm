@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs/Observable';
 import { toPromise } from 'rxjs/operator/toPromise';
 
-import { RenderInstruction } from '../interfaces';
+import { RenderInstruction } from '../tdm-model-form/render-instruction';
 
 const asyncUsed = (done: Promise<void> | Observable<void>) => {
   throw new Error('async() was already called once.');

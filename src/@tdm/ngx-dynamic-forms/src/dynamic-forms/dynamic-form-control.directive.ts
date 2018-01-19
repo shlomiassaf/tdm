@@ -9,17 +9,9 @@ import {
   Inject,
   InjectionToken
 } from '@angular/core';
-import { FormGroup } from '@angular/forms';
 
-import { RenderInstruction } from '../interfaces';
-import { TDMModelForm } from '../tdm-model-form/index';
+import { DynamicFormControlRenderer, RenderInstruction } from '../tdm-model-form/index';
 import { DynamicFormComponent } from './dynamic-form.component';
-
-export interface DynamicFormControlRenderer {
-  item: RenderInstruction;
-  tdmForm: TDMModelForm<any>;
-  formGroup: FormGroup;
-}
 
 /**
  * A Token for the component that renders form controls
@@ -67,12 +59,7 @@ export class DynamicFormControlDirective {
           this.vcRef.length,
           injector
         );
-        this.cmpRef.instance.tdmForm = this.dynForm.tdmForm;
-        this.cmpRef.instance.formGroup = value.flattened
-          ? this.dynForm.tdmForm.form.get(value.flattened) as FormGroup
-          : this.dynForm.tdmForm.form
-        ;
-        this.cmpRef.instance.item = value;
+        this.dynForm.tdmForm.bindRenderingData(this.cmpRef.instance, value);
       }
     }
   }
@@ -82,7 +69,7 @@ export class DynamicFormControlDirective {
 
   constructor(private vcRef: ViewContainerRef,
               @Inject(FORM_CONTROL_COMPONENT) private component: Type<DynamicFormControlRenderer>,
-              @Inject(forwardRef(() => DynamicFormComponent)) private dynForm: DynamicFormComponent<any>) {
+              @Inject(forwardRef(() => DynamicFormComponent)) public dynForm: DynamicFormComponent<any>) {
   }
 
 }

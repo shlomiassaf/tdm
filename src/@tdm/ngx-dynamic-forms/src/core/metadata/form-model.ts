@@ -32,7 +32,8 @@ export class FormModelMetadata extends BaseMetadata implements FormModelMetadata
 
   addProp(prop: PropMetadata, metaArgs: FormPropMetadata) {
     if (!metaArgs.exclude && !metaArgs.render.type) {
-      switch (prop.type.ref) {
+      const type = metaArgs.rtType || prop.type;
+      switch (type.ref) {
         case Boolean:
           metaArgs.render.type = 'boolean';
           break;

@@ -1,6 +1,8 @@
-import {FormGroup} from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import {
   targetStore,
+  isString,
+  isNumber,
   Constructor,
   PlainObjectMapper,
   TargetMetadata
@@ -9,6 +11,10 @@ import {
 import { DeserializableForm, NgFormsSerializeMapper, NgFormsDeserializeMapper } from './angular-forms-mapper';
 import { FormPropMetadata } from './metadata/index';
 
+/**
+ * A FormGroup/FormArray deserializer bound to a specific instance.
+ *
+ */
 class NgFormsBoundDeserializeMapper extends NgFormsDeserializeMapper {
 
   constructor(public formGroup: DeserializableForm,
@@ -18,11 +24,20 @@ class NgFormsBoundDeserializeMapper extends NgFormsDeserializeMapper {
     super(formGroup.value, sourceType, plainMapper);
   }
 
+  /**
+   * Overrides the base class method to set the result from the instance when `resultOrKey` is a string or a number.
+   * Note that it will set the result from the root object, which means that only 1st level properties can be used and
+   * deep references to nested object are not supported.
+   * This should have no effect since the base implementation of `deserializeFlattened`, when calling itself, provides
+   * the `resultOrKey`
+   */
   protected deserializeFlattened(control: DeserializableForm,
-                                 controlKey: string,
-                                 props: { [keys: string]: FormPropMetadata },
-                                 result?: any): any {
-    return super.deserializeFlattened(control, controlKey, props, this.instance[controlKey]);
+                                 formProp: FormPropMetadata,
+                                 resultOrKey?: string | number | any): any {
+    if (isString(resultOrKey) || isNumber(resultOrKey)) {
+      resultOrKey = this.instance[resultOrKey];
+    }
+    return super.deserializeFlattened(control, formProp, resultOrKey);
   }
 }
 
@@ -31,6 +46,7 @@ class NgFormsBoundDeserializeMapper extends NgFormsDeserializeMapper {
  * This is a helper class for easy form management where one can use the same object to serialize
  * and deserialize the model while keeping a reference to the model data.
  */
+// tslint:disable-next-line
 export class NgFormsBoundMapper<T> {
   private fg: FormGroup;
   private meta: TargetMetadata;

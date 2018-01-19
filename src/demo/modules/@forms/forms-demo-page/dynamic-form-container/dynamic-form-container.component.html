@@ -1,6 +1,9 @@
-<dynamic-form #dynForm
-              [model]="model"
-              (valueChanges)="valueChanges($event)"></dynamic-form>
-<button matButton
-        [disabled]="dynForm.form.status !== 'VALID' || !dynForm.form.dirty"
-        (click)="onClick()">Save</button>
+<div style="max-height: 80vh">
+  <dynamic-form #dynForm
+                [model]="model"
+                (arrayActionRequest)="onArrayActionRequest($event)"
+                (valueChanges)="valueChanges($event)"></dynamic-form>
+  <button matButton
+          [disabled]="dynForm.form.status !== 'VALID' || !dynForm.form.dirty"
+          (click)="onClick()">Save</button>
+</div>

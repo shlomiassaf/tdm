@@ -1,6 +1,15 @@
 import { Component, Input } from '@angular/core';
-import { RenderInstruction, TDMModelForm, DynamicFormControlRenderer } from '@tdm/ngx-dynamic-forms';
-import { FormGroup } from '@angular/forms';
+import { SelectionModel } from '@angular/cdk/collections';
+import { MatListOption } from '@angular/material';
+
+import {
+  RenderInstruction,
+  TDMModelForm,
+  DynamicFormControlRenderer,
+  DynamicFormComponent
+} from '@tdm/ngx-dynamic-forms';
+import { AbstractControl, FormGroup, FormArray, FormControl } from '@angular/forms';
+
 
 /**
  * Allow rendering a form element using @tdm/ngx-dynamic-forms
@@ -15,17 +24,40 @@ import { FormGroup } from '@angular/forms';
  */
 @Component({
   selector: 'dynamic-form-element',
-  templateUrl: './dynamic-form-element.component.html'
+  templateUrl: './dynamic-form-element.component.html',
+  styleUrls: [ './dynamic-form-element.component.scss' ]
 })
 export class DynamicFormElementComponent implements DynamicFormControlRenderer {
   @Input() item: RenderInstruction;
   @Input() tdmForm: TDMModelForm<any>;
-  @Input() formGroup: FormGroup;
+
+  @Input() fArray: FormArray | undefined;
+  @Input() fControl: FormControl | undefined;
+  @Input() fGroup: FormGroup | undefined;
+
+  constructor(private dynForm: DynamicFormComponent) {
+
+  }
 
   hasError(errorName: string): boolean {
-    return this.item.flattened
-      ? this.tdmForm.form.get(this.item.flattened.concat([this.item.name])).hasError(errorName)
-      : this.tdmForm.hasError(errorName, this.item.name)
-    ;
+    if ( this.fControl ) {
+      return this.fControl.hasError(errorName);
+    } else if ( this.fArray ) {
+      return this.fArray.hasError(errorName);
+    } else if ( this.fGroup ) {
+      return this.fGroup.hasError(errorName);
+    }
+    return false;
+  }
+
+  arrayRemove(selection: SelectionModel<MatListOption>): void {
+    const { item, fArray } = this;
+    selection.selected.forEach(ctrl => {
+      this.dynForm.emitArrayActionRequest(
+        item,
+        { type: 'remove', formArray: fArray, atIdx: fArray.controls.indexOf(ctrl.value) }
+        );
+    });
+    selection.clear();
   }
 }

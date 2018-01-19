@@ -9,13 +9,13 @@ export interface FormElementType {
    * A generic boolean type.
    * This type is auto-assigned when no type is set and the property type is Boolean
    */
-   boolean: 'boolean';
+  boolean: 'boolean';
 
   /**
    * A generic number type.
    * This type is auto-assigned when no type is set and the property type is Number
    */
-    number: 'number';
+  number: 'number';
 
   /**
    * A generic select type.
@@ -55,31 +55,4 @@ export interface RenderDef<T = any> {
    *   - selections (options) array for a select type
    */
   data?: T;
-}
-
-/**
- * Render definition with the name of the control.
- *
- * The internal logic for handling render instruction is array based (due to ordering) but the
- * user-defined `RenderDef` is object based (hash) and does not require name (name inferred from key).
- *
- * When moving user-defined render definition into an array we need to preserve the name, this interface
- * defines the contract.
- *
- * @internal
- */
-export interface RenderInstruction extends RenderDef {
-  name: string;
-
-  required?: boolean;
-
-  /**
-   * When set indicated this is form control flattened from a nested object.
-   * The string represents the path **from the root control** (NgForm) to the parent of this flattened control.
-   *
-   * The path support the same values accepted by the `get` method in `AbstractControl`, i.e.
-   * you can use dot notation / Array<string | number> to describe deep paths.
-   * See https://angular.io/api/forms/AbstractControl#get
-   */
-  flattened?: Array<string | number>;
 }

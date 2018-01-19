@@ -33,6 +33,38 @@ export class User {
   email: string;
 
   @FormProp({
+    render: {
+      type: 'text',
+      label: 'Alias'
+    }
+  })
+  alias: string[];
+
+  @FormProp({
+    required: true,
+    render: {
+      label: 'Movies'
+    },
+    flatten: {
+      name: {
+        required: true,
+        render: {
+          type: 'text',
+          label: 'Movie Name'
+        }
+      },
+      year: {
+        required: true,
+        render: {
+          type: 'number',
+          label: 'Movie Year'
+        }
+      },
+    }
+  })
+  movies: Array<{ name: string; year: number; }>;
+
+  @FormProp({
     flatten: {
       street: {
         required: true,

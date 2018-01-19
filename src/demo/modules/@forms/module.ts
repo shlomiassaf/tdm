@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { TDMFormsModule } from '@tdm/ngx-dynamic-forms';
 import { SharedModule } from '@shared';
 
-import { DynamicFormElementComponent } from './dynamic-forms';
+import { DynamicFormElementComponent, DynamicFormRowComponent } from './dynamic-forms';
 import { FormsDemoPageComponent, DynamicFormContainerComponent } from './forms-demo-page';
 import { ROUTES } from './routes';
 
@@ -15,10 +15,10 @@ import { ROUTES } from './routes';
  * @demo angular-http: HttpResource, UrlParam
  */
 @NgModule({
-  declarations: [ DynamicFormContainerComponent, FormsDemoPageComponent, DynamicFormElementComponent ],
+  declarations: [ DynamicFormContainerComponent, FormsDemoPageComponent, DynamicFormElementComponent, DynamicFormRowComponent ],
   imports: [
     SharedModule,
-    TDMFormsModule.forRoot(DynamicFormElementComponent),
+    TDMFormsModule.forRoot(DynamicFormRowComponent),
     RouterModule.forChild(ROUTES)
   ],
   entryComponents: [ DynamicFormContainerComponent ]
