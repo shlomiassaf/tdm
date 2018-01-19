@@ -11,8 +11,9 @@ import {
 export interface TypeDefinition {
   /**
    * The type or a forward reference (getter) for the type.
+   * If not set, Object is set as the default type
    */
-  ref: ( () => Constructor<any> ) | Constructor<any>;
+  ref?: ( () => Constructor<any> ) | Constructor<any>;
 
   /**
    * If true, ref should be treated as a getter to the type.
@@ -132,10 +133,10 @@ export class TypeMetadata extends BaseMetadata {
   readonly isArray?: boolean;
   readonly isGetter?: boolean;
 
-  constructor(metaArgs: TypeMetadataArgs, info: DecoratorInfo, target: Constructor<any>) {
+  constructor(metaArgs: TypeMetadataArgs, info: DecoratorInfo, target?: Constructor<any>) {
     super(info);
 
-    const type = reflection.designType(target.prototype, this.name as any);
+    const type = target ? reflection.designType(target.prototype, this.name as any) : Object;
 
     let def: TypeDefinition;
     if (isFunction(metaArgs)) {
@@ -145,6 +146,9 @@ export class TypeMetadata extends BaseMetadata {
       if (!def.hasOwnProperty('isArray')) {
         def.isArray = type === Array;
       }
+      if (!def.ref) {
+        def.ref = def.forwardRef === true ? () => Object : Object;
+      }
     } else {
       def = { ref: type === Array ? Object : type, isArray: type === Array };
     }
@@ -153,13 +157,10 @@ export class TypeMetadata extends BaseMetadata {
 
     if (def.forwardRef === true) {
       // WHY configurable: true -> see @tdm/data -> meta-class extension
-      Object.defineProperty(this, 'ref', { configurable: true, get: <any>def.ref });
+      Object.defineProperty(this, 'ref', { configurable: true, get: <any> def.ref });
       this.isGetter = true;
     } else {
-      this.ref = <any>def.ref;
+      this.ref = <any> def.ref;
     }
-
   }
-
 }
-

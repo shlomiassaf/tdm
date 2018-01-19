@@ -1,3 +1,5 @@
+export * from './type-helpers';
+
 export {
   errors,
   Errors,
@@ -12,6 +14,7 @@ export {
   isString,
   isFunction,
   isUndefined,
+  isJsObject,
   isPrimitive,
   LazyInit,
   DualKeyMap,

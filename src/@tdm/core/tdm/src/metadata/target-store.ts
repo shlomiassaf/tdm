@@ -66,12 +66,12 @@ export class TargetStore {
     const dkm = this.targets.get(target);
     if (dkm) {
       if (name === true) {
-        const v = dkm.get(GLOBAL_KEY, <any>metaClass);
+        const v = dkm.get(GLOBAL_KEY, <any> metaClass);
         return v && singleKey ? v[singleKey] : v;
       } else if (name) {
         return dkm.get(metaClass, name);
       } else {
-        return dkm.get(metaClass)
+        return dkm.get(metaClass);
       }
     }
   }
