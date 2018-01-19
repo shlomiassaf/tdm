@@ -42,9 +42,11 @@ export class DynamicFormContainerComponent<T> {
       // we need to create a form control instance, it can be FormControl but can also be FormGroup or FormArray
       // we need to the serializer for that, so we use the helper function on [[TDMModelForm]]
       event.tdmForm.appendControl(event.staticPath);
+      event.formArray.markAsDirty();
     } else if (event.type === 'remove') {
       o.value = event.formArray.controls[event.atIdx].value;
       event.formArray.removeAt(event.atIdx);
+      event.formArray.markAsDirty();
     }
     this.snackBar.open(JSON.stringify(o, null, 2), '', {
       duration: 2000,

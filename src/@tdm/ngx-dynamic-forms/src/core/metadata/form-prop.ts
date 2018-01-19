@@ -30,6 +30,30 @@ export interface FormPropMetadataArgs {
   required?: boolean;
 
   /**
+   * Flattens the rendering of an object or an array of objects into the root so they are rendered in the root level
+   * with other properties on the instance.
+   *
+   * A flattening definitions is a key -> value map where key's are the properties of the type decorated and the values
+   * are [[FormPropMetadataArgs]] for each property, it's sort of manual form control definition for a type.
+   *
+   * A flatten definition is defined on [[[[FormPropMetadataArgs]]]] and creates internal [[FormPropMetadataArgs]] values so
+   * we can say that it is recursive, i.e. you can define a flatten definition with one or more of the children having
+   * flatten definitions of their own and the same for the children of the children...
+   *
+   * Notice that flattening apply only on the rendering, it does not change the structure of the model and the generated
+   * form structure is identical to the model structure.
+   *
+   * The library will manage the transformation to and from the UI.
+   *
+   * ## Arrays
+   * When a flatten definition decorates an Array of T the array should be ignored and the definition should reflect the
+   * type of T, the fact that the type is and Array of T should not make a difference and the library will take that
+   * into account.
+   *
+   * NOTE: When decorating an Array of T, make sure to include the type, either in `@Prop` metadata or in the
+   * `rtType` property in [[FormPropMetadataArgs]] or it will register as Array<Object>.
+   *
+   * > Must decorate an object or array of objects, primitives are not allowed.
    * Instructions for flattening the object referenced on this property.
    * The property must reference a JS object.
    *

@@ -1,6 +1,4 @@
 import { Component, Input } from '@angular/core';
-import { SelectionModel } from '@angular/cdk/collections';
-import { MatListOption } from '@angular/material';
 
 import {
   RenderInstruction,
@@ -28,6 +26,7 @@ import { AbstractControl, FormGroup, FormArray, FormControl } from '@angular/for
   styleUrls: [ './dynamic-form-element.component.scss' ]
 })
 export class DynamicFormElementComponent implements DynamicFormControlRenderer {
+  @Input() showLabels: boolean;
   @Input() item: RenderInstruction;
   @Input() tdmForm: TDMModelForm<any>;
 
@@ -50,14 +49,11 @@ export class DynamicFormElementComponent implements DynamicFormControlRenderer {
     return false;
   }
 
-  arrayRemove(selection: SelectionModel<MatListOption>): void {
+  arrayRemove(ctrl: AbstractControl): void {
     const { item, fArray } = this;
-    selection.selected.forEach(ctrl => {
-      this.dynForm.emitArrayActionRequest(
-        item,
-        { type: 'remove', formArray: fArray, atIdx: fArray.controls.indexOf(ctrl.value) }
-        );
-    });
-    selection.clear();
+    this.dynForm.emitArrayActionRequest(
+      item,
+      { type: 'remove', formArray: fArray, atIdx: fArray.controls.indexOf(ctrl) }
+    );
   }
 }

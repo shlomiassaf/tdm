@@ -434,7 +434,7 @@ export class NgFormsSerializeMapper extends SerializeMapper {
     if (Array.isArray(value)) {
       throw new Error('provided value is an array instance which is not allowed.');
     }
-    const path: string[] = Array.isArray(prop) ? [prop[0], ...prop[1].split('.')] : [prop];
+    const path: string[] = Array.isArray(prop) ? [prop[0], ...prop[1].split('.')].filter( s => !!s ) : [prop];
 
     const formModel = targetStore.getMetaFor(type, FormModelMetadata, true);
     if (!formModel) {

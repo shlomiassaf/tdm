@@ -33,6 +33,7 @@ export class User {
   email: string;
 
   @FormProp({
+    required: true,
     render: {
       type: 'text',
       label: 'Alias'
