@@ -452,8 +452,11 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     this.overrideMap.clear();
 
     const overrides = this.overrides.toArray().concat(this.codeOverrides);
+    const excluded = this.filters.exc && this.filters.exc.slice();
+    const hiddenState = this.hiddenState && this.hiddenState.slice();
     const processInstructions = (rd: RenderInstruction) => {
-      if (!this.filters.exc || this.filters.exc.indexOf(rd.name) === -1) {
+      let fullPath: string;
+      if (!excluded || !this.isStaticPathContainsPath(excluded, fullPath = rd.getStaticPath())) {
         const localRd: LocalRenderInstruction = Object.create(rd);
         const override = overrides.find(ow => ow.dynamicFormOverride === localRd.name);
         if (override) {
@@ -463,8 +466,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
         this.beforeRender.emit(renderEvent);
 
         // update hidden state of each item
-        const name = localRd.flattened ? localRd.flattened.join('.') + `.${localRd.name}` : localRd.name;
-        if (this.hiddenState && this.hiddenState.indexOf(<any> name) > -1) {
+        if ( hiddenState && !this.isStaticPathContainsPath(hiddenState, fullPath || rd.getStaticPath()) ) {
           localRd.display = 'none';
         }
 
@@ -490,6 +492,25 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
           this.emitRenderingState(false);
         }
       });
+  }
+
+  /**
+   * Check's if an array of paths that might be static or partial are part of the provided full static path.
+   * For example: pathList: ['address'], fullPath: 'address.street' -> true
+   *
+   * TODO: This is called from the update() method and can be improved.
+   * because it use a RenderInstruction it has the full path as an array so we can flag levels so next call to deep
+   * a nested item will fail on the spot cause it's first level was blocked.
+   * e.g. if user blocked 'address' and next item is 'address.name' or 'address.x.y.z' it will fail on the spot because
+   * all of the address object is blocked. Current state is full check for all children of address.
+   */
+  private isStaticPathContainsPath(pathList: string[], fullPath: string): boolean {
+    const idx = pathList.findIndex( p => fullPath.indexOf(p) === 0);
+    if (idx > -1) {
+      const nextChar = pathList[idx][pathList[idx].length];
+      return !nextChar || nextChar === '.';
+    }
+    return false;
   }
 
   private emitRenderingState(state: boolean): void {
