@@ -443,6 +443,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     d.dynamicFormOverride = name;
     if (name === '*') {
       this.wildOverride = d;
+      this.wildOverride['__CUSTOM_ADD_OW__'] = true;
     } else {
       this.codeOverrides.push(d);
     }
@@ -467,7 +468,15 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   }
 
   private updateOverrides(): void {
-    this.wildOverride = this.overrides.find( ow => ow.dynamicFormOverride === '*' );
+    const match = this.overrides.find( ow => ow.dynamicFormOverride === '*' );
+    // we update the wildOverride, but we check if the old wildOverride was added using addOverride method (custom)
+    // if so (no match and old added manually) we will leave it.
+    // we do that because it's most likely we won't find template overrides when custom is set
+    // it also means template wins over custom
+    if (match || !this.wildOverride || this.wildOverride['__CUSTOM_ADD_OW__'] !== true) {
+      this.wildOverride = match;
+    }
+
     this.update();
   }
 
