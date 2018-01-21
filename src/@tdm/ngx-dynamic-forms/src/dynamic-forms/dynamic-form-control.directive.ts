@@ -49,10 +49,10 @@ export class DynamicFormControlDirective {
       const componentFactory = resolver.resolveComponentFactory(this.component);
       const override = this.dynForm.getOverride(value);
       if (override) {
+        const $implicit: DynamicFormControlRenderer  = <any> {};
+        this.dynForm.tdmForm.bindRenderingData($implicit, value);
         this.vcRef.createEmbeddedView(
-          override.template,
-          { $implicit: override, dynamicFormOverride: override, meta: value }
-        );
+          override.template, { $implicit } );
       } else {
         this.cmpRef = this.vcRef.createComponent<DynamicFormControlRenderer>(
           componentFactory,

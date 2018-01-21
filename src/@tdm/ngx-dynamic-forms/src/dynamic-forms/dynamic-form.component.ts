@@ -331,12 +331,12 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   private freezeValueChanges: boolean;
   private valueDiffer: KeyValueDiffer<string, any>;
   private stateDiffer: Partial<Record<StateKeys, IterableDiffer<string>>> = {};
-  private filters = { ow: [] as string[] };
   private afterInit: boolean;
   private rendering$ = new BehaviorSubject<boolean>(false);
   private _ngNativeValidate: any = false;
   private slaveMode: boolean;
   private overrideMap = new Map<RenderInstruction, DynamicFormOverrideDirective>();
+  private wildOverride: DynamicFormOverrideDirective;
   private _arrayActionRequest = new EventEmitter<ArrayActionRequestEvent>();
   private renderInstructions: RenderInstruction[];
 
@@ -436,12 +436,17 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
 
   /**
    * API to manually add field override templates, use this if you want to apply overrides but can not
-   * set the content projection in the tempalte.
+   * set the content projection in the template.
    */
   addOverride(name: string, tRef: TemplateRef<DynamicFormOverrideContext>, update: boolean = true): void {
     const d = new DynamicFormOverrideDirective(tRef, this);
     d.dynamicFormOverride = name;
-    this.codeOverrides.push(d);
+    if (name === '*') {
+      this.wildOverride = d;
+    } else {
+      this.codeOverrides.push(d);
+    }
+
     if (update) {
       this.update();
     }
@@ -462,8 +467,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   }
 
   private updateOverrides(): void {
-    this.filters.ow = this.overrides
-      .map(ow => ow.dynamicFormOverride).concat(this.codeOverrides.map( ow => ow.dynamicFormOverride));
+    this.wildOverride = this.overrides.find( ow => ow.dynamicFormOverride === '*' );
     this.update();
   }
 
@@ -493,7 +497,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
       let fullPath: string;
       // tslint:disable-next-line
       if (!excluded || !this.isStaticPathContainsPath(excluded, fullPath = rd.getStaticPath())) {
-        const override = overrides.find(ow => ow.dynamicFormOverride === rd.name);
+        let override = overrides.find(ow => ow.dynamicFormOverride === rd.name) || this.wildOverride;
         if (override) {
           this.overrideMap.set(rd, override);
         }

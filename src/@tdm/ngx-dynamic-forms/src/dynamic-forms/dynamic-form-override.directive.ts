@@ -2,12 +2,11 @@ import { Directive, Input, Inject, forwardRef, TemplateRef } from '@angular/core
 import { FormGroup } from '@angular/forms';
 
 import { RenderInstruction } from '../tdm-model-form/render-instruction';
+import { DynamicFormControlRenderer } from '../tdm-model-form/tdm-model-form';
 import { DynamicFormComponent } from './dynamic-form.component';
 
 export interface DynamicFormOverrideContext {
-  $implicit: DynamicFormOverrideDirective;
-  dynamicFormOverride: DynamicFormOverrideDirective;
-  meta: RenderInstruction;
+  $implicit: DynamicFormControlRenderer;
 }
 
 /**
@@ -17,19 +16,8 @@ export interface DynamicFormOverrideContext {
  *
  * ```html
  * <dynamic-form #df [model]="data.user" [exclude]="['remotePassword']">
- *
- *   <!-- Using the DynamicFormOverrideDirective instance:  -->
- *   <md-input-container #d="dynamicFormOverride" *dynamicFormOverride="'localUser'" [formGroup]="d.formGroup" >
- *     <input type="password" [formControlName]="d.meta.name" mdInput [placeholder]="d.meta.label">
- *   </md-input-container>
- *
- *   <md-input-container *dynamicFormOverride="'localUser'; let d" [formGroup]="d.formGroup" >
- *     <input type="password" [formControlName]="d.meta.name" mdInput [placeholder]="d.meta.label">
- *   </md-input-container>
- *
- *   <!--  Using the a local template variable:  -->
- *   <md-input-container *dynamicFormOverride="'localUser'; let meta=meta" [formGroup]="df.tdmForm.form" >
- *     <input type="password" [formControlName]="meta.name" mdInput [placeholder]="meta.label">
+ *   <md-input-container *dynamicFormOverride="'localUser'; let ctx" [formGroup]="ctx.fGroup" >
+ *     <input type="password" [formControl]="ctx.fControl" mdInput [placeholder]="ctx.item.label">
  *   </md-input-container>
  * </dynamic-form>
  * ```
@@ -41,10 +29,14 @@ export interface DynamicFormOverrideContext {
 })
 export class DynamicFormOverrideDirective {
 
-  get dynamicFormOverride(): string { return this.key };
+  get dynamicFormOverride(): string { return this.key; };
   @Input() set dynamicFormOverride(value: string) {
     this.key = value;
-    this.meta = this.dynForm.tdmForm.renderData.find( rd => rd.name === value);
+    if (this.key && this.key !== '*') {
+      this.meta = this.dynForm.tdmForm.renderData.find( rd => rd.name === value);
+    } else {
+      this.meta = undefined;
+    }
   };
 
   /**
