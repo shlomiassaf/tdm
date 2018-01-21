@@ -80,7 +80,7 @@ export class TDMModelFormService {
     const riClone = rd => {
       rd = Object.create(rd);
       if (rd.isArray) {
-        rd.chilren = rd.chilren.map( c =>  {
+        rd.chilren = rd.children.map( c =>  {
           c = riClone(c);
           c.parent = rd;
           return c;
