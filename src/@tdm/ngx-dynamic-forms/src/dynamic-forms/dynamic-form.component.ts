@@ -197,7 +197,6 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     this.tdmForm = dynForm.tdmForm;
     this.instance = dynForm.instance;
     this.type = dynForm.type;
-    this.overrideMap = dynForm.overrideMap;
     this.slaveMode = true;
   }
 
