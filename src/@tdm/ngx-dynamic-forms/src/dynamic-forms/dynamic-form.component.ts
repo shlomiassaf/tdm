@@ -34,10 +34,21 @@ import {
 
 export interface LocalRenderInstruction extends RenderInstruction {
   /**
-   * User to show/hide controls
+   * Used to show/hide controls
    * @internal
    */
   display: 'none' | undefined;
+
+  /**
+   * Used as flag for show/hide (true is hide)
+   * @internal
+   */
+  _dSelf: boolean;
+  /**
+   * Used as flag for show/hide of parent (true is hide)
+   * @internal
+   */
+  _dParent: boolean;
 }
 
 /**
@@ -454,27 +465,32 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     const overrides = this.overrides.toArray().concat(this.codeOverrides);
     const excluded = this.filters.exc && this.filters.exc.slice();
     const hiddenState = this.hiddenState && this.hiddenState.slice();
-    const processInstructions = (rd: RenderInstruction) => {
+    const processInstructions = (rd: LocalRenderInstruction) => {
       let fullPath: string;
       if (!excluded || !this.isStaticPathContainsPath(excluded, fullPath = rd.getStaticPath())) {
-        const localRd: LocalRenderInstruction = Object.create(rd);
-        const override = overrides.find(ow => ow.dynamicFormOverride === localRd.name);
+        const override = overrides.find(ow => ow.dynamicFormOverride === rd.name);
         if (override) {
-          this.overrideMap.set(localRd, override);
+          this.overrideMap.set(rd, override);
         }
-        const renderEvent = new BeforeRenderEventHandler(localRd, controlsPromiseSetter);
+        const renderEvent = new BeforeRenderEventHandler(rd, controlsPromiseSetter);
         this.beforeRender.emit(renderEvent);
 
         // update hidden state of each item
-        if ( hiddenState && !this.isStaticPathContainsPath(hiddenState, fullPath || rd.getStaticPath()) ) {
-          localRd.display = 'none';
+        if ( hiddenState && this.isStaticPathContainsPath(hiddenState, fullPath || rd.getStaticPath()) ) {
+          setDisplay(rd, 'none');
         }
-
-        controls.push(localRd);
+        controls.push(rd);
       }
     };
 
-    this.tdmForm.renderData.forEach(processInstructions);
+    const renderData = this.controls.getValue();
+    if (renderData.length > 0) {
+      renderData.forEach(processInstructions);
+    } else {
+      const clone = this.tdmModelFormService.createRICloneFactory<LocalRenderInstruction>();
+      this.tdmForm.renderData
+        .forEach((rd: RenderInstruction) => processInstructions( clone(rd) ));
+    }
 
     this.pendingUpdates += 1;
     Promise.all(controlsReady)
@@ -507,7 +523,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   private isStaticPathContainsPath(pathList: string[], fullPath: string): boolean {
     const idx = pathList.findIndex( p => fullPath.indexOf(p) === 0);
     if (idx > -1) {
-      const nextChar = pathList[idx][pathList[idx].length];
+      const nextChar = fullPath[pathList[idx].length];
       return !nextChar || nextChar === '.';
     }
     return false;
@@ -640,33 +656,69 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
         break;
       case 'hidden':
         diff.forEachAddedItem( record => {
-          const item = this.findControlByKey(record.item);
-          if (item) {
-            item.display = 'none';
+          const item = this.findRenderInstructionByKey(record.item);
+          if (item && setDisplay(item, 'none')) {
+            this.update();
           }
         });
         diff.forEachRemovedItem( record => {
-          const item = this.findControlByKey(record.item);
-          if (item) {
-            item.display = undefined;
+          const item = this.findRenderInstructionByKey(record.item);
+          if (item && setDisplay(item)) {
+            this.update();
           }
         });
         break;
     }
   }
 
-  private findControlByKey(dotProperty: string) {
-    const path = dotProperty.split('.');
-    const name = path.pop();
-    return this.controls.value.find( c => {
-      if (c.name === name) {
-        if (!c.flattened && path.length === 0) {
-          return true;
-        } else {
-          return c.flattened.join('.') + `.${name}` === dotProperty;
+  /**
+   * Find's a RenderInstruction using the provided static property path.
+   * Note that a property path might point to a virtual RenderInstruction, such that does not actually render in the UI
+   * but has children that does.
+   */
+  private findRenderInstructionByKey(dotProperty: string): LocalRenderInstruction | undefined {
+    for (let c of this.controls.value) {
+      const fullPath = c.getStaticPath();
+      if (fullPath.indexOf(dotProperty) > -1) {
+        const nextChar = fullPath[dotProperty.length];
+        if (!nextChar) {
+          return c;
+        } else if (nextChar === '.') {
+          let len = fullPath.substr(dotProperty.length + 1).split('.').length;
+          while (len-- > 0) {
+            c = <any> c.parent;
+          }
+          return c;
         }
       }
-      return false;
-    });
+    }
+  }
+}
+
+/**
+ * Set's the state of the display property in the LocalRenderInstruction.
+ * Take's into consideration parent's state when computing the child's state.
+ * returns `true` when the operation included changes in children
+ */
+function setDisplay(ri: LocalRenderInstruction, value?: 'none'): boolean {
+  if (ri.display !== value) {
+    ri._dSelf = !!value;
+    ri.display = ri._dSelf || ri._dParent ? 'none' : undefined;
+    return tryRunOnChildren(ri, ri._dSelf);
+  }
+  return false;
+}
+
+function setDisplayParent(ri: LocalRenderInstruction, value: boolean): void {
+  ri._dParent = value;
+  ri.display = ri._dSelf || ri._dParent ? 'none' : undefined;
+  tryRunOnChildren(ri, value);
+}
+
+function tryRunOnChildren(ri: LocalRenderInstruction, value: boolean): boolean {
+  const children = ri.isVirtual ? ri.virtualChildren : ri.isArray ? ri.children : undefined;
+  if (children) {
+    children.forEach( child => setDisplayParent(<any> child, value) );
+    return true;
   }
 }

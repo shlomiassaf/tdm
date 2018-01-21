@@ -20,7 +20,7 @@ function createRI(formProp: FormPropMetadata,
 function createVRI(formProp: FormPropMetadata,
                    name: string,
                    parent?: RenderInstruction): RenderInstruction {
-  return createRI(formProp, name, { isPrimitive: false, isVirtual: true }, parent);
+  return createRI(formProp, name, { isPrimitive: false, isVirtual: true, virtualChildren: [] }, parent);
 }
 
 /**
@@ -47,7 +47,62 @@ export class TDMModelFormService {
     return tdmModelForm;
   }
 
+  /**
+   * Returns a clone function for cloning [[RenderInstruction]] instances.
+   * The clone function returned can be used to clone a single cycle of instructions returned from
+   * [[TDMModelFormService.getInstructions]] so create a new clone function for each iteration cycle.
+   *
+   * We need to clone [[RenderInstruction]] because they represent metadata while a form represents a single instance
+   * that re-occurs thus can not change the metadata and must use a copy.
+   * Instead of recreating the metadata over and over we just use JS's prototype to create layers over the metadata that
+   * act as instances while not duplicating the data.
+   */
+  createRICloneFactory<T extends RenderInstruction>(): (ri: RenderInstruction) => T {
+    // We clone a [[RenderInstruction]] by creating a new layer in the prototype chain so the current layer can not be
+    // changed by assigning but can be used when retrieving, this saves space and time.
+    // Usually Object.create() is the only thing we need but there are 2 special cases: Arrays and `flatten` expressions
+    // Array's and `flatten` expressions (virtual rendering instruction) which requires special attention.
+    //
+    // Array's represent a [[RenderInstruction]] for a property of type Array<T> where the [[RenderInstruction]]
+    // instance represents the array and the `children` property in it represents a list of [[RenderInstruction]]
+    // instances representing T. The children are not part of the rendering instructions, only the array it self so when
+    // cloning the children are not cloned so we need to handle them internally.
+    //
+    // Virtual's (flatten expressions) represent a form group which get's converted into a list of [[RenderInstruction]]
+    // instances with the virtual as parent but the virtual itself is never a part of the instructions.
+    // So, when cloning, we also need to clone the virtual but we need to make sure not to clone it multiple times as
+    // next call's will be from another child of the same virtual. We do that by using a map to make sure we are
+    // cloning a virtual one time only. This is why a clone function is good for one cycle.
+
+    // map for storing used virtual's
+    const parentMap = new Map<any, any>();
+
+    const riClone = rd => {
+      rd = Object.create(rd);
+      if (rd.isArray) {
+        rd.chilren = rd.chilren.map( c =>  {
+          c = riClone(c);
+          c.parent = rd;
+          return c;
+        });
+      } else if (rd.parent && rd.parent.isVirtual) {
+        let parent = parentMap.get(rd.parent);
+        if (!parent) {
+          parent = riClone(rd.parent);
+          parent.virtualChildren = [];
+          parentMap.set(rd.parent, parent);
+        }
+        rd.parent = parent;
+        parent.virtualChildren.push(rd);
+      }
+      return rd;
+    };
+    return riClone;
+  }
+
   private _getInstructions(type: Type<any>): RenderInstruction[] {
+    // NOTE: The logic for creating instructions is tightly coupled with the logic for cloning the instructions.
+    //       Make sure changes in the logic are reflected in `createRICloner()`
     const props = targetStore.getTargetMeta(type).getValues(PropMetadata);
     const formMeta = this.getMeta(type);
     const instructions: RenderInstruction[] = [];
@@ -65,7 +120,6 @@ export class TDMModelFormService {
         if (typeMeta && typeMeta.isArray) {
           parent = createRI(formProp, name as string, { isArray: true, isPrimitive, children: localInstructions = [] });
           instructions.push(parent);
-          // name = '[]';
         }
 
         if (formProp.flatten) {
@@ -93,7 +147,9 @@ export class TDMModelFormService {
         this.applyFlatten(p.flatten, path.concat([key]), instructions, createVRI(p, key, parent));
       } else {
         const isPrimitive = !p.childForm;
-        instructions.push(createRI(p, key as string, { isPrimitive, flattened: path }, parent));
+        const renderInstruction = createRI(p, key as string, { isPrimitive, flattened: path }, parent);
+        parent.virtualChildren.push(renderInstruction);
+        instructions.push(renderInstruction);
       }
     }
   }

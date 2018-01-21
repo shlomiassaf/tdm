@@ -75,6 +75,14 @@ export class RenderInstruction<T = any> implements RenderDef<T> {
   isVirtual: boolean;
 
   /**
+   * Valid on when isVirtual is true.
+   * Contains the child properties of a complex object, this will usually match the corresponding FormGroup instance
+   * `controls` property where this array is reduces to a key->value object where the keys are the name property of each
+   * instance in the array.
+   */
+  virtualChildren?: RenderInstruction[];
+
+  /**
    * When true indicates that the instruction is for a FormArray.
    */
   isArray: boolean;
