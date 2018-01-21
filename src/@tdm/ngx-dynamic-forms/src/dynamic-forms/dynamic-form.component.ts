@@ -69,6 +69,8 @@ export interface TdmFormChange extends KeyValueChangeRecord<string, any> {
  */
 export type TdmFormChanges = TdmFormChange[];
 
+type StateKeys = 'exclude' | 'disabled' | 'hidden';
+
 /**
  * Allow rendering a form using @tdm/ngx-dynamic-forms and DynamicFormElementComponent
  */
@@ -199,20 +201,27 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     this.slaveMode = true;
   }
 
-  @Input() set exclude(value: string[]) {
-    this.filters.exc = value;
-    this.update();
-  }
+  /**
+   * An array of form control names, each name in this array will not be rendered (excluded).
+   * Supports deep paths using dot notation.
+   * The end result in the UI is identical to `hiddenState` however excluded fields behave like `*ngIf`, they are never
+   * rendered, hidden fields are rendered but not displayed.
+   */
+  @Input() exclude: string[];
 
   /**
    * An array of form control names, each name in this array will be disabled.
+   * Supports deep paths using dot notation.
    */
-  @Input() disabledState: Array<keyof T>;
+  @Input() disabledState: string[];
 
   /**
    * An array of form control names, each name in this array will be hidden.
+   * Supports deep paths using dot notation.
+   * The end result in the UI is identical to `exclude` however excluded fields behave like `*ngIf`, they are never
+   * rendered, hidden fields are rendered but not displayed.
    */
-  @Input() hiddenState: Array<keyof T>;
+  @Input() hiddenState: string[];
 
   /**
    * Event emitted when a form value changes.
@@ -321,14 +330,15 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   private subscriptions: Subscription[] = [];
   private freezeValueChanges: boolean;
   private valueDiffer: KeyValueDiffer<string, any>;
-  private stateDiffer: { disabled?: IterableDiffer<keyof T>; hidden?: IterableDiffer<keyof T>; } = {};
-  private filters = { exc: [] as string[], ow: [] as string[] };
+  private stateDiffer: Partial<Record<StateKeys, IterableDiffer<string>>> = {};
+  private filters = { ow: [] as string[] };
   private afterInit: boolean;
   private rendering$ = new BehaviorSubject<boolean>(false);
   private _ngNativeValidate: any = false;
   private slaveMode: boolean;
   private overrideMap = new Map<RenderInstruction, DynamicFormOverrideDirective>();
   private _arrayActionRequest = new EventEmitter<ArrayActionRequestEvent>();
+  private renderInstructions: RenderInstruction[];
 
   /**
    * Indicates the number of update() calls that are running/queued
@@ -353,6 +363,10 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes.exclude) {
+      this.onStateChange('exclude', changes.exclude);
+    }
+
     if (changes.disabledState) {
       this.onStateChange('disabled', changes.disabledState);
     }
@@ -363,6 +377,13 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   }
 
   ngDoCheck() {
+    if (this.exclude && this.stateDiffer.exclude) {
+      const diff = this.stateDiffer.exclude.diff(this.exclude);
+      if (diff) {
+        this.handleDiff('exclude', diff);
+      }
+    }
+
     if (this.disabledState && this.stateDiffer.disabled) {
       const diff = this.stateDiffer.disabled.diff(this.disabledState);
       if (diff) {
@@ -379,6 +400,9 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   }
 
   ngAfterContentInit(): void {
+    const clone = this.tdmModelFormService.createRICloneFactory<LocalRenderInstruction>();
+    this.renderInstructions = this.tdmForm.renderData.map(clone);
+
     this.afterInit = true;
     this.updateOverrides();
 
@@ -406,7 +430,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    * @param key
    * @returns
    */
-  getControl(key: keyof T): AbstractControl | null {
+  getControl(key: string): AbstractControl | null {
     return this.tdmForm.get(key);
   }
 
@@ -463,10 +487,11 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     this.overrideMap.clear();
 
     const overrides = this.overrides.toArray().concat(this.codeOverrides);
-    const excluded = this.filters.exc && this.filters.exc.slice();
+    const excluded = this.exclude && this.exclude.slice();
     const hiddenState = this.hiddenState && this.hiddenState.slice();
     const processInstructions = (rd: LocalRenderInstruction) => {
       let fullPath: string;
+      // tslint:disable-next-line
       if (!excluded || !this.isStaticPathContainsPath(excluded, fullPath = rd.getStaticPath())) {
         const override = overrides.find(ow => ow.dynamicFormOverride === rd.name);
         if (override) {
@@ -483,14 +508,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
       }
     };
 
-    const renderData = this.controls.getValue();
-    if (renderData.length > 0) {
-      renderData.forEach(processInstructions);
-    } else {
-      const clone = this.tdmModelFormService.createRICloneFactory<LocalRenderInstruction>();
-      this.tdmForm.renderData
-        .forEach((rd: RenderInstruction) => processInstructions( clone(rd) ));
-    }
+    this.renderInstructions.forEach(processInstructions);
 
     this.pendingUpdates += 1;
     Promise.all(controlsReady)
@@ -632,8 +650,8 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     }
   }
 
-  private onStateChange(type: 'disabled' | 'hidden', state: SimpleChange): void {
-    let differ: IterableDiffer<keyof T> = this.stateDiffer[type];
+  private onStateChange(type: StateKeys, state: SimpleChange): void {
+    let differ: IterableDiffer<string> = this.stateDiffer[type];
     if (!state.currentValue && differ) {
       const diff = differ.diff([]);
       if (diff) {
@@ -646,13 +664,16 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     this.stateDiffer[type] = differ;
   }
 
-  private handleDiff(type: 'disabled' | 'hidden', diff: IterableChanges<keyof T>): void {
+  private handleDiff(type: StateKeys, diff: IterableChanges<string>): void {
     switch (type) { // tslint:disable-line
       case 'disabled':
         this.freezeValueChanges = true;
         diff.forEachAddedItem( record => this.getControl(record.item).disable());
         diff.forEachRemovedItem( record => this.getControl(record.item).enable());
         this.freezeValueChanges = false;
+        break;
+      case 'exclude':
+        this.update();
         break;
       case 'hidden':
         diff.forEachAddedItem( record => {
