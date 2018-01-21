@@ -494,10 +494,9 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     const excluded = this.exclude && this.exclude.slice();
     const hiddenState = this.hiddenState && this.hiddenState.slice();
     const processInstructions = (rd: LocalRenderInstruction) => {
-      let fullPath: string;
-      // tslint:disable-next-line
-      if (!excluded || !this.isStaticPathContainsPath(excluded, fullPath = rd.getStaticPath())) {
-        let override = overrides.find(ow => ow.dynamicFormOverride === rd.name) || this.wildOverride;
+      const fullPath: string = rd.getStaticPath();
+      if (!excluded || !this.isStaticPathContainsPath(excluded, fullPath)) {
+        let override = overrides.find(ow => ow.dynamicFormOverride === fullPath) || this.wildOverride;
         if (override) {
           this.overrideMap.set(rd, override);
         }
@@ -505,7 +504,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
         this.beforeRender.emit(renderEvent);
 
         // update hidden state of each item
-        if ( hiddenState && this.isStaticPathContainsPath(hiddenState, fullPath || rd.getStaticPath()) ) {
+        if ( hiddenState && this.isStaticPathContainsPath(hiddenState, fullPath) ) {
           setDisplay(rd, 'none');
         }
         controls.push(rd);
