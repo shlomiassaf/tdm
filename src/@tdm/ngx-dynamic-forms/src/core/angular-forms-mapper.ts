@@ -155,9 +155,9 @@ export class NgFormsDeserializeMapper extends DirectDeserializeMapper {
    * Derived classes might use this option and override `deserializeFlattened` so they can re-call it after retreiving
    * the actual value using the key.
    *
-   * @param {DeserializableForm} control The form control to deserialize, only FormArray or FormGroup
-   * @param {FormPropMetadata} formProp The FormPropertyMetadata instance for the property.
-   * @param {string | number | any} resultOrKey
+   * @param control The form control to deserialize, only FormArray or FormGroup
+   * @param formProp The FormPropertyMetadata instance for the property.
+   * @param resultOrKey
    */
   protected deserializeFlattened(control: DeserializableForm,
                                  formProp: FormPropMetadata,
@@ -270,9 +270,9 @@ export class NgFormsSerializeMapper extends SerializeMapper {
 
   /**
    * Create a form control from a [[FormPropMetadata]] instance.
-   * @param {FormPropMetadata} formProp
+   * @param formProp
    * @param value
-   * @param {boolean} ignoreArray If true, treats the type as non-array, even if the type information says it is an
+   * @param ignoreArray If true, treats the type as non-array, even if the type information says it is an
    * array. `ignoreArray` is ignored if `value` is an array instance by itself.
    * `ignoreArray` is used when the same [[FormPropMetadata]] decorating a property of type Array<T> is used
    * recursively, first time for the array value and then n times (array length) for the items in the array. The actual

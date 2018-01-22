@@ -5,7 +5,7 @@ const globals = {
   'rxjs/Observable': 'Rx',
   'rxjs/BehaviorSubject': 'Rx',
   'rxjs/Subscription': 'Rx',
-  'rxjs/operator/map': 'Rx.Observable.prototype',
+  'rxjs/operators': 'Rx',
   'rxjs/operator/toPromise': 'Rx.Observable.prototype',
 };
 
