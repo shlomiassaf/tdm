@@ -1,6 +1,9 @@
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Subscription } from 'rxjs/Subscription';
+import { toPromise } from 'rxjs/operator/toPromise';
+import { filter } from 'rxjs/operators';
+
 import {
   Component,
   Input,
@@ -319,7 +322,15 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   @Output() arrayActionRequest: Observable<ArrayActionRequestEvent>;
 
   /**
-   * The instructions to render
+   * The active render instructions for this instance, active instructions does not include excluded instruction.
+   */
+  get instructions(): RenderInstruction[] {
+    // TODO: send a copy instead of the array.
+    return this.controls.getValue();
+  }
+
+  /**
+   * The active render instructions for this instance, active instructions does not include excluded instruction.
    * @internal
    */
   controls = new BehaviorSubject<LocalRenderInstruction[]>([]);
@@ -355,6 +366,28 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
               private renderer: Renderer2) {
     this.renderState = this.rendering$.asObservable();
     this.arrayActionRequest = this._arrayActionRequest.asObservable();
+  }
+
+  /**
+   * Redraw the controls of the form.
+   * This will fire the (renderState) event and trigger (beforeRender) event's for each render instruction.
+   *
+   * If you wish to invoke a silent update call the markAsChanged() method on a [[RenderInstruction]] instance, this
+   * will mark it for change detection but will not fire the events.
+   */
+  redraw(): void;
+  redraw(returnPromise: boolean): Promise<void>;
+  redraw(returnPromise?: boolean): Promise<void> | void {
+    this.update();
+    if (returnPromise === true) {
+      if (this.rendering$.getValue() === false) {
+        return Promise.resolve();
+      } else {
+        return toPromise.call(this.renderState.pipe(
+          filter( state => !state )
+        ));
+      }
+    }
   }
 
   getOverride(item: RenderInstruction): DynamicFormOverrideDirective | undefined {

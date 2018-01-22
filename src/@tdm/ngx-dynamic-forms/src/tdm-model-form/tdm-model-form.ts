@@ -181,12 +181,14 @@ export class TDMModelForm<T = any> {
 
   /**
    * A helper function for an *ngFor "trackBy" handler.
+   * > It is not recommended to change the trackBy logic when using `dynamic-form` component, the change detection logic
+   * is based on it.
    * @param idx
    * @param item
    * @returns
    */
   trackBy(idx: number, item: RenderInstruction): any {
-    return item.name;
+    return item.hash;
   }
 
   /**

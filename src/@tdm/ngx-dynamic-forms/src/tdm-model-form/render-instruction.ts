@@ -13,6 +13,14 @@ import { FormElementType, RenderDef } from '../interfaces';
  * @internal
  */
 export class RenderInstruction<T = any> implements RenderDef<T> {
+
+  /**
+   * A object used to mark changes in the instruction for ngFor iterations.
+   *
+   * @internal
+   */
+  hash: any;
+
   required?: boolean;
 
   /**
@@ -94,8 +102,25 @@ export class RenderInstruction<T = any> implements RenderDef<T> {
 
   constructor(renderDef: RenderDef, public name: string, public parent?: RenderInstruction) {
     Object.assign(this, renderDef);
+    this.hash = this;
   }
 
+  /**
+   * Call this function when changing properties in this [[RenderInstruction]] instance, before calling
+   * [[DynamicFormComponent.redraw]].
+   */
+  markAsChanged(): void {
+    this.hash = {};
+  }
+
+  /**
+   * A helper method that merge's (assign) the provided value into the existing `data` object.
+   * If a `data` object is undefined it will create one.
+   * @param value
+   */
+  mergeData(value: any): void {
+    this.data = Object.assign(this.data || {}, value);
+  }
   /**
    * Returns the static path for this rendering item.
    * The static path is the path for metadata lookup, where all arrays are meaning less and only their type is required.
