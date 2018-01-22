@@ -322,10 +322,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   /**
    * The active render instructions for this instance, active instructions does not include excluded instruction.
    */
-  get instructions(): RenderInstruction[] {
-    // TODO: send a copy instead of the array.
-    return this.controls.getValue();
-  }
+  instructions: { [path: string]: RenderInstruction } = {};
 
   /**
    * The active render instructions for this instance, active instructions does not include excluded instruction.
@@ -530,7 +527,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
       resolve();
     }))];
     const controls: LocalRenderInstruction[] = [];
-    const controlsMap: { [path: string]: RenderInstruction } = {};
+    const controlsMap: { [path: string]: RenderInstruction } = this.instructions = {};
     const controlsPromiseSetter = done => controlsReady.push(done);
     this.overrideMap.clear();
 
@@ -571,6 +568,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
           this.update();
           return;
         } else {
+          this.instructions = controlsMap;
           this.controls.next(controls.sort((a, b) => a.ordinal - b.ordinal));
           this.emitRenderingState(false);
         }
