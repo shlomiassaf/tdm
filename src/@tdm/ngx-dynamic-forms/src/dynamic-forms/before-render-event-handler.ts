@@ -8,10 +8,16 @@ const asyncUsed = (done: Promise<void> | Observable<void>) => {
 };
 
 export class BeforeRenderEventHandler {
+  /**
+   * An object whose values are instances of [[RenderInstruction]] and keys are the full static paths of the
+   * [[RenderInstruction]] instance they refer to.
+   */
+  public instructions: { [path: string]: RenderInstruction };
 
-
-  constructor(public instruction: RenderInstruction,
-              private notify: (done: Promise<void>) => void) { }
+  constructor(instructions: { [path: string]: RenderInstruction },
+              private notify: (done: Promise<void>) => void) {
+    this.instructions = instructions;
+  }
 
   /**
    * Mark this render operation as asynchronous, providing a notifier to signal when the rendering can
@@ -24,7 +30,7 @@ export class BeforeRenderEventHandler {
    */
   async(done: Promise<void> | Observable<void>): void {
     if (typeof done['then'] === 'function') {
-      this.notify(<any>done);
+      this.notify(<any> done);
     } else if (typeof done['subscribe'] === 'function') {
       this.notify( toPromise.call(<Observable<void>>done) );
     } else {

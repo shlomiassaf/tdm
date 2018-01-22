@@ -238,10 +238,9 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   @Output() valueChanges = new EventEmitter<TdmFormChanges>();
 
   /**
-   * Event emitted before rendering a form control.
+   * Event emitted before rendering form controls.
    *
    *   - Excluded controls are not emitted.
-   *   - Overridden controls are not emitted {@link DynamicFormOverrideDirective}
    *
    * Use this event to modify form control/s rendering instructions (metadata) before they are rendered.
    * For example, given a `select` form control, you can use this event to create dynamic, ad-hoc, select options.
@@ -254,7 +253,9 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    * @Component({ ... })
    * export class MyComponent {
    *   beforeRender(event: BeforeRenderEventHandler) {
-   *     event.selections = [ { value: 'X', label: 'Y' } ] // more...
+   *     if ('state' in event.instructions) {
+   *       event.instructions.state.selections = [ { value: 'X', label: 'Y' } ] // more...
+   *     }
    *   }
    * }
    * ```
@@ -268,24 +269,21 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    * @Component({ ... })
    * export class MyComponent {
    *   beforeRender(event: BeforeRenderEventHandler) {
-   *     let resolve, p = new Promise( (res, rej) => { resolve = res; });
+   *     if ('state' in event.instructions) {
+   *       let resolve, p = new Promise( (res, rej) => { resolve = res; });
    *
-   *     event.async(p); // notify to use async logic
+   *       event.async(p); // notify to use async logic
    *
-   *     // do some async stuff...
-   *     setTimeout(() => {
-   *       event.selections = [ { value: 'X', label: 'Y' } ] // more...
-   *       resolve();
-   *     }, 1000);
+   *       // do some async stuff...
+   *       setTimeout(() => {
+   *         event.instructions.state.selections = [ { value: 'X', label: 'Y' } ] // more...
+   *         resolve();
+   *       }, 1000);
+   *     }
    *   }
    * }
    * ```
-   *
    * > You can use the `renderState` event to reflect asynchronous rendering in the UI.
-   *
-   * NOTE:  Instructions are immutable and does not persist between rendering.
-   *        Each `beforeRender` event requires re-applying the logic.
-   *
    */
   @Output() beforeRender = new EventEmitter<BeforeRenderEventHandler>();
 
@@ -532,6 +530,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
       resolve();
     }))];
     const controls: LocalRenderInstruction[] = [];
+    const controlsMap: { [path: string]: RenderInstruction } = {};
     const controlsPromiseSetter = done => controlsReady.push(done);
     this.overrideMap.clear();
 
@@ -545,18 +544,20 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
         if (override) {
           this.overrideMap.set(rd, override);
         }
-        const renderEvent = new BeforeRenderEventHandler(rd, controlsPromiseSetter);
-        this.beforeRender.emit(renderEvent);
 
         // update hidden state of each item
         if ( hiddenState && this.isStaticPathContainsPath(hiddenState, fullPath) ) {
           setDisplay(rd, 'none');
         }
+        controlsMap[fullPath] = rd;
         controls.push(rd);
       }
     };
 
     this.renderInstructions.forEach(processInstructions);
+
+    const renderEvent = new BeforeRenderEventHandler(controlsMap, controlsPromiseSetter);
+    this.beforeRender.emit(renderEvent);
 
     this.pendingUpdates += 1;
     Promise.all(controlsReady)
