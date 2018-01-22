@@ -362,6 +362,10 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes.hotBind) {
+      this.hotBind = this.hotBind != null && `${this.hotBind}` !== 'false';
+    }
+
     if (changes.exclude) {
       this.onStateChange('exclude', changes.exclude);
     }
