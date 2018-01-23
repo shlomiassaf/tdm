@@ -342,7 +342,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   private slaveMode: boolean;
   private overrideMap = new Map<RenderInstruction, DynamicFormOverrideDirective>();
   private wildOverride: DynamicFormOverrideDirective;
-  private _arrayActionRequest = new EventEmitter<ArrayActionRequestEvent>();
+  private arrayActionRequest$ = new EventEmitter<ArrayActionRequestEvent>();
   private renderInstructions: RenderInstruction[];
 
   /**
@@ -360,7 +360,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
               private itDiffers: IterableDiffers,
               private renderer: Renderer2) {
     this.renderState = this.rendering$.asObservable();
-    this.arrayActionRequest = this._arrayActionRequest.asObservable();
+    this.arrayActionRequest = this.arrayActionRequest$.asObservable();
   }
 
   /**
@@ -452,6 +452,8 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     while (subs = this.subscriptions.pop()) { // tslint:disable-line
       subs.unsubscribe();
     }
+    this.arrayActionRequest$.complete();
+    this.rendering$.complete();
     this.beforeRender.complete();
     this.valueChanges.complete();
   }
@@ -495,7 +497,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     request.tdmForm = this.tdmForm;
     request.staticPath = renderInstruction.getStaticPath();
     request.runtimePath = renderInstruction.getRuntimePath(request.formArray);
-    this._arrayActionRequest.emit(<any> request);
+    this.arrayActionRequest$.emit(<any> request);
   }
 
   private updateOverrides(): void {
