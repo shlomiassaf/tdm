@@ -27,9 +27,14 @@ const ngcWebpack = require('ngc-webpack');
  */
 module.exports = function (options) {
   const isProd = options.env === 'production';
-  const isSim = options.hasOwnProperty('sim');
+  const isSim = !!options.sim;
+
 
   const METADATA = Object.assign({}, buildUtils.DEFAULT_METADATA, {title: 'ngx-modialog'}, options.metadata || {});
+  if (METADATA.AOT) {
+    require('ngc-webpack/src/patch-angular-compiler-cli');
+  }
+
   const ngcWebpackConfig = buildUtils.ngcWebpackSetup(isProd, METADATA);
   const supportES2015 = buildUtils.supportES2015(METADATA.tsConfigPath);
 
@@ -68,6 +73,10 @@ module.exports = function (options) {
        * Aliasing the libraries for webpack, the alias points to the source code.
        */
       alias: Object.assign(buildUtils.rxjsAlias(supportES2015), util.webpackAlias())
+    },
+
+    resolveLoader: {
+      modules: ["src/demo/modules/@webpack-ext", "node_modules"],
     },
 
     /**
