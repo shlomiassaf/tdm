@@ -1,6 +1,14 @@
-mat-radio-group.dynamic-form-control {
-  .mat-radio-button {
-    margin-bottom: 10px;
-    margin-top: 10px;
-  }
+mat-selection-list {
+  max-height: 250px;
+}
+
+mat-radio-group.vertical-mat-radio-group {
+  // setting the padding here instead of in the dyn-form-element-container to support ripple animation
+  padding-left: 25px;
+  padding-right: 15px; // required in case there's a scroll
+  overflow-x: visible;
+  overflow-y: auto;
+  max-height: 200px;
+  display: inline-flex;
+  flex-direction: column;
 }

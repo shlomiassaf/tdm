@@ -1,0 +1,61 @@
+<form-wrapper title="Direct / Local Default Override" [code]="code">
+  <div class="form-description">
+    <p>You can override the rendering of a specific field</p>
+    <p>Or, you can override default field renderer for the current dynamic form using '*' as the field name.</p>
+    <p>If any direct overrides exist, they will render, otherwise local default will </p>
+  </div>
+
+  <!--@tdm-example:TDM-DEMO-->
+  <dynamic-form #dynFormMaster [model]="model">
+    <div  *dynamicFormOverride="'email'; let ctx" fxLayout="row" class="dyn-form-row">
+      <div fxFlex class="dyn-form-element-container">
+        <sub style="color: #b5b5b5">{{ctx.item.label}}</sub>
+        <h4 style="color: red; margin-top: 10px">CLASSIFIED</h4>
+      </div>
+    </div>
+    <div  *dynamicFormOverride="'address.city'; let ctx" fxLayout="row" class="dyn-form-row">
+      <div fxFlex class="dyn-form-element-container">
+        <sub style="color: #b5b5b5">{{ctx.item.label}}</sub>
+        <h4 style="color: red; margin-top: 10px">CLASSIFIED</h4>
+      </div>
+    </div>
+    <div  *dynamicFormOverride="'*'; let ctx" fxLayout="row" class="dyn-form-row">
+      <div fxFlex class="dyn-form-element-container">
+        <dynamic-form-element showLabels
+                              [tdmForm]="ctx.tdmForm"
+                              [item]="ctx.item"
+                              [fArray]="ctx.fArray"
+                              [fGroup]="ctx.fGroup"
+                              [fControl]="ctx.fControl"></dynamic-form-element>
+      </div>
+    </div>
+  </dynamic-form>
+  <!--@tdm-example:TDM-DEMO-->
+</form-wrapper>
+
+<form-wrapper title="Programmatic Override" [code]="code2">
+  <div class="form-description">
+    <p>You can add override templates using code. Get a hold of the DynamicFormComponent instance and use addOverride() method</p>
+    <p>This is a nice example demonstrating a "control-less" form that shows the form as readonly html elements</p>
+    <p>This form is a slave of the form in the top of the screen.</p>
+    <p>Because it is a slave it is bound to the same form as the master, try changing values in the form on the top.</p>
+  </div>
+
+  <!--@tdm-example:TDM-DEMO2-->
+  <dynamic-form #dynFormCustomOverride [slaveOf]="dynFormMaster"></dynamic-form>
+  <ng-template #emailFieldOverrideTpl let-ctx>
+    <h2 style="color: yellowgreen; text-align: center;">{{ctx.item.name}} is Classified</h2>
+  </ng-template>
+  <ng-template #defaultFieldOverrideTpl let-ctx>
+    <dynamic-form-row custom
+                      [dynForm]="dynFormCustomOverride"
+                      [tdmForm]="ctx.tdmForm"
+                      [item]="ctx.item"
+                      [fArray]="ctx.fArray"
+                      [fGroup]="ctx.fGroup"
+                      [fControl]="ctx.fControl">
+      {{ctx.tdmForm.getValue(ctx.item.getRuntimePath(ctx.fControl)) || 'Not Set'}}
+    </dynamic-form-row>
+  </ng-template>
+  <!--@tdm-example:TDM-DEMO2-->
+</form-wrapper>

@@ -1,0 +1,14 @@
+<div>
+  <mat-tab-group>
+    <mat-tab *ngFor="let c of code">
+      <ng-template mat-tab-label>
+        <div fxLayout="column" fxLayoutAlign="center center" [matTooltip]="c.title && c.file">
+          <span>{{c.title || c.file}} [{{c.lang.toUpperCase()}}]</span>
+        </div>
+      </ng-template>
+      <div class="tdm-code-example">
+        <pre><code [innerHtml]="parseCode(c)"></code></pre>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

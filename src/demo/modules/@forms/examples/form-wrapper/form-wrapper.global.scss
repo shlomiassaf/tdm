@@ -1,0 +1,28 @@
+.form-wrapper {
+  margin: 20px 0;
+  .form-control-bar {
+    mat-button-toggle {
+      &:first-child {
+        margin-left: 15px;
+      }
+      &:last-child {
+        margin-right: 15px;
+      }
+      &.mat-button-toggle-standalone {
+        box-shadow: none;
+      }
+
+      height: 100%;
+
+      .mat-button-toggle-label {
+        margin: auto;
+      }
+    }
+  }
+
+  .custom-form-actions, .form-footer {
+    margin: 10px;
+    padding: 25px;
+
+  }
+}

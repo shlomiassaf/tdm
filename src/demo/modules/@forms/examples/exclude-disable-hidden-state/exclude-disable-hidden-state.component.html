@@ -1,0 +1,115 @@
+<form-wrapper #formWrapper rightDrawerOpened title="Exclude / Disable / Hidden State" [code]="code">
+  <div class="form-description">
+    <p>Toggle exclude, disabled and hidden state.</p>
+    <p>To toggle states attach (bind) an array of strings to the relevant property and add/remove field names to toggle.</p>
+    <p>Deep paths (dot notation) are supported</p>
+    <p></p>
+    <p>Hidden state is different from excluded fields. Excluded is similar to *ngIf, never rendered while hidden is never showed but does render</p>
+    <p>You can change the state for a nested object which will make all child fields inherit that state, or use deep paths
+      via dot notation to change the state of a nested fields in an object.</p>
+  </div>
+
+  <div class="custom-form-actions" *ngIf="!formWrapper.rightDrawerOpened">
+    <button mat-icon-button (click)="formWrapper.rightDrawerOpened = true">
+      OPEN STATE CONSOLE
+      <mat-icon>keyboard_arrow_right</mat-icon>
+    </button>
+  </div>
+  <div class="form-wrapper-right-drawer">
+    <div style="text-align: right">
+      <button mat-icon-button (click)="formWrapper.rightDrawerOpened = false">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <mat-list dense style="max-width: 400px">
+      <mat-list-item>
+        <div fxLayout="row" style="width: 100%;">
+          <div fxFlex="40%"></div>
+          <div fxFlex="20%">Exclude</div>
+          <div fxFlex="20%">Disabled</div>
+          <div fxFlex="20%">Hidden</div>
+        </div>
+      </mat-list-item>
+      <mat-list-item *ngFor="let prop of ['name', 'email', 'address', 'address.street', 'address.city', 'address.zip', 'address.state']">
+        <div fxLayout="row" style="width: 100%;">
+          <div fxFlex="40%">{{prop}}</div>
+          <mat-checkbox fxFlex="20%"
+                        [checked]="controlState.exclude.indexOf(prop) > -1"
+                        (click)="handleControlState(controlState.exclude, prop)"></mat-checkbox>
+          <mat-checkbox fxFlex="20%"
+                        [checked]="controlState.disabled.indexOf(prop) > -1"
+                        (click)="handleControlState(controlState.disabled, prop)"></mat-checkbox>
+          <mat-checkbox fxFlex="20%"
+                        [checked]="controlState.hidden.indexOf(prop) > -1"
+                        (click)="handleControlState(controlState.hidden, prop)"></mat-checkbox>
+        </div>
+      </mat-list-item>
+    </mat-list>
+  </div>
+  <!--@tdm-example:TDM-DEMO-->
+  <dynamic-form [model]="model"
+                [exclude]="controlState.exclude"
+                [disabledState]="controlState.disabled"
+                [hiddenState]="controlState.hidden">
+  </dynamic-form>
+  <!--@tdm-example:TDM-DEMO-->
+</form-wrapper>
+
+<form-wrapper #formWrapper2 rightDrawerOpened title="Ignoring Excluded field validation with disabled state">
+  <div class="form-description">
+    <p>In the following form the name field is excluded but it is also required so the form can never enter into a valid
+      state. To work around that you can disable the excluded field which causes the form to ignore it when computing
+      validation. Try filling out the form with and without the disabled checkbox checked.</p>
+  </div>
+
+  <div class="custom-form-actions" *ngIf="!formWrapper2.rightDrawerOpened">
+    <button mat-icon-button (click)="formWrapper2.rightDrawerOpened = true">
+      OPEN STATE CONSOLE
+      <mat-icon>keyboard_arrow_right</mat-icon>
+    </button>
+  </div>
+
+  <dynamic-form [model]="modelExcludeDisabled"
+                [exclude]="controlStateExcludeDisabled.exclude"
+                [disabledState]="controlStateExcludeDisabled.disabled"
+                [hiddenState]="controlStateExcludeDisabled.hidden">
+    <dynamic-form-row *dynamicFormOverride="'*'; let ctx"
+                      [tdmForm]="ctx.tdmForm"
+                      [fGroup]="ctx.fGroup"
+                      [fArray]="ctx.fArray"
+                      [fControl]="ctx.fControl"
+                      [item]="ctx.item"></dynamic-form-row><br>
+  </dynamic-form>
+  <div class="form-wrapper-right-drawer">
+    <div style="text-align: right">
+      <button mat-icon-button (click)="formWrapper2.rightDrawerOpened = false">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <mat-list dense style="max-width: 400px">
+      <mat-list-item>
+        <div fxLayout="row" style="width: 100%;">
+          <div fxFlex="40%"></div>
+          <div fxFlex="20%">Exclude</div>
+          <div fxFlex="20%">Disabled</div>
+          <div fxFlex="20%">Hidden</div>
+        </div>
+      </mat-list-item>
+      <mat-list-item *ngFor="let prop of ['name']">
+        <div fxLayout="row" style="width: 100%;">
+          <div fxFlex="40%">{{prop}}</div>
+          <mat-checkbox fxFlex="20%"
+                        disabled
+                        [checked]="controlStateExcludeDisabled.exclude.indexOf(prop) > -1"></mat-checkbox>
+          <mat-checkbox fxFlex="20%"
+                        [checked]="controlStateExcludeDisabled.disabled.indexOf(prop) > -1"
+                        (click)="handleControlState(controlStateExcludeDisabled.disabled, prop)"></mat-checkbox>
+          <mat-checkbox fxFlex="20%"
+                        disabled
+                        [checked]="controlStateExcludeDisabled.hidden.indexOf(prop) > -1"></mat-checkbox>
+        </div>
+      </mat-list-item>
+    </mat-list>
+
+  </div>
+</form-wrapper>

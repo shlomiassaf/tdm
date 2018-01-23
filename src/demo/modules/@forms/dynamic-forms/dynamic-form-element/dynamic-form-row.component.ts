@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, ViewEncapsulation, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, ViewEncapsulation, Component, Input, SimpleChanges, OnChanges } from '@angular/core';
 import { FormGroup, FormArray, FormControl } from '@angular/forms';
-import { RenderInstruction, TDMModelForm, DynamicFormControlRenderer } from '@tdm/ngx-dynamic-forms';
+import { DynamicFormComponent, RenderInstruction, TDMModelForm, DynamicFormControlRenderer } from '@tdm/ngx-dynamic-forms';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 
 /**
  * This component implements the interface for rendering a form component in the `@tdm/ngx-dynamic-forms` package.
@@ -33,12 +34,19 @@ import { RenderInstruction, TDMModelForm, DynamicFormControlRenderer } from '@td
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DynamicFormRowComponent implements DynamicFormControlRenderer {
+export class DynamicFormRowComponent implements DynamicFormControlRenderer, OnChanges {
   @Input() custom: boolean;
+  @Input() dynForm: DynamicFormComponent;
   @Input() item: RenderInstruction;
   @Input() tdmForm: TDMModelForm<any>;
 
   @Input() fArray: FormArray | undefined;
   @Input() fControl: FormControl | undefined;
   @Input() fGroup: FormGroup | undefined;
+
+  ngOnChanges(change: SimpleChanges): void {
+    if ('custom' in change) {
+      this.custom = coerceBooleanProperty(this.custom);
+    }
+  }
 }

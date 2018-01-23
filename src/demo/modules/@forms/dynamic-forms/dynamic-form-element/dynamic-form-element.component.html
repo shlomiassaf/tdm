@@ -3,7 +3,7 @@
                [formControl]="fControl">{{ showLabels && item.label }}</mat-checkbox>
 
   <mat-slide-toggle *ngSwitchCase="'slideToggle'"
-                   [formControlName]="item.name">{{ showLabels && item.label }}</mat-slide-toggle>
+                   [formControl]="fControl">{{ showLabels && item.label }}</mat-slide-toggle>
 
   <ng-container *ngSwitchCase="'slider'">
     <span>{{showLabels && item.label}}</span>
@@ -20,7 +20,9 @@
 
   <ng-container *ngSwitchCase="'radio'">
     <span>{{showLabels && item.label}}</span>
-    <mat-radio-group *ngSwitchCase="'radio'" [formControl]="fControl">
+    <mat-radio-group *ngSwitchCase="'radio'"
+                     [class.vertical-mat-radio-group]="item.data?.vertical"
+                     [formControl]="fControl">
       <mat-radio-button *ngFor="let sel of item.data.selections" [value]="sel.value">{{sel.label || sel.value}}</mat-radio-button>
     </mat-radio-group>
   </ng-container>
@@ -50,15 +52,23 @@
         <!-- We check item.isPrimitive because in arrays, the arrays render instructions represents the type -->
         <!-- and the children of the instructions are the keys of an object, if its non primitive so `child` is the -->
         <!-- a key of an object that might be primitive... -->
-        <dynamic-form-element *ngFor="let child of item.children"
-                              [showLabels]="!item.isPrimitive"
-                              [tdmForm]="tdmForm"
-                              [fControl]="item.isPrimitive ? childItem : childItem.get(child.name)"
-                              [item]="child"></dynamic-form-element>
+        <ng-container *ngFor="let child of item.children">
+          <dynamic-form-element *ngIf="item.isPrimitive"
+                                [showLabels]="false"
+                                [dynForm]="dynForm"
+                                [tdmForm]="tdmForm"
+                                [fControl]="childItem"
+                                [item]="child"></dynamic-form-element><br>
+          <dynamic-form-row *ngIf="!item.isPrimitive"
+                            [tdmForm]="tdmForm"
+                            [fControl]="childItem.get(child.name)"
+                            [item]="child"></dynamic-form-row><br>
+        </ng-container>
       </mat-list-item>
     </mat-list>
-    <button mat-icon-button (click)="dynForm.emitArrayActionRequest(item, { type: 'add', formArray: fArray })">
-      <mat-icon style="color: green">add</mat-icon>
-    </button>
   </div>
+  <button mat-icon-button (click)="dynForm.emitArrayActionRequest(item, { type: 'add', formArray: fArray })">
+    <mat-icon style="color: green">add</mat-icon>
+  </button>
+  <mat-error *ngIf="hasError('required')">Required</mat-error>
 </ng-container>

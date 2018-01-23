@@ -1,0 +1,43 @@
+html, body{
+  height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+}
+
+.tdm-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+
+  .title {
+    margin-right: 25px;
+  }
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 64px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+
+  .main-view {
+    flex: 1;
+
+    router-outlet + * {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+    }
+  }
+
+}
+a.active {
+  background-color: gray;
+}

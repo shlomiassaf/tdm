@@ -1,3 +1,4 @@
+@import '~highlight.js/styles/atom-one-dark.css';
 @import '~@angular/material/theming';
 
 
@@ -13,26 +14,10 @@ $theme: mat-light-theme($primary, $accent);
 
 @include angular-material-theme($theme);
 
-.main-view {
-  margin: 25px;
-  padding: 10px;
-}
-nav {
-  margin-top: 16px;
-}
-
-nav a {
-  background-color: $nav-button-color;
-  color: white;
-  padding: 8px 16px;
-  margin: 8px;
-  vertical-align: middle;
-  line-height: 1.25;
-  text-align: center;
-  text-decoration: none;
-  border-radius: 4px;
-}
-
 .dynamic-control-container {
   margin: 15px 0;
+}
+
+.page-padding {
+  padding: 8px 15px;
 }

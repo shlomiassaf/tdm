@@ -1,0 +1,17 @@
+<form-wrapper [jsonView]="'model'" title="Hot Bind" [code]="code">
+  <div class="form-description">
+    <p>Real time binding between the form and the model, defaults to false.</p>
+    <p>When true, every value change event emitted from the from will trigger and update to the model.</p>
+    <p>When false (default) the form data model and the model instance are not bound, to update the model
+      you need to invoke the TDMModelForm.commitToModel.</p>
+    <p>A hot bind is ONE WAY, from FORM UPDATES to the MODEL. Changes in the model will not reflect on the form.</p>
+  </div>
+
+  <!--@tdm-example:TDM-DEMO-->
+  <div class="custom-form-actions">
+    <mat-slide-toggle [checked]="hotBind"
+                      (change)="hotBind = !!$event.checked">Toggle Hot Bind</mat-slide-toggle>
+  </div>
+  <dynamic-form [model]="model" [hotBind]="hotBind"></dynamic-form>
+  <!--@tdm-example:TDM-DEMO-->
+</form-wrapper>

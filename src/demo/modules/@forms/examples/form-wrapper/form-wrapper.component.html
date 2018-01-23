@@ -1,0 +1,65 @@
+<ng-content select=".form-description"></ng-content>
+
+<div class="form-wrapper mat-elevation-z4" fxLayout="column">
+  <div class="form-control-bar mat-elevation-z6" fxFlex="0 0 48px" fxLayout="row" fxLayoutAlign="start center">
+    <button mat-icon-button matTooltip="Update value & Validity" (click)="dynForm.tdmForm.form.updateValueAndValidity()">
+      <mat-icon>sync</mat-icon>
+    </button>
+    <button mat-icon-button matTooltip="Commit to model" (click)="dynForm.tdmForm.commitToModel()">
+      <mat-icon>save</mat-icon>
+    </button>
+
+    <div class="form-title" fxFlex>{{title}}</div>
+    <div fxFlex="nogrow" fxLayout="row">
+      <mat-button-toggle [checked]="jsonView === 'model'"
+                         matTooltip="Show / Hide JSON for model"
+                         (change)="jsonView = jsonView !== 'model' ? 'model' : undefined">
+        <span>&#x7b; M }</span>
+      </mat-button-toggle>
+      <mat-button-toggle [checked]="jsonView === 'form'"
+                         matTooltip="Show / Hide JSON for form"
+                         (change)="jsonView = jsonView !== 'form' ? 'form' : undefined">
+        <span>&#x7b; F }</span>
+      </mat-button-toggle>
+    </div>
+    <div fxFlex="nogrow">
+      <div class="form-status-indicator" [matTooltip]="'State: ' + (form?.statusChanges | async)">
+        <div class="status-indicator form-status-indicator-{{form?.statusChanges | async}}"></div>
+      </div>
+    </div>
+    <mat-button-toggle *ngIf="tabs && code && code.length"
+                       [checked]="tabs.selectedIndex === 1"
+                       matTooltip="View Source"
+                       (change)="tabs.selectedIndex = (tabs.selectedIndex === 1) ? 0 : 1">
+      <mat-icon>code</mat-icon>
+    </mat-button-toggle>
+  </div>
+  <div fxFlex="grow" class="form-wrapper-content">
+    <mat-drawer-container>
+      <mat-drawer mode="side" [opened]="rightDrawerOpened">
+        <ng-content class=".form-wrapper-right-drawer"></ng-content>
+      </mat-drawer>
+      <mat-drawer position="end" mode="side" [opened]="!!jsonView">
+        <div class="json-view">
+          <pre *ngIf="jsonView === 'form'">{{dynForm.form.getRawValue() | json}}</pre>
+          <pre *ngIf="jsonView === 'model'">{{dynForm.instance | json}}</pre>
+        </div>
+      </mat-drawer>
+      <mat-drawer-content>
+        <mat-tab-group #tabs style="margin-top: -48px;">
+          <mat-tab>
+            <ng-template mat-tab-label></ng-template>
+            <ng-content select=".custom-form-actions"></ng-content>
+            <div class="form-wrapper-dynamic-form-container">
+              <ng-content select="dynamic-form"></ng-content>
+            </div>
+            <ng-content select=".form-footer"></ng-content>
+          </mat-tab>
+          <mat-tab>
+            <tdm-code-view [code]="code"></tdm-code-view>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-drawer-content>
+    </mat-drawer-container>
+  </div>
+</div>

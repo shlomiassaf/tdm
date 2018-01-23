@@ -1,0 +1,34 @@
+<form-wrapper title="Sections">
+  <div class="form-description">
+    <p>You can split the form multiple times and create sections using the <b>slaveOf</b> attribute.</p>
+    <p>A form must have a single master but can have any number of slaves. Slaves components does not emit all of the events
+      fired by the dynamic form, those are fired from the master.</p>
+    <p>All slaves share the same <b>TDMFormModel</b> instance.</p>
+    <p>The following example shows 3 sections (3 dynamic-form component instances), all from the same form instance.
+      The 2nd section is a container for 2 sections separated using a TAB component.
+    </p>
+  </div>
+
+  <div class="custom-form-actions">
+    <h4>Section: User Name</h4>
+  </div>
+
+  <dynamic-form #dynFormMaster
+                [model]="model"
+                [exclude]="['email', 'address']"></dynamic-form>
+
+  <div class="form-footer">
+    <h4>Section: Other</h4>
+    <mat-tab-group>
+      <mat-tab label="Email">
+        <dynamic-form [slaveOf]="dynFormMaster"
+                      [exclude]="['name', 'address']"></dynamic-form>
+      </mat-tab>
+      <mat-tab label="Address">
+        <dynamic-form [slaveOf]="dynFormMaster"
+                      [exclude]="['name', 'email']"></dynamic-form>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</form-wrapper>
+

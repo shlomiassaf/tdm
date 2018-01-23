@@ -4,7 +4,6 @@
 // for example: ARMixin from @tdm/ngx--client-http
 import '@tdm/data/plugin/active-record';
 
-
 // adding a resource controller, an object that allows resource instance management.
 // Event stream, self$ stream, promise for next result, replay last action, cancellation and more.
 // The resource control instance is available via a getter on the ResourceControl: ResourceControl.get(instance)

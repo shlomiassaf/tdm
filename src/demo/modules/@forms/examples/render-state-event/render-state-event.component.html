@@ -1,0 +1,23 @@
+<form-wrapper title="Event: (renderState)">
+  <div class="form-description">
+    <p>The <b>(renderState)</b> event is fired with the value TRUE when the form is rendered asynchronously.</p>
+    <p>This happens when one or more <b>(beforeRender)</b> event handlers was flagged as async</p>
+    <p>When all of the asynchronous tasks resolve the <b>(renderState)</b> event is fired again, this time with the
+    value FALSE.</p>
+    <p></p>
+    <p>In the following example we are using the exact same scenario as in the <b>(beforeRender)</b> page but we register to get
+    notifications from <b>renderState</b> that allow us to block the form's UI area and show a spinner</p>
+    <p>This is done with no CODE!, only templates, how easy is that?</p>
+  </div>
+
+  <div class="render-state-form-container" ngProjectAs="dynamic-form">
+    <dynamic-form #dynForm
+                  style="display: block"
+                  [model]="model"
+                  (beforeRender)="beforeRender($event)"></dynamic-form>
+    <div class="ui-block" *ngIf="dynForm?.renderState | async">
+      <mat-spinner></mat-spinner>
+    </div>
+  </div>
+
+</form-wrapper>

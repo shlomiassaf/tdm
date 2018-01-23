@@ -1,0 +1,51 @@
+<!--@tdm-ignore:*-->
+<form-wrapper title="Field Sync / Redraw" [code]="code">
+  <div class="form-description">
+    <p>As explained and demonstrated in the <b>(beforeRender)</b> event page, <b>RenderInstruction</b> instances control
+      the rendering output of a form field.</p>
+    <p>The event is emitted on first load but also when the <b>redraw()</b> method is invoked, so it means that the
+      <b>redraw()</b> method is way to update data required for form control rendering or event change the type of
+    it which will result in a completely different component rendered for that form control</p>
+    <p>In fact, there are 2 ways to update a <b>RenderInstruction</b> instance, a redraw or a field sync</p>
+
+    <h5>redraw</h5>
+    <p>A complete <b>redraw</b> will re-render all the controls in the form and emit the (beforeRender) and </p>
+    <p><b>(renderState)</b> events, this approach is like a re-init to the rendered form.</p>
+
+    <h5>Field Sync</h5>
+    <p>A field sync is more subtle and involves re-rendering of a single form control, it does not emit any
+    event and does not apply any asynchronous logic</p>
+
+    <h5>Which to use?</h5>
+    <p>A redraw emit's event, so if you have a UI blocker component that shows when the form is rendering (renderState)
+    and you know that async operations will run then use it.</p>
+    <p>A field sync will not fire events so it might be handy when updating the type of a component or some metadata
+    related to it. It can also be used for async operations but you will need to block the UI manually or block that
+    specific control manually.</p>
+    <p>Sometimes, especially when change detection is not strict, changing just data does not require a redraw or a field sync.</p>
+
+    <p>In the example below the <b>state</b> field is being rendered with the select component, you can toggle the
+    rendered component between select and radio and click on the buttons to see how each approach effects the UI</p>
+  </div>
+  <!--@tdm-ignore:*-->
+  <div class="custom-form-actions" *ngIf="! (dynForm?.renderState | async)">
+    <mat-form-field>
+      <mat-select [value]="stateFieldType" (change)="stateFieldType = $event.value">
+        <mat-option value="select">Select</mat-option>
+        <mat-option value="radio">Radio Group</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-button (click)="dynForm.redraw()">REDRAW</button>
+    <button mat-button (click)="fieldSync()">FIELD SYNC</button>
+  </div>
+  <div class="render-state-form-container" ngProjectAs="dynamic-form">
+    <dynamic-form #dynForm
+                  style="display: block"
+                  [model]="model"
+                  (beforeRender)="beforeRender($event)"></dynamic-form>
+    <div class="ui-block" *ngIf="dynForm?.renderState | async">
+      <mat-spinner></mat-spinner>
+    </div>
+  </div>
+</form-wrapper><!--@tdm-ignore-line-->
