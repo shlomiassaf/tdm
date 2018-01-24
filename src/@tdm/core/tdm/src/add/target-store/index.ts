@@ -1,5 +1,5 @@
 import { Constructor, isFunction } from '../../fw/utils';
-import { TransformDir } from '../../fw/interfaces'
+import { TransformDir } from '../../fw/interfaces';
 import { targetEvents } from '../../fw/events';
 import { TargetStore, TargetMetadata, PropMetadata, targetStore } from '../../metadata';
 import { ModelMetadata } from '../../add/model';
@@ -39,7 +39,7 @@ declare module '../../metadata/target-store' {
      * @param target
      * @returns
      */
-    getTargetName(target: Constructor<any>): string | undefined
+    getTargetName(target: Constructor<any>): string | undefined;
   }
 }
 
@@ -80,11 +80,12 @@ TargetStore.prototype.getTargetMeta = function getTargetMeta(target: Constructor
 };
 
 TargetStore.prototype.getIdentityKey = function getIdentityKey(this: TargetStore,
-                                                               target: Constructor<any>, direction?: TransformDir): string | undefined {
+                                                               target: Constructor<any>,
+                                                               direction?: TransformDir): string | undefined {
 
   const meta = this.getTargetMeta(target);
   const model = meta.model();
-  const identity = <any>model.identity;
+  const identity = <any> model.identity;
 
   if (identity) {
       if (!direction) {

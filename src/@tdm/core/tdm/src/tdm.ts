@@ -76,10 +76,9 @@ export { TDMCollection, TDMModel, TDMModelBase } from './model/index';
 
 export { Model, ModelMetadata } from './add/model/index';
 
+import './add/target-store';
 import { initMapping } from './add/mapping';
 initMapping();
 import './add/mapping'; // we need this for d.ts export, the 2 rows above are not set in d.ts)
-
-import './add/target-store';
 
 export * from './helpers';
