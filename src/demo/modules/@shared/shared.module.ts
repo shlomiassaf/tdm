@@ -2,20 +2,38 @@ import { NgModule, ModuleWithProviders } from '@angular/core';
 
 import { MODULES, ROOT_MODULES } from './modules';
 import { UiBlockService } from './services/ui-block';
-import { UiBlock } from './components/ui-block.component';
-import { TdmCodeViewComponent } from './components/code-view/code-view.component';
+import {
+  UiBlock,
+  TdmCodeViewComponent,
+  TdmMarkdownViewComponent,
+  TdmPackageWelcomeComponent,
+  TdmFeatureListComponent
+} from './components';
 import { CdkDetailRowDirective } from './cdk-detail-row.directive';
 import { DataSourceDirective } from './data-source';
+import { TdmCodeExtractPipe } from './pipes';
+
+const DECLARATIONS = [
+  TdmCodeViewComponent,
+  TdmMarkdownViewComponent,
+  TdmPackageWelcomeComponent,
+  TdmFeatureListComponent,
+  UiBlock,
+  CdkDetailRowDirective,
+  DataSourceDirective,
+  TdmCodeExtractPipe
+];
 
 @NgModule({
-  declarations: [ TdmCodeViewComponent, UiBlock, CdkDetailRowDirective, DataSourceDirective ],
+  declarations: DECLARATIONS,
   imports: MODULES,
   entryComponents: [ UiBlock ],
-  exports: [ TdmCodeViewComponent, UiBlock, CdkDetailRowDirective, DataSourceDirective ]
+  exports: DECLARATIONS
 })
 export class DeclarationSharedModule {
 }
 
+// tslint:disable-next-line
 @NgModule({
   imports: ROOT_MODULES,
   exports: [
@@ -24,8 +42,10 @@ export class DeclarationSharedModule {
   ],
   providers: [ UiBlockService ]
 })
-export class SharedModuleRoot {}
+export class SharedModuleRoot {
+}
 
+// tslint:disable-next-line
 @NgModule({
   imports: MODULES,
   exports: [

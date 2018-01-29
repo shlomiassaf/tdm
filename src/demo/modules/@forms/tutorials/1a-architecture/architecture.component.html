@@ -1,0 +1,22 @@
+<tdm-markdown-view>
+  <div class="alert">
+    This is an advanced chapter, if you feel it might confuse you please
+    skip it, and come back later.
+
+    <a mat-button [routerLink]="['..', 'setup']">SKIP</a>
+  </div>
+</tdm-markdown-view>
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'PART-1'}]:true"></tdm-markdown-view>
+<tdm-markdown-view>
+  <div class="alert">
+    This is an advanced chapter, if you feel it might confuse you please
+    skip it, and come back later.
+
+    <a mat-button [routerLink]="['..', 'setup']">SKIP</a>
+  </div>
+</tdm-markdown-view>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'PART-2'}]:true"></tdm-markdown-view>
+
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'PART-3'}]:true"></tdm-markdown-view>

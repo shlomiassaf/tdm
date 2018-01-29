@@ -1,7 +1,16 @@
 import { Routes } from '@angular/router';
 
-import { FormsDemoPageComponent } from './forms-demo-page';
+import { FormsAppComponent } from './forms-app';
+import { TempExampleComponent } from './tutorials/temp-example/temp-example.component';
+import { TutorialPageComponent } from './tutorial-page';
 
 export const ROUTES: Routes = [
-  { path: '', component: FormsDemoPageComponent },
+  {
+    path: '',
+    children: [
+      { path: '', pathMatch: 'full', component: FormsAppComponent },
+      { path: 'tempExample', component: TempExampleComponent },
+      { path: 'tutorial/:name', component: TutorialPageComponent }
+    ]
+  }
 ];

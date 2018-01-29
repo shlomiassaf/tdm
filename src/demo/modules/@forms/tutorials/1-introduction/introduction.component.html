@@ -1,0 +1,25 @@
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'PART-1'}]:true"></tdm-markdown-view>
+
+<div fxLayout fxLayoutAlign="center center" fxLayoutWrap="wrap">
+  <tdm-markdown-view fxFlex="45%"
+                     [code]="(code | async | tdmCode:[{file: 'model.ts', section: 'DEMO-1'}])[0]"></tdm-markdown-view>
+
+  <div fxFlex="10%" class="center-text">
+    <mat-icon style="font-size: 48px">compare_arrows</mat-icon>
+  </div>
+  <div fxFlex="45%">
+    <dynamic-form [model]="model"></dynamic-form>
+  </div>
+</div>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'PART-2'}]:true"></tdm-markdown-view>
+
+<form-wrapper title="I'm the dashboard"
+              [code]="code | async | tdmCode:[{title: 'Component'}, {title: 'Template'}, {title: 'Style'}, {title: 'Model', section: 'DEMO-2'}]">
+
+  <!--@tdm-example:TDM-DEMO-->
+  <dynamic-form [model]="model"></dynamic-form>
+  <!--@tdm-example:TDM-DEMO-->
+</form-wrapper>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'PART-3'}]:true"></tdm-markdown-view>

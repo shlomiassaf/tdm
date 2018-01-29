@@ -69,7 +69,7 @@ export class Post {
       ordinal: 6,
       type: 'radio',
       label: 'Audience',
-      data: { selections: [ { value: 'Adult' }, { value: 'Teenage' }, { value: 'Kids' }] }
+      data: { options: [ { value: 'Adult' }, { value: 'Teenage' }, { value: 'Kids' }] }
     }
   })
   audience: 'Adult' | 'Teenage' | 'Kids';
@@ -78,13 +78,11 @@ export class Post {
   @Relation()
   @FormProp({
     required: true,
+    childForm: true,
     render: {
       ordinal: 2,
-      type: 'childForm',
       label: 'Post Author'
     }
   })
   author: User;
 }
-
-

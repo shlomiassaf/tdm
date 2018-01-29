@@ -14,6 +14,12 @@ const SUPPORTED_LANG = {
     ignoreLine: /<!--\s*@tdm-ignore-line\s*-->/,
     ignoreNextLine: /<!--\s*@tdm-ignore-next-line\s*-->/,
   },
+  md: {
+    section: /<!--\s*@tdm-example:(.+)\s*-->/,
+    ignore: /<!--\s*@tdm-ignore:(.+)\s*-->/,
+    ignoreLine: /<!--\s*@tdm-ignore-line\s*-->/,
+    ignoreNextLine: /<!--\s*@tdm-ignore-next-line\s*-->/,
+  },
   ts: {
     section: /\/\*\s*@tdm-example:(.+)\*\//,
     ignore: /\/\*\s*@tdm-ignore:(.+)\*\//,
@@ -62,7 +68,20 @@ function parseLine(p: ParserRegExp, line: string): TokenParseResult {
 }
 
 export interface ParserResult {
+  /**
+   * The root section.
+   * Whole file excluding global ignore tokens
+   */
  root: string;
+  /**
+   * The whole file, split to lines (nothing excluded)
+   */
+ lines: string[];
+  /**
+   * An array of boolean properties, each item in the array corresponds to a line in `lines`.
+   * An item with the value true means that line is globally ignored or represents a token line.
+   */
+ ignoredLines: boolean[];
  sections: {
    [name: string]: string;
  };
@@ -75,6 +94,7 @@ export function parse(content: string, lang: string): ParserResult {
   }
 
   const lines = content.split(OS.EOL);
+  const ignoredLines: boolean[] = new Array<boolean>(lines.length);
   const sections = {
     root: [] as string[],
     hot: [] as Array<{ name: string; lines: string[] }>,
@@ -96,7 +116,9 @@ export function parse(content: string, lang: string): ParserResult {
             throw new Error(`Invalid section defined in line ${i + 1}: ${token.result[0]} `);
           }
           const foundSection = token.result[1].trim();
-
+          if (foundSection === 'default') {
+            throw new Error(`"default" sections is reserved and can not be used templates.`);
+          }
           if (sections.current) {
             if (foundSection === sections.current) {
               sections.current = sections.queue.pop();
@@ -130,6 +152,7 @@ export function parse(content: string, lang: string): ParserResult {
         case 'ignoreLine':
           break;
         case 'ignoreNextLine':
+          ignoredLines[i] = true;
           i = i + 1;
           break;
         default:
@@ -151,11 +174,15 @@ export function parse(content: string, lang: string): ParserResult {
           h.lines.push(lines[i]);
         }
       }
+    } else {
+      ignoredLines[i] = true;
     }
   }
 
   return {
     root: sections.root.join(OS.EOL),
+    lines,
+    ignoredLines,
     sections: sections.cold.concat(sections.hot).reduce( (agg, s) => {
       agg[s.name] = s.lines.join(OS.EOL);
       return agg;

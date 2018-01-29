@@ -1,0 +1,31 @@
+<tdm-package-welcome title="Http Resource"
+                     description="A metadata driven, DAO and Active Record library for angular. Powerful, typed, robust."
+                     buttonText="TUTORIAL >>"
+                     buttonLink="./examples/introduction"
+                     name="ngx-http-client"
+                     [deps]="['tixin', 'core', 'data']">
+</tdm-package-welcome>
+<div class="tdm-page-content">
+  <div fxLayout fxLayoutAlign="center center" fxLayoutWrap="wrap">
+    <div fxFlex="100%" class="center-text">
+      <div class="tldr-header">
+        From <b>static class instance</b> to <b>dynamic form</b> and back
+      </div>
+    </div>
+    <tdm-markdown-view fxFlex="45%" [code]="(code | tdmCode:[{file: 'model.ts', section: 'DEMO-1'}])[0]"></tdm-markdown-view>
+
+    <div fxFlex="10%" class="center-text">
+      <mat-icon style="font-size: 48px">compare_arrows</mat-icon>
+    </div>
+    <div fxFlex="45%">
+      <!--@tdm-example:TDM-DEMO-->
+      <mat-icon style="font-size: 128px">storage</mat-icon>
+
+      <!--@tdm-example:TDM-DEMO-->
+    </div>
+  </div>
+
+  <tdm-markdown-view><h1 class="center-text">Features</h1></tdm-markdown-view>
+  <tdm-feature-list [features]="features"></tdm-feature-list>
+
+</div>

@@ -1,23 +1,27 @@
-@import '~highlight.js/styles/atom-one-dark.css';
-@import '~@angular/material/theming';
-
-
 /* this file will be extracted to main dist folder and is imported in index.html */
 /* This file is for setting global styles  */
 @import 'variables';
 
-@include mat-core();
-$primary: mat-palette($mat-indigo);
-$accent:  mat-palette($mat-pink, A200, A100, A400);
-
-$theme: mat-light-theme($primary, $accent);
-
 @include angular-material-theme($theme);
+
+@import './highlightjs'; // load highlight.js styles
+@import './markdown'; // load markdown styles
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
 
 .dynamic-control-container {
   margin: 15px 0;
 }
 
-.page-padding {
-  padding: 8px 15px;
+.tdm-page-content {
+  margin: 0 auto;
+  padding: 20px 70px 50px;
+  max-width: 940px;
+}
+
+.center-text {
+  text-align: center !important;
 }

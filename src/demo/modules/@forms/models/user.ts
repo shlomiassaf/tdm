@@ -93,7 +93,7 @@ export class User {
           label: 'STATE',
           type: 'select',
           data: {
-            selections: [
+            options: [
               { value: 'CA', label: 'California' },
               { value: 'NY', label: 'New York' },
               { value: 'WA', label: 'Washington' },

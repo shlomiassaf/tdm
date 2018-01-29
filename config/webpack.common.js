@@ -18,7 +18,7 @@ const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
 const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
 const ngcWebpack = require('ngc-webpack');
 
-
+const TDM_EXAMPLE_FILE_REGEXP = /__tdm-code__\.ts$/;
 
 /**
  * Webpack configuration
@@ -37,6 +37,11 @@ module.exports = function (options) {
 
   const ngcWebpackConfig = buildUtils.ngcWebpackSetup(isProd, METADATA);
   const supportES2015 = buildUtils.supportES2015(METADATA.tsConfigPath);
+  if (ngcWebpackConfig.loaders[0].exclude) {
+    ngcWebpackConfig.loaders[0].exclude.push(TDM_EXAMPLE_FILE_REGEXP);
+  } else {
+    ngcWebpackConfig.loaders[0].exclude = [TDM_EXAMPLE_FILE_REGEXP];
+  }
 
   const entry = {
     polyfills: './src/demo/polyfills.browser.ts',
@@ -89,6 +94,34 @@ module.exports = function (options) {
       rules: [
         ...ngcWebpackConfig.loaders,
 
+        {
+          test: TDM_EXAMPLE_FILE_REGEXP,
+          use: [
+            {
+              loader: "tdm-code-sample"
+            },
+            {
+              loader: "value-loader"
+            },
+            {
+              loader: "tdm-ts-transpile"
+            }
+          ]
+        },
+        {
+          test: /\.md$/,
+          use: [
+            {
+              loader: "html-loader"
+            },
+            {
+              loader: "markdown-loader",
+              options: {
+                /* your options here */
+              }
+            }
+          ]
+        },
 
         /**
          * Json loader support for *.json files.

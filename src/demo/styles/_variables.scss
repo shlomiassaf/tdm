@@ -1,1 +1,8 @@
-$nav-button-color: #00838F;
+@import '~@angular/material/theming';
+$typography-config: mat-typography-config();
+$primary: mat-palette($mat-blue);
+$accent:  mat-palette($mat-pink, A200, A100, A400);
+
+$theme: mat-light-theme($primary, $accent);
+$theme-foreground: map-get($theme, foreground);
+$theme-background: map-get($theme, background);

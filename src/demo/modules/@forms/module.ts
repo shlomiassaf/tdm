@@ -3,22 +3,21 @@ import { RouterModule } from '@angular/router';
 
 import { SharedModule } from '@shared';
 
-import { FormsExampleModule } from './examples';
-import { FormsDemoPageComponent } from './forms-demo-page';
+import { DynamicFormsModule } from '@tdm/ngx-dynamic-forms';
+import { FormsSharedModule } from './shared';
+import { FormsTutorialsModule } from './tutorials';
+import { FormsAppComponent } from './forms-app';
+import { TutorialPageComponent } from './tutorial-page';
 import { ROUTES } from './routes';
 
-/**
- * An example for @tdm/ngx-dynamic-forms
- *
- * @demo core: Identity, ExtendAction, transformNameStrategy, skip
- * @demo angular-http: HttpResource, UrlParam
- */
 @NgModule({
-  declarations: [ FormsDemoPageComponent ],
+  declarations: [ FormsAppComponent, TutorialPageComponent ],
   imports: [
     SharedModule,
-    FormsExampleModule,
+    DynamicFormsModule,
+    FormsSharedModule,
+    FormsTutorialsModule,
     RouterModule.forChild(ROUTES)
   ]
 })
-export class FormsDemoModule { }
+export class FormsAppModule { }

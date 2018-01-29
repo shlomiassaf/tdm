@@ -1,0 +1,18 @@
+<mat-drawer-container autosize="autoSize">
+  <mat-drawer mode="side" opened="true">
+    <mat-nav-list>
+      <a *ngFor="let t of tutorialsChanged | async"
+         mat-list-item
+         [routerLink]="['..', t.tutorial.id]"
+         routerLinkActive="active">{{t.tutorial.name}}</a>
+      <a mat-list-item disableRipple style="color: rgba(0, 0, 0, 0.26);">Arrays</a>
+      <a mat-list-item disableRipple style="color: rgba(0, 0, 0, 0.26);">Child forms</a>
+    </mat-nav-list>
+  </mat-drawer>
+  <mat-drawer-content>
+    <div class="tdm-page-content">
+      <button mat-button disabled>dasds</button>
+      <span #tutorialView></span>
+    </div>
+  </mat-drawer-content>
+</mat-drawer-container>

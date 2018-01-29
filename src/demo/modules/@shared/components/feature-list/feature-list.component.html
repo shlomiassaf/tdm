@@ -1,0 +1,9 @@
+<mat-accordion class="package-feature-list">
+  <mat-expansion-panel *ngFor="let f of features">
+    <mat-expansion-panel-header>
+      <mat-panel-title><mat-icon>check</mat-icon>{{f.title}}</mat-panel-title>
+    </mat-expansion-panel-header>
+    <tdm-markdown-view *ngIf="f.md" [markdown]="f.description"></tdm-markdown-view>
+    <ng-container *ngIf="!f.md">{{f.description}}</ng-container>
+  </mat-expansion-panel>
+</mat-accordion>

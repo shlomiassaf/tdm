@@ -1,0 +1,5 @@
+<ng-container [ngSwitch]="item.type">
+  <label for="{{item.name}}">{{item.label}}</label>
+  <input id="{{item.name}}" *ngSwitchCase="'text'" type="text" [formControl]="fControl" />
+  <input id="{{item.name}}" *ngSwitchCase="'number'" type="number" [formControl]="fControl" />
+</ng-container>

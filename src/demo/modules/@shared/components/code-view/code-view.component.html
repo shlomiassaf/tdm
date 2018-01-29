@@ -1,14 +1,19 @@
 <div>
-  <mat-tab-group>
-    <mat-tab *ngFor="let c of code">
-      <ng-template mat-tab-label>
-        <div fxLayout="column" fxLayoutAlign="center center" [matTooltip]="c.title && c.file">
-          <span>{{c.title || c.file}} [{{c.lang.toUpperCase()}}]</span>
+  <mat-tab-group *ngIf="multi">
+    <ng-container *ngFor="let c of code">
+      <mat-tab *ngIf="c.code">
+        <ng-template mat-tab-label>
+          <div fxLayout="column" fxLayoutAlign="center center" [matTooltip]="c.title && c.file">
+            <span>{{c.title || c.file}} [{{c.lang.toUpperCase()}}]</span>
+          </div>
+        </ng-template>
+        <div class="tdm-code-example">
+          <pre><code [innerHtml]="c.code"></code></pre>
         </div>
-      </ng-template>
-      <div class="tdm-code-example">
-        <pre><code [innerHtml]="parseCode(c)"></code></pre>
-      </div>
-    </mat-tab>
+      </mat-tab>
+    </ng-container>
   </mat-tab-group>
+  <div class="tdm-code-example mat-elevation-z4" *ngIf="code && !multi">
+    <pre><code [innerHtml]="code.code"></code></pre>
+  </div>
 </div>

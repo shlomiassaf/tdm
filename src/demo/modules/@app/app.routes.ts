@@ -6,9 +6,7 @@ import { NoContentComponent } from './no-content';
 export const ROUTES: Routes = [
   { path: '',      component: HomeComponent },
   { path: 'playground', loadChildren: '@playground#PlaygroundModule' },
-  { path: 'country', loadChildren: '@country#CountryModule' },
-  { path: 'vehicles', loadChildren: '@vehicle#VehicleModule' },
-  { path: 'npms', loadChildren: '@npms#NpmsModule' },
-  { path: 'forms', loadChildren: '@forms#FormsDemoModule' },
+  { path: 'ngx-http', loadChildren: '@http#NgxHttpAppModule' },
+  { path: 'forms', loadChildren: '@forms#FormsAppModule' },
   { path: '**',    component: NoContentComponent },
 ];

@@ -1,0 +1,13 @@
+@import 'src/demo/styles/variables';
+
+mat-drawer-container {
+  background: none;
+  flex: 1;
+}
+
+mat-drawer {
+  background: mat-color($primary, 800);
+  a[mat-list-item] {
+    color: #FFFFFF;
+  }
+}

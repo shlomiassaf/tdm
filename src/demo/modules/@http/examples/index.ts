@@ -1,0 +1,1 @@
+export { NgxHttpExamplesModule } from './module';

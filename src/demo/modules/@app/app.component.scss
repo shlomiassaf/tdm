@@ -1,7 +1,12 @@
-html, body{
-  height: 100%;
-  font-family: Arial, Helvetica, sans-serif;
-  margin: 0;
+.tdm-app {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 64px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
 }
 
 .tdm-navbar {
@@ -17,18 +22,13 @@ html, body{
 }
 
 main {
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  top: 64px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
+  height: 100%;
+  width: 100%;
 
   .main-view {
     flex: 1;
-
+    height: 100%;
+    width: 100%;
     router-outlet + * {
       display: flex;
       flex-direction: column;
@@ -41,3 +41,7 @@ main {
 a.active {
   background-color: gray;
 }
+
+
+
+

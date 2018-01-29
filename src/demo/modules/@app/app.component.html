@@ -1,16 +1,15 @@
-<div class="tdm-navbar">
-  <mat-toolbar color="primary">
-    <span class="title">@TDM</span>
-    <a mat-button [routerLink]=" ['.'] " routerLinkActive="active" [routerLinkActiveOptions]= "{exact: true}">Home</a>
-    <a mat-button [routerLink]=" ['./country'] " routerLinkActive="active" [routerLinkActiveOptions]= "{exact: true}">Country API</a>
-    <a mat-button [routerLink]=" ['./vehicles'] " routerLinkActive="active" [routerLinkActiveOptions]= "{exact: true}">Vehicles</a>
-    <a mat-button [routerLink]=" ['./npms'] " routerLinkActive="active" [routerLinkActiveOptions]= "{exact: true}">Npms</a>
-    <a mat-button [routerLink]=" ['./forms'] " routerLinkActive="active" [routerLinkActiveOptions]= "{exact: true}">@forms</a>
-    <a mat-button [routerLink]=" ['./playground'] " routerLinkActive="active" [routerLinkActiveOptions]= "{exact: true}">Playground</a>
-  </mat-toolbar>
-</div>
-<main>
-  <div class="main-view">
-    <router-outlet></router-outlet>
+<div class="tdm-app mat-typography">
+  <div class="tdm-navbar mat-elevation-z8">
+    <mat-toolbar color="primary">
+      <span class="title">@TDM</span>
+      <a mat-button [routerLink]=" ['.'] " routerLinkActive="active" [routerLinkActiveOptions]= "{exact: true}">Home</a>
+      <a mat-button [routerLink]=" ['./forms'] " routerLinkActive="active" [routerLinkActiveOptions]= "{exact: true}">Dynamic Forms</a>
+      <a mat-button [routerLink]=" ['./ngx-http'] " routerLinkActive="active" [routerLinkActiveOptions]= "{exact: true}">HTTP Resource</a>
+    </mat-toolbar>
   </div>
-</main>
+  <main>
+    <div class="main-view">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

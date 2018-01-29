@@ -1,0 +1,16 @@
+<mat-drawer-container autosize="autoSize">
+  <mat-drawer mode="side" opened="true">
+    <mat-nav-list>
+      <a *ngFor="let t of examplesChanged | async"
+         mat-list-item
+         [routerLink]="['..', t.tutorial.id]"
+         routerLinkActive="active">{{t.tutorial.name}}</a>
+    </mat-nav-list>
+  </mat-drawer>
+  <mat-drawer-content>
+    <div class="tdm-page-content">
+      <h2 *ngIf="is404">Not found, please select from the list on the left</h2>
+      <span #exampleView></span>
+    </div>
+  </mat-drawer-content>
+</mat-drawer-container>

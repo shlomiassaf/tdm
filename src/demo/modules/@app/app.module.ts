@@ -15,8 +15,10 @@ import { HomeComponent } from './home';
 import { AboutComponent } from './about';
 import { NoContentComponent } from './no-content';
 
+// we first include material-core then styles because styles has @imports that needs to come after material core
+// but material core is not an import but a sass @include so we can control the order
+import '../../styles/material-core.scss';
 import '../../styles/styles.scss';
-import '../../styles/headings.css';
 
 // Application wide providers
 const APP_PROVIDERS = [ AppState ];

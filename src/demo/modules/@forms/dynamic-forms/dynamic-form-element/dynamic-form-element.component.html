@@ -14,7 +14,7 @@
   </ng-container>
 
 
-  <ng-container *ngSwitchCase="'childForm'">
+  <ng-container *ngSwitchCase="'form'">
     <dynamic-form *ngIf="tdmForm.model[item.name]" [model]="tdmForm.model[item.name]"></dynamic-form>
   </ng-container>
 
@@ -23,14 +23,14 @@
     <mat-radio-group *ngSwitchCase="'radio'"
                      [class.vertical-mat-radio-group]="item.data?.vertical"
                      [formControl]="fControl">
-      <mat-radio-button *ngFor="let sel of item.data.selections" [value]="sel.value">{{sel.label || sel.value}}</mat-radio-button>
+      <mat-radio-button *ngFor="let sel of item.data.options" [value]="sel.value">{{sel.label || sel.value}}</mat-radio-button>
     </mat-radio-group>
   </ng-container>
 
   <mat-form-field *ngSwitchCase="'select'">
     <mat-select [formControl]="fControl"
                 [placeholder]="showLabels && item.label">
-      <mat-option *ngFor="let sel of item.data.selections" [value]="sel.value">{{sel.label || sel.value}}</mat-option>
+      <mat-option *ngFor="let sel of item.data.options" [value]="sel.value">{{sel.label || sel.value}}</mat-option>
     </mat-select>
   </mat-form-field>
 

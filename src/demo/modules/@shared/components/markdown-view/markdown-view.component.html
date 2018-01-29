@@ -1,0 +1,6 @@
+<div class="markdown-body" [class.overflow-container]="overflowContainer">
+  <div *ngIf="markdown" [innerHtml]="markdown"></div>
+  <pre *ngIf="code" class="lang-{{code.lang}}"><code class="lang-{{code.lang}}" [innerHtml]="code.code"></code></pre>
+  <ng-content></ng-content>
+</div>
+

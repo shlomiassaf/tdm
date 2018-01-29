@@ -1,0 +1,49 @@
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part1'}]:true"></tdm-markdown-view>
+
+<form-wrapper title="Sections"
+              [code]="code | async | tdmCode:[{title: 'Component'}, {title: 'Template', section: 'simple'}, {title: 'Model'}]">
+  <div ngProjectAs="dynamic-form">
+    <!--@tdm-example:simple-->
+    <h1>Section: User Name</h1>
+    <dynamic-form #dynFormMaster
+                  [model]="model"
+                  [exclude]="['hasTracking', 'doubleAgent', 'bmi', 'superPower']"></dynamic-form>
+    <br>
+  </div><!--@tdm-ignore-line-->
+
+  <div ngProjectAs="dynamic-form"><!--@tdm-ignore-line-->
+    <h1>Section: Other</h1>
+    <dynamic-form [slaveOf]="dynFormMaster"
+                  [exclude]="['id', 'name']"></dynamic-form>
+    <!--@tdm-example:simple-->
+  </div>
+</form-wrapper>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part2'}]:true"></tdm-markdown-view>
+
+<form-wrapper title="Sections #2"
+              [code]="code | async | tdmCode:[{title: 'Component'}, {title: 'Template', section: '3way'}, {title: 'Model'}]">
+  <div ngProjectAs="dynamic-form">
+    <!--@tdm-example:3way-->
+    <h1>Section: User Name</h1>
+    <dynamic-form #dynFormMaster3Way
+                  [model]="model"
+                  [exclude]="['hasTracking', 'doubleAgent', 'bmi', 'superPower']"></dynamic-form>
+    <br>
+  </div><!--@tdm-ignore-line-->
+
+  <div ngProjectAs="dynamic-form"><!--@tdm-ignore-line-->
+    <h1>Section: Other</h1>
+    <mat-tab-group>
+      <mat-tab label="BOOLEAN">
+        <dynamic-form [slaveOf]="dynFormMaster3Way"
+                      [exclude]="['id', 'name', 'bmi', 'superPower']"></dynamic-form>
+      </mat-tab>
+      <mat-tab label="OTHER">
+        <dynamic-form [slaveOf]="dynFormMaster3Way"
+                      [exclude]="['id', 'name', 'hasTracking', 'doubleAgent']"></dynamic-form>
+      </mat-tab>
+    </mat-tab-group>
+    <!--@tdm-example:3way-->
+  </div>
+</form-wrapper>

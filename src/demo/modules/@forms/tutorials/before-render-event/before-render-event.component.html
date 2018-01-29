@@ -1,0 +1,7 @@
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md'}]:true"></tdm-markdown-view>
+<form-wrapper title="Event: (beforeRender)"
+              [code]="code | async | tdmCode:[{title: 'Component'}, {title: 'Template'}, {title: 'Style'}, {title: 'Model'}]">
+<!--@tdm-example:tdmDemo-->
+<dynamic-form (beforeRender)="beforeRender($event)" [model]="model"></dynamic-form>
+<!--@tdm-example:tdmDemo-->
+</form-wrapper>

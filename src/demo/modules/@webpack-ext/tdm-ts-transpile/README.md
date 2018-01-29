@@ -1,0 +1,1 @@
+A simple TS loader that only transpiles the module, nothing more.

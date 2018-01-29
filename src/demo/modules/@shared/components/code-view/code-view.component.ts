@@ -1,5 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
-import { highlightAuto } from 'highlight.js';
+import { Component, Input, ChangeDetectionStrategy, SimpleChanges, OnChanges } from '@angular/core';
 
 export interface CodeViewItem {
   file?: string;
@@ -8,20 +7,19 @@ export interface CodeViewItem {
   lang: 'ts' | 'html' | 'css' | 'scss';
 }
 
-const LANG_MAP = {
-  ts: 'typescript'
-};
-
 @Component({
   selector: 'tdm-code-view',
   templateUrl: './code-view.component.html',
   styleUrls: [ './code-view.component.scss' ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TdmCodeViewComponent {
-  @Input() code: CodeViewItem[];
+export class TdmCodeViewComponent implements OnChanges {
+  @Input() code: CodeViewItem | CodeViewItem[];
+  multi: boolean;
 
-  parseCode(c: CodeViewItem): string {
-    return highlightAuto(c.code, [LANG_MAP[c.lang] || c.lang]).value;
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.code) {
+      this.multi = Array.isArray(this.code);
+    }
   }
 }
