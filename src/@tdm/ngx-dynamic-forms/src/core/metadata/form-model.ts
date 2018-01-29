@@ -1,5 +1,5 @@
 import { ValidatorFn, AsyncValidatorFn } from '@angular/forms';
-import { MetaClass, PropMetadata, ModelMetadata, BaseMetadata, DecoratorInfo } from '@tdm/core/tdm';
+import { MetaClass, PropMetadata, ModelMetadata, BaseMetadata, DecoratorInfo, stringify, isJsObject } from '@tdm/core/tdm';
 
 import { FormPropMetadata } from './form-prop';
 
@@ -24,13 +24,13 @@ export class FormModelMetadata extends BaseMetadata implements FormModelMetadata
   constructor(metaArgs: FormModelMetadataArgs | undefined, info: DecoratorInfo) {
     super(info);
 
-    if (metaArgs) {
+    if (isJsObject(metaArgs)) {
       this.validator = metaArgs.validator || null;
       this.asyncValidator = metaArgs.asyncValidator || null;
     }
   }
 
-  addProp(prop: PropMetadata, metaArgs: FormPropMetadata) {
+  addProp(prop: PropMetadata, metaArgs: FormPropMetadata, target: any) {
     if (!metaArgs.exclude && !metaArgs.render.type) {
       const type = metaArgs.rtType || prop.type;
       switch (type.ref) {
@@ -45,8 +45,7 @@ export class FormModelMetadata extends BaseMetadata implements FormModelMetadata
           break;
         default:
           if (!metaArgs.flatten) {
-            // TODO: throw an informative error
-            throw new Error('Invalid form type or type not set.');
+            throw new Error(`Invalid property type or type not set in ${stringify(target)}.${prop.name}`);
           }
       }
     }
@@ -60,6 +59,6 @@ export class FormModelMetadata extends BaseMetadata implements FormModelMetadata
 
 declare module '@tdm/core/tdm/src/metadata/model-metadata' {
   interface ModelMetadataArgs {
-    form?: FormModelMetadataArgs | undefined
+    form?: FormModelMetadataArgs | undefined | true;
   }
 }

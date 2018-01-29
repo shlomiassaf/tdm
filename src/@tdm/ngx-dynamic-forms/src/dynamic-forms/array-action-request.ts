@@ -1,10 +1,30 @@
 import { FormArray } from '@angular/forms';
 import { TDMModelForm } from '../tdm-model-form/tdm-model-form';
 export interface ArrayActionRequest {
+  /**
+   * The [[FormArray]] instance that is the target for this action.
+   */
   formArray: FormArray;
-  staticPath: string;
+
+  /**
+   * The full name of the control, a.k.a the static path.
+   */
+  fullName: string;
+
+  /**
+   * The runtime path, with this path you can query the angular form instance to retrieve the control.
+   * [[AbstractControl.get(runtimePath)
+   */
   runtimePath: string;
+
+  /**
+   * The [[TDMModelForm]] instance.
+   */
   tdmForm: TDMModelForm;
+
+  /**
+   * Optional data object to pass to the receiver.
+   */
   data?: any;
 }
 

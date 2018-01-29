@@ -2,6 +2,7 @@ import { ANALYZE_FOR_ENTRY_COMPONENTS, Type, NgModule, ModuleWithProviders } fro
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 
+import { Constructor } from '@tdm/core/tdm';
 import { DynamicFormControlRenderer, TDMModelFormService, TDMModelFormDirective } from './tdm-model-form/index';
 import {
   DynamicFormOverrideDirective,
@@ -21,11 +22,13 @@ import {
     DynamicFormOverrideDirective, DynamicFormControlDirective, DynamicFormComponent
   ]
 })
-export class TDMFormsModule {
-
+export class DynamicFormsModule {
+  /**
+   * Registers the module with and required services and with the default form control renderer.
+   */
   static forRoot(formComponent: Type<DynamicFormControlRenderer>): ModuleWithProviders {
     return {
-      ngModule: TDMFormsModule,
+      ngModule: DynamicFormsModule,
       providers: [
         TDMModelFormService,
         {
@@ -35,12 +38,16 @@ export class TDMFormsModule {
         },
         {provide: FORM_CONTROL_COMPONENT, useValue: formComponent}
       ]
-    }
+    };
   }
 
-  static withRenderer(formComponent: Type<DynamicFormControlRenderer>): ModuleWithProviders {
+  /**
+   * Registers the module with the default form control renderer.
+   * Use this when adding to child modules which requires a different renderer.
+   */
+  static forChild(formComponent: Type<DynamicFormControlRenderer>): ModuleWithProviders {
     return {
-      ngModule: TDMFormsModule,
+      ngModule: DynamicFormsModule,
       providers: [
         {
           provide: ANALYZE_FOR_ENTRY_COMPONENTS,
@@ -49,6 +56,15 @@ export class TDMFormsModule {
         },
         {provide: FORM_CONTROL_COMPONENT, useValue: formComponent}
       ]
-    }
+    };
   }
 }
+
+/**
+ * @deprecated Object renamed, use DynamicFormsModule instead
+ */
+export const TDMFormsModule = DynamicFormsModule;
+/**
+ * @deprecated Object renamed, use DynamicFormsModule instead
+ */
+export type TDMFormsModule = Constructor<DynamicFormsModule> & DynamicFormsModule;

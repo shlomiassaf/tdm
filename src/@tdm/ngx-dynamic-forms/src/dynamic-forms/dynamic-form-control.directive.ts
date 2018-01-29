@@ -54,12 +54,15 @@ export class DynamicFormControlDirective {
         this.vcRef.createEmbeddedView(
           override.template, { $implicit } );
       } else {
-        this.cmpRef = this.vcRef.createComponent<DynamicFormControlRenderer>(
+        this.cmpRef = this.vcRef.createComponent<DynamicFormControlRenderer> (
           componentFactory,
           this.vcRef.length,
           injector
         );
         this.dynForm.tdmForm.bindRenderingData(this.cmpRef.instance, value);
+        if (typeof this.cmpRef.instance.tdmOnControlContextInit === 'function') {
+          this.cmpRef.instance.tdmOnControlContextInit();
+        }
       }
     }
   }
@@ -68,8 +71,8 @@ export class DynamicFormControlDirective {
   private cmpRef: ComponentRef<DynamicFormControlRenderer>;
 
   constructor(private vcRef: ViewContainerRef,
-              @Inject(FORM_CONTROL_COMPONENT) private component: Type<DynamicFormControlRenderer>,
-              @Inject(forwardRef(() => DynamicFormComponent)) public dynForm: DynamicFormComponent<any>) {
+              @Inject(FORM_CONTROL_COMPONENT) private component: Type<DynamicFormControlRenderer>, // tslint:disable-line
+              @Inject(forwardRef(() => DynamicFormComponent)) public dynForm: DynamicFormComponent<any>) { // tslint:disable-line
   }
 
 }

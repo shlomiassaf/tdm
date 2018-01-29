@@ -86,7 +86,7 @@ describe('@tdm/ngx-dynamic-forms', () => {
           }
         }
 
-        expect(create).toThrowError('Invalid form type or type not set.');
+        expect(create).toThrowError('Invalid property type or type not set in DemoForm.otherType');
       });
 
     });

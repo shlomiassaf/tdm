@@ -13,6 +13,8 @@ export interface DynamicFormControlRenderer {
   fArray: FormArray | undefined;
   fControl: FormControl | undefined;
   fGroup: FormGroup | undefined;
+
+  tdmOnControlContextInit?(): void ;
 }
 
 function getFormIsNotArrayErrorMessage(value: AbstractControl | undefined): string {

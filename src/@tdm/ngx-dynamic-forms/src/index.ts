@@ -37,8 +37,16 @@ export {
   TdmFormChanges
 } from './dynamic-forms/index';
 
-export { TDMFormsModule } from './module';
+export { DynamicFormsModule, TDMFormsModule } from './module';
 
 export { clone, objectToForm } from './utils';
 
 export { createControl } from './create-control';
+
+// re-export common types from core.
+export {
+  Prop,
+  Model,
+  Exclude,
+  Type
+} from '@tdm/core';

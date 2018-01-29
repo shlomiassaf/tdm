@@ -37,7 +37,7 @@ targetStore.on
 
       MapExt.asKeyValArray(modelProps)
         .forEach(([k, v]) => {
-          formModel.addProp(tMeta.getCreateProp(k as any), v);
+          formModel.addProp(tMeta.getCreateProp(k as any), v, target);
         });
     }
   });

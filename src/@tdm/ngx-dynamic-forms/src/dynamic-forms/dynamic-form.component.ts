@@ -254,7 +254,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    * export class MyComponent {
    *   beforeRender(event: BeforeRenderEventHandler) {
    *     if ('state' in event.instructions) {
-   *       event.instructions.state.selections = [ { value: 'X', label: 'Y' } ] // more...
+   *       event.instructions.state.options = [ { value: 'X', label: 'Y' } ] // more...
    *     }
    *   }
    * }
@@ -263,7 +263,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    *
    * ### Asynchronous rendering logic
    * There are scenarios where the modification logic is asynchronous, for example, populating the
-   * selections (options) of a form control from a remote server
+   * options (options) of a form control from a remote server
    *
    * ```ts
    * @Component({ ... })
@@ -276,7 +276,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    *
    *       // do some async stuff...
    *       setTimeout(() => {
-   *         event.instructions.state.selections = [ { value: 'X', label: 'Y' } ] // more...
+   *         event.instructions.state.options = [ { value: 'X', label: 'Y' } ] // more...
    *         resolve();
    *       }, 1000);
    *     }
@@ -487,15 +487,15 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   }
 
   emitArrayActionRequest(renderInstruction: RenderInstruction,
-                         request: Omit<ArrayActionAddRequestEvent, 'tdmForm' | 'staticPath' | 'runtimePath'>): void;
+                         request: Omit<ArrayActionAddRequestEvent, 'tdmForm' | 'fullName' | 'runtimePath'>): void;
   emitArrayActionRequest(renderInstruction: RenderInstruction,
-                         request: Omit<ArrayActionRemoveRequestEvent, 'tdmForm' | 'staticPath' | 'runtimePath'>): void;
+                         request: Omit<ArrayActionRemoveRequestEvent, 'tdmForm' | 'fullName' | 'runtimePath'>): void;
   emitArrayActionRequest(renderInstruction: RenderInstruction,
-                         request: Omit<ArrayActionMoveRequestEvent, 'tdmForm' | 'staticPath' | 'runtimePath'>): void;
+                         request: Omit<ArrayActionMoveRequestEvent, 'tdmForm' | 'fullName' | 'runtimePath'>): void;
   emitArrayActionRequest(renderInstruction: RenderInstruction, request: Partial<ArrayActionRequestEvent>): void {
     // TODO: validate input.
     request.tdmForm = this.tdmForm;
-    request.staticPath = renderInstruction.getStaticPath();
+    request.fullName = renderInstruction.fullName;
     request.runtimePath = renderInstruction.getRuntimePath(request.formArray);
     this.arrayActionRequest$.emit(<any> request);
   }
@@ -537,7 +537,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     const excluded = this.exclude && this.exclude.slice();
     const hiddenState = this.hiddenState && this.hiddenState.slice();
     const processInstructions = (rd: LocalRenderInstruction) => {
-      const fullPath: string = rd.getStaticPath();
+      const fullPath: string = rd.fullName;
       if (!excluded || !this.isStaticPathContainsPath(excluded, fullPath)) {
         let override = overrides.find(ow => ow.dynamicFormOverride === fullPath) || this.wildOverride;
         if (override) {
@@ -748,7 +748,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    */
   private findRenderInstructionByKey(dotProperty: string): LocalRenderInstruction | undefined {
     for (let c of this.controls.value) {
-      const fullPath = c.getStaticPath();
+      const fullPath = c.fullName;
       if (fullPath.indexOf(dotProperty) > -1) {
         const nextChar = fullPath[dotProperty.length];
         if (!nextChar) {

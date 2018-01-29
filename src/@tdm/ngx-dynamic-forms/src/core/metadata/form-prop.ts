@@ -167,6 +167,9 @@ export class FormPropMetadata extends BaseMetadata {
       }
 
       if (metaArgs.childForm) {
+        // TODO: If childForm, check type and see type is a FormModel as well
+        //       This requires some thinking because at this point the type might be undefined if it's a getter.
+        this.render.type = 'form';
         this.childForm = true;
       }
 

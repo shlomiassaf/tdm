@@ -48,7 +48,7 @@ export class RenderInstruction<T = any> implements RenderDef<T> {
    *
    * Examples:
    *   - regex, min/max, etc.. for validation
-   *   - selections (options) array for a select type
+   *   - options (options) array for a select type
    */
   data?: T;
 
@@ -100,6 +100,24 @@ export class RenderInstruction<T = any> implements RenderDef<T> {
    */
   children?: RenderInstruction[];
 
+  /**
+   * The full name.
+   * The full name is usually identical to the name, except for instructions that are part of a `flattening` expression.
+   *
+   * When the instruction is part of a `flattening` expressions the full name is also refered to as the `static path`
+   * The static path is used for metadata lookup, where all arrays are meaningless and only their type is required.
+   *
+   * > It is recommended to use the full name at all times, except for visual display purpose.
+   */
+  get fullName(): string {
+    const fullName =  this.flattened
+      ? this.flattened.join('.') + '.' + this.name
+      : this.name
+    ;
+    Object.defineProperty(this, 'fullName', { value: fullName, writable: false });
+    return fullName;
+  }
+
   constructor(renderDef: RenderDef, public name: string, public parent?: RenderInstruction) {
     Object.assign(this, renderDef);
     this.hash = this;
@@ -120,17 +138,6 @@ export class RenderInstruction<T = any> implements RenderDef<T> {
    */
   mergeData(value: any): void {
     this.data = Object.assign(this.data || {}, value);
-  }
-  /**
-   * Returns the static path for this rendering item.
-   * The static path is the path for metadata lookup, where all arrays are meaning less and only their type is required.
-   */
-  getStaticPath(): string {
-    if (this.flattened) {
-      return this.flattened.join('.') + '.' + this.name;
-    } else {
-      return this.name;
-    }
   }
 
   /**

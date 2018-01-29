@@ -18,6 +18,12 @@ export interface FormElementType {
   number: 'number';
 
   /**
+   * A child form reference.
+   * Set automatically when the [[FormPropMetadataArgs.childForm]] is set to true.
+   */
+  form: 'form';
+
+  /**
    * A generic select type.
    */
   array: 'array';
@@ -52,7 +58,7 @@ export interface RenderDef<T = any> {
    *
    * Examples:
    *   - regex, min/max, etc.. for validation
-   *   - selections (options) array for a select type
+   *   - options (options) array for a select type
    */
   data?: T;
 }
