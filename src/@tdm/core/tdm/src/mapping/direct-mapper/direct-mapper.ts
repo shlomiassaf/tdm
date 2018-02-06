@@ -72,7 +72,6 @@ export class DirectDeserializeMapper extends DeserializeMapper {
       // it get's a value and the property to assign to, the adapter should check if the value it got
       // was an id or an object.
 
-
       // this relationship handling logic makes this whole adapter support only primitive ID properties.
       // if we have primitives we treat them as id's and create an object.
       // later we wil check if this value is in cache, if not create it.
@@ -97,7 +96,7 @@ export class DirectDeserializeMapper extends DeserializeMapper {
 
     const mapper = this.ref
         ? new DirectChildDeserializeMapper(value, prop.type.ref, this.existing, this.plainMapper)
-        : directMapper.deserializer(value, prop.type.ref, this.plainMapper)
+        : directMapper.deserializer(value, prop.type.ref, this.plainMapper) // tslint:disable-line
       ;
 
     return targetStore.deserialize(mapper);
@@ -123,14 +122,17 @@ export class DirectDeserializeMapper extends DeserializeMapper {
 
 }
 
+// tslint:disable-next-line
 export class DirectChildDeserializeMapper extends DirectDeserializeMapper {
-  constructor(source: any, sourceType: any, protected existing: DualKeyMap<any, string, any>, plainMapper: PlainObjectMapper) {
+  constructor(source: any,
+              sourceType: any,
+              protected existing: DualKeyMap<any, string, any>,
+              plainMapper: PlainObjectMapper) {
     super(source, sourceType, plainMapper);
   }
 }
 
-
-
+// tslint:disable-next-line
 export class DirectSerializeMapper extends SerializeMapper {
   protected cache: Map<any, any>;
 
@@ -158,7 +160,8 @@ export class DirectSerializeMapper extends SerializeMapper {
           // if the rel points to a different fk property name, @tdm will make sure prop.obj is that fk.
           data[pMap.obj] = obj[pMap.cls][idKey];
         } else {
-          data[pMap.obj] = targetStore.serialize(type, new DirectChildSerializeMapper(obj[pMap.cls], this.cache, this.plainMapper));
+          data[pMap.obj] = targetStore
+            .serialize(type, new DirectChildSerializeMapper(obj[pMap.cls], this.cache, this.plainMapper));
         }
       } else {
         const newVal = this.plainMapper.serialize(transformValueOut(obj[pMap.cls], p));
@@ -181,6 +184,7 @@ export class DirectSerializeMapper extends SerializeMapper {
   }
 }
 
+// tslint:disable-next-line
 export class DirectChildSerializeMapper extends DirectSerializeMapper {
   constructor(source: any, protected cache: Map<any, any>, plainMapper: PlainObjectMapper) {
     super(source, plainMapper);

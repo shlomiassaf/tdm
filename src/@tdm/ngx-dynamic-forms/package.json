@@ -17,5 +17,14 @@
     "@angular/forms": "^5.0.0",
     "@tdm/tixin": "*",
     "@tdm/core": "*"
+  },
+  "libConfig": {
+    "entry": "ngx-dynamic-forms",
+    "libExtensions": [
+      {
+        "name": "material",
+        "dir": "plugin/material"
+      }
+    ]
   }
 }

@@ -6,6 +6,7 @@ import { FormModel, FormProp } from '@tdm/ngx-dynamic-forms';
 export class Hero {
   @FormProp({
     render: {
+      vType: 'number',
       label: 'Hero ID'
     }
   })
@@ -13,6 +14,7 @@ export class Hero {
 
   @FormProp({
     render: {
+      vType: 'text',
       label: 'Hero Name'
     }
   })
@@ -20,6 +22,7 @@ export class Hero {
 
   @FormProp({
     render: {
+      vType: 'boolean',
       label: 'Super Hero'
     }
   })

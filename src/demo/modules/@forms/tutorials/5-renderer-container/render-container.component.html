@@ -1,0 +1,12 @@
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part1'}]:true"></tdm-markdown-view>
+
+<tdm-code-view [code]="code | async | tdmCode:[{file: 'dynamic-form-row.component.html'}, {file: 'dynamic-form-row.component.ts'}]"></tdm-code-view>
+
+
+<form-wrapper [code]="code | async | tdmCode:[{title: 'Component'}, {title: 'Template'}, {title: 'Model'}]">
+  <!--@tdm-example:tdmDemo-->
+  <dynamic-form [model]="model"></dynamic-form>
+  <!--@tdm-example:tdmDemo-->
+</form-wrapper>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part2'}]:true"></tdm-markdown-view>

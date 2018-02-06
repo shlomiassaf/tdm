@@ -11,4 +11,7 @@ export {
   FORM_CONTROL_COMPONENT
 } from './dynamic-form-control.directive';
 
+export { DynamicFormArrayComponent } from './dynamic-form-array.component';
+export { DynamicFormArrayDirective, ForFormArrayDirective } from './dynamic-form-array.directive';
+
 export { BeforeRenderEventHandler } from './before-render-event-handler';

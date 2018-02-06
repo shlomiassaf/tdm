@@ -11,7 +11,7 @@ export class UIDeveloper {
   @FormProp({
     required: true,
     render: {
-      type: 'text',
+      vType: 'text',
       label: 'Developer Name'
     }
   })
@@ -22,7 +22,7 @@ export class UIDeveloper {
   @FormProp({
     required: true,
     render: {
-      type: 'number',
+      vType: 'number',
       label: 'Year Of Birth'
     },
     validators: Validators.compose([Validators.min(1900), Validators.max(new Date().getFullYear())])
@@ -34,7 +34,7 @@ export class UIDeveloper {
   @FormProp({
     required: true,
     render: {
-      type: 'radio',
+      vType: 'radio',
       label: 'Gender',
       data: {
         options: [
@@ -51,7 +51,7 @@ export class UIDeveloper {
   /* @tdm-ignore:DEMO-1 */
   @FormProp({
     render: {
-      type: 'select',
+      vType: 'select',
       label: 'Framework',
       data: {
         options: [

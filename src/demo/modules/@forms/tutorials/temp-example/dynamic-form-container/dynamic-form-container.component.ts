@@ -38,12 +38,12 @@ export class DynamicFormContainerComponent<T> {
     const o: any = Object.assign({}, event);
     delete o.tdmForm;
     delete o.formArray;
-    if (event.type === 'add') {
+    if (event.action === 'add') {
       // we need to create a form control instance, it can be FormControl but can also be FormGroup or FormArray
       // we need to the serializer for that, so we use the helper function on [[TDMModelForm]]
       event.tdmForm.appendControl(event.fullName);
       event.formArray.markAsDirty();
-    } else if (event.type === 'remove') {
+    } else if (event.action === 'remove') {
       o.value = event.formArray.controls[event.atIdx].value;
       event.formArray.removeAt(event.atIdx);
       event.formArray.markAsDirty();

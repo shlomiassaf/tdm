@@ -9,7 +9,7 @@
       <mat-progress-bar *ngIf="showSpinner" mode="indeterminate"></mat-progress-bar>
       <div fxFlex="nogrow">
         <div class="form-status-indicator" [matTooltip]="'Form status: ' + (form?.statusChanges | async)">
-          <div class="status-indicator form-status-indicator-{{form?.statusChanges | async}}"></div>
+          <tdm-led [blink]="ledBlinking" [color]="ledColor"></tdm-led>
         </div>
       </div>
        <span class="form-title" fxFlex>{{title}}</span>
@@ -23,7 +23,7 @@
         <mat-icon>more_vert</mat-icon>
       </button>
       <mat-menu #menu="matMenu">
-        <button mat-menu-item [matMenuTriggerFor]="subMenu">&#x7b; JSON } View</button>
+        <button mat-menu-item [disabled]="jsonView" (click)="this.toggleJsonView()">&#x7b; JSON } View</button>
         <button mat-menu-item matTooltip="Update form's value & Validity" (click)="dynForm.tdmForm.form.updateValueAndValidity()">
           <mat-icon>sync</mat-icon>
           <span>Sync Form</span>
@@ -33,29 +33,30 @@
           <span>Commit</span>
         </button>
       </mat-menu>
-      <mat-menu #subMenu="matMenu" >
-        <button *ngFor="let i of ['model', 'form']"
-                [disabled]="jsonView === i"
-                style="text-align: right"
-                mat-menu-item
-                (click)="onJsonViewChange(i)">
-          <mat-icon *ngIf="jsonView === i">remove_red_eye</mat-icon>
-          {{ i | titlecase }}
-        </button>
-      </mat-menu>
     </mat-toolbar>
     <div fxFlex="grow" class="form-wrapper-content">
       <mat-drawer-container>
         <mat-drawer mode="side" [opened]="rightDrawerOpened">
           <ng-content class=".form-wrapper-right-drawer"></ng-content>
         </mat-drawer>
-        <mat-drawer position="end" mode="side" [opened]="!!jsonView">
+        <mat-drawer position="end" mode="side" [opened]="jsonView">
           <div>
-            <button mat-icon-button (click)="jsonView = undefined"><mat-icon>close</mat-icon></button>
+            <button mat-icon-button (click)="jsonView = false"><mat-icon>close</mat-icon></button>
+            <div fxFlex></div>
+            <button mat-icon-button (click)="refreshJsonView()"><mat-icon>refresh</mat-icon></button>
           </div>
-          <div class="json-view">
-            <pre><code [innerHtml]="formOrModelJson"></code></pre>
-          </div>
+          <mat-tab-group>
+            <mat-tab label="Model">
+              <div class="json-view">
+                <pre><code [innerHtml]="modelJson"></code></pre>
+              </div>
+            </mat-tab>
+            <mat-tab label="Form">
+              <div class="json-view">
+                <pre><code [innerHtml]="formJson"></code></pre>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
         </mat-drawer>
         <mat-drawer-content>
           <mat-tab-group #tabs style="margin-top: -48px;">

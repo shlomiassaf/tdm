@@ -7,6 +7,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { HttpClientResourceModule } from '@tdm/ngx-http-client';
 
 import { MaterialModule } from './material';
+import { TocModule } from './toc';
 
 export const ROOT_MODULES: any = [
   CommonModule,
@@ -15,7 +16,8 @@ export const ROOT_MODULES: any = [
   ReactiveFormsModule,
   HttpClientModule,
   MaterialModule,
-  HttpClientResourceModule.forRoot()
+  HttpClientResourceModule.forRoot(),
+  TocModule
 ];
 
 export const MODULES: any = [
@@ -25,5 +27,6 @@ export const MODULES: any = [
   RouterModule,
   HttpClientModule,
   MaterialModule,
-  HttpClientResourceModule
+  HttpClientResourceModule,
+  TocModule
 ];

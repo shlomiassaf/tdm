@@ -11,32 +11,32 @@ const SUPPORTED_LANG = {
   html: {
     section: /<!--\s*@tdm-example:(.+)\s*-->/,
     ignore: /<!--\s*@tdm-ignore:(.+)\s*-->/,
-    ignoreLine: /<!--\s*@tdm-ignore-line\s*-->/,
-    ignoreNextLine: /<!--\s*@tdm-ignore-next-line\s*-->/,
+    ignoreLine: /<!--\s*@tdm-ignore-line\s*(?!:\s*-->):?(.+)?-->/,
+    ignoreNextLine: /<!--\s*@tdm-ignore-next-line\s*(?!:\s*-->):?(.+)?-->/
   },
   md: {
     section: /<!--\s*@tdm-example:(.+)\s*-->/,
     ignore: /<!--\s*@tdm-ignore:(.+)\s*-->/,
-    ignoreLine: /<!--\s*@tdm-ignore-line\s*-->/,
-    ignoreNextLine: /<!--\s*@tdm-ignore-next-line\s*-->/,
+    ignoreLine: /<!--\s*@tdm-ignore-line\s*(?!:\s*-->):?(.+)?-->/,
+    ignoreNextLine: /<!--\s*@tdm-ignore-next-line\s*(?!:\s*-->):?(.+)?-->/
   },
   ts: {
     section: /\/\*\s*@tdm-example:(.+)\*\//,
     ignore: /\/\*\s*@tdm-ignore:(.+)\*\//,
-    ignoreLine: /\/\*\s*@tdm-ignore-line\s*\*\//,
-    ignoreNextLine: /\/\*\s*@tdm-ignore-next-line\s*\*\//,
+    ignoreLine: /\/\*\s*@tdm-ignore-line\s*(?!:\s*\*\/):?(.+)?\*\//,
+    ignoreNextLine: /\/\*\s*@tdm-ignore-next-line\s*(?!:\s*\*\/):?(.+)?\*\//
   },
   scss: {
     section: /\/\*\s*@tdm-example:(.+)\*\//,
     ignore: /\/\*\s*@tdm-ignore:(.+)\*\//,
-    ignoreLine: /\/\*\s*@tdm-ignore-line\s*\*\//,
-    ignoreNextLine: /\/\*\s*@tdm-ignore-next-line\s*\*\//,
+    ignoreLine: /\/\*\s*@tdm-ignore-line\s*(?!:\s*\*\/):?(.+)?\*\//,
+    ignoreNextLine: /\/\*\s*@tdm-ignore-next-line\s*(?!:\s*\*\/):?(.+)?\*\//
   },
   css: {
     section: /\/\*\s*@tdm-example:(.+)\*\//,
     ignore: /\/\*\s*@tdm-ignore:(.+)\*\//,
-    ignoreLine: /\/\*\s*@tdm-ignore-line\s*\*\//,
-    ignoreNextLine: /\/\*\s*@tdm-ignore-next-line\s*\*\//,
+    ignoreLine: /\/\*\s*@tdm-ignore-line\s*(?!:\s*\*\/):?(.+)?\*\//,
+    ignoreNextLine: /\/\*\s*@tdm-ignore-next-line\s*(?!:\s*\*\/):?(.+)?\*\//
   }
 };
 
@@ -107,6 +107,7 @@ export function parse(content: string, lang: string): ParserResult {
 
   for (let i in lines) {
     const token = parseLine(parser, lines[i]);
+    let foundSingleIgnoredSection: string;
     let skip: boolean;
     if (token) {
       skip = true;
@@ -141,19 +142,30 @@ export function parse(content: string, lang: string): ParserResult {
 
           const foundIgnoredIdx = ignoreQueue.indexOf(foundIgnoredSection);
           if (foundIgnoredIdx === -1) {
+            if (foundIgnoredSection !== '*' && !sections.hot.find( s => s.name === foundIgnoredSection )) {
+              console.warn(`Ignoring "${foundIgnoredSection}" while not in that section.`);
+            }
             ignoreQueue.push(foundIgnoredSection);
-          } else if (foundIgnoredIdx === ignoreQueue.length - 1) {
-            ignoreQueue.pop();
           } else {
-            // tslint:disable-next-line
-            throw new Error(`Invalid ignore block defined in line ${i + 1}, trying to close ${foundIgnoredSection} inside ignore block ${ignoreQueue.pop()}`);
+            ignoreQueue.splice(foundIgnoredIdx, 1);
           }
           break;
         case 'ignoreLine':
-          break;
+          skip = false;
         case 'ignoreNextLine':
-          ignoredLines[i] = true;
-          i = i + 1;
+          foundSingleIgnoredSection = token.result[1] && token.result[1].trim();
+          if (foundSingleIgnoredSection && ignoreQueue.indexOf(foundSingleIgnoredSection) === -1) {
+            lines[i] = lines[i].substr(0, token.result.index)
+              + lines[i].substr(token.result.index + token.result[0].length);
+            ignoreQueue.push(foundSingleIgnoredSection);
+          } else {
+            skip = true;
+            foundSingleIgnoredSection = undefined;
+          }
+          if (token.type === 'ignoreNextLine') {
+            ignoredLines[i] = true;
+            i = i + 1;
+          }
           break;
         default:
           skip = false;
@@ -176,6 +188,10 @@ export function parse(content: string, lang: string): ParserResult {
       }
     } else {
       ignoredLines[i] = true;
+    }
+
+    if (foundSingleIgnoredSection) {
+      ignoreQueue.pop();
     }
   }
 

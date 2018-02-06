@@ -11,7 +11,7 @@ By the end of the tutorial you will be able to do the following:
 
   - Create a model and render a FORM from it.
   - Split a single form into Virtual Groups, rendering in different places.
-  - Hide, Disable or Exclude controls
+  - Hide, Disable or Filter controls
   - Create a hot binding between a form and a model instance (instant change)
   - Override the template for a specific control in a specific form.
   - Populate control metadata in real time (e.g. A select box of users fetched from a changing source) 
@@ -25,6 +25,50 @@ By the end of the tutorial you will be able to do the following:
 
 <!--@tdm-example:PART-1-->
 <!--@tdm-example:PART-2-->
+
+## Tutorial Structure
+This tutorial is made up of a series of chapters, seen on the left.
+
+A Chapter in this tutorial usually cover a single feature. In most cases
+it is followed by a live example with source code.
+
+The order of the chapters matter as it build up features and dependant
+features.
+
+There are 2 constructs that follow the entire tutorial and used by all
+of the examples, these are the **model** (`Hero` class) and the
+**renderer**.
+
+The `Hero` class start simple and evolve as the tutorial progress
+Each chapter might extend the `Hero` class  based on the feature it
+demonstrate's.
+
+Chapters that modify the **model** will review the change, all of the
+examples in the code come with the model's source code.
+
+Following chapters will use the updated version.
+
+The **renderer** used in the tutorial is a predefined renderer that
+implement UI components from the `@angular/material` UI framework, this
+renderer is used for all chapters that demonstrates feature.
+
+The last section of this tutorial is about custom renderer
+implementation, chapters in this sections use the custom renderer
+built for that purpose with each chapter modifying the **renderer** to
+demonstrate a topic.
+ 
+Renderer chapters cover how to create a renderer and offer strategies
+for different scenarios, even if you are using a pre-built renderer it
+is important to review them as they provide valuable insight.
+
+<div class="info">
+  The **model** and **renderer** described above are terms not
+   yet discussed, mentioned here for reference only.
+  They are reviewed in the `Creating a Model` and `Simple Renderer`
+  chapters.       
+</div>   
+
+ 
 ## The Dashboard
 The tutorial contains a lot of examples, in most of them you'll find a
 container called the dashboard, this is an important tool, let's review
@@ -46,13 +90,10 @@ The dashboard is the top panel, above the form showcased in the example.
 Let's review what we can do with the dashboard:
 
 ### Real time form status indicator LED.  
-The LED is located at the right side.
+The LED is located at the top left.
+<!--@tdm-example:PART-3-->
+<!--@tdm-example:PART-4-->
 
-Each color represents a form status:
-  - Blinking Red: form is in an invalid state
-  - Blinking Blue: form is pending (async validation call)
-  - Yellow: form is disabled
-  - Green: Form is valid
  
 ### Source code view:
 The source code view can be toggled by the **< >** button located in
@@ -94,8 +135,6 @@ It can not be opened from the top panel, and it might not exist, depending on th
 
 If it does exist, optional buttons to control will display above the form.
 
-The **Exclude / Disabled / Hidden state** example makes use of the left panel.
+The **Filter / Disabled / Hidden state** example makes use of the left panel.
 
-<!--@tdm-example:PART-3-->
-
-
+<!--@tdm-example:PART-4-->

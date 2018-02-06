@@ -1,27 +1,39 @@
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 import { debounceTime, tap } from 'rxjs/operators';
-import { Component, ComponentFactoryResolver, OnDestroy, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ComponentFactoryResolver,
+  Inject,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ViewContainerRef
+} from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { TutoriableComponent, TutorialService } from '@shared';
+import { TutoriableComponent, TutorialService, TocAreaDirective } from '@shared';
 
 @Component({
   selector: 'tutorial-page',
   styleUrls: [ './tutorial-page.component.scss' ],
   templateUrl: './tutorial-page.component.html'
 })
-export class TutorialPageComponent implements OnInit, OnDestroy {
+export class TutorialPageComponent implements OnInit, AfterViewInit, OnDestroy {
   autoSize: boolean = false;
   tutorialsChanged: Observable<Array<TutoriableComponent<any>>>;
   @ViewChild('tutorialView', { read: ViewContainerRef }) tutVcRef: ViewContainerRef;
+  @ViewChild('tocArea') tocArea: TocAreaDirective;
 
   private _subs: Subscription;
 
-  constructor (private tutorialService: TutorialService,
-               private resolver: ComponentFactoryResolver,
-               private route: ActivatedRoute,
-               private router: Router) {
+  constructor(@Inject(DOCUMENT) private document: Document,
+              private tutorialService: TutorialService,
+              private resolver: ComponentFactoryResolver,
+              private route: ActivatedRoute,
+              private router: Router) {
     this.tutorialsChanged = tutorialService.tutorialsChanged
       .pipe(
         debounceTime(100),
@@ -33,14 +45,22 @@ export class TutorialPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this._subs = this.route.paramMap.subscribe( params => {
+    this._subs = this.route.paramMap.subscribe(params => {
       const id = params.get('name');
       const tutorial = this.tutorialService.get(id);
-      if (!tutorial) {
-        this.router.navigate(['/page-404']);
+      if ( !tutorial ) {
+        this.router.navigate([ '/page-404' ]);
       } else {
         this.renderTutorial(tutorial);
       }
+    });
+  }
+
+  ngAfterViewInit(): void {
+    // On init, the sidenav content element doesn't yet exist, so it's not possible
+    // to subscribe to its scroll event until next tick (when it does exist).
+    Promise.resolve().then(() => {
+      this.tocArea.scrollContainer = this.document.querySelector('.mat-drawer-content');
     });
   }
 
@@ -51,9 +71,10 @@ export class TutorialPageComponent implements OnInit, OnDestroy {
   private renderTutorial(tutorial: TutoriableComponent<any>): void {
     this.tutVcRef.clear();
     const componentFactory = this.resolver.resolveComponentFactory(tutorial);
-    this.tutVcRef.createComponent<any>(
+    const cmpRef = this.tutVcRef.createComponent<any>(
       componentFactory,
       this.tutVcRef.length
     );
+    this.tocArea.reinitQueryLinks(Promise.resolve(cmpRef.instance.code));
   }
 }

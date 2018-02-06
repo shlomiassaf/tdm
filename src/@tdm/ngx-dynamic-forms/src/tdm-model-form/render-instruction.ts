@@ -12,7 +12,7 @@ import { FormElementType, RenderDef } from '../interfaces';
  *
  * @internal
  */
-export class RenderInstruction<T = any> implements RenderDef<T> {
+export class RenderInstruction<T extends keyof FormElementType = keyof FormElementType> implements RenderDef<T> {
 
   /**
    * A object used to mark changes in the instruction for ngFor iterations.
@@ -20,6 +20,11 @@ export class RenderInstruction<T = any> implements RenderDef<T> {
    * @internal
    */
   hash: any;
+
+  /**
+   * Marks the hidden state of the control.
+   */
+  hidden?: boolean;
 
   required?: boolean;
 
@@ -34,14 +39,14 @@ export class RenderInstruction<T = any> implements RenderDef<T> {
   label?: string;
 
   /**
-   * The type of the element.
+   * The visual type of the element.
    *
    * The rendering component will use this type to render the component.
    *
    * If no type is set the library will try to assign a primitive (string, number or boolean) based
    * on the type information. If no primitive was matched an error is thrown.
    */
-  type?: keyof FormElementType;
+  vType: T;
 
   /**
    * Extra data to be used by the renderer.
@@ -50,7 +55,7 @@ export class RenderInstruction<T = any> implements RenderDef<T> {
    *   - regex, min/max, etc.. for validation
    *   - options (options) array for a select type
    */
-  data?: T;
+  data: FormElementType[T];
 
   /**
    * When set indicated this is form control flattened from a nested object.
@@ -78,9 +83,11 @@ export class RenderInstruction<T = any> implements RenderDef<T> {
    * not depth limitation as you can nest flatten declaration. The form is bound to the model and it can not change it's
    * structure so the library manages the transformation between UI and Data model.
    *
-   * This is why a virtual field will not be part of the rendering array but will be the parent of a falttened property.
+   * This is why a virtual field will not be part of the rendering array but will be the parent of a flattened property.
    */
   isVirtual: boolean;
+
+  isChildForm: boolean;
 
   /**
    * Valid on when isVirtual is true.
@@ -99,6 +106,61 @@ export class RenderInstruction<T = any> implements RenderDef<T> {
    * When set indicates that the instruction is for a FormArray.
    */
   children?: RenderInstruction[];
+
+  /**
+   * The path to the current item relative to the child of the first array up the ancestor tree.
+   *
+   * The path is set only for flattening expression of an array, in that scenario the data model structure for the UI,
+   * which is the form, is different from the render instructions data structure.
+   *
+   * The `FormArray` instance contains `FromGroup` instances while the render instruction matching the `FormArray`
+   * instance contains the elements we need to render, i.e. the primitives flattened controls.
+   *
+   * We need to resolve the `FormControl` matching each child using the `FormGroup` item, this path enables that
+   * because it is relative to the first item in the array, which is our `FormGroup`
+   *
+   * Example:
+   * ```ts
+   * @Prop({
+   *   form: {
+   *     flatten: {
+   *       y: {
+   *         flatten: {
+   *           z: {
+   *             render: {
+   *               vType: 'number'
+   *             }
+   *           }
+   *         }
+   *       }
+   *     }
+   *   }
+   * })
+   * x: Array<{
+   *   y: {
+   *     z: number;
+   *   }
+   * }>;
+   * ```
+   *
+   * The property above describes an array of an object defined using a flattening expression.
+   * The object has an inner object `y` and `y` has a property `z`.
+   *
+   * The flattening expression extract's `z`.
+   *
+   * The renderer will get a `FormArray` instance with each child being a `FormGroup` with item `x`.
+   * the render instructions will represent and array with each child representing `z`.
+   *
+   * We need to resolve the control bound to the UI element, the control that matches `z` but we have `FormGroup` `x`
+   * which contains that control.
+   *
+   * This path will resolve that and it's value will be `y.z`. We have `x` so we get `y` then from `y` we get `z`.
+   *
+   * This will work with any level
+   *
+   * @internal
+   */
+  _arrayPath?: string;
 
   /**
    * The full name.
@@ -125,19 +187,27 @@ export class RenderInstruction<T = any> implements RenderDef<T> {
 
   /**
    * Call this function when changing properties in this [[RenderInstruction]] instance, before calling
-   * [[DynamicFormComponent.redraw]].
+   * [[DynamicFormComponent.redraw]] or when you want a specific control to re-render.
+   *
+   * You can set a custom hash, you can use it to pass data between new renderer instances.
    */
-  markAsChanged(): void {
-    this.hash = {};
+  markAsChanged(hash?: { [key: string]: any }): void {
+    this.hash = hash === this.hash ? {} : hash || {};
   }
 
   /**
    * A helper method that merge's (assign) the provided value into the existing `data` object.
    * If a `data` object is undefined it will create one.
-   * @param value
    */
   mergeData(value: any): void {
     this.data = Object.assign(this.data || {}, value);
+  }
+
+  /**
+   * A helper method that return the value of the property `key` in `this.data`
+   */
+  getData(key: string): any | undefined {
+    return this.data && this.data[key];
   }
 
   /**
@@ -156,5 +226,16 @@ export class RenderInstruction<T = any> implements RenderDef<T> {
       const name = parent instanceof FormArray ? parent.controls.indexOf(control) : this.name;
       return `${this.parent.getRuntimePath(parent)}.${name}`;
     }
+  }
+
+  /**
+   * Use this method to resolve the `FormControl` instance from children of `FormArray`.
+   *
+   * If you will not use this method to resolve the form control and use the child control directly it will create
+   * issues when using flattening expressions with arrays.
+   */
+  resolveFormArrayChild(control: AbstractControl): AbstractControl {
+    return this._arrayPath ? control.get(this._arrayPath) : control ;
+
   }
 }

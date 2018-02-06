@@ -21,7 +21,7 @@ class NgFormsBoundDeserializeMapper extends NgFormsDeserializeMapper {
               sourceType: any,
               public instance: any,
               plainMapper?: PlainObjectMapper) {
-    super(formGroup.value, sourceType, plainMapper);
+    super(formGroup, sourceType, plainMapper);
   }
 
   /**

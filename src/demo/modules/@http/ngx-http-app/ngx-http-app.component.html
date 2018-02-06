@@ -5,27 +5,30 @@
                      name="ngx-http-client"
                      [deps]="['tixin', 'core', 'data']">
 </tdm-package-welcome>
-<div class="tdm-page-content">
-  <div fxLayout fxLayoutAlign="center center" fxLayoutWrap="wrap">
-    <div fxFlex="100%" class="center-text">
-      <div class="tldr-header">
-        From <b>static class instance</b> to <b>dynamic form</b> and back
+<div class="tdm-page">
+  <div class="tdm-page-content">
+    <div>
+      <div fxLayout fxLayoutAlign="center center" fxLayoutWrap="wrap">
+        <div fxFlex="100%" class="center-text">
+          <h1>DOCUMENTATION WIP - EXAMPLES ONLY</h1>
+          <div class="tldr-header">
+          </div>
+        </div>
+        <tdm-markdown-view fxFlex="45%" [code]="(code | tdmCode:[{file: 'model.ts', section: 'DEMO-1'}])[0]"></tdm-markdown-view>
+
+        <div fxFlex="10%" class="center-text">
+          <mat-icon style="font-size: 48px">compare_arrows</mat-icon>
+        </div>
+        <div fxFlex="45%">
+          <!--@tdm-example:TDM-DEMO-->
+          <mat-icon style="font-size: 128px">storage</mat-icon>
+
+          <!--@tdm-example:TDM-DEMO-->
+        </div>
       </div>
-    </div>
-    <tdm-markdown-view fxFlex="45%" [code]="(code | tdmCode:[{file: 'model.ts', section: 'DEMO-1'}])[0]"></tdm-markdown-view>
 
-    <div fxFlex="10%" class="center-text">
-      <mat-icon style="font-size: 48px">compare_arrows</mat-icon>
-    </div>
-    <div fxFlex="45%">
-      <!--@tdm-example:TDM-DEMO-->
-      <mat-icon style="font-size: 128px">storage</mat-icon>
-
-      <!--@tdm-example:TDM-DEMO-->
+      <tdm-markdown-view><h1 class="center-text">Features</h1></tdm-markdown-view>
+      <tdm-feature-list [features]="features"></tdm-feature-list>
     </div>
   </div>
-
-  <tdm-markdown-view><h1 class="center-text">Features</h1></tdm-markdown-view>
-  <tdm-feature-list [features]="features"></tdm-feature-list>
-
 </div>

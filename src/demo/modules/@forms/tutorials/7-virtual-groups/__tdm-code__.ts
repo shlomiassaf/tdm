@@ -29,7 +29,7 @@ module.exports = [
     section: '3way'
   },
   {
-    file: '../6-a-better-renderer/model.ts',
+    file: '../4-element-metadata/model.ts',
     autoRender: true,
     title: 'Model'
   }

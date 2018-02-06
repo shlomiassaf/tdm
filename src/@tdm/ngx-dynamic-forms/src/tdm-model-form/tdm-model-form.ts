@@ -2,7 +2,7 @@ import { Type } from '@angular/core';
 import { AbstractControl, FormGroup, FormArray, FormControl } from '@angular/forms';
 
 import { stringify, isNumber } from '@tdm/core/tdm';
-import { FormModelMetadata, NgFormsBoundMapper } from '../core/index';
+import { FormModelMetadata, NgFormsBoundMapper, NgFormsSerializeMapper } from '../core/index';
 import { TDMModelFormService } from './tdm-model-form.service';
 import { RenderInstruction } from './render-instruction';
 import { createControl } from '../create-control';
@@ -20,6 +20,15 @@ export interface DynamicFormControlRenderer {
 function getFormIsNotArrayErrorMessage(value: AbstractControl | undefined): string {
   const got = value ? 'undefined' : stringify(value.constructor);
   return `A control can only be added to a form array instance, got ${ got }`;
+}
+
+function normalizeFormPath(path: Array<string | number> | string): [string, string] {
+  const isNumberRe = /^\d+$/;
+  const pathArr = Array.isArray(path)
+    ? path.filter( n => !isNumber(n) )
+    : path.split('.').filter( v => !isNumberRe.test(v) )
+  ;
+  return [<any> pathArr.shift(), pathArr.join('.')];
 }
 
 /**
@@ -74,7 +83,7 @@ export class TDMModelForm<T = any> {
   }
 
   /**
-   * Gets's a value from the provided `path`.
+   * Gets's a value from the provided `path` on the form.
    *
    * > This is method is just sugar for `tDMModelFormInstance.form.get(path).value`
    *
@@ -84,6 +93,22 @@ export class TDMModelForm<T = any> {
   getValue(path: Array<string | number> | string): any | null {
     const c = this.form.get(path);
     return c ? c.value : null;
+  }
+
+  /**
+   * Gets's a value from the provided `path` on the model.
+   * Identical to `getValue` but on the model instance and not the form.
+   */
+  getValueModel(path: Array<string | number> | string): any | null {
+    const pathArr = Array.isArray(path) ? path : path.split('.');
+    let m = this.model;
+    for (let p of pathArr) {
+      m = m[p];
+      if (!m) {
+        break;
+      }
+    }
+    return m;
   }
 
   /**
@@ -105,6 +130,47 @@ export class TDMModelForm<T = any> {
   }
 
   /**
+   * Sync's the model with the form.
+   * When `patch` is true will perform a silent update without throwing when structure does not match.
+   * Running this method is a identical to calling patchValue / setValue on the form with the model instance.
+   */
+  sync(patch: boolean = true,
+       options?: { onlySelf?: boolean; emitEvent?: boolean; }): void {
+    if (patch) {
+      this.form.patchValue(this.model, options);
+    } else {
+      this.form.setValue(this.model, options);
+    }
+  }
+
+  /**
+   * Reset's the form and sync's it with the model.
+   *
+   * This method has no effect when a hot bind is set between the model and the form, it will reset the form
+   * and sync it with the model in it's current state.
+   */
+  reset(): void {
+    this.form.reset(this._model);
+  }
+
+  createChildForm<Z = any>(path: Array<string | number> | string, model?: Z): TDMModelForm<Z> {
+    const pathArr = normalizeFormPath(path);
+    const formProp = NgFormsSerializeMapper.getFormProp(this.type, <any> pathArr);
+    if (!formProp) {
+      throw new Error(
+        `Could not find form property metadata for type ${stringify(this.type)} using path ${pathArr.join('.')}`);
+    } else if (!formProp.childForm) {
+      throw new Error(
+        `Form property metadata ${pathArr.join('.')} for type ${stringify(this.type)} is not a "childForm"`);
+    } else {
+      if (!model) {
+        model = new formProp.rtType.ref();
+      }
+      return this.modelFormService.create(model, formProp.rtType.ref);
+    }
+  }
+
+  /**
    * Adds a new form control to a FormArray instance at the provided path.
    *
    * This is a utility method for easy add/remove operations on UI form's with a FormArray instance.
@@ -117,13 +183,9 @@ export class TDMModelForm<T = any> {
   appendControl(path: Array<string | number> | string, value?: any): FormGroup | FormControl {
     const formArray = this.form.get(path);
     if (formArray instanceof FormArray) {
-      const isNumberRe = /^\d+$/;
       // we got the instance, now move to type metadata world where all array index references, if exist, must go out.
-      const pathArr = Array.isArray(path)
-        ? path.filter( n => !isNumber(n) )
-        : path.split('.').filter( v => !isNumberRe.test(v) )
-      ;
-      const ctrl = createControl(this.type, [<any> pathArr.shift(), pathArr.join('.')], value);
+      const pathArr = normalizeFormPath(path);
+      const ctrl = createControl(this.type, <any> pathArr, value);
       formArray.push(ctrl);
       return ctrl;
     } else {
@@ -211,6 +273,9 @@ export class TDMModelForm<T = any> {
     return true;
   }
 
+  /**
+   * @internal
+   */
   bindRenderingData(controlRenderer: DynamicFormControlRenderer,
                     renderData: RenderInstruction): void {
     controlRenderer.tdmForm = this;

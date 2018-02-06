@@ -9,3 +9,5 @@ export {
   CodeViewItem,
   TdmFeatureListItem
 } from './components';
+
+export * from './toc';

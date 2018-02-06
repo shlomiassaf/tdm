@@ -32,16 +32,11 @@ import {
   ArrayActionRequestEvent,
   ArrayActionAddRequestEvent,
   ArrayActionMoveRequestEvent,
+  ArrayActionEditRequestEvent,
   ArrayActionRemoveRequestEvent
 } from './array-action-request';
 
 export interface LocalRenderInstruction extends RenderInstruction {
-  /**
-   * Used to show/hide controls
-   * @internal
-   */
-  display: 'none' | undefined;
-
   /**
    * Used as flag for show/hide (true is hide)
    * @internal
@@ -72,7 +67,7 @@ export interface TdmFormChange extends KeyValueChangeRecord<string, any> {
  */
 export type TdmFormChanges = TdmFormChange[];
 
-type StateKeys = 'exclude' | 'disabled' | 'hidden';
+type StateKeys = 'filter' | 'disabled' | 'hidden';
 
 /**
  * Allow rendering a form using @tdm/ngx-dynamic-forms and DynamicFormElementComponent
@@ -115,15 +110,6 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   @Input() hotBind: boolean;
 
   /**
-   * A expression to apply on the form control container class.
-   *
-   * Use as if this was an `ngClass` directive.
-   *
-   * > The class will apply on the container that wraps the rendered control and not on the control itself.
-   */
-  @Input() controlClass: string|string[]|Set<string>|{[klass: string]: any};
-
-  /**
    * Pass through for @angular/forms `ngNativeValidate` attribute that enables native browser validation
    *
    */
@@ -138,29 +124,48 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
 
   /**
    * The instance and type (class) to dynamically render as form.
-   * You can supply the instance only, in that case the type is the constructor property (instance.constructor)
-   * To supply both instance and type use a tuple.
+   * You can set the model using 3 possible formats:
+   *   1. The model's instance, in this case the type is the constructor property (instance.constructor)
+   *   2. A tuple of [Model Instance, Model Type]
+   *   3. An instance of [[TDMModelForm]], the model an type are taken from [[TDMModelForm]], the component will not
+   *   create anew instance of [[TDMModelForm]] and will use the one provided.
+   *   Setting this value is only possible when a previous TDMModelForm is not set.
    *
    * @example
    * `<dynamic-form [model]="user"></dynamic-form>`
    * `<dynamic-form [model]="[user, User]"></dynamic-form>`
    *
-   * @param value {*|[*, *]}
    */
-  @Input() set model(value: T | [T, Type<T>]) {
+  @Input() set model(value: T | TDMModelForm<T> | [T, Type<T>]) {
     if (this.slaveMode) {
       throw new Error('Setting a model is not allowed when in slave mode.');
     }
     this.slaveMode = false;
 
-    const [instance, type] = Array.isArray(value) ? value : [value, <any> value.constructor];
-    this.instance = instance;
-    this.type = type;
+    if (value instanceof TDMModelForm) {
+      if (this.tdmForm) {
+        throw new Error(
+          'Can not set a model using a TDMModelForm instance when a previous TDMModelForm instance exist'
+        );
+      }
+      this.instance = value.model;
+      this.type = value.type;
+    } else if (Array.isArray(value)) {
+      this.instance = value[0];
+      this.type = value[1];
+    } else {
+      this.instance = value;
+      this.type = <any> value.constructor;
+    }
 
     this.valueDiffer = undefined;
 
     if (!this.tdmForm) {
-      this.tdmForm = this.tdmModelFormService.create(this.instance, this.type);
+      this.tdmForm = value instanceof TDMModelForm
+        ? value
+        : this.tdmModelFormService.create(this.instance, this.type)
+      ;
+
       const formValue = this.tdmForm.form.getRawValue();
       this.valueDiffer = this.kvDiffers.find(formValue).create();
       this.valueDiffer.diff(formValue); // for some reason objects do not commit the 1st time
@@ -175,7 +180,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    * Setting the dynamic form as a slave of another dynamic form.
    * You can this feature to split forms of complex models.
    *
-   * A form in slave mode has very limited functionality, it can only exclude controls and override controls.
+   * A form in slave mode has very limited functionality, it can only filter controls and override controls.
    * All other options (hidden state, disabled state, hot binding etc..) are not supported in the slave and should be
    * handled in the master.
    *
@@ -187,8 +192,8 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    * You can not change or remove the master.
    * You can not set a model when using slave mode.
    *
-   * A slave does not handle form state, it only handles internal rendering and this is why only exclude and override
-   * are supported, hidden and disabled are drived by the form state...
+   * A slave does not handle form state, it only handles internal rendering and this is why only filter and
+   * override are supported, hidden and disabled are drived by the form state...
    * @param dynForm
    */
   @Input() set slaveOf(dynForm: DynamicFormComponent<T>) {
@@ -201,15 +206,38 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     this.instance = dynForm.instance;
     this.type = dynForm.type;
     this.slaveMode = true;
+    this.arrayActionRequest$.subscribe( e => dynForm.arrayActionRequest$.emit(e) );
   }
 
   /**
-   * An array of form control names, each name in this array will not be rendered (excluded).
+   * An array of form control names, each name in this array will used when filtering the controls.
+   *
+   * The filter operation is set by the `filterMode` property.
+   *
+   * When the filter mode is "exclude" all fields are rendered by default but each name in this array will not be
+   * rendered (excluded).
+   *
+   * When the filter mode is "include" all fields are not rendered by default but each name in this array will be
+   * rendered (included).
+   *
+   * The default filtering mode is `exclude`
+   *
    * Supports deep paths using dot notation.
    * The end result in the UI is identical to `hiddenState` however excluded fields behave like `*ngIf`, they are never
    * rendered, hidden fields are rendered but not displayed.
    */
-  @Input() exclude: string[];
+  @Input() filter: string[];
+
+  /**
+   * Defines the filtering mode.
+   *
+   * There are 2 modes:
+   *   - include: All fields will not render by default, only those defined in the filter will render.
+   *   - exclude: All fields will render by default, only those defined in the filter will not render.
+   *
+   * The default filtering mode is `exclude`
+   */
+  @Input() filterMode: 'include' | 'exclude' = 'exclude';
 
   /**
    * An array of form control names, each name in this array will be disabled.
@@ -218,10 +246,12 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   @Input() disabledState: string[];
 
   /**
-   * An array of form control names, each name in this array will be hidden.
+   * An array of form control names, each name in this array will be hidden (display: none).
    * Supports deep paths using dot notation.
-   * The end result in the UI is identical to `exclude` however excluded fields behave like `*ngIf`, they are never
-   * rendered, hidden fields are rendered but not displayed.
+   *
+   * From the UI perspective, the end result for `filter` and `hiddenState` is identical, however there is a difference.
+   * Fields filtered out by `filter` are similar to `*ngIf`, they are added / removed when toggled. Hidden fields are
+   * rendered but does not displayed. This has an effect on performance, animation, etc...
    */
   @Input() hiddenState: string[];
 
@@ -240,7 +270,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   /**
    * Event emitted before rendering form controls.
    *
-   *   - Excluded controls are not emitted.
+   * Only included controls are emitted.
    *
    * Use this event to modify form control/s rendering instructions (metadata) before they are rendered.
    * For example, given a `select` form control, you can use this event to create dynamic, ad-hoc, select options.
@@ -320,12 +350,14 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   @Output() arrayActionRequest: Observable<ArrayActionRequestEvent>;
 
   /**
-   * The active render instructions for this instance, active instructions does not include excluded instruction.
+   * The active render instructions for this instance, active instructions does not include instruction that were
+   * filtered out.
    */
   instructions: { [path: string]: RenderInstruction } = {};
 
   /**
-   * The active render instructions for this instance, active instructions does not include excluded instruction.
+   * The active render instructions for this instance, active instructions does not include instruction that were
+   * filtered out.
    * @internal
    */
   controls = new BehaviorSubject<LocalRenderInstruction[]>([]);
@@ -394,8 +426,16 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
       this.hotBind = this.hotBind != null && `${this.hotBind}` !== 'false';
     }
 
-    if (changes.exclude) {
-      this.onStateChange('exclude', changes.exclude);
+    if (changes.filterMode) {
+      const prevIncluded = changes.filterMode.previousValue === 'include';
+      const currIncluded = changes.filterMode.currentValue === 'include';
+      if (currIncluded !== prevIncluded) {
+        this.update();
+      }
+    }
+
+    if (changes.filter) {
+      this.onStateChange('filter', changes.filter);
     }
 
     if (changes.disabledState) {
@@ -408,10 +448,10 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   }
 
   ngDoCheck() {
-    if (this.exclude && this.stateDiffer.exclude) {
-      const diff = this.stateDiffer.exclude.diff(this.exclude);
+    if (this.filter && this.stateDiffer.filter) {
+      const diff = this.stateDiffer.filter.diff(this.filter);
       if (diff) {
-        this.handleDiff('exclude', diff);
+        this.handleDiff('filter', diff);
       }
     }
 
@@ -486,17 +526,15 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     }
   }
 
-  emitArrayActionRequest(renderInstruction: RenderInstruction,
-                         request: Omit<ArrayActionAddRequestEvent, 'tdmForm' | 'fullName' | 'runtimePath'>): void;
-  emitArrayActionRequest(renderInstruction: RenderInstruction,
-                         request: Omit<ArrayActionRemoveRequestEvent, 'tdmForm' | 'fullName' | 'runtimePath'>): void;
-  emitArrayActionRequest(renderInstruction: RenderInstruction,
-                         request: Omit<ArrayActionMoveRequestEvent, 'tdmForm' | 'fullName' | 'runtimePath'>): void;
-  emitArrayActionRequest(renderInstruction: RenderInstruction, request: Partial<ArrayActionRequestEvent>): void {
+  emitArrayActionRequest(request: Omit<ArrayActionAddRequestEvent, 'tdmForm' | 'fullName' | 'runtimePath'>): void;
+  emitArrayActionRequest(request: Omit<ArrayActionEditRequestEvent, 'tdmForm' | 'fullName' | 'runtimePath'>): void;
+  emitArrayActionRequest(request: Omit<ArrayActionRemoveRequestEvent, 'tdmForm' | 'fullName' | 'runtimePath'>): void;
+  emitArrayActionRequest(request: Omit<ArrayActionMoveRequestEvent, 'tdmForm' | 'fullName' | 'runtimePath'>): void;
+  emitArrayActionRequest(request: Partial<ArrayActionRequestEvent>): void {
     // TODO: validate input.
     request.tdmForm = this.tdmForm;
-    request.fullName = renderInstruction.fullName;
-    request.runtimePath = renderInstruction.getRuntimePath(request.formArray);
+    request.fullName = request.renderInstruction.fullName;
+    request.runtimePath = request.renderInstruction.getRuntimePath(request.formArray);
     this.arrayActionRequest$.emit(<any> request);
   }
 
@@ -534,20 +572,20 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     this.overrideMap.clear();
 
     const overrides = this.overrides.toArray().concat(this.codeOverrides);
-    const excluded = this.exclude && this.exclude.slice();
     const hiddenState = this.hiddenState && this.hiddenState.slice();
+    const filterMatch = this.filterMode === 'include';
+    const filter = this.filter && this.filter.slice();
+
     const processInstructions = (rd: LocalRenderInstruction) => {
       const fullPath: string = rd.fullName;
-      if (!excluded || !this.isStaticPathContainsPath(excluded, fullPath)) {
+      if (!filter || this.isStaticPathContainsPath(filter, fullPath) === filterMatch) {
         let override = overrides.find(ow => ow.dynamicFormOverride === fullPath) || this.wildOverride;
         if (override) {
           this.overrideMap.set(rd, override);
         }
 
         // update hidden state of each item
-        if ( hiddenState && this.isStaticPathContainsPath(hiddenState, fullPath) ) {
-          setDisplay(rd, 'none');
-        }
+        setHidden(rd, !!( hiddenState && this.isStaticPathContainsPath(hiddenState, fullPath) ));
         controlsMap[fullPath] = rd;
         controls.push(rd);
       }
@@ -588,7 +626,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    * all of the address object is blocked. Current state is full check for all children of address.
    */
   private isStaticPathContainsPath(pathList: string[], fullPath: string): boolean {
-    const idx = pathList.findIndex( p => fullPath.indexOf(p) === 0);
+    const idx = pathList.findIndex( p => p === fullPath || fullPath.indexOf(p + '.') === 0 );
     if (idx > -1) {
       const nextChar = fullPath[pathList[idx].length];
       return !nextChar || nextChar === '.';
@@ -721,19 +759,19 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
         diff.forEachRemovedItem( record => this.getControl(record.item).enable());
         this.freezeValueChanges = false;
         break;
-      case 'exclude':
+      case 'filter':
         this.update();
         break;
       case 'hidden':
         diff.forEachAddedItem( record => {
           const item = this.findRenderInstructionByKey(record.item);
-          if (item && setDisplay(item, 'none')) {
+          if (item && setHidden(item, true)) {
             this.update();
           }
         });
         diff.forEachRemovedItem( record => {
           const item = this.findRenderInstructionByKey(record.item);
-          if (item && setDisplay(item)) {
+          if (item && setHidden(item, false)) {
             this.update();
           }
         });
@@ -770,25 +808,25 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
  * Take's into consideration parent's state when computing the child's state.
  * returns `true` when the operation included changes in children
  */
-function setDisplay(ri: LocalRenderInstruction, value?: 'none'): boolean {
-  if (ri.display !== value) {
-    ri._dSelf = !!value;
-    ri.display = ri._dSelf || ri._dParent ? 'none' : undefined;
+function setHidden(ri: LocalRenderInstruction, value: boolean): boolean {
+  if (ri.hidden !== value) {
+    ri._dSelf = value;
+    ri.hidden = ri._dSelf || ri._dParent;
     return tryRunOnChildren(ri, ri._dSelf);
   }
   return false;
 }
 
-function setDisplayParent(ri: LocalRenderInstruction, value: boolean): void {
+function setHiddenParent(ri: LocalRenderInstruction, value: boolean): void {
   ri._dParent = value;
-  ri.display = ri._dSelf || ri._dParent ? 'none' : undefined;
+  ri.hidden = ri._dSelf || ri._dParent;
   tryRunOnChildren(ri, value);
 }
 
 function tryRunOnChildren(ri: LocalRenderInstruction, value: boolean): boolean {
   const children = ri.isVirtual ? ri.virtualChildren : ri.isArray ? ri.children : undefined;
   if (children) {
-    children.forEach( child => setDisplayParent(<any> child, value) );
+    children.forEach( child => setHiddenParent(<any> child, value) );
     return true;
   }
 }

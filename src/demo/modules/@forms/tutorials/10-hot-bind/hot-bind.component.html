@@ -1,0 +1,12 @@
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md'}]:true"></tdm-markdown-view>
+
+<form-wrapper [jsonView]="true" title="Hot Bind"
+              [code]="code | async | tdmCode:[{title: 'Component'}, {title: 'Template', section: 'tdmDemo'}, {title: 'Model'}]">
+  <!--@tdm-example:tdmDemo-->
+  <div class="custom-form-actions">
+    <mat-slide-toggle [checked]="hotBind"
+                      (change)="hotBind = !!$event.checked">Toggle Hot Bind</mat-slide-toggle>
+  </div>
+  <dynamic-form [model]="model" [hotBind]="hotBind"></dynamic-form>
+  <!--@tdm-example:tdmDemo-->
+</form-wrapper>

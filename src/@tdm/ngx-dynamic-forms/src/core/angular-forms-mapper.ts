@@ -291,11 +291,26 @@ export class NgFormsSerializeMapper extends SerializeMapper {
       value = formProp.defaultValue;
     }
 
+    // we set to null, undefined will go under required validation (see `isEmptyInputValue` in @angular/forms)
+    if (isUndefined(value)) {
+      value = null;
+    }
+
     const { rtType } = formProp;
     const isArray = Array.isArray(value) || ( ignoreArray ? false : rtType && rtType.isArray );
     let ctrl: AbstractControl;
 
-    if (formProp.childForm === true && rtType && rtType.ref) {
+    if (formProp.flatten) {
+      value = value ? this.plainMapper.serialize(value) : (isArray ? [] : {});
+      if (isArray) {
+        ctrl = new FormArray([]);
+        for (let item of value) {
+          (ctrl as FormArray).push(this.createControl(formProp, item, true));
+        }
+      } else {
+        ctrl = this.createFlatten(formProp.flatten, value);
+      }
+    } else if (formProp.childForm === true && rtType && rtType.ref) {
       const hasTarget = targetStore.hasTarget(rtType.ref);
       if (isArray) {
         ctrl = new FormArray([]);
@@ -305,17 +320,11 @@ export class NgFormsSerializeMapper extends SerializeMapper {
           }
         }
       } else {
-        ctrl = hasTarget ? this.serializeChild(rtType, value) : objectToForm(value);
-      }
-    } else if (formProp.flatten) {
-      value = value ? this.plainMapper.serialize(value) : (isArray ? [] : {});
-      if (isArray) {
-        ctrl = new FormArray([]);
-        for (let item of value) {
-          (ctrl as FormArray).push(this.createControl(formProp, item, true));
+        if (value) {
+          ctrl = hasTarget ? this.serializeChild(rtType, value) : objectToForm(value);
+        } else {
+          ctrl = new FormControl();
         }
-      } else {
-        ctrl = this.createFlatten(formProp.flatten, value);
       }
     } else {
       if (isArray) {
@@ -434,69 +443,82 @@ export class NgFormsSerializeMapper extends SerializeMapper {
     if (Array.isArray(value)) {
       throw new Error('provided value is an array instance which is not allowed.');
     }
-    const path: string[] = Array.isArray(prop) ? [prop[0], ...prop[1].split('.')].filter( s => !!s ) : [prop];
-
-    const formModel = targetStore.getMetaFor(type, FormModelMetadata, true);
-    if (!formModel) {
-      throw new Error(`Target '${stringify(type)}' is not a registered FormModel`);
-    }
-
-    const key = path.shift();
-    let formProp = formModel.getProp(key);
-    if (!formProp) {
-      throw new Error(`Target '${stringify(type)}' does not have a PropForm decorator for property ${key}`);
-    }
-    let typeMeta = formProp.rtType;
-    if (!typeMeta) {
-      const propMeta = targetStore.getMetaFor(type, PropMetadata, key);
-      formProp.rtType = typeMeta = propMeta.type;
-    }
-
-    /*  At this point there are several scenarios:
-          1. `prop` is a non-deep property path (e.g. "myProp")
-             This is the simple scenario, we just create the control for the type & form metadata resolved from
-             the property. If the [[FormMetadata]] instance is a childForm or a flatten expression it will be handled
-             by the serializer.
-
-          2. `prop` is a deep, property path (e.g. "myProp.nest.value.somewhere")
-              This is a bit more complex and depends on the [[FormMetadata]] configuration.
-
-                - When [[FormMetadata.childForm]] is `true`:
-
-                  We need to extract the type and call [[NgFormsSerializeMapper#createControl]] again (static method)
-                  with the new type and a new path, the new path is a left-shift of the current path.
-                  Example: Given the mode/resource `MyModel`, when resolving path "myProp.nest.value.somewhere"
-                           where "myProp" is a known model/resource `MyOtherModel` we first call:
-                              - `NgFormsSerializeMapper.createControl(MyModel, ['myProp', 'vnest.value.somewhere']);`
-                           inside [[NgFormsSerializeMapper.createControl]] we detect `myProp` has `childForm: true` and
-                           that it's type is a known model/resource `MyOtherModel` so we recursively call:
-                           `NgFormsSerializeMapper.createControl(MyOtherModel, ['nest', 'value.somewhere'], value);`
-
-                - When [[FormMetadata.flatten]] is set:
-
-                  We resolve the deep path to get the [[FormMetadata]] it points to (if path is invalid we throw).
-                  Once we get the [[FormMetadata]] instance we use it to get the control.
-
-     */
-    if (path.length > 0) {
-      if (formProp.childForm) {
-        if (!targetStore.hasTarget(typeMeta.ref)) {
-          // tslint:disable-next-line
-          throw new Error(`Error trying deep access with a "childForm" found in path section "${key}", "${typeMeta.ref}" is not a registered model`);
-        }
-        return NgFormsSerializeMapper.createControl(typeMeta.ref, [path.shift(), path.join('.')], value);
-      } else if (formProp.flatten) {
-        while (formProp.flatten && path.length > 0) {
-          formProp = formProp.flatten[path.shift()];
-        }
-        if (path.length > 0) {
-          throw new Error(`Error trying deep access to a flatten expression ${(prop as string[]).join('.')}`);
-        }
-      }
-    }
-
+    const formProp = deepGetFormProp(type, prop);
     return <any> new NgFormsSerializeMapper(undefined).createControl(formProp, value, true);
   }
+
+  static getFormProp: <T, Z>(type: Z & Constructor<T>,
+                             prop: keyof T | [keyof T, string]) => FormPropMetadata = deepGetFormProp;
+}
+
+function deepGetFormProp<T, Z>(type: Z & Constructor<T>,
+                               prop: keyof T | [keyof T, string]): FormPropMetadata {
+
+  const path: string[] = Array.isArray(prop) ? [prop[0], ...prop[1].split('.')].filter( s => !!s ) : [prop];
+
+  const formModel = targetStore.getMetaFor(type, FormModelMetadata, true);
+  if (!formModel) {
+    throw new Error(`Target '${stringify(type)}' is not a registered FormModel`);
+  }
+
+  const key = path.shift();
+  let formProp = formModel.getProp(key);
+  if (!formProp) {
+    throw new Error(`Target '${stringify(type)}' does not have a PropForm decorator for property ${key}`);
+  }
+
+  /*  At this point there are several scenarios:
+      1. `prop` is a non-deep property path (e.g. "myProp")
+         This is the simple scenario, we return the formProp
+
+      2. `prop` is a deep, property path (e.g. "myProp.nest.value.somewhere")
+          This is a bit more complex and depends on the [[FormMetadata]] configuration.
+
+            - When [[FormMetadata.flatten]] is set:
+
+              We resolve the deep path to get the [[FormMetadata]] it points to (if path is invalid we throw).
+              Once we get the [[FormMetadata]] instance we use it.
+
+            - When [[FormMetadata.childForm]] is `true`:
+
+              We need to extract the type and call deepGetFormProp again
+              with the new type and a new path, the new path is a left-shift of the current path.
+              Example: Given the model/resource `MyModel`, when resolving path "myProp.nest.value.somewhere"
+                       where "myProp" is a known model/resource `MyOtherModel` we first call:
+                          - `deepGetFormProp(MyModel, ['myProp', 'nest.value.somewhere']);`
+                       inside deepGetFormProp we detect `myProp` has `childForm: true` and
+                       that it's type is a known model/resource `MyOtherModel` so we recursively call:
+                       `deepGetFormProp(MyOtherModel, ['nest', 'value.somewhere'], value);`
+ */
+
+  if (formProp.flatten) {
+    while ( formProp.flatten && path.length > 0 ) {
+      formProp = formProp.flatten[ path.shift() ];
+    }
+    if ( path.length > 0 ) {
+      throw new Error(`Error trying deep access to a flatten declaration ${(prop as string[]).join('.')}`);
+    } else if ( formProp.childForm ) {
+      if ( !formProp.rtType ) {
+        // tslint:disable-next-line
+        throw new Error(`Error trying deep access to a flatten declaration, "rtType" is not set but "childForm" is in section "${key}"`);
+      }
+    }
+  }
+
+  let typeMeta = formProp.rtType;
+  if (!typeMeta) {
+    const propMeta = targetStore.getMetaFor(type, PropMetadata, key);
+    formProp.rtType = typeMeta = propMeta.type;
+  }
+  if (formProp.childForm && path.length > 0) {
+    if (!targetStore.hasTarget(typeMeta.ref)) {
+      // tslint:disable-next-line
+      throw new Error(`Error trying deep access with a "childForm" found in path section "${key}", "${typeMeta.ref}" is not a registered model`);
+    }
+    return deepGetFormProp(typeMeta.ref, [path.shift(), path.join('.')]);
+  }
+
+  return formProp;
 }
 
 // tslint:disable-next-line

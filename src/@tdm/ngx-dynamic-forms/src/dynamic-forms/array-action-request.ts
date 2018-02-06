@@ -1,6 +1,10 @@
 import { FormArray } from '@angular/forms';
 import { TDMModelForm } from '../tdm-model-form/tdm-model-form';
+import { RenderInstruction } from '../tdm-model-form/render-instruction';
+
 export interface ArrayActionRequest {
+  renderInstruction: RenderInstruction;
+
   /**
    * The [[FormArray]] instance that is the target for this action.
    */
@@ -29,22 +33,44 @@ export interface ArrayActionRequest {
 }
 
 export interface ArrayActionMoveRequestEvent extends ArrayActionRequest {
-  type: 'move';
+  action: 'move';
+  /**
+   * The index where the item is currently at
+   */
   fromIdx: number;
+  /**
+   * The index where to move the item.
+   */
   toIdx: number;
 }
 
 export interface ArrayActionAddRequestEvent extends ArrayActionRequest {
-  type: 'add';
+  action: 'add';
+  /**
+   * Location to add to, optional.
+   * When not set will be added last.
+   */
   atIdx?: number;
 }
 
 export interface ArrayActionRemoveRequestEvent extends ArrayActionRequest {
-  type: 'remove';
+  action: 'remove';
+  /**
+   * The index where to remove the item from.
+   */
+  atIdx: number;
+}
+
+export interface ArrayActionEditRequestEvent extends ArrayActionRequest {
+  action: 'edit';
+  /**
+   * The index where of the item to edit
+   */
   atIdx: number;
 }
 
 export type ArrayActionRequestEvent =
   | ArrayActionMoveRequestEvent
   | ArrayActionAddRequestEvent
-  | ArrayActionRemoveRequestEvent;
+  | ArrayActionRemoveRequestEvent
+  | ArrayActionEditRequestEvent;

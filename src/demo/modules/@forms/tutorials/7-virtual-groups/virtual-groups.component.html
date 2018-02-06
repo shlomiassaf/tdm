@@ -7,14 +7,15 @@
     <h1>Section: User Name</h1>
     <dynamic-form #dynFormMaster
                   [model]="model"
-                  [exclude]="['hasTracking', 'doubleAgent', 'bmi', 'superPower']"></dynamic-form>
+                  filterMode="include"
+                  [filter]="['id', 'name']"></dynamic-form>
     <br>
   </div><!--@tdm-ignore-line-->
 
   <div ngProjectAs="dynamic-form"><!--@tdm-ignore-line-->
     <h1>Section: Other</h1>
     <dynamic-form [slaveOf]="dynFormMaster"
-                  [exclude]="['id', 'name']"></dynamic-form>
+                  [filter]="['id', 'name']"></dynamic-form>
     <!--@tdm-example:simple-->
   </div>
 </form-wrapper>
@@ -28,7 +29,8 @@
     <h1>Section: User Name</h1>
     <dynamic-form #dynFormMaster3Way
                   [model]="model"
-                  [exclude]="['hasTracking', 'doubleAgent', 'bmi', 'superPower']"></dynamic-form>
+                  filterMode="include"
+                  [filter]="['id', 'name']"></dynamic-form>
     <br>
   </div><!--@tdm-ignore-line-->
 
@@ -37,11 +39,11 @@
     <mat-tab-group>
       <mat-tab label="BOOLEAN">
         <dynamic-form [slaveOf]="dynFormMaster3Way"
-                      [exclude]="['id', 'name', 'bmi', 'superPower']"></dynamic-form>
+                      [filter]="['id', 'name', 'bmi', 'superPower']"></dynamic-form>
       </mat-tab>
       <mat-tab label="OTHER">
         <dynamic-form [slaveOf]="dynFormMaster3Way"
-                      [exclude]="['id', 'name', 'hasTracking', 'doubleAgent']"></dynamic-form>
+                      [filter]="['id', 'name', 'hasTracking', 'doubleAgent']"></dynamic-form>
       </mat-tab>
     </mat-tab-group>
     <!--@tdm-example:3way-->

@@ -1,0 +1,25 @@
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md'}]:true"></tdm-markdown-view>
+
+<form-wrapper title="Field Sync / Redraw" [code]="code"> <!--@tdm-ignore-line-->
+  <div class="custom-form-actions" *ngIf="! (dynForm?.renderState | async)">
+    <mat-form-field>
+      <mat-select [value]="stateFieldType" (change)="stateFieldType = $event.value">
+        <mat-option value="select">Select</mat-option>
+        <mat-option value="radio">Radio Group</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-button (click)="dynForm.redraw()">REDRAW</button>
+    <button mat-button (click)="fieldSync()">FIELD SYNC</button>
+  </div>
+  <div class="render-state-form-container" ngProjectAs="dynamic-form">
+    <dynamic-form #dynForm
+                  style="display: block"
+                  [model]="model"
+                  [filter]="['base', 'allies', 'basesDestroyed']"
+                  (beforeRender)="beforeRender($event)"></dynamic-form>
+    <div class="ui-block" *ngIf="dynForm?.renderState | async">
+      <mat-spinner></mat-spinner>
+    </div>
+  </div>
+</form-wrapper> <!--@tdm-ignore-line-->

@@ -7,7 +7,8 @@ import {
   TdmCodeViewComponent,
   TdmMarkdownViewComponent,
   TdmPackageWelcomeComponent,
-  TdmFeatureListComponent
+  TdmFeatureListComponent,
+  TdmLedComponent
 } from './components';
 import { CdkDetailRowDirective } from './cdk-detail-row.directive';
 import { DataSourceDirective } from './data-source';
@@ -18,6 +19,7 @@ const DECLARATIONS = [
   TdmMarkdownViewComponent,
   TdmPackageWelcomeComponent,
   TdmFeatureListComponent,
+  TdmLedComponent,
   UiBlock,
   CdkDetailRowDirective,
   DataSourceDirective,

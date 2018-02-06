@@ -6,6 +6,7 @@ import { Injectable } from '@angular/core';
 export interface Tutorial {
   id: string;
   name: string;
+  subHeader?: string;
 }
 
 export interface TutoriableComponent<T> extends Function {

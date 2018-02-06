@@ -89,7 +89,7 @@ export class TempExampleComponent {
       // faking async server call
       event.async(p);
 
-      event.instructions.author.type = 'select';
+      event.instructions.author.vType = 'select';
       event.instructions.author.data = { options: this.users.map( u => ({ value: u, label: u.name}) ) };
 
       setTimeout(() => resolve(), 1000);

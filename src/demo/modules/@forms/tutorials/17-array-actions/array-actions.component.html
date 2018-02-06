@@ -1,0 +1,39 @@
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part1'}]:true"></tdm-markdown-view>
+
+<form-wrapper title="Commit"
+              [code]="code | async | tdmCode:[{title: 'Component'}, {title: 'Template', section: 'tdmDemo'}, {title: 'Model'}]">
+<!--@tdm-example:tdmDemo-->
+  <dynamic-form #dynForm
+                [model]="model"
+                [filter]="['allies', 'basesDestroyed']" filterMode="include"
+                (arrayActionRequest)="onArrayActionRequest($event)"></dynamic-form>
+
+  <button mat-raised-button color="primary"
+          [disabled]="dynForm.form.status !== 'VALID' || !dynForm.form.dirty"
+          (click)="dynForm.tdmForm.commitToModel(true)">SAVE</button>
+  <button mat-button [disabled]="dynForm.form.pristine" (click)="dynForm.tdmForm.reset()">CANCEL</button>
+  <!--@tdm-example:tdmDemo-->
+</form-wrapper>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part2'}]:true"></tdm-markdown-view>
+
+<tdm-markdown-view>
+  <h4>Handling primitives</h4>
+</tdm-markdown-view>
+<tdm-code-view [code]="code | async | tdmCode:[ {file: 'renderer-v4.component.html', section: 'primitive'} ]"></tdm-code-view>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part3'}]:true"></tdm-markdown-view>
+
+<tdm-markdown-view>
+  <h4>Handling Complex data structures</h4>
+</tdm-markdown-view>
+<tdm-code-view [code]="code | async | tdmCode:[ {file: 'renderer-v4.component.html', section: 'complex'} ]"></tdm-code-view>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part4'}]:true"></tdm-markdown-view>
+
+<tdm-markdown-view>
+  <h4>Handling the action raw</h4>
+</tdm-markdown-view>
+<tdm-code-view [code]="code | async | tdmCode:[ {file: 'renderer-v4.component.html', section: 'actionRow'} ]"></tdm-code-view>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part5'}]:true"></tdm-markdown-view>

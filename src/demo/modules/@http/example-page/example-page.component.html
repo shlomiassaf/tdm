@@ -8,9 +8,13 @@
     </mat-nav-list>
   </mat-drawer>
   <mat-drawer-content>
-    <div class="tdm-page-content">
-      <h2 *ngIf="is404">Not found, please select from the list on the left</h2>
-      <span #exampleView></span>
+    <div class="tdm-page">
+      <div class="tdm-page-content">
+        <div>
+          <h2 *ngIf="is404">Not found, please select from the list on the left</h2>
+          <span #exampleView></span>
+        </div>
+      </div>
     </div>
   </mat-drawer-content>
 </mat-drawer-container>

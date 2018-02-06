@@ -14,7 +14,7 @@ import { TDMModelForm } from './tdm-model-form';
  * <div #tdmForm="tdmModelForm" [tdmModelForm]="user">
  *   <form [formGroup]="tdmForm.form" novalidate>
  *     <div *ngFor="let item of tdmForm.renderData; trackBy: tdmForm.trackBy" class="row">
- *       <div [ngSwitch]="item.type" class="row">
+ *       <div [ngSwitch]="item.vType" class="row">
  *         <input *ngSwitchCase="'boolean'" type='checkbox' [formControlName]="item.name">{{ item.label }} />
  *         <input *ngSwitchCase="'text'" type='text' [formControlName]="item.name">{{ item.label }} />
  *         <input *ngSwitchCase="'number'" type='number' [formControlName]="item.name">{{ item.label }} />

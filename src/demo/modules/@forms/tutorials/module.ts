@@ -1,76 +1,124 @@
 import { NgModule } from '@angular/core';
 
-import { DynamicFormsModule } from '@tdm/ngx-dynamic-forms';
+import { MaterialDynamicFormsModule, } from '@tdm/ngx-dynamic-forms/plugin/material';
 import { SharedModule, TutorialService, TutoriableComponent } from '@shared';
-import { DynamicFormElementComponent, DynamicFormRowComponent } from '../dynamic-forms';
 
 import { TempExampleComponent, DynamicFormContainerComponent } from './temp-example';
 import { IntroductionComponent } from './1-introduction';
-import { ArchitectureComponent } from './1a-architecture';
+import { OverviewComponent } from './1a-overview';
 import { SetupComponent } from './2-setup';
 import { CreatingAModelComponent } from './3-creating-a-model';
-import { SimpleRendererComponent, TutorialSimpleRendererComponent } from './4-simple-renderer';
-import { CheckpointComponent } from './5-checkpoint';
-import { TutorialRendererV2Component, ABetterRendererComponent } from './6-a-better-renderer';
+import { ElementMetadataComponent } from './4-element-metadata';
+import { RenderContainerComponent, DynamicFormRowComponent } from './5-renderer-container';
+import { ValidationComponent } from './6-validation';
 import { VirtualGroupsComponent } from './7-virtual-groups';
-import { OverrideComponent } from './override';
-import { ExcludeDisableHiddenStateComponent } from './exclude-disable-hidden-state';
-import { HotBindComponent } from './hot-bind';
-import { BeforeRenderEventComponent } from './before-render-event';
-import { RenderStateEventComponent } from './render-state-event';
-import { FieldSyncRedrawComponent } from './field-sync-redraw';
+import { LocalOverrideComponent } from './8-local-override';
+import { FilterDisableHiddenStateComponent } from './9-filter-disable-hidden-state';
+import { HotBindComponent } from './10-hot-bind';
+import { CommitComponent } from './11-commit';
+import { ControlPanelComponent } from './12-control-panel';
+import { ComplexDataStructuresComponent } from './13-complex-data-structure';
+import { ChildFormComponent } from './14-child-form';
+import { FlatteningComponent } from './15-flattening';
+import { ArraysComponent } from './16-arrays';
+import { ArrayActionsComponent } from './17-array-actions';
+import {
+  BeforeRenderEventComponent,
+  RenderStateEventComponent,
+  FieldSyncRedrawComponent,
+  ValueChangesEventComponent
+} from './events';
+
+import {
+  TheRendererComponent,
+  ExtendingTheRendererComponent,
+  ChildFormRendererComponent,
+  ArrayRendererComponent,
+  ArrayActionRendererComponent,
+
+  RendererV1Component,
+  RendererV2Component,
+  RendererV3Component,
+  RendererV4Component,
+  RendererV5Component
+
+} from './renderer';
+
 import { FormsSharedModule } from '../shared';
 
 const TUTORIALS: Array<TutoriableComponent<any>> = [
   IntroductionComponent,
-  ArchitectureComponent,
+  OverviewComponent,
   SetupComponent,
   CreatingAModelComponent,
-  SimpleRendererComponent,
-  CheckpointComponent,
-  ABetterRendererComponent,
+  ElementMetadataComponent,
+  RenderContainerComponent,
+  ValidationComponent,
   VirtualGroupsComponent,
-
-  OverrideComponent,
-  ExcludeDisableHiddenStateComponent,
+  LocalOverrideComponent,
+  FilterDisableHiddenStateComponent,
   HotBindComponent,
+  CommitComponent,
+  ControlPanelComponent,
+
   BeforeRenderEventComponent,
   RenderStateEventComponent,
-  FieldSyncRedrawComponent
+  FieldSyncRedrawComponent,
+  ValueChangesEventComponent,
+
+  ComplexDataStructuresComponent,
+  ChildFormComponent,
+  FlatteningComponent,
+  ArraysComponent,
+  ArrayActionsComponent,
+
+  TheRendererComponent,
+  ExtendingTheRendererComponent,
+  ChildFormRendererComponent,
+  ArrayRendererComponent,
+  ArrayActionRendererComponent
 ];
 
 const COMPONENTS = [
   TempExampleComponent,
   TUTORIALS,
-  TutorialSimpleRendererComponent,
-  TutorialRendererV2Component
+  DynamicFormRowComponent,
+  RendererV1Component,
+  RendererV2Component,
+  RendererV3Component,
+  RendererV4Component,
+  RendererV5Component
 ];
 
 function isTutorial(value: any): value is TutoriableComponent<any> {
-  return !! (value.tutorial && value.tutorial.name && value.tutorial.id);
+  return !!(value.tutorial && value.tutorial.name && value.tutorial.id);
 }
 
 @NgModule({
-  declarations: [ DynamicFormContainerComponent, DynamicFormElementComponent, DynamicFormRowComponent, COMPONENTS ],
+  declarations: [ DynamicFormContainerComponent, COMPONENTS ],
   imports: [
     SharedModule,
     FormsSharedModule,
-    DynamicFormsModule.forRoot(DynamicFormRowComponent),
+    MaterialDynamicFormsModule.forRoot(),
   ],
   providers: [ TutorialService ],
   exports: [ COMPONENTS ],
   entryComponents: [
     DynamicFormContainerComponent,
     TUTORIALS,
-    TutorialSimpleRendererComponent,
-    TutorialRendererV2Component
+    DynamicFormRowComponent,
+    RendererV1Component,
+    RendererV2Component,
+    RendererV3Component,
+    RendererV4Component,
+    RendererV5Component
   ]
 
 })
 export class FormsTutorialsModule {
   constructor(tutorialService: TutorialService) {
-    for (let c of TUTORIALS) {
-      if (isTutorial(c)) {
+    for ( let c of TUTORIALS ) {
+      if ( isTutorial(c) ) {
         tutorialService.addTutorial(c);
       }
     }

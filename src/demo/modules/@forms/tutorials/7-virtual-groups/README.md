@@ -1,10 +1,11 @@
 <!--@tdm-example:part1-->
-
+# Virtual Groups
 Virtual groups allows splitting the same form instance over multiple
 dynamic forms.
 
 Each dynamic form is therefor a virtual group.
 
+## Master / Slave
 To create a virtual group a master/slave relationship between the
 dynamic forms is required.
 
@@ -24,23 +25,25 @@ Converting them to a master/slave array:
 <dynamic-form [slaveOf]="master"></dynamic-form>
 ```
 
-## `[slaveOf]` rules:
-  - A `[model]` is not allowed when on a slave
+## `[slaveOf]`
+  - Setting a `[model]` is not allowed on a slave dynamic form 
   - Slave's does not emit events and have most of their features turned
   off, you can access them in the master.
-  - Slave form support `exclude` and `override`
+  - Slave form support `filter` and `override`
   - Salve's are just for the UI, all interaction should be done with the
   master.
  
 <div class="info">
-  `exclude` and `override` will be covered by future chapters 
+  `filter` and `override` will be covered in future chapters 
 </div> 
 
 <div class="alert">
   When working with a master/slave setup make sure not to display the
   same form control in more then one dynamic form.
   
-  Sync is not guaranteed and you might experience unexpected results. 
+  Sync is not guaranteed and you might experience unexpected results.
+  
+  Use `filter`. 
 </div>
 
 In the following example the form is split to 2 groups:

@@ -59,22 +59,6 @@ describe('@tdm/ngx-dynamic-forms', () => {
         expect(targetStore.getMetaFor(DemoForm, PropMetadata, 'inForm')).toBeInstanceOf(PropMetadata);
       });
 
-      it('should automatically add basic type when not set', () => {
-
-        @Model()
-        @FormModel()
-        class DemoForm {
-          @FormProp() inFormBool: boolean;
-          @FormProp() inFormNum: number;
-          @FormProp() inFormStr: string;
-        }
-
-        const meta = getFormMeta(DemoForm);
-        expect(meta.getProp('inFormBool').render.type).toEqual('boolean');
-        expect(meta.getProp('inFormNum').render.type).toEqual('number');
-        expect(meta.getProp('inFormStr').render.type).toEqual('text');
-      });
-
       it('should throw when type is not set and no basic type match found', () => {
         function create() {
           class OtherType {}
@@ -82,7 +66,12 @@ describe('@tdm/ngx-dynamic-forms', () => {
           @Model()
           @FormModel()
           class DemoForm {
-            @FormProp() otherType: OtherType;
+            @FormProp({
+              render: {
+                vType: undefined,
+                label: 'label'
+              }
+            }) otherType: OtherType;
           }
         }
 

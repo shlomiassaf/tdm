@@ -7,6 +7,9 @@ import { DynamicFormControlRenderer, TDMModelFormService, TDMModelFormDirective 
 import {
   DynamicFormOverrideDirective,
   DynamicFormControlDirective,
+  DynamicFormArrayComponent,
+  DynamicFormArrayDirective,
+  ForFormArrayDirective,
   DynamicFormComponent,
   FORM_CONTROL_COMPONENT
 } from './dynamic-forms/index';
@@ -14,12 +17,22 @@ import {
 @NgModule({
   declarations: [
     TDMModelFormDirective,
-    DynamicFormOverrideDirective, DynamicFormControlDirective, DynamicFormComponent
+    DynamicFormOverrideDirective,
+    DynamicFormControlDirective,
+    DynamicFormArrayComponent,
+    DynamicFormArrayDirective,
+    ForFormArrayDirective,
+    DynamicFormComponent
   ],
   imports: [CommonModule, ReactiveFormsModule],
   exports: [
     TDMModelFormDirective,
-    DynamicFormOverrideDirective, DynamicFormControlDirective, DynamicFormComponent
+    DynamicFormOverrideDirective,
+    DynamicFormControlDirective,
+    DynamicFormArrayComponent,
+    DynamicFormArrayDirective,
+    ForFormArrayDirective,
+    DynamicFormComponent
   ]
 })
 export class DynamicFormsModule {

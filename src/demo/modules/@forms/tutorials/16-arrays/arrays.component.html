@@ -1,0 +1,22 @@
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md'}]:true"></tdm-markdown-view>
+
+<form-wrapper title="Commit"
+              [code]="code | async | tdmCode:[{title: 'Component'}, {title: 'Template', section: 'tdmDemo'}, {title: 'Model'}]">
+<!--@tdm-example:tdmDemo-->
+  <dynamic-form #dynForm [model]="model" [filter]="['allies', 'basesDestroyed']"></dynamic-form>
+
+  <mat-tab-group ngProjectAs="dynamic-form">
+    <mat-tab label="Allies">
+      <dynamic-form [slaveOf]="dynForm" [filter]="['allies']" filterMode="include"></dynamic-form>
+    </mat-tab>
+    <mat-tab label="Bases Destroyed">
+      <dynamic-form [slaveOf]="dynForm" [filter]="['basesDestroyed']" filterMode="include"></dynamic-form>
+    </mat-tab>
+  </mat-tab-group>
+
+  <button mat-raised-button color="primary"
+          [disabled]="dynForm.form.status !== 'VALID' || !dynForm.form.dirty"
+          (click)="dynForm.tdmForm.commitToModel(true)">SAVE</button>
+  <button mat-button [disabled]="dynForm.form.pristine" (click)="dynForm.tdmForm.reset()">CANCEL</button>
+  <!--@tdm-example:tdmDemo-->
+</form-wrapper>

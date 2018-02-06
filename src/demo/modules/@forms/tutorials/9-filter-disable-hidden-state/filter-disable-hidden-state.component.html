@@ -1,0 +1,133 @@
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part1'}]:true"></tdm-markdown-view>
+
+<form-wrapper title="Filter / Disable / Hidden"
+              [code]="code | async | tdmCode:[{title: 'Component', section: 'tdmDemo'}, {title: 'Template', section: 'tdmDemo'}, {title: 'Model'}]">
+  <!--@tdm-example:tdmDemo-->
+  <div class="custom-form-actions">
+    <label>Filter Mode: </label>
+    <mat-radio-group #filterMode="matRadioGroup" value="exclude">
+      <mat-radio-button value="exclude">Exclude</mat-radio-button>
+      <mat-radio-button value="include">Include</mat-radio-button>
+    </mat-radio-group>
+  </div>
+
+  <dynamic-form [model]="model"
+                [filter]="['superPower']"
+                [filterMode]="filterMode.selected.value"
+                [hiddenState]="['hasTracking']"
+                [disabledState]="['name', 'id']">
+  </dynamic-form>
+  <!--@tdm-example:tdmDemo-->
+</form-wrapper>
+
+<tdm-markdown-view>
+  <p>The following example demonstrates an interactive panel for toggling each of the states</p>
+</tdm-markdown-view>
+<form-wrapper #formWrapper rightDrawerOpened
+              title="Exclude / Disable / Hidden interactive"
+              [code]="code | async | tdmCode:[{title: 'Component', section: 'tdmDemoInteractive'}, {title: 'Template', section: 'tdmDemoInteractive'}, {title: 'Model'}]">
+  <div class="custom-form-actions" *ngIf="!formWrapper.rightDrawerOpened">
+    <button mat-icon-button (click)="formWrapper.rightDrawerOpened = true">
+      OPEN STATE CONSOLE
+      <mat-icon>keyboard_arrow_right</mat-icon>
+    </button>
+  </div>
+  <div class="form-wrapper-right-drawer">
+    <div style="text-align: right">
+      <button mat-icon-button (click)="formWrapper.rightDrawerOpened = false">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <!--@tdm-example:tdmDemoInteractive-->
+    <div class="filter-mode">
+      <label>Filter Mode: </label>
+      <mat-radio-group #filterModeInteractive="matRadioGroup" value="exclude">
+        <mat-radio-button value="exclude">Exclude</mat-radio-button>
+        <mat-radio-button value="include">Include</mat-radio-button>
+      </mat-radio-group>
+    </div>
+    <mat-list dense style="max-width: 400px; min-height: 300px">
+      <mat-list-item>
+        <div fxLayout="row" style="width: 100%;">
+          <div fxFlex="40%"></div>
+          <div fxFlex="20%">{{filterModeInteractive.value === 'include' ? 'Include' : 'Exclude'}}</div>
+          <div fxFlex="20%">Disabled</div>
+          <div fxFlex="20%">Hidden</div>
+        </div>
+      </mat-list-item>
+      <mat-list-item *ngFor="let prop of ['id', 'name', 'hasTracking', 'doubleAgent', 'bmi', 'superPower']">
+        <div fxLayout="row" style="width: 100%;">
+          <div fxFlex="40%">{{prop}}</div>
+          <mat-checkbox fxFlex="20%"
+                        [checked]="controlState.exclude.indexOf(prop) > -1"
+                        (click)="handleControlState(controlState.exclude, prop)"></mat-checkbox>
+          <mat-checkbox fxFlex="20%"
+                        [checked]="controlState.disabled.indexOf(prop) > -1"
+                        (click)="handleControlState(controlState.disabled, prop)"></mat-checkbox>
+          <mat-checkbox fxFlex="20%"
+                        [checked]="controlState.hidden.indexOf(prop) > -1"
+                        (click)="handleControlState(controlState.hidden, prop)"></mat-checkbox>
+        </div>
+      </mat-list-item>
+    </mat-list>
+  </div> <!--@tdm-ignore-line-->
+  <div ngProjectAs="dynamic-form" style="min-height: 300px">
+    <dynamic-form [model]="model"
+                  [filter]="controlState.exclude"
+                  [filterMode]="filterModeInteractive.selected.value"
+                  [disabledState]="controlState.disabled"
+                  [hiddenState]="controlState.hidden">
+    </dynamic-form>
+  </div>
+  <!--@tdm-example:tdmDemoInteractive-->
+</form-wrapper>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part2'}]:true"></tdm-markdown-view>
+
+<form-wrapper #formWrapper2 rightDrawerOpened
+              title="Ignoring validation in an Excluded field"
+              [code]="code | async | tdmCode:[{title: 'Component', section: 'tdmDemoExcludeRequired'}, {title: 'Template', section: 'tdmDemoExcludeRequired'}, {title: 'Model'}]">
+  <div class="custom-form-actions" *ngIf="!formWrapper2.rightDrawerOpened">
+    <button mat-icon-button (click)="formWrapper2.rightDrawerOpened = true">
+      OPEN STATE CONSOLE
+      <mat-icon>keyboard_arrow_right</mat-icon>
+    </button>
+  </div>
+  <div class="form-wrapper-right-drawer">
+    <div style="text-align: right">
+      <button mat-icon-button (click)="formWrapper2.rightDrawerOpened = false">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <!--@tdm-example:tdmDemoExcludeRequired-->
+    <mat-list dense style="max-width: 400px">
+      <mat-list-item>
+        <div fxLayout="row" style="width: 100%;">
+          <div fxFlex="40%"></div>
+          <div fxFlex="20%">Exclude</div>
+          <div fxFlex="20%">Disabled</div>
+          <div fxFlex="20%">Hidden</div>
+        </div>
+      </mat-list-item>
+      <mat-list-item *ngFor="let prop of ['name']">
+        <div fxLayout="row" style="width: 100%;">
+          <div fxFlex="40%">{{prop}}</div>
+          <mat-checkbox fxFlex="20%"
+                        disabled
+                        [checked]="controlStateExcludeDisabled.exclude.indexOf(prop) > -1"></mat-checkbox>
+          <mat-checkbox fxFlex="20%"
+                        [checked]="controlStateExcludeDisabled.disabled.indexOf(prop) > -1"
+                        (click)="handleControlState(controlStateExcludeDisabled.disabled, prop)"></mat-checkbox>
+          <mat-checkbox fxFlex="20%"
+                        disabled
+                        [checked]="controlStateExcludeDisabled.hidden.indexOf(prop) > -1"></mat-checkbox>
+        </div>
+      </mat-list-item>
+    </mat-list>
+  </div> <!--@tdm-ignore-line-->
+  <dynamic-form [model]="modelExcludeDisabled"
+                [filter]="controlStateExcludeDisabled.exclude"
+                [disabledState]="controlStateExcludeDisabled.disabled"
+                [hiddenState]="controlStateExcludeDisabled.hidden"></dynamic-form>
+  <!--@tdm-example:tdmDemoExcludeRequired-->
+</form-wrapper>
