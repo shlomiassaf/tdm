@@ -51,8 +51,11 @@ export class NgFormsBoundMapper<T> {
   private fg: FormGroup;
   private meta: TargetMetadata;
 
-  constructor(private readonly type: Constructor<any>, public readonly instance: T) {
+  constructor(private readonly type: Constructor<any>, public readonly instance: T, formGroup?: FormGroup) {
     this.meta = targetStore.getTargetMeta(type);
+    if (formGroup) {
+      this.fg = formGroup;
+    }
   }
 
   serialize(): FormGroup {

@@ -16,18 +16,24 @@ export {
 
 export {
   RenderInstruction,
-  DynamicFormControlRenderer,
+  DynamicControlRenderContext,
   TDMModelFormDirective,
   TDMModelFormService,
   TDMModelForm
 } from './tdm-model-form/index';
 
+export { FORM_CONTROL_COMPONENT, ControlRenderer, DefaultRenderer, DefaultRendererMap } from './default-renderer';
+
 export {
-  ArrayActionRequestEvent,
-  ArrayActionAddRequestEvent,
-  ArrayActionRemoveRequestEvent,
-  ArrayActionEditRequestEvent,
-  ArrayActionMoveRequestEvent,
+  RENDERER_EVENTS,
+  RendererEvent,
+  RendererEventBase,
+  CustomRendererEvent,
+  ChildFormEditRendererEvent,
+  ArrayAddRendererEvent,
+  ArrayMoveRendererEvent,
+  ArrayRemoveRendererEvent,
+
   DynamicFormComponent,
   DynamicFormControlDirective,
   DynamicFormOverrideDirective,
@@ -35,7 +41,6 @@ export {
   DynamicFormArrayComponent,
   ForFormArrayDirective,
   BeforeRenderEventHandler,
-  FORM_CONTROL_COMPONENT,
   TdmFormChange,
   TdmFormChanges
 } from './dynamic-forms/index';

@@ -3,7 +3,6 @@ import { FORM_CONTROL_COMPONENT } from '@tdm/ngx-dynamic-forms';
 import { Hero } from '../4-element-metadata';
 import { DynamicFormRowComponent } from './renderer/dynamic-form-row.component';
 
-
 @Component({
   selector: 'form-render-container',
   templateUrl: './render-container.component.html',

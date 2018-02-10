@@ -1,4 +1,4 @@
-export * from './array-action-request';
+export * from './renderer-event';
 export { DynamicFormComponent, TdmFormChange, TdmFormChanges } from './dynamic-form.component';
 
 export {
@@ -6,11 +6,9 @@ export {
   DynamicFormOverrideContext
 } from './dynamic-form-override.directive';
 
-export {
-  DynamicFormControlDirective,
-  FORM_CONTROL_COMPONENT
-} from './dynamic-form-control.directive';
+export { DynamicFormControlDirective } from './dynamic-form-control.directive';
 
+export { DynamicControlOutletDirective } from './dynamic-control-outlet.directive';
 export { DynamicFormArrayComponent } from './dynamic-form-array.component';
 export { DynamicFormArrayDirective, ForFormArrayDirective } from './dynamic-form-array.directive';
 

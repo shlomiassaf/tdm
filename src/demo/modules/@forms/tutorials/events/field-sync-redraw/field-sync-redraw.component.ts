@@ -28,20 +28,21 @@ export class FieldSyncRedrawComponent {
     if (superPower) {
       // ASYNC CALLS THAT BLOCK THE WHOLE FORM FROM RENDERING, GOOD FOR GETTING DATA FROM REMOTE SERVER.
       // E.G.: GETTING GROUPS LISTED UNDER A USER, ETC...
+      const existingPowers = superPower.getData('options') || [];
       const p = getSuperPowersAsync().then(newPowers => {
-        const existingPowers = superPower.getData('options') || [];
-        existingPowers.push(...newPowers);
+        if (existingPowers.length !== 10) {
+          existingPowers.push(...newPowers);
+        }
         superPower.mergeData({ options: existingPowers });
       });
       // mark this field as async, no render until promise completes.
       $event.async(p);
-    }
 
-    const existingPowers = superPower.getData('options') || [];
-    if (existingPowers.length !== 10) {
-      this.stateFieldType = superPower.vType = 'select';
-    } else {
-      this.fieldSync();
+      if (existingPowers.length !== 10) {
+        this.stateFieldType = superPower.vType = 'select';
+      } else {
+        this.fieldSync();
+      }
     }
   }
 

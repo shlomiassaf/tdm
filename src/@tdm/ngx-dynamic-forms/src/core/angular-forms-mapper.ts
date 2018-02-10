@@ -299,6 +299,7 @@ export class NgFormsSerializeMapper extends SerializeMapper {
     const { rtType } = formProp;
     const isArray = Array.isArray(value) || ( ignoreArray ? false : rtType && rtType.isArray );
     let ctrl: AbstractControl;
+    const [syncValidator, asyncValidator] = this.getValidators(formProp);
 
     if (formProp.flatten) {
       value = value ? this.plainMapper.serialize(value) : (isArray ? [] : {});
@@ -331,7 +332,7 @@ export class NgFormsSerializeMapper extends SerializeMapper {
         ctrl = new FormArray([]);
         if (Array.isArray(value)) {
           for (let item of value) {
-            (ctrl as FormArray).push(new FormControl(item));
+            (ctrl as FormArray).push(new FormControl(item, syncValidator, asyncValidator));
           }
         }
       } else {
@@ -339,12 +340,11 @@ export class NgFormsSerializeMapper extends SerializeMapper {
       }
     }
 
-    const validators = this.getValidators(formProp);
-    if (validators[0]) {
-      ctrl.setValidators(validators[0]);
+    if (syncValidator) {
+      ctrl.setValidators(syncValidator);
     }
-    if (validators[1]) {
-      ctrl.setAsyncValidators(validators[1]);
+    if (asyncValidator) {
+      ctrl.setAsyncValidators(asyncValidator);
     }
 
     return ctrl;
@@ -398,6 +398,9 @@ export class NgFormsSerializeMapper extends SerializeMapper {
    * property name at the root level (exposed property that `@FormProp` decorates), the second value is a dot notation
    * path to the nested property within the flatten expression / Child model.
    *
+   * When `tryCreateNew` is true, it will try to create new value with the new keyword using the type at the path.
+   * Creating a new value is silent, it will not throw.
+   *
    * For example, in the following flatten expression:
    *
    * ```ts
@@ -439,11 +442,17 @@ export class NgFormsSerializeMapper extends SerializeMapper {
    */
   static createControl<T, Z>(type: Z & Constructor<T>,
                              prop: keyof T | [keyof T, string],
-                             value?: any): FormGroup | FormControl | FormControl {
+                             value?: any,
+                             tryCreateNew?: boolean): FormGroup | FormControl | FormControl {
     if (Array.isArray(value)) {
       throw new Error('provided value is an array instance which is not allowed.');
     }
     const formProp = deepGetFormProp(type, prop);
+    if (tryCreateNew && (isUndefined(value) || value === null)) {
+      try {
+        value = new formProp.rtType.ref();
+      } catch (e) { } // tslint:disable-line
+    }
     return <any> new NgFormsSerializeMapper(undefined).createControl(formProp, value, true);
   }
 

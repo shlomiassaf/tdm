@@ -17,6 +17,11 @@ module.exports = [
     section: 'part3'
   },
   {
+    file: './README.md',
+    autoRender: true,
+    section: 'part4'
+  },
+  {
     file: './flattening.component.ts',
     autoRender: true,
     title: 'Component'
@@ -31,6 +36,16 @@ module.exports = [
     file: './flattening.component.scss',
     autoRender: true,
     title: 'Style'
+  },
+  {
+    file: './other-view.md',
+    autoRender: true,
+    section: 'visualReal'
+  },
+  {
+    file: './other-view.md',
+    autoRender: true,
+    section: 'visualVirtual'
   },
   {
     file: './other-view.md',

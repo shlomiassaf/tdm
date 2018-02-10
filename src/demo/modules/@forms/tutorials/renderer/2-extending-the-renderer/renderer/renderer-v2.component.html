@@ -1,4 +1,4 @@
-<div [ngSwitch]="item.vType" [style.display]="item.hidden ? 'none' : undefined">
+<ng-container *ngIf="!item.isArray" [ngSwitch]="item.vType">
   <mat-checkbox *ngSwitchCase="'boolean'"
                 [formControl]="fControl">{{ item.label }}</mat-checkbox>
 
@@ -20,7 +20,6 @@
                      [formControl]="fControl">
       <mat-radio-button *ngFor="let sel of item.data.options" [value]="sel.value">{{sel.label || sel.value}}</mat-radio-button>
     </mat-radio-group>
-    <mat-error *ngIf="hasError('required')">Required</mat-error>
   </ng-container>
 
   <mat-form-field *ngSwitchCase="'select'">
@@ -35,8 +34,9 @@
     <input matInput
            [type]="item.vType"
            [formControl]="fControl"
-           [placeholder]="item.label">
+           [placeholder]="item.label"
+           [min]="item.data?.min" [max]="item.data?.max">
     <mat-error *ngIf="hasError('required')">Required</mat-error>
   </mat-form-field>
 
-</div>
+</ng-container>

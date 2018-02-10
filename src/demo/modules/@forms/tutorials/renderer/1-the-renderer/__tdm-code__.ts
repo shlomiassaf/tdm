@@ -2,7 +2,7 @@ import { CodeExtractionInstructions } from '@webpack-ext/tdm-code-sample';
 
 module.exports = [
   {
-    id: 'DynamicFormControlRenderer',
+    id: 'DynamicControlRenderContext',
     file: '../../../../../../@tdm/ngx-dynamic-forms/src/tdm-model-form/tdm-model-form.ts',
     autoRender: true,
     slice: [9, 17] // TODO: implement symbol extraction in loader, this is not safe.

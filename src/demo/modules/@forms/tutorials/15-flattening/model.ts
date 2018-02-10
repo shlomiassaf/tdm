@@ -1,4 +1,6 @@
 import { Model, Prop } from '@tdm/ngx-dynamic-forms';
+import { HeroAddress } from '../14-child-form';
+export { HeroAddress } from '../14-child-form';
 
 @Model({
   form: true
@@ -74,6 +76,18 @@ export class Hero {
     }
   })
   superPower: 'selfHealing' | 'flying' | 'cloaking' | 'cloning' | 'invisibility';
+
+  @Prop({
+    form: {
+      required: true,
+      render: {
+        vType: 'form',
+        label: 'Address'
+      },
+      childForm: true
+    }
+  })
+  address: HeroAddress;
 
   @Prop({
     form: {

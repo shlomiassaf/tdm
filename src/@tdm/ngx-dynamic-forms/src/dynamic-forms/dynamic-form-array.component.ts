@@ -1,20 +1,16 @@
 import {
   ComponentFactoryResolver,
   Component,
-  Inject,
   Input,
   ViewContainerRef,
-  Optional,
-  Type,
   ViewChild,
   OnChanges,
   SimpleChanges
 } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
 
-import { TDMModelForm, RenderInstruction, DynamicFormControlRenderer } from '../tdm-model-form/index';
+import { TDMModelForm, RenderInstruction, DynamicControlRenderContext } from '../tdm-model-form/index';
 import { DynamicFormComponent } from './dynamic-form.component';
-import { FORM_CONTROL_COMPONENT } from './dynamic-form-control.directive';
 
 export abstract class DynamicFormArray implements OnChanges {
   dynForm: DynamicFormComponent;
@@ -27,7 +23,6 @@ export abstract class DynamicFormArray implements OnChanges {
   private ready: boolean = false;
 
   constructor(private cfr: ComponentFactoryResolver,
-              private component: Type<DynamicFormControlRenderer>,
               dynForm: DynamicFormComponent<any>) {
     if (dynForm) {
       this.dynForm = dynForm;
@@ -46,14 +41,15 @@ export abstract class DynamicFormArray implements OnChanges {
   private updateControls(): void {
     this.vcRef.clear();
     if (this.ready) {
-      const componentFactory = this.cfr.resolveComponentFactory(this.component);
+      const component = this.dynForm.getComponentRenderer(this.item);
+      const componentFactory = this.cfr.resolveComponentFactory(component);
 
       for (let childControl of this.fArray.controls) {
         for (let childItem of this.item.children) {
           const c = childItem.resolveFormArrayChild(childControl);
           const override = this.dynForm.getOverride(childItem);
           if (override) {
-            const $implicit: DynamicFormControlRenderer  = <any> {
+            const $implicit: DynamicControlRenderContext  = <any> {
               item: childItem,
               fGroup: this.fGroup,
               tdmForm: this.tdmForm,
@@ -62,7 +58,7 @@ export abstract class DynamicFormArray implements OnChanges {
             this.vcRef.createEmbeddedView(
               override.template, { $implicit } );
           } else {
-            const cmpRef = this.vcRef.createComponent<DynamicFormControlRenderer> (
+            const cmpRef = this.vcRef.createComponent<DynamicControlRenderContext> (
               componentFactory,
               this.vcRef.length
             );
@@ -100,8 +96,7 @@ export class DynamicFormArrayComponent extends DynamicFormArray {
   @ViewChild('viewRef', { read: ViewContainerRef }) vcRef: ViewContainerRef;
 
   constructor(cfr: ComponentFactoryResolver,
-              @Inject(FORM_CONTROL_COMPONENT) component: Type<DynamicFormControlRenderer>,
-              @Optional() dynForm: DynamicFormComponent<any>) {
-    super(cfr, component, dynForm);
+              dynForm: DynamicFormComponent<any>) {
+    super(cfr, dynForm);
   }
 }

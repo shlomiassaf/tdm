@@ -1,22 +1,32 @@
-<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md'}]:true"></tdm-markdown-view>
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part1'}]:true"></tdm-markdown-view>
 
-<form-wrapper title="Commit"
+<form-wrapper title="Arrays"
               [code]="code | async | tdmCode:[{title: 'Component'}, {title: 'Template', section: 'tdmDemo'}, {title: 'Model'}]">
 <!--@tdm-example:tdmDemo-->
-  <dynamic-form #dynForm [model]="model" [filter]="['allies', 'basesDestroyed']"></dynamic-form>
+  <div class="form-container-wrapper" ngProjectAs="dynamic-form">
 
-  <mat-tab-group ngProjectAs="dynamic-form">
-    <mat-tab label="Allies">
-      <dynamic-form [slaveOf]="dynForm" [filter]="['allies']" filterMode="include"></dynamic-form>
-    </mat-tab>
-    <mat-tab label="Bases Destroyed">
-      <dynamic-form [slaveOf]="dynForm" [filter]="['basesDestroyed']" filterMode="include"></dynamic-form>
-    </mat-tab>
-  </mat-tab-group>
+    <div class="form-container" [@translateTab]="external.posMaster" [class.active]="external.posMaster === 'center'">
+      <dynamic-form #dynForm
+                    [model]="model"
+                    (rendererEvent)="onRendererEvent($event)"></dynamic-form>
+      <button mat-raised-button color="primary"
+              [disabled]="dynForm.form.status !== 'VALID' || !dynForm.form.dirty"
+              (click)="dynForm.tdmForm.commitToModel(true)">SAVE</button>
+      <button mat-button [disabled]="dynForm.form.pristine" (click)="cancelForm(dynForm)">CANCEL</button>
+    </div>
 
-  <button mat-raised-button color="primary"
-          [disabled]="dynForm.form.status !== 'VALID' || !dynForm.form.dirty"
-          (click)="dynForm.tdmForm.commitToModel(true)">SAVE</button>
-  <button mat-button [disabled]="dynForm.form.pristine" (click)="dynForm.tdmForm.reset()">CANCEL</button>
+    <div *ngFor="let f of external.forms; index as i"
+         [@translateTab]="external.forms[i].pos"
+         [class.active]="external.forms[i].pos === 'center'"
+         class="form-container" >
+      <dynamic-form #d [model]="f.form" (rendererEvent)="onRendererEvent($event)"></dynamic-form>
+      <button mat-raised-button color="primary"
+              [disabled]="d.form.status !== 'VALID' || !d.form.dirty"
+              (click)="closeExternalForm(true)">UPDATE</button>
+      <button mat-button (click)="closeExternalForm(false)">BACK</button>
+    </div>
+  </div>
   <!--@tdm-example:tdmDemo-->
 </form-wrapper>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part2'}]:true"></tdm-markdown-view>

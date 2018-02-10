@@ -117,7 +117,7 @@ export class Hero {
     form: {
       required: true,
       render: {
-        identityKey: 'name',
+        identity: 'name',
         vType: 'form',
         label: 'Base Camp'
       },
@@ -142,7 +142,7 @@ export class Hero {
     form: {
       required: true,
       render: {
-        identityKey: 'name',
+        identity: 'name',
         vType: 'form',
         label: 'Base Camp'
       },

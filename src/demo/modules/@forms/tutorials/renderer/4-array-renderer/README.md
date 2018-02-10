@@ -73,9 +73,9 @@ not the right instruction set, it belong to the array not to each item.
 This can be done in the template manually but "lucky us" the library
 provides `ForFormArrayDirective` which is a specific iteration
 directive on top of `ngFor`, it will do all the work for us and
-transform the control into `DynamicFormControlRenderer`. 
+transform the control into `DynamicControlRenderContext`. 
 
-Once we have the collection of `DynamicFormControlRenderer` we need to
+Once we have the collection of `DynamicControlRenderContext` we need to
 render each of them which requires a recursive operation.
 
 One option is to create `<ng-template>`s within the template and use

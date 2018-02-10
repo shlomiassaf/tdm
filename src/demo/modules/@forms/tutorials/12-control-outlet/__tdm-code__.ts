@@ -12,38 +12,23 @@ module.exports = [
     section: 'part2'
   },
   {
-    file: './README.md',
-    autoRender: true,
-    section: 'part3'
-  },
-  {
-    file: './README.md',
-    autoRender: true,
-    section: 'part4'
-  },
-  {
-    file: './README.md',
-    autoRender: true,
-    section: 'part5'
-  },
-  {
-    file: './array-actions.component.ts',
+    file: './control-outlet.component.ts',
     autoRender: true,
     title: 'Component'
   },
   {
-    file: './array-actions.component.html',
+    file: './control-outlet.component.html',
     autoRender: true,
     title: 'Template',
     section: 'tdmDemo'
   },
   {
-    file: './array-actions.component.scss',
+    file: './control-outlet.component.scss',
     autoRender: true,
     title: 'Style'
   },
   {
-    file: '../16-arrays/model.ts',
+    file: '../4-element-metadata/model.ts',
     autoRender: true,
     title: 'Model'
   }

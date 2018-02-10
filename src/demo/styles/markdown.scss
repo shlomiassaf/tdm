@@ -10,9 +10,15 @@ $font-family: map-get($typography-config, font-family);
   &.overflow-container {
     height: 100%;
     width: 100%;
-    overflow: auto;
+    .markdown-content {
+      width: 100%;
+      height: 100%;
+    }
     pre {
-      overflow: visible;
+      height: 100%;
+      width: 100%;
+      overflow: auto;
+      box-sizing: border-box;
     }
   }
 

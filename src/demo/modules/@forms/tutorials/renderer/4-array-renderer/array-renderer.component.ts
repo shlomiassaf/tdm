@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FORM_CONTROL_COMPONENT } from '@tdm/ngx-dynamic-forms'; /* @tdm-ignore-line */
-import { RendererV3Component } from './renderer/renderer-v3.component'; /* @tdm-ignore-line */
+import { RendererV4Component } from './renderer/renderer-v4.component'; /* @tdm-ignore-line */
 import { Hero } from './model';
 
 @Component({
@@ -9,7 +9,7 @@ import { Hero } from './model';
   styleUrls: [ './array-renderer.component.scss' ],
   /* @tdm-ignore:* */
   providers: [
-    { provide: FORM_CONTROL_COMPONENT, useValue: RendererV3Component }
+    { provide: FORM_CONTROL_COMPONENT, useValue: RendererV4Component }
   ]
   /* @tdm-ignore:* */
 })

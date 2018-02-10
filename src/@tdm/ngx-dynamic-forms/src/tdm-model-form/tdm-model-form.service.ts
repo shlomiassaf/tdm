@@ -1,4 +1,5 @@
 import { Injectable, Type } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { targetStore, PropMetadata } from '@tdm/core/tdm';
 import { TDMModelForm } from './tdm-model-form';
 import { RenderInstruction } from './render-instruction';
@@ -45,9 +46,13 @@ export class TDMModelFormService {
     return this.cache.get(type) || this._getInstructions(type);
   }
 
-  create<T>(instance: T, type?: Type<T>): TDMModelForm<T> {
+  create<T>(instance: T): TDMModelForm<T>;
+  create<T>(instance: T, type: Type<T>): TDMModelForm<T>;
+  create<T>(instance: T, formGroup: FormGroup): TDMModelForm<T>;
+  create<T>(instance: T, type: Type<T>, formGroup: FormGroup): TDMModelForm<T>;
+  create<T>(instance: T, type?: Type<T> | FormGroup, formGroup?: FormGroup): TDMModelForm<T> {
     const tdmModelForm = new TDMModelForm<T>(this);
-    tdmModelForm.setContext(instance, type);
+    tdmModelForm.setContext(instance, <any> type, formGroup);
     return tdmModelForm;
   }
 

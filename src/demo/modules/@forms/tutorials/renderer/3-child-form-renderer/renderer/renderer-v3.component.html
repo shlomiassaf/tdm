@@ -1,46 +1,48 @@
-<ng-container *ngIf="!item.isArray" [ngSwitch]="item.vType">
+<div *ngIf="!item.isArray;" [ngSwitch]="item.vType" [style.display]="item.hidden ? 'none' : undefined">
   <mat-checkbox *ngSwitchCase="'boolean'"
-               [formControl]="fControl">{{ showLabels && item.label }}</mat-checkbox>
+                [formControl]="fControl">{{ item.label }}</mat-checkbox>
 
   <mat-slide-toggle *ngSwitchCase="'slideToggle'"
-                   [formControl]="fControl">{{ showLabels && item.label }}</mat-slide-toggle>
+                    [formControl]="fControl">{{ item.label }}</mat-slide-toggle>
 
   <ng-container *ngSwitchCase="'slider'">
-    <span *ngIf="showLabels">{{item.label}}</span>
+    <span>{{item.label}}</span>
     <mat-slider [formControl]="fControl"
-               thumbLabel="true"
-               [tickInterval]="1"
-               [min]="item.data?.min" [max]="item.data?.max"></mat-slider>
-  </ng-container>
-
-
-  <ng-container *ngSwitchCase="'form'">
-    <dynamic-form *ngIf="tdmForm.model[item.name]" [model]="tdmForm.model[item.name]"></dynamic-form>
+                thumbLabel="true"
+                [tickInterval]="1"
+                [min]="item.data?.min" [max]="item.data?.max"></mat-slider>
   </ng-container>
 
   <ng-container *ngSwitchCase="'radio'">
-    <span *ngIf="showLabels">{{item.label}}</span>
+    <span>{{item.label}}</span>
     <mat-radio-group *ngSwitchCase="'radio'"
                      [class.vertical-mat-radio-group]="item.data?.vertical"
                      [formControl]="fControl">
       <mat-radio-button *ngFor="let sel of item.data.options" [value]="sel.value">{{sel.label || sel.value}}</mat-radio-button>
     </mat-radio-group>
+    <mat-error *ngIf="hasError('required')">Required</mat-error>
   </ng-container>
 
   <mat-form-field *ngSwitchCase="'select'">
     <mat-select [formControl]="fControl"
-                [placeholder]="showLabels && item.label">
+                [placeholder]="item.label">
       <mat-option *ngFor="let sel of item.data.options" [value]="sel.value">{{sel.label || sel.value}}</mat-option>
     </mat-select>
+    <mat-error *ngIf="hasError('required')">Required</mat-error>
   </mat-form-field>
+
+  <ng-container *ngSwitchCase="'form'">
+    <a mat-button (click)="editChildFrom()">{{item.label}}</a>
+    <span>{{fGroup.get(item.name + '.' + item.identity)?.value}}</span>
+    <dynamic-form *ngIf="externalTdmForm" [model]="externalTdmForm"></dynamic-form>
+  </ng-container>
 
   <mat-form-field *ngSwitchDefault>
     <input matInput
            [type]="item.vType"
            [formControl]="fControl"
-           [placeholder]="showLabels && item.label"
-           [min]="item.data?.min" [max]="item.data?.max">
+           [placeholder]="item.label">
     <mat-error *ngIf="hasError('required')">Required</mat-error>
   </mat-form-field>
 
-</ng-container>
+</div>

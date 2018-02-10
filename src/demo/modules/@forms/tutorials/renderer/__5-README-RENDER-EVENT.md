@@ -77,7 +77,7 @@ And in the component:
 </div>
 
 ## Renderer facing API
-The renderer use's the `emitArrayActionRequest` method on the dynamic
+The renderer use's the `emitRendererEvent` method on the dynamic
 form instance. The method accepts an object describing the action and
 it will extend that action and notify the host.
 
@@ -120,16 +120,16 @@ export interface ArrayActionRequest {
 }
 ```
 
-`emitArrayActionRequest` accepts a partial of `ArrayActionRequestEvent`
+`emitRendererEvent` accepts a partial of `ArrayActionRequestEvent`
 which have the properties `tdmForm, fullName, runtimePath` omitted.
  
-We mentioned that `emitArrayActionRequest` extends the event object, it
+We mentioned that `emitRendererEvent` extends the event object, it
 will add this properties back and emit the full version of `ArrayActionRequestEvent`
 
 For example, to add an item:
 
 ```ts
-this.dynForm.emitArrayActionRequest({
+this.dynForm.emitRendererEvent({
   action: 'add',
   renderInstruction: this.item,  
   formArray: this.fArray
@@ -139,7 +139,7 @@ this.dynForm.emitArrayActionRequest({
 Remove:
 ```ts
 const INDEX_TO_REMOVE = 1;
-this.dynForm.emitArrayActionRequest({
+this.dynForm.emitRendererEvent({
   action: 'remove',
   renderInstruction: item,
   formArray: this.fArray,

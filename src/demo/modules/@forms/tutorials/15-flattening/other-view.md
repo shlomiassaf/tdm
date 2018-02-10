@@ -1,3 +1,41 @@
+<!--@tdm-example:visualReal-->
+```ts
+export class Hero {
+  id: number;
+  name: string;
+  hasTracking: boolean;
+  doubleAgent: boolean;
+  bmi: number;
+  superPower: 'selfHealing' | 'flying' | 'cloaking' | 'cloning' | 'invisibility';
+  base: {
+    name: string;
+    coordinates: {
+      lng: number;
+      lat: number;
+    }
+  };
+}
+```
+<!--@tdm-example:visualReal-->
+<!--@tdm-example:visualVirtual-->
+```ts
+export class Hero {
+  id: number;
+  name: string;
+  hasTracking: boolean;
+  doubleAgent: boolean;
+  bmi: number;
+  superPower: 'selfHealing' | 'flying' | 'cloaking' | 'cloning' | 'invisibility';
+  
+  baseName: string;
+  
+  baseLng: number;
+  baseLat: number;
+  
+  
+}
+```
+<!--@tdm-example:visualVirtual-->
 <!--@tdm-example:coordinates-->
 
 ```ts

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FORM_CONTROL_COMPONENT } from '@tdm/ngx-dynamic-forms'; /* @tdm-ignore-line */
-import { RendererV5Component } from '../renderer'; /* @tdm-ignore-line */
-import { ArrayActionRequestEvent } from '@tdm/ngx-dynamic-forms';
+import { DynamicFormRowComponent } from '../5-renderer-container'; /* @tdm-ignore-line */
+import { DynamicControlRenderContext } from '@tdm/ngx-dynamic-forms';
 import { Hero } from './model';
 
 @Component({
@@ -10,27 +10,34 @@ import { Hero } from './model';
   styleUrls: [ './child-form.component.scss' ],
   /* @tdm-ignore:* */
   providers: [
-    { provide: FORM_CONTROL_COMPONENT, useValue: RendererV5Component }
+    { provide: FORM_CONTROL_COMPONENT, useValue: DynamicFormRowComponent }
   ]
   /* @tdm-ignore:* */
 })
 export class ChildFormComponent {
+  code: any = System.import(/* webpackChunkName: "ChildFormComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
   model = new Hero();
+  rightDrawerOpened: boolean;
 
-  onArrayActionRequest(event: ArrayActionRequestEvent): void {
-    if ( event.action === 'add' ) {
-      // we need to create a form control instance, it can be FormControl but can also be FormGroup or FormArray
-      // we need to the serializer for that, so we use the helper function on [[TDMModelForm]]
-      event.tdmForm.appendControl(event.fullName);
-      event.formArray.markAsDirty();
-    } else if ( event.action === 'remove' ) {
-      event.formArray.removeAt(event.atIdx);
-      event.formArray.markAsDirty();
-    } else if ( event.action === 'edit' ) {
-
+  editExternalForm(ctx: DynamicControlRenderContext): void {
+    this.rightDrawerOpened = true;
+    if (ctx.fControl.value === null) {
+      const heroAddressFormGroup = ctx.tdmForm.createControl(ctx.item.fullName, null, true);
+      ctx.fGroup.setControl(ctx.item.name, heroAddressFormGroup);
+      ctx.item.markAsChanged();
     }
   }
-  code: any = System.import(/* webpackChunkName: "ChildFormComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
+
+  hasError(errorName: string, ctx: DynamicControlRenderContext): boolean {
+    if ( ctx.fControl ) {
+      return ctx.fControl.hasError(errorName);
+    } else if ( ctx.fArray ) {
+      return ctx.fArray.hasError(errorName);
+    } else if ( ctx.fGroup ) {
+      return ctx.fGroup.hasError(errorName);
+    }
+    return false;
+  }
   /* @tdm-ignore:* */
   static tutorial = {
     id: 'child-form',

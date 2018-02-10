@@ -1,2 +1,2 @@
 export { ChildFormComponent } from './child-form.component';
-export { BaseCamp, Hero } from './model';
+export { HeroAddress, Hero } from './model';

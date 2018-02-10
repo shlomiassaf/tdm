@@ -7,6 +7,7 @@ import { filter } from 'rxjs/operators';
 import {
   Component,
   Input,
+  Inject,
   EventEmitter,
   Output,
   ContentChildren,
@@ -20,21 +21,20 @@ import {
   IterableDiffers,
   KeyValueDiffer,
   KeyValueDiffers,
-  KeyValueChangeRecord, ElementRef, ViewChild, Renderer2, AfterViewInit, DoCheck, OnChanges, SimpleChanges, SimpleChange
+  KeyValueChangeRecord,
+  ElementRef,
+  ViewChild, Renderer2, AfterViewInit, DoCheck, OnChanges, SimpleChanges, SimpleChange
 } from '@angular/core';
 import { AbstractControl, FormGroup } from '@angular/forms';
 
-import { Omit } from '@tdm/core/tdm';
+import { Omit, isFunction } from '@tdm/core/tdm';
+import { FormElementType } from '../interfaces';
+import { FORM_CONTROL_COMPONENT, ControlRenderer, DefaultRenderer, DefaultRendererMap } from '../default-renderer';
 import { TDMModelForm, TDMModelFormService, RenderInstruction } from '../tdm-model-form/index';
 import { DynamicFormOverrideDirective, DynamicFormOverrideContext } from './dynamic-form-override.directive';
+import { DynamicControlOutletDirective } from './dynamic-control-outlet.directive';
 import { BeforeRenderEventHandler } from './before-render-event-handler';
-import {
-  ArrayActionRequestEvent,
-  ArrayActionAddRequestEvent,
-  ArrayActionMoveRequestEvent,
-  ArrayActionEditRequestEvent,
-  ArrayActionRemoveRequestEvent
-} from './array-action-request';
+import { RendererEvent } from './renderer-event';
 
 export interface LocalRenderInstruction extends RenderInstruction {
   /**
@@ -70,7 +70,7 @@ export type TdmFormChanges = TdmFormChange[];
 type StateKeys = 'filter' | 'disabled' | 'hidden';
 
 /**
- * Allow rendering a form using @tdm/ngx-dynamic-forms and DynamicFormElementComponent
+ * Allow rendering a form using @tdm/ngx-dynamic-forms and MaterialFormControlRenderer
  */
 @Component({
   selector: 'dynamic-form',
@@ -144,9 +144,13 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
 
     if (value instanceof TDMModelForm) {
       if (this.tdmForm) {
-        throw new Error(
-          'Can not set a model using a TDMModelForm instance when a previous TDMModelForm instance exist'
-        );
+        if (this.tdmForm === value) {
+          return;
+        } else {
+          throw new Error(
+            'Can not set a model using a TDMModelForm instance when a previous TDMModelForm instance exist'
+          );
+        }
       }
       this.instance = value.model;
       this.type = value.type;
@@ -206,7 +210,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     this.instance = dynForm.instance;
     this.type = dynForm.type;
     this.slaveMode = true;
-    this.arrayActionRequest$.subscribe( e => dynForm.arrayActionRequest$.emit(e) );
+    this.rendererEvent$.subscribe( e => dynForm.rendererEvent$.emit(e) );
   }
 
   /**
@@ -329,25 +333,16 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   @Output() renderState: Observable<boolean>;
 
   /**
-   * Event emitted when an internal request to add/remove/move an item from a [[FormArray]] is submitted.
-   * Array actions request are not managed by the library, this API exists to allow flexibility when handling
-   * form arrays.
+   * An notification stream dedicated to the renderer.
    *
-   * Components that implement [[DynamicFormControlRenderer]] and are set to be used by <dynamic-form> are responsible
-   * for array action request submission.
-   * This is because they implement the way a form array looks, they might implement multiple list styles some editable
-   * and some not. They encapsulate buttons and so have access to click events.
-   * These components must implement [[DynamicFormControlRenderer]] and so they have access to the API.
+   * A renderer implementation can use this stream to emit notification to the host of a dynamic form.
    *
-   * An implementation might choose to emit events so handlers on the outside can handle the logic for add/remove/move
-   * or it can be a local implementation without exposing events, this is up to the developer.
+   * For example, instead of a child form being displayed by the renderer the renderer can emit a
+   * [[ChildFormEditRendererEvent]] event and let the host display the child form.
    *
-   * This event should be treated as external and handled by the developer.
-   *
-   * > Developers should use the `emitArrayActionRequest` method in this class to invoke events, the method requires a
-   * partial event object as input and will complete the missing information.
+   * There are several fixed event and a custom event, see [[RendererEvent]] for more details.
    */
-  @Output() arrayActionRequest: Observable<ArrayActionRequestEvent>;
+  @Output() rendererEvent: Observable<RendererEvent>;
 
   /**
    * The active render instructions for this instance, active instructions does not include instruction that were
@@ -372,10 +367,15 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   private rendering$ = new BehaviorSubject<boolean>(false);
   private _ngNativeValidate: any = false;
   private slaveMode: boolean;
+  private outlets: Set<DynamicControlOutletDirective> = new Set<DynamicControlOutletDirective>();
   private overrideMap = new Map<RenderInstruction, DynamicFormOverrideDirective>();
+  private outletMap = new Map<RenderInstruction, DynamicControlOutletDirective>();
   private wildOverride: DynamicFormOverrideDirective;
-  private arrayActionRequest$ = new EventEmitter<ArrayActionRequestEvent>();
+  private rendererEvent$ = new EventEmitter<RendererEvent>();
   private renderInstructions: RenderInstruction[];
+
+  private controlRenderer: DefaultRendererMap;
+  private defaultControlRenderer: ControlRenderer;
 
   /**
    * Indicates the number of update() calls that are running/queued
@@ -388,11 +388,38 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   private codeOverrides: DynamicFormOverrideDirective[] = [];
 
   constructor(private tdmModelFormService: TDMModelFormService,
+              @Inject(FORM_CONTROL_COMPONENT) controlRenderer: DefaultRenderer,
               private kvDiffers: KeyValueDiffers,
               private itDiffers: IterableDiffers,
               private renderer: Renderer2) {
     this.renderState = this.rendering$.asObservable();
-    this.arrayActionRequest = this.arrayActionRequest$.asObservable();
+    this.rendererEvent = this.rendererEvent$.asObservable();
+
+    if (isFunction(controlRenderer)) {
+      this.controlRenderer = { };
+      this.defaultControlRenderer = controlRenderer;
+    } else {
+      this.controlRenderer = controlRenderer;
+      this.defaultControlRenderer = this.controlRenderer['*'];
+      if (!this.defaultControlRenderer) {
+        throw new Error('Default control renderer not set.');
+      }
+    }
+  }
+
+  getComponentRenderer(rd: RenderInstruction): ControlRenderer {
+    return rd.isArray
+      ? this.controlRenderer['[]'] || this.defaultControlRenderer
+      : this.controlRenderer[rd.vType] || this.defaultControlRenderer
+    ;
+  }
+
+  attachControlOutlet(outlet: DynamicControlOutletDirective): void {
+    this.outlets.add(outlet);
+  }
+
+  detachControlOutlet(outlet: DynamicControlOutletDirective): boolean {
+    return this.outlets.delete(outlet);
   }
 
   /**
@@ -419,6 +446,10 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
 
   getOverride(item: RenderInstruction): DynamicFormOverrideDirective | undefined {
     return this.overrideMap.get(item);
+  }
+
+  getOutlet(item: RenderInstruction): DynamicControlOutletDirective | undefined {
+    return this.outletMap.get(item);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -471,8 +502,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   }
 
   ngAfterContentInit(): void {
-    const clone = this.tdmModelFormService.createRICloneFactory<LocalRenderInstruction>();
-    this.renderInstructions = this.tdmForm.renderData.map(clone);
+    this.renderInstructions = this.tdmForm.renderData;
 
     this.afterInit = true;
     this.updateOverrides();
@@ -492,7 +522,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     while (subs = this.subscriptions.pop()) { // tslint:disable-line
       subs.unsubscribe();
     }
-    this.arrayActionRequest$.complete();
+    this.rendererEvent$.complete();
     this.rendering$.complete();
     this.beforeRender.complete();
     this.valueChanges.complete();
@@ -511,10 +541,13 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    * API to manually add field override templates, use this if you want to apply overrides but can not
    * set the content projection in the template.
    */
-  addOverride(name: string, tRef: TemplateRef<DynamicFormOverrideContext>, update: boolean = true): void {
-    const d = new DynamicFormOverrideDirective(tRef, this);
-    d.dynamicFormOverride = name;
-    if (name === '*') {
+  addOverride(query: { controlName?: string | string[]; vType?: keyof FormElementType | Array<keyof FormElementType> },
+              tRef: TemplateRef<DynamicFormOverrideContext>, update: boolean = true): void {
+    const d = new DynamicFormOverrideDirective(tRef);
+    d.controlName = query.controlName;
+    d.vType = query.vType;
+    d.syncQuery();
+    if (d.isCatchAll && !d.vType) {
       this.wildOverride = d;
       this.wildOverride['__CUSTOM_ADD_OW__'] = true;
     } else {
@@ -526,20 +559,12 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     }
   }
 
-  emitArrayActionRequest(request: Omit<ArrayActionAddRequestEvent, 'tdmForm' | 'fullName' | 'runtimePath'>): void;
-  emitArrayActionRequest(request: Omit<ArrayActionEditRequestEvent, 'tdmForm' | 'fullName' | 'runtimePath'>): void;
-  emitArrayActionRequest(request: Omit<ArrayActionRemoveRequestEvent, 'tdmForm' | 'fullName' | 'runtimePath'>): void;
-  emitArrayActionRequest(request: Omit<ArrayActionMoveRequestEvent, 'tdmForm' | 'fullName' | 'runtimePath'>): void;
-  emitArrayActionRequest(request: Partial<ArrayActionRequestEvent>): void {
-    // TODO: validate input.
-    request.tdmForm = this.tdmForm;
-    request.fullName = request.renderInstruction.fullName;
-    request.runtimePath = request.renderInstruction.getRuntimePath(request.formArray);
-    this.arrayActionRequest$.emit(<any> request);
+  emitRendererEvent(event: RendererEvent): void {
+    this.rendererEvent$.emit(event);
   }
 
   private updateOverrides(): void {
-    const match = this.overrides.find( ow => ow.dynamicFormOverride === '*' );
+    const match = this.overrides.find( ow => ow.isCatchAll && !ow.vType );
     // we update the wildOverride, but we check if the old wildOverride was added using addOverride method (custom)
     // if so (no match and old added manually) we will leave it.
     // we do that because it's most likely we won't find template overrides when custom is set
@@ -570,8 +595,10 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     const controlsMap: { [path: string]: RenderInstruction } = this.instructions = {};
     const controlsPromiseSetter = done => controlsReady.push(done);
     this.overrideMap.clear();
+    this.outletMap.clear();
 
     const overrides = this.overrides.toArray().concat(this.codeOverrides);
+    const outlets = Array.from(this.outlets.values());
     const hiddenState = this.hiddenState && this.hiddenState.slice();
     const filterMatch = this.filterMode === 'include';
     const filter = this.filter && this.filter.slice();
@@ -579,9 +606,14 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     const processInstructions = (rd: LocalRenderInstruction) => {
       const fullPath: string = rd.fullName;
       if (!filter || this.isStaticPathContainsPath(filter, fullPath) === filterMatch) {
-        let override = overrides.find(ow => ow.dynamicFormOverride === fullPath) || this.wildOverride;
+        const override = overrides.find( o => o.isMatching(rd) ) || this.wildOverride;
         if (override) {
           this.overrideMap.set(rd, override);
+        }
+
+        const outlet = outlets.find( o => o.isMatching(rd) );
+        if (outlet) {
+          this.outletMap.set(rd, outlet);
         }
 
         // update hidden state of each item
@@ -812,6 +844,7 @@ function setHidden(ri: LocalRenderInstruction, value: boolean): boolean {
   if (ri.hidden !== value) {
     ri._dSelf = value;
     ri.hidden = ri._dSelf || ri._dParent;
+    ri.markAsChanged();
     return tryRunOnChildren(ri, ri._dSelf);
   }
   return false;
@@ -820,6 +853,7 @@ function setHidden(ri: LocalRenderInstruction, value: boolean): boolean {
 function setHiddenParent(ri: LocalRenderInstruction, value: boolean): void {
   ri._dParent = value;
   ri.hidden = ri._dSelf || ri._dParent;
+  ri.markAsChanged();
   tryRunOnChildren(ri, value);
 }
 

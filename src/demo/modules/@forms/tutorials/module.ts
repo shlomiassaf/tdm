@@ -3,7 +3,6 @@ import { NgModule } from '@angular/core';
 import { MaterialDynamicFormsModule, } from '@tdm/ngx-dynamic-forms/plugin/material';
 import { SharedModule, TutorialService, TutoriableComponent } from '@shared';
 
-import { TempExampleComponent, DynamicFormContainerComponent } from './temp-example';
 import { IntroductionComponent } from './1-introduction';
 import { OverviewComponent } from './1a-overview';
 import { SetupComponent } from './2-setup';
@@ -16,12 +15,13 @@ import { LocalOverrideComponent } from './8-local-override';
 import { FilterDisableHiddenStateComponent } from './9-filter-disable-hidden-state';
 import { HotBindComponent } from './10-hot-bind';
 import { CommitComponent } from './11-commit';
+import { ControlOutletComponent } from './12-control-outlet';
 import { ControlPanelComponent } from './12-control-panel';
 import { ComplexDataStructuresComponent } from './13-complex-data-structure';
 import { ChildFormComponent } from './14-child-form';
 import { FlatteningComponent } from './15-flattening';
 import { ArraysComponent } from './16-arrays';
-import { ArrayActionsComponent } from './17-array-actions';
+
 import {
   BeforeRenderEventComponent,
   RenderStateEventComponent,
@@ -34,14 +34,11 @@ import {
   ExtendingTheRendererComponent,
   ChildFormRendererComponent,
   ArrayRendererComponent,
-  ArrayActionRendererComponent,
 
   RendererV1Component,
   RendererV2Component,
   RendererV3Component,
-  RendererV4Component,
-  RendererV5Component
-
+  RendererV4Component
 } from './renderer';
 
 import { FormsSharedModule } from '../shared';
@@ -59,6 +56,7 @@ const TUTORIALS: Array<TutoriableComponent<any>> = [
   FilterDisableHiddenStateComponent,
   HotBindComponent,
   CommitComponent,
+  ControlOutletComponent,
   ControlPanelComponent,
 
   BeforeRenderEventComponent,
@@ -70,24 +68,20 @@ const TUTORIALS: Array<TutoriableComponent<any>> = [
   ChildFormComponent,
   FlatteningComponent,
   ArraysComponent,
-  ArrayActionsComponent,
 
   TheRendererComponent,
   ExtendingTheRendererComponent,
   ChildFormRendererComponent,
-  ArrayRendererComponent,
-  ArrayActionRendererComponent
+  ArrayRendererComponent
 ];
 
 const COMPONENTS = [
-  TempExampleComponent,
   TUTORIALS,
   DynamicFormRowComponent,
   RendererV1Component,
   RendererV2Component,
   RendererV3Component,
-  RendererV4Component,
-  RendererV5Component
+  RendererV4Component
 ];
 
 function isTutorial(value: any): value is TutoriableComponent<any> {
@@ -95,7 +89,7 @@ function isTutorial(value: any): value is TutoriableComponent<any> {
 }
 
 @NgModule({
-  declarations: [ DynamicFormContainerComponent, COMPONENTS ],
+  declarations: [ COMPONENTS ],
   imports: [
     SharedModule,
     FormsSharedModule,
@@ -104,14 +98,12 @@ function isTutorial(value: any): value is TutoriableComponent<any> {
   providers: [ TutorialService ],
   exports: [ COMPONENTS ],
   entryComponents: [
-    DynamicFormContainerComponent,
     TUTORIALS,
     DynamicFormRowComponent,
     RendererV1Component,
     RendererV2Component,
     RendererV3Component,
-    RendererV4Component,
-    RendererV5Component
+    RendererV4Component
   ]
 
 })

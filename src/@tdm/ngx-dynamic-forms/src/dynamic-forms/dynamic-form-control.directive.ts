@@ -1,22 +1,15 @@
 import {
   Directive,
   Input,
-  Type,
   forwardRef,
   ViewContainerRef,
   ComponentFactoryResolver,
   ComponentRef,
-  Inject,
-  InjectionToken
+  Inject
 } from '@angular/core';
 
-import { DynamicFormControlRenderer, RenderInstruction } from '../tdm-model-form/index';
+import { DynamicControlRenderContext, RenderInstruction } from '../tdm-model-form/index';
 import { DynamicFormComponent } from './dynamic-form.component';
-
-/**
- * A Token for the component that renders form controls
- */
-export const FORM_CONTROL_COMPONENT = new InjectionToken<DynamicFormControlRenderer>('DynamicFormControlRenderer');
 
 /**
  * An container/wrapper used to project the user-define renderer.
@@ -42,19 +35,29 @@ export class DynamicFormControlDirective {
     this.render = value;
 
     this.vcRef.clear();
+    const outlet = this.dynForm.getOutlet(value);
+    this.vcRef = outlet ? outlet._vcRef : this.defaultVCRef;
+    this.vcRef.clear();
+
+    if (outlet && outlet._tRef) {
+      this.defaultVCRef.clear();
+      const $implicit: DynamicControlRenderContext  = <any> {};
+      this.dynForm.tdmForm.bindRenderingData($implicit, value);
+      this.defaultVCRef.createEmbeddedView(outlet._tRef, { $implicit } );
+    }
 
     if (value) {
-      const injector = this.vcRef.parentInjector;
-      const resolver = injector.get(ComponentFactoryResolver);
-      const componentFactory = resolver.resolveComponentFactory(this.component);
       const override = this.dynForm.getOverride(value);
       if (override) {
-        const $implicit: DynamicFormControlRenderer  = <any> {};
+        const $implicit: DynamicControlRenderContext  = <any> {};
         this.dynForm.tdmForm.bindRenderingData($implicit, value);
-        this.vcRef.createEmbeddedView(
-          override.template, { $implicit } );
+        this.vcRef.createEmbeddedView(override.template, { $implicit } );
       } else {
-        this.cmpRef = this.vcRef.createComponent<DynamicFormControlRenderer> (
+        const injector = this.defaultVCRef.parentInjector;
+        const resolver = injector.get(ComponentFactoryResolver);
+        const component = this.dynForm.getComponentRenderer(value);
+        const componentFactory = resolver.resolveComponentFactory(component);
+        this.cmpRef = this.vcRef.createComponent<DynamicControlRenderContext> (
           componentFactory,
           this.vcRef.length,
           injector
@@ -68,11 +71,12 @@ export class DynamicFormControlDirective {
   }
 
   private render: RenderInstruction;
-  private cmpRef: ComponentRef<DynamicFormControlRenderer>;
+  private cmpRef: ComponentRef<DynamicControlRenderContext>;
+  private vcRef: ViewContainerRef;
 
-  constructor(private vcRef: ViewContainerRef,
-              @Inject(FORM_CONTROL_COMPONENT) private component: Type<DynamicFormControlRenderer>, // tslint:disable-line
+  constructor(private defaultVCRef: ViewContainerRef,
               @Inject(forwardRef(() => DynamicFormComponent)) public dynForm: DynamicFormComponent<any>) { // tslint:disable-line
+    this.vcRef = defaultVCRef;
   }
 
 }

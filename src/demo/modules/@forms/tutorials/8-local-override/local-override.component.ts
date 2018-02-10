@@ -27,7 +27,7 @@ export class LocalOverrideComponent implements AfterViewInit {
   defaultFieldOverrideTpl: TemplateRef<DynamicFormOverrideContext>;
 
   ngAfterViewInit(): void {
-    this.dynFormCustomOverride.addOverride('*', this.defaultFieldOverrideTpl, true);
+    this.dynFormCustomOverride.addOverride({ controlName: '*' }, this.defaultFieldOverrideTpl, true);
   }
   /* @tdm-ignore:tdmModel */
   /* @tdm-ignore:* */

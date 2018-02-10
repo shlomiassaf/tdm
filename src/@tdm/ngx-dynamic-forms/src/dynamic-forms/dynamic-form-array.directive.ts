@@ -1,11 +1,9 @@
 import {
   ComponentFactoryResolver,
   Directive,
-  Inject,
   Input,
   ViewContainerRef,
   Optional,
-  Type,
   TemplateRef,
   SimpleChanges,
   IterableDiffers,
@@ -20,9 +18,8 @@ import {
 import { NgForOf, NgForOfContext } from '@angular/common';
 import { AbstractControl, FormArray, FormGroup } from '@angular/forms';
 
-import { TDMModelForm, RenderInstruction, DynamicFormControlRenderer } from '../tdm-model-form/index';
+import { TDMModelForm, RenderInstruction, DynamicControlRenderContext } from '../tdm-model-form/index';
 import { DynamicFormComponent } from './dynamic-form.component';
-import { FORM_CONTROL_COMPONENT } from './dynamic-form-control.directive';
 
 import { DynamicFormArray } from './dynamic-form-array.component';
 
@@ -49,9 +46,8 @@ export class DynamicFormArrayDirective extends DynamicFormArray {
 
   constructor(vcRef: ViewContainerRef,
               cfr: ComponentFactoryResolver,
-              @Inject(FORM_CONTROL_COMPONENT) component: Type<DynamicFormControlRenderer>,
-              @Optional() dynForm: DynamicFormComponent<any>) {
-    super(cfr, component, dynForm);
+              dynForm: DynamicFormComponent<any>) {
+    super(cfr, dynForm);
     this.vcRef = vcRef;
   }
 }
@@ -59,10 +55,10 @@ export class DynamicFormArrayDirective extends DynamicFormArray {
 @Directive({
   selector: '[forFormArray]',
 })
-export class ForFormArrayDirective extends NgForOf<DynamicFormControlRenderer> implements OnChanges, DoCheck {
+export class ForFormArrayDirective extends NgForOf<DynamicControlRenderContext> implements OnChanges, DoCheck {
   // tslint:disable
   @Input('forFormArrayOf') fArray: FormArray;
-  @Input('forFormArrayTrackBy') ngForTrackBy: TrackByFunction<DynamicFormControlRenderer>;
+  @Input('forFormArrayTrackBy') ngForTrackBy: TrackByFunction<DynamicControlRenderContext>;
 
   @Input('forFormArrayDynForm') dynForm: DynamicFormComponent;
   @Input('forFormArrayFGroup') fGroup: FormGroup;
@@ -70,7 +66,7 @@ export class ForFormArrayDirective extends NgForOf<DynamicFormControlRenderer> i
   @Input('forFormArrayTdmForm') tdmForm: TDMModelForm<any>;
 
   // TODO: warn or throw when setting context after one of the values in the context was set manually
-  @Input('forFormArrayContext') set context(value: DynamicFormControlRenderer) {
+  @Input('forFormArrayContext') set context(value: DynamicControlRenderContext) {
     if (value) {
       for (let k of forFormArrayContextKeys) {
         this[k] = value[k];
@@ -81,9 +77,9 @@ export class ForFormArrayDirective extends NgForOf<DynamicFormControlRenderer> i
 
   private ready: boolean = false;
   private formArrayDiffer: IterableDiffer<AbstractControl> | null = null;
-  private grouped: DynamicFormControlRenderer[][] = [];
+  private grouped: DynamicControlRenderContext[][] = [];
 
-  constructor(tRef: TemplateRef<NgForOfContext<DynamicFormControlRenderer>>,
+  constructor(tRef: TemplateRef<NgForOfContext<DynamicControlRenderContext>>,
               private differs: IterableDiffers,
               vcRef: ViewContainerRef,
               @Optional() dynForm: DynamicFormComponent<any>) {
@@ -116,7 +112,7 @@ export class ForFormArrayDirective extends NgForOf<DynamicFormControlRenderer> i
   }
 
   private applyFormArrayChanges(changes: IterableChanges<AbstractControl>) {
-    const renderers: DynamicFormControlRenderer[] = <any> this.ngForOf;
+    const renderers: DynamicControlRenderContext[] = <any> this.ngForOf;
     changes.forEachOperation(
       (item: IterableChangeRecord <any>, adjustedPreviousIndex: number, currentIndex: number) => {
         if (item.previousIndex == null) {
@@ -145,12 +141,12 @@ export class ForFormArrayDirective extends NgForOf<DynamicFormControlRenderer> i
     });
   }
 
-  private convert(controls: AbstractControl[]): DynamicFormControlRenderer[] {
-    const result: DynamicFormControlRenderer[] = [];
+  private convert(controls: AbstractControl[]): DynamicControlRenderContext[] {
+    const result: DynamicControlRenderContext[] = [];
     for (let childControl of controls) {
       for (let childItem of this.item.children ) {
         const c = childItem.resolveFormArrayChild(childControl);
-        const $implicit: DynamicFormControlRenderer  = <any> {
+        const $implicit: DynamicControlRenderContext  = <any> {
           item: childItem,
           fGroup: this.fGroup,
           tdmForm: this.tdmForm,

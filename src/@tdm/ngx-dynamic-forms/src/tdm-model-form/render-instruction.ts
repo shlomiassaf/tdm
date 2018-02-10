@@ -223,8 +223,11 @@ export class RenderInstruction<T extends keyof FormElementType = keyof FormEleme
     if (!parent || parent === control.root) {
       return this.name;
     } else {
-      const name = parent instanceof FormArray ? parent.controls.indexOf(control) : this.name;
-      return `${this.parent.getRuntimePath(parent)}.${name}`;
+      const name = parent instanceof FormArray ? `${this.name}.${parent.controls.indexOf(control)}` : this.name;
+      return this.parent
+        ? `${this.parent.getRuntimePath(parent)}.${name}`
+        : name
+      ;
     }
   }
 

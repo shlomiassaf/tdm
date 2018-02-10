@@ -128,7 +128,7 @@ export class Hero {
       render: {
         vType: 'none',
         label: 'Bases Destroyed',
-        identityKey: 'name'
+        identity: 'name'
       },
       flatten: {
         name: {

@@ -22,17 +22,17 @@ module.exports = [
     title: 'Style'
   },
   {
-    file: './renderer/renderer-v3.component.ts',
+    file: './renderer/renderer-v4.component.ts',
     autoRender: true,
     title: 'Array Renderer Class'
   },
   {
-    file: './renderer/renderer-v3.component.html',
+    file: './renderer/renderer-v4.component.html',
     autoRender: true,
     title: 'Array Renderer Template'
   },
   {
-    file: './renderer/renderer-v3.component.scss',
+    file: './renderer/renderer-v4.component.scss',
     autoRender: true,
     title: 'Array Renderer Style'
   },

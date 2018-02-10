@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { FORM_CONTROL_COMPONENT } from '@tdm/ngx-dynamic-forms'; /* @tdm-ignore-line */
-import { RendererV5Component } from './renderer/renderer-v5.component'; /* @tdm-ignore-line */
-import { ArrayActionRequestEvent } from '@tdm/ngx-dynamic-forms';
+import { RendererV3Component } from './renderer/renderer-v3.component'; /* @tdm-ignore-line */
 import { Hero } from './model';
 
 @Component({
@@ -10,26 +9,12 @@ import { Hero } from './model';
   styleUrls: [ './child-form-renderer.component.scss' ],
   /* @tdm-ignore:* */
   providers: [
-    { provide: FORM_CONTROL_COMPONENT, useValue: RendererV5Component }
+    { provide: FORM_CONTROL_COMPONENT, useValue: RendererV3Component }
   ]
   /* @tdm-ignore:* */
 })
 export class ChildFormRendererComponent {
   model = new Hero();
-
-  onArrayActionRequest(event: ArrayActionRequestEvent): void {
-    if ( event.action === 'add' ) {
-      // we need to create a form control instance, it can be FormControl but can also be FormGroup or FormArray
-      // we need to the serializer for that, so we use the helper function on [[TDMModelForm]]
-      event.tdmForm.appendControl(event.fullName);
-      event.formArray.markAsDirty();
-    } else if ( event.action === 'remove' ) {
-      event.formArray.removeAt(event.atIdx);
-      event.formArray.markAsDirty();
-    } else if ( event.action === 'edit' ) {
-
-    }
-  }
   code: any = System.import(/* webpackChunkName: "ChildFormRendererComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
   /* @tdm-ignore:* */
   static tutorial = {

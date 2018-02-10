@@ -3,39 +3,39 @@ import { Model, Prop } from '@tdm/ngx-dynamic-forms';
 @Model({
   form: true
 })
-export class BaseCamp {
+export class HeroAddress {
   @Prop({
     form: {
       required: true,
       render: {
         vType: 'text',
-        label: 'Base Name',
+        label: 'Street',
       }
     }
   })
-  name: string;
+  street: string;
+
   @Prop({
     form: {
-      flatten: {
-        lng: {
-          render: {
-            vType: 'number',
-            label: 'Base Longitude'
-          }
-        },
-        lat: {
-          render: {
-            vType: 'number',
-            label: 'Base Latitude'
-          }
-        }
+      required: true,
+      render: {
+        vType: 'text',
+        label: 'City',
       }
     }
   })
-  coordinates: {
-    lng: number;
-    lat: number;
-  };
+  city: string;
+
+  @Prop({
+    form: {
+      required: true,
+      render: {
+        vType: 'text',
+        label: 'Zip',
+      }
+    }
+  })
+  zip: string;
 }
 
 @Model({
@@ -117,37 +117,11 @@ export class Hero {
     form: {
       required: true,
       render: {
-        identityKey: 'name',
         vType: 'form',
-        label: 'Base Camp'
+        label: 'Address'
       },
       childForm: true
     }
   })
-  base: BaseCamp;
-
-  @Prop({
-    form: {
-      required: true,
-      render: {
-        vType: 'text',
-        label: 'Allies'
-      }
-    }
-  })
-  allies: string[];
-
-  @Prop({
-    type: () => BaseCamp,
-    form: {
-      required: true,
-      render: {
-        identityKey: 'name',
-        vType: 'form',
-        label: 'Base Camp'
-      },
-      childForm: true
-    }
-  })
-  basesDestroyed: BaseCamp[];
+  address: HeroAddress;
 }

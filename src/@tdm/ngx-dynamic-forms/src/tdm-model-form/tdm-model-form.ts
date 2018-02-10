@@ -2,17 +2,17 @@ import { Type } from '@angular/core';
 import { AbstractControl, FormGroup, FormArray, FormControl } from '@angular/forms';
 
 import { stringify, isNumber } from '@tdm/core/tdm';
-import { FormModelMetadata, NgFormsBoundMapper, NgFormsSerializeMapper } from '../core/index';
+import { FormModelMetadata, FormPropMetadata, NgFormsBoundMapper, NgFormsSerializeMapper } from '../core/index';
 import { TDMModelFormService } from './tdm-model-form.service';
 import { RenderInstruction } from './render-instruction';
 import { createControl } from '../create-control';
 
-export interface DynamicFormControlRenderer {
+export interface DynamicControlRenderContext {
   item: RenderInstruction;
   tdmForm: TDMModelForm<any>;
-  fArray: FormArray | undefined;
-  fControl: FormControl | undefined;
-  fGroup: FormGroup | undefined;
+  fArray?: FormArray | undefined;
+  fControl?: FormControl | undefined;
+  fGroup?: FormGroup | undefined;
 
   tdmOnControlContextInit?(): void ;
 }
@@ -22,7 +22,11 @@ function getFormIsNotArrayErrorMessage(value: AbstractControl | undefined): stri
   return `A control can only be added to a form array instance, got ${ got }`;
 }
 
-function normalizeFormPath(path: Array<string | number> | string): [string, string] {
+/**
+ * Takes a path and removes all array references.
+ * returns a tuple [immidiate prop name, rest of the path]
+ */
+function normalizeFormPath<T = any>(path: Array<string | number> | string): [keyof T, string] {
   const isNumberRe = /^\d+$/;
   const pathArr = Array.isArray(path)
     ? path.filter( n => !isNumber(n) )
@@ -59,9 +63,14 @@ export class TDMModelForm<T = any> {
    * @returns
    */
   get renderData(): RenderInstruction[] {
-    return this.modelFormService.getInstructions(this.type);
+    if (!this._renderData) {
+      const clone = this.modelFormService.createRICloneFactory<any>();
+      this._renderData = this.modelFormService.getInstructions(this.type).map(clone);
+    }
+    return this._renderData;
   }
 
+  private _renderData: RenderInstruction[];
   private mapper: NgFormsBoundMapper<any>;
   private formMeta: FormModelMetadata;
   private _type: Type<T>;
@@ -71,11 +80,11 @@ export class TDMModelForm<T = any> {
   constructor(protected modelFormService: TDMModelFormService) { }
 
   /**
-   * Returns the control for from the provided `path`.
+   * Retrieves a child control given the control's name or path.
    *
    * > This is method is just sugar for `tDMModelFormInstance.form.get(path)`
    *
-   * @param path The path, relative to the root form. Accepts the same types as `AbstractControl.get`.
+   * @param path The path (runtime), relative to the root form. Accepts the same types as `AbstractControl.get`.
    * See {@link https://angular.io/api/forms/AbstractControl#get}
    */
   get(path: Array<string | number> | string): AbstractControl | null {
@@ -83,7 +92,7 @@ export class TDMModelForm<T = any> {
   }
 
   /**
-   * Gets's a value from the provided `path` on the form.
+   * Retrieves the value of a child control given the control's name or path.
    *
    * > This is method is just sugar for `tDMModelFormInstance.form.get(path).value`
    *
@@ -96,11 +105,21 @@ export class TDMModelForm<T = any> {
   }
 
   /**
-   * Gets's a value from the provided `path` on the model.
-   * Identical to `getValue` but on the model instance and not the form.
+   * Retrieves a value from the model given a name or path.
+   * Paths can be passed in as an array or a string delimited by a dot.
+   *
+   * This method does the same thing `getValue` with one difference, the context the `path` is applied on.
+   * This methods returns the resolved value using the model instance as the context.
+   * `getValue` returns the resolved value using the root form control value as the context.
    */
-  getValueModel(path: Array<string | number> | string): any | null {
-    const pathArr = Array.isArray(path) ? path : path.split('.');
+  getValueModel(path: Array<string | number> | string): any | null;
+  getValueModel(item: RenderInstruction, control: AbstractControl): any | null;
+  getValueModel(path: Array<string | number> | string | RenderInstruction, control?: AbstractControl): any | null {
+    const pathArr = path instanceof RenderInstruction
+      ? path.getRuntimePath(control).split('.')
+      : Array.isArray(path) ? path : path.split('.')
+    ;
+
     let m = this.model;
     for (let p of pathArr) {
       m = m[p];
@@ -150,42 +169,90 @@ export class TDMModelForm<T = any> {
    * and sync it with the model in it's current state.
    */
   reset(): void {
+    for (let r of this.renderData) {
+      if (r.isArray) {
+        const formArray: FormArray = <any> this.get(r.fullName);
+        if (formArray.dirty) {
+          this.resetFormArray(formArray, r.fullName);
+          r.markAsChanged();
+        }
+      }
+      // TODO: move resetControl to here, with optional `path` param
+      // TODO: handle standalone childForm in here
+    }
     this.form.reset(this._model);
   }
 
-  createChildForm<Z = any>(path: Array<string | number> | string, model?: Z): TDMModelForm<Z> {
-    const pathArr = normalizeFormPath(path);
-    const formProp = NgFormsSerializeMapper.getFormProp(this.type, <any> pathArr);
-    if (!formProp) {
-      throw new Error(
-        `Could not find form property metadata for type ${stringify(this.type)} using path ${pathArr.join('.')}`);
-    } else if (!formProp.childForm) {
+  /**
+   * Like reset but for a specific control.
+   */
+  resetControl(path: Array<string | number> | string): void {
+    const pathArr = normalizeFormPath<T>(path);
+    const value = this.getValueModel(path);
+    const formProp = this.getFormProp(pathArr);
+    const control = this.get(path);
+    if (control instanceof FormArray) {
+      this.resetFormArray(control, pathArr.join('.'));
+    } else if (formProp.childForm && ! (control.parent instanceof FormArray) ) {
+      // standalone child form will recreate itself, this will set the control to FormControl if it's null
+      control.parent.setControl(<any> formProp.name, this.createControl(pathArr.join('.'), value, false));
+    } else {
+      control.reset(value);
+    }
+  }
+
+  createChildForm<Z = any>(path: Array<string | number> | string, model?: Z, formGroup?: FormGroup): TDMModelForm<Z> {
+    const pathArr = normalizeFormPath<T>(path);
+    const formProp = this.getFormProp(pathArr);
+    if (!formProp.childForm) {
       throw new Error(
         `Form property metadata ${pathArr.join('.')} for type ${stringify(this.type)} is not a "childForm"`);
     } else {
       if (!model) {
         model = new formProp.rtType.ref();
       }
-      return this.modelFormService.create(model, formProp.rtType.ref);
+      return this.modelFormService.create(model, formProp.rtType.ref, formGroup);
     }
   }
 
   /**
+   * Create a new form control based on the type at `path`.
+   * See `createControl` for details.
+   *
+   * @param path The path (static), relative to the root form.
+   * Accepts the same types as `AbstractControl.get`. See {@link https://angular.io/api/forms/AbstractControl#get}
+   *
+   * @param value An existing value that represents the value of the new form control, if not set the form control will
+   * have no value  (i.e. represents a new instance of the model).
+   *
+   * @param tryCreateNew When true and value is undefined or null, will try to create new value with the new keyword
+   * using the type at the path.
+   */
+  createControl(path: string[] | string, value?: any, tryCreateNew?: boolean): FormGroup | FormControl {
+    return createControl(this.type, normalizeFormPath<T>(path), value, tryCreateNew);
+  }
+
+  /**
    * Adds a new form control to a FormArray instance at the provided path.
+   * See `createControl` for details.
    *
    * This is a utility method for easy add/remove operations on UI form's with a FormArray instance.
    *
-   * @param path The path, relative to the root form. Accepts the same types as `AbstractControl.get`.
-   * See {@link https://angular.io/api/forms/AbstractControl#get}
+   * @param path The path (static), relative to the root form.
+   * Accepts the same types as `AbstractControl.get`. See {@link https://angular.io/api/forms/AbstractControl#get}
+   *
    * @param value An existing value that represents the value of the new form control, if not set the form control will
    * have no value (i.e. represents a new instance of the model).
+   *
+   * @param tryCreateNew When true and value is undefined or null, will try to create new value with the new keyword
+   * using the type at the path.
    */
-  appendControl(path: Array<string | number> | string, value?: any): FormGroup | FormControl {
+  appendControl(path: Array<string | number> | string, value?: any, tryCreateNew?: boolean): FormGroup | FormControl {
     const formArray = this.form.get(path);
     if (formArray instanceof FormArray) {
       // we got the instance, now move to type metadata world where all array index references, if exist, must go out.
       const pathArr = normalizeFormPath(path);
-      const ctrl = createControl(this.type, <any> pathArr, value);
+      const ctrl = createControl(this.type, <any> pathArr, value, tryCreateNew);
       formArray.push(ctrl);
       return ctrl;
     } else {
@@ -221,8 +288,18 @@ export class TDMModelForm<T = any> {
    * Set the context for this the form.
    * @param instance The TDModel instance
    * @param type The TDModel class, if not set instance.constructor is the default.
+   * @param formGroup An optional [[FormGroup]] instance, if set it will be used instead of serializing a new one
    */
-  setContext(instance: T, type?: Type<T>) {
+  setContext(instance: T): void;
+  setContext(instance: T, type: Type<T>): void;
+  setContext(instance: T, formGroup: FormGroup): void;
+  setContext(instance: T, type: Type<T>, formGroup: FormGroup): void;
+  setContext(instance: T, type?: Type<T> | FormGroup, formGroup?: FormGroup): void {
+    if (type instanceof FormGroup) {
+      formGroup = type;
+      type = undefined;
+    }
+
     if (!type) {
       type = <any> instance.constructor;
     }
@@ -232,15 +309,15 @@ export class TDMModelForm<T = any> {
     }
 
     if (this._type !== type) {
-      this.formMeta = this.modelFormService.getMeta(type);
-      this._type = type;
+      this._type = type as Type<T>;
+      this.formMeta = this.modelFormService.getMeta(this._type);
     }
 
     if (this._model !== instance) {
       this._model = instance;
     }
 
-    this.update();
+    this.update(formGroup);
   }
 
   /**
@@ -276,7 +353,7 @@ export class TDMModelForm<T = any> {
   /**
    * @internal
    */
-  bindRenderingData(controlRenderer: DynamicFormControlRenderer,
+  bindRenderingData(controlRenderer: DynamicControlRenderContext,
                     renderData: RenderInstruction): void {
     controlRenderer.tdmForm = this;
     controlRenderer.fGroup = renderData.flattened
@@ -291,14 +368,38 @@ export class TDMModelForm<T = any> {
     controlRenderer.item = renderData;
   }
 
-  protected update(): void {
+  protected getFormProp(path: [keyof T, string]): FormPropMetadata {
+    const formProp = NgFormsSerializeMapper.getFormProp(this.type, path);
+    if (!formProp) {
+      throw new Error(
+        `Could not find form property metadata for type ${stringify(this.type)} using path ${path.join('.')}`);
+    }
+    return formProp;
+  }
+
+  protected update(formGroup?: FormGroup): void {
     if (this._type && this._model) {
-      this.mapper = new NgFormsBoundMapper(this._type, this.model);
-      this.form = this.mapper.serialize();
+      this.mapper = new NgFormsBoundMapper(this._type, this.model, formGroup);
+      this.form = formGroup || this.mapper.serialize();
       this._ready = true;
     } else {
       this.mapper = this.form = undefined;
       this._ready = false;
+    }
+  }
+
+  /**
+   * FormArray's require specific reset because `@angular/forms` logic does not match the array but the content only.
+   */
+  private resetFormArray(formArray: FormArray, staticPath: string): void {
+    const value = this.getValueModel(staticPath);
+    if (formArray.length !== (value ? value.length : 0)) {
+      formArray.controls.splice(0, formArray.controls.length);
+      if (value) {
+        for (let m of value) {
+          formArray.push(this.createControl(staticPath, m));
+        }
+      }
     }
   }
 }

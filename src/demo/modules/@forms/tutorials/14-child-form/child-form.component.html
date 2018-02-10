@@ -1,10 +1,25 @@
-<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md'}]:true"></tdm-markdown-view>
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part1'}]:true"></tdm-markdown-view>
 
-<form-wrapper title="Child Form"
+<form-wrapper #formWrapper
+              [rightDrawerOpened]="rightDrawerOpened"
+              title="Child Form"
               [code]="code | async | tdmCode:[{title: 'Component'}, {title: 'Template', section: 'tdmDemo'}, {title: 'Model'}]">
   <!--@tdm-example:tdmDemo-->
-  <dynamic-form [model]="model"
-                [filter]="['allies']"
-                (arrayActionRequest)="onArrayActionRequest($event)"></dynamic-form>
+  <div class="form-wrapper-right-drawer">
+    <div style="text-align: right">
+      <button mat-icon-button (click)="rightDrawerOpened = false">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <ng-container *dynamicControlOutlet="'*'; let ctx; dynForm: dynForm; vType: 'form'">
+      <dynamic-form-row [fromContext]="ctx" custom>
+        <a mat-button (click)="editExternalForm(ctx)">edit</a>
+        <mat-error style="display: inline;" *ngIf="hasError('required', ctx)">Required</mat-error>
+      </dynamic-form-row>
+    </ng-container>
+  </div>
+  <dynamic-form #dynForm [model]="model"></dynamic-form>
   <!--@tdm-example:tdmDemo-->
 </form-wrapper>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part2'}]:true"></tdm-markdown-view>

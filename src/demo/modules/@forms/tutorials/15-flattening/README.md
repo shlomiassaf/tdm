@@ -1,40 +1,82 @@
 <!--@tdm-example:part1-->
+# Flattening
+Flattening literally means taking an object and making it flat.
+
+In the <a class="tdm-anchor-trap" href="../complex-data-structures">Overview</a>
+about complex data structures we described flat models, flattening is
+done on non-flat models, models that have properties that are arrays or
+objects.
+
+To visualise, flattening to show only **d** and **f**:
+```js
+{
+  a: {
+    b: {
+      f: "f",
+      c: {
+        d: "d"
+      }
+    }
+  }
+}
+```
+
+```js
+{
+  f: "f",
+  d: "d"
+}
+```
+
+Model's are used to describe entities in a domain, things like products,
+users, roles etc. The process of designing the structure of a model
+does not care how a model will look like in a form.
+
+It is common to have models with nested objects and a form that takes
+pieces, in different depths, to create a flat form.
 
 ## Nested forms
-At the UI level, form's are usually flat and it is a common practice to
-avoid nested form's within a form.
+In the previous chapter we covered
+<a class="tdm-anchor-trap" href="../child-form">Child Forms</a> and
+the concept of **nested forms**.
 
-When facing nested forms they are usually opened in a separate page, a
-dialog window, a different tab, etc...
+A nested form is form with at least one child that is not a
+`FormControl`, i.e. a child that is `FormGroup` or `FormArray`.
 
-The library supports that out of the box, the manual way is to filter out
-the field that is a nested form and display it in a different dynamic
-form somewhere else.
+`FormArray`'s are covered in a dedicated chapter, we will focus on
+`FormGroup`.
 
-There are other methods which we will cover in the next chapters.
+We already covered one approach (out of 2) to handle nested forms, the 
+**child form** which is a **known model** explicitly declared as a child
+form.
+
+The 2nd approach for handling nested forms apply on non child forms.
+i.e. all property types that represent and object and are not child
+forms.
 
 ## Flattening
-Another approach is to flatten a nested object(s) so it appears as all
+The 2nd approach is to flatten a nested object(s) so it appears as all
 of the fields in that object belong to the root form.
 
-This is does not change the structure, it's is a virtual change that is
-applied only for the UI.
+It does'nt change the structure of the model, it's is a virtual change
+that apply visually, i.e. it will change the layout, the visual
+structure.
 
-<div class="info">
-The **renderer** does not nor care about flattening, it is completely
-transparent.
-</div>
+### Flattening Renderer
+While flattening is applied visually it does not require specific action
+from the **renderer**. It is completely transparent.
 
 ### Objects, not types
 Notice the terminology used:
 
-> Another approach is to flatten a nested object
+> The 2nd approach is to flatten a nested object(s)
  
 Flattening is done on **objects** and not on models, a model is an
 object but an object is not a model.
 
-It means that plain JS object can be used, this is important as it
-allows ad-hoc object to form definitions.
+It means that flattening works with models (without `childForm: true`)
+and it also works with plain JS object, this is important as it
+allows ad-hoc object *to* form definitions.
  
 Let's refactor our `Hero` model to include a nested object, we add the
 `base` property that represents the base camp for our hero. The base
@@ -54,7 +96,7 @@ When we add this to the `Hero` class we get into a depth of 3:
 
 ` root -> base -> coordinates `
 
-We want to flatten this structure so in the UI we will see something
+We want to flatten this structure so in the UI we will display something
 like this:
 
 ```ts
@@ -79,7 +121,7 @@ property on the `Hero`. Because this is not a structural change we do
 not care, the user will see the `label` of each field.
 </div>
 
-Now let's defined the schema for flattening `base`, we will start with
+Now let's define the schema for flattening `base`, we will start with
 the `name` property first:
 
 ```ts
@@ -163,6 +205,30 @@ identical to `FormPropMetadataArgs` defined on the root. You can see
 the `required` validation on `name` above, it will work just like any
 required definition on the root.
 
+In the following example you can see the output for the flattening
+declaration of **base**.
+<!--@tdm-example:part1-->
+<!--@tdm-example:part2-->
+The underlying structure of our model and the form are left unchanged
+and the structure of the model and the form are identical. 
+
+The visual display is different, it looks like the `Hero` model has
+3 properties, `baseName`, `baseLng`, `baseLat` but we know it's not the
+case.
+
+On the left is the actual `Hero` model, on the right is a `Hero` model
+that one might infer from the display:
+<!--@tdm-example:part2-->
+<!--@tdm-example:part3-->
+<div class="info">
+You can view the final structure of our `Hero` in the source code view
+of the dashboard below.
+</div>
+
+<div class="info">
+ To simplify the example the **address** field is filtered out.
+</div>
+
 ## Don't flat out
 Flattening is a powerful feature, it allows re-modeling of complex
 objects without much effort, however there is a cost:
@@ -176,24 +242,13 @@ objects without much effort, however there is a cost:
 
 Use it wisely.
 
-<div class="info">
-You can view the final structure of our `Hero` in the source code view
-of the dashboard below.
-</div>
-<!--@tdm-example:part1-->
-<!--@tdm-example:part2-->
-
-<div class="info">
- **childForm** will be covered later.
-</div>
-
 ## Another view
 We promised another view, let's try:
 
 If we take the `flatten` definition we just defined and try to build
 model classes out of it? what would it looks like?
-<!--@tdm-example:part2-->
 <!--@tdm-example:part3-->
+<!--@tdm-example:part4-->
 
 The metadata is identical, only TypeScript types are missing and that
 can also be defined manually, as we will see later.
@@ -228,4 +283,4 @@ const coordinates = {
 }
 ```
 
-<!--@tdm-example:part3-->
+<!--@tdm-example:part4-->

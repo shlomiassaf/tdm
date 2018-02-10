@@ -196,6 +196,7 @@ Setting `childForm: true` is valid only when the type of the property
 is a **known model**.
 </div>
 
+<a class="tdm-anchor-trap" href="../child-form">Read more...</a>
 
 ### 2. Flattening `nemesis`
 We've opened this chapter by saying the `Hero` is a flat model, what if
@@ -286,6 +287,7 @@ However, the way they are presented:
 ```
 
 The user will see the labels, not the property names.
+<a class="tdm-anchor-trap" href="../flattening">Read more...</a>
 
 ## Arrays
 Array's are unique, they create a structure that an `Object` can not
@@ -334,6 +336,8 @@ Avoid flattening declaration over an array.
 Unless you are building you'r own custom renderer and you are prepared
 for surprises. This will not end well.
 </div>
+
+<a class="tdm-anchor-trap" href="../arrays">Read more...</a>
 
 ## Tools
 Working with flat does'nt involve operations on the structure of the

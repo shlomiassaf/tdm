@@ -1,26 +1,31 @@
-import { ModuleWithProviders, NgModule, Type } from '@angular/core';
+import { ModuleWithProviders, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule } from '@angular/forms';
 
-import { DynamicFormsModule } from '@tdm/ngx-dynamic-forms';
+import { isFunction } from '@tdm/core/tdm';
+import { DynamicFormsModule, DefaultRenderer } from '@tdm/ngx-dynamic-forms';
 import { MaterialModule } from './material';
-import { DynamicFormElementComponent } from './dynamic-forms';
+import { MaterialFormControlRenderer } from './dynamic-forms';
 
-export { DynamicFormElementComponent } from './dynamic-forms';
+export { MaterialFormControlRenderer } from './dynamic-forms';
 
 @NgModule({
-  declarations: [ DynamicFormElementComponent ],
+  declarations: [ MaterialFormControlRenderer ],
   imports: [ CommonModule, ReactiveFormsModule, MaterialModule, DynamicFormsModule ],
-  exports: [ DynamicFormElementComponent, DynamicFormsModule ],
-  entryComponents: [ DynamicFormElementComponent ]
+  exports: [ MaterialFormControlRenderer, DynamicFormsModule ],
+  entryComponents: [ MaterialFormControlRenderer ]
 })
 export class MaterialDynamicFormsModule {
-  static forRoot(component?: Type<any>): ModuleWithProviders {
+  static forRoot(defaultRenderer?: DefaultRenderer): ModuleWithProviders {
+    if (defaultRenderer && !isFunction(defaultRenderer)) {
+      if ( !('*' in defaultRenderer) ) {
+        defaultRenderer['*'] = MaterialFormControlRenderer;
+      }
+    }
     return {
       ngModule: MaterialDynamicFormsModule,
       providers: [
-        ...DynamicFormsModule.forRoot(component || DynamicFormElementComponent).providers
+        ...DynamicFormsModule.forRoot(defaultRenderer || MaterialFormControlRenderer).providers
       ]
     };
   }

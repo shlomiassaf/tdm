@@ -1,0 +1,22 @@
+.form-container-wrapper {
+  position: relative;;
+  overflow: hidden;
+  transition: height .5s cubic-bezier(.35,0,.25,1);
+}
+
+.form-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  overflow: hidden;
+  display: block;
+
+  &.active {
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 1;
+  }
+}

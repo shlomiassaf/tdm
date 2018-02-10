@@ -1,2 +1,2 @@
 import './dynamic-forms';
-export { DynamicFormElementComponent } from './dynamic-form-element/dynamic-form-element.component';
+export { MaterialFormControlRenderer } from './material-form-control-renderer/material-form-control-renderer.component';

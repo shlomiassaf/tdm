@@ -21,6 +21,27 @@ We're building a new app, our root module is called `DynamicFunAppModule`
 
 We need to import `DynamicFormsModule` and setup the default renderer.
 
+### The default `ControlRenderer`
+The library requires access to a default `ControlRenderer`.  
+
+The role of a `ControlRenderer` is to display the control based on
+information it has about it.
+
+Setting up a default renderer is done through the static `forRoot`
+method on the ng-module or manually using angular's DI:
+
+```ts
+providers: [
+  { provide: FORM_CONTROL_COMPONENT, useValue: MyRenderer }
+]
+```
+
+The value passed can be a `ControlRenderer` or another type that
+we will discuss later.
+
+For now all we need to know is that we need to provide a component
+that renders UI elements.
+ 
 ### Setup using Material plugin module
 For the first part of the tutorial we will use a predefined renderer,
 not a part of the library but provided with the package as a plugable
@@ -41,7 +62,7 @@ module.
 }
 ```
 
-`DynamicFormElementComponent` is the renderer exported by 
+`MaterialFormControlRenderer` is the renderer exported by 
 **@tdm/ngx-dynamic-forms/plugin/material**, it is an angular component
 that render form controls using UI components from the `@angular/material`
 UI framework.
@@ -52,9 +73,9 @@ the renderer. `MaterialDynamicFormsModule` also exports
 `DynamicFormsModule` so we do not need to explicitly import it.
 
 <div class="info">
-`MaterialDynamicFormsModule.forRoot()` accepts a component (type) as
-an optional parameter, if provided it will be used at the default
-renderer.
+`MaterialDynamicFormsModule.forRoot()` accepts a `DefaultRenderer` as an
+optional parameter, if provided it will be used at the default
+renderer, you can pass the component class or a map of vType/component.
 <br>
 <br>
 This is useful when you want to wrap a renderer with a container to
@@ -68,12 +89,12 @@ We can register the renderer without it.
 ```ts
   import { NgModule } from '@angular/core';
   import { DynamicFormsModule } from '@tdm/ngx-dynamic-forms';
-  import { DynamicFormElementComponent } from '@tdm/ngx-dynamic-forms/plugin/material';
+  import { MaterialFormControlRenderer } from '@tdm/ngx-dynamic-forms/plugin/material';
   
   @NgModule({
     ...
     imports: [
-      DynamicFormsModule.forRoot(DynamicFormElementComponent)
+      DynamicFormsModule.forRoot(MaterialFormControlRenderer)
     ],
     ...
   })
@@ -97,8 +118,8 @@ This is also how we would register a custom built renderer.
 </div>
 
 ## Renderer hierarchy
-`DynamicFormsModule.forRoot(DynamicFormElementComponent)` registers
-the `DynamicFormElementComponent` as the **default renderer**.
+`DynamicFormsModule.forRoot(MaterialFormControlRenderer)` registers
+the `MaterialFormControlRenderer` as the **default renderer**.
 
 When rendering, the library picks the first renderer it finds through
 angular's dependency injection, i.e. the renderer is picked based

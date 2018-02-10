@@ -1,4 +1,6 @@
 import { Model, Prop } from '@tdm/ngx-dynamic-forms';
+import { HeroAddress } from '../15-flattening';
+export { HeroAddress } from '../15-flattening';
 
 @Model({
   form: true
@@ -124,44 +126,27 @@ export class Hero {
   allies: string[];
 
   @Prop({
+    type: () => HeroAddress,
     form: {
+      required: true,
       render: {
-        vType: 'none',
-        label: 'Bases Destroyed',
-        identityKey: 'name'
+        vType: 'form',
+        label: 'Address',
+        identity: 'street'
       },
-      flatten: {
-        name: {
-          required: true,
-          render: {
-            vType: 'text',
-            label: 'Base Name',
-          }
-        },
-        coordinates: {
-          flatten: {
-            lng: {
-              render: {
-                vType: 'number',
-                label: 'Base Longitude'
-              }
-            },
-            lat: {
-              render: {
-                vType: 'number',
-                label: 'Base Latitude'
-              }
-            }
-          }
-        }
-      }
+      childForm: true
     }
   })
-  basesDestroyed: Array<{
-    name: string;
-    coordinates: {
-      lng: number;
-      lat: number;
+  address: HeroAddress[];
+
+  @Prop({
+    form: {
+      render: {
+        vType: 'form',
+        label: 'Brother'
+      },
+      childForm: true
     }
-  }>;
+  })
+  brother: Hero;
 }

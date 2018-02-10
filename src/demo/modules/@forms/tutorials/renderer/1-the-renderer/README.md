@@ -166,7 +166,7 @@ The context is applied onto the **renderer** instance, making it
 accessible from the renderer's template.
 
 For that reason a **renderer** must implement the
-`DynamicFormControlRenderer` interface.
+`DynamicControlRenderContext` interface.
 <!--@tdm-example:part1-->
 <!--@tdm-example:part2-->
 We will cover this interface in-depth as this tutorial progress.

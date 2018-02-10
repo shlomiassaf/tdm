@@ -11,7 +11,7 @@
   </mat-drawer>
   <mat-drawer-content>
     <div class="tdm-page">
-      <div class="tdm-page-content" tdmTocArea #tocArea="tocArea">
+      <div class="tdm-page-content" tdmTocArea #tocArea="tocArea" tdmAnchorTrap>
         <span #tutorialView></span>
         <tdm-toc [tocArea]="tocArea">
           <a *tocLinkTemplate="let ctx;"
