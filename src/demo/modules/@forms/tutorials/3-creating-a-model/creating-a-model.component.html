@@ -1,1 +1,8 @@
 <tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part1'}]:true"></tdm-markdown-view>
+
+<form-wrapper [code]="code | async | tdmCode:[{title: 'Component'}, {title: 'Template'}, {title: 'Model'}]">
+  <!--@tdm-example:tdmDemo-->
+  <dynamic-form [model]="model"></dynamic-form>
+  <!--@tdm-example:tdmDemo-->
+</form-wrapper>
+

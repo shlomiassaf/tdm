@@ -5,6 +5,7 @@ import {
   FormPropMetadata,
   FormPropMetadataArgs // leave for angular AOT compiler.
 } from './metadata/index';
+import { FormElementType } from '../interfaces';
 
 /** @internal */
 export let formModel: any = {};
@@ -22,22 +23,20 @@ export function FormModel(metaArgs?: FormModelMetadataArgs): (target: Function) 
  * @propertyDecorator instance
  * @param metaArgs
  */
-export const FormProp = MetaClass.decorator(FormPropMetadata, true);
+export const FormProp = MetaClass.decorator(FormPropMetadata);
 
 targetStore.on
   .processType((target: Constructor<any>) => {
     const tMeta = targetStore.getTargetMeta(target);
     const modelProps = tMeta.getMetaFor(FormPropMetadata);
     if (modelProps) {
-      let formModel = tMeta.getMetaFor(FormModelMetadata, true);
-      if (!formModel) {
+      let formModelMeta = tMeta.getMetaFor(FormModelMetadata, true);
+      if (!formModelMeta) {
         FormModel()(target);
-        formModel = tMeta.getMetaFor(FormModelMetadata, true);
+        formModelMeta = tMeta.getMetaFor(FormModelMetadata, true);
       }
 
       MapExt.asKeyValArray(modelProps)
-        .forEach(([k, v]) => {
-          formModel.addProp(tMeta.getCreateProp(k as any), v, target);
-        });
+        .forEach(([k, v]) => formModelMeta.addProp(tMeta.getCreateProp(k as any), v) );
     }
   });

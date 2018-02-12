@@ -1,0 +1,9 @@
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md'}]:true"></tdm-markdown-view>
+
+<form-wrapper title="Child Form"
+              [code]="code | async | tdmCode:[{title: 'Component'}, {title: 'Template', section: 'tdmDemo'}, {title: 'Model'}]">
+  <!--@tdm-example:tdmDemo-->
+  <dynamic-form [model]="model"
+                [filter]="['allies']"></dynamic-form>
+  <!--@tdm-example:tdmDemo-->
+</form-wrapper>

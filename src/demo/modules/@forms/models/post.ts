@@ -14,9 +14,8 @@ export class Post {
     required: true,
     render: {
       ordinal: 1,
-      type: 'number',
-      label: 'Post ID',
-      data: { min: 1 }
+      vType: 'number',
+      label: 'Post ID'
     }
   })
   id: number;
@@ -25,7 +24,7 @@ export class Post {
     required: true,
     render: {
       ordinal: 5,
-      type: 'text',
+      vType: 'radio',
       label: 'Post Content'
     }
   })
@@ -36,7 +35,7 @@ export class Post {
       required: true,
       render: {
         ordinal: 3,
-        type: 'text',
+        vType: 'text',
         label: 'Post Title'
       }
     }
@@ -47,7 +46,7 @@ export class Post {
     form: {
       render: {
         ordinal: 4,
-        type: 'text',
+        vType: 'text',
         label: 'Post Summery'
       }
     }
@@ -57,7 +56,7 @@ export class Post {
   @FormProp({
     render: {
       ordinal: 6,
-      type: 'slider',
+      vType: 'slider',
       label: 'Level',
       data: { min: 1, max: 5}
     }
@@ -67,9 +66,11 @@ export class Post {
   @FormProp({
     render: {
       ordinal: 6,
-      type: 'radio',
+      vType: 'radio',
       label: 'Audience',
-      data: { options: [ { value: 'Adult' }, { value: 'Teenage' }, { value: 'Kids' }] }
+      data: {
+        options: [ { value: 'Adult' }, { value: 'Teenage' }, { value: 'Kids' }]
+      }
     }
   })
   audience: 'Adult' | 'Teenage' | 'Kids';
@@ -80,6 +81,7 @@ export class Post {
     required: true,
     childForm: true,
     render: {
+      vType: 'none',
       ordinal: 2,
       label: 'Post Author'
     }

@@ -61,16 +61,16 @@ export function stringify(token: any): string {
 
 export const reflection = {
   designType(target: any, key: string | symbol): any {
-    return (Reflect as any).getMetadata("design:type", target, key);
+    return (Reflect as any).getMetadata('design:type', target, key);
   }
 };
 
 export function LazyInit(getter: Function): PropertyDecorator {
   return (target: Object, propertyKey: string | symbol, descriptor?: PropertyDescriptor) => {
     if (descriptor) {
-      throw new Error('LazyInit can only decorate properties')
+      throw new Error('LazyInit can only decorate properties');
     }
-    Object.defineProperty(target, propertyKey, { get: function() {
+    Object.defineProperty(target, propertyKey, { get() {
       const ret = getter.call(this);
 
       Object.defineProperty(this, propertyKey, { value: ret });
@@ -83,25 +83,22 @@ export function LazyInit(getter: Function): PropertyDecorator {
  * @pluginApi
  */
 export const array = function() {
-  const findRemove = <T>(arr: Array<T>, predicate: (value: T) => boolean, thisArg?: any): T | undefined => {
+  const findRemove = <T>(arr: T[], predicate: (value: T) => boolean, thisArg?: any): T | undefined => {
     const idx = arr.findIndex(predicate, thisArg);
     if (idx > -1) {
       return arr.splice(idx, 1)[0];
     }
   };
 
-  return {
-    findRemove
-  }
+  return { findRemove };
 }();
-
 
 /**
  * Returns the chain of prototypes up to Object (not included)
  * @pluginApi
  * @param cls
  */
-export function getProtoChain(cls: Constructor<any>): Constructor<any>[] {
+export function getProtoChain(cls: Constructor<any>): Array<Constructor<any>> {
   const classes = [];
   while (cls && cls !== Object) {
     classes.push(cls);

@@ -58,10 +58,12 @@ There are 2 types of ignore tokens:
 ##### Single line
 Single line sections:
   - `@tdm-ignore-line`
-  - `@tdm-ignore-next-line`
+  - `@tdm-ignore-line:SECTION_NAME`
+  - `@tdm-ignore-next-line:SECTION_NAME`
 
 Examples:
   - HTML, MD: `<!--@tdm-ignore-line-->`
+  - HTML, MD: `<!--@tdm-ignore-line:TDM-DEMO-->`
   - TS, CSS, SCSS: `/* @tdm-ignore-line */`
 
 Single line tokens effect all sections.

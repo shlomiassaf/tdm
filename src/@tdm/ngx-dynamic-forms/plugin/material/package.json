@@ -1,0 +1,16 @@
+{
+  "version": "1.1.0-alpha.0",
+  "peerDependencies": {
+    "rxjs": "^5.5.1",
+    "typescript": "^2.4.2",
+    "tslib": "^1.6.0",
+    "@angular/core": "^5.0.0",
+    "@angular/common": "^5.0.0",
+    "@angular/forms": "^5.0.0",
+    "@angular/cdk": "^5.2.0",
+    "@angular/material": "^5.2.0",
+    "@tdm/tixin": "*",
+    "@tdm/core": "*",
+    "@tdm/ngx-dynamic-forms": "*"
+  }
+}

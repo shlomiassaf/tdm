@@ -1,0 +1,10 @@
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md'}]:true"></tdm-markdown-view>
+
+<form-wrapper title="Validation"
+              [code]="code | async | tdmCode:[{title: 'Component'}, {title: 'Template'}, {title: 'Model'}]">
+  <div class="custom-form-actions">
+    <mat-slide-toggle [checked]="required"
+                      (change)="requiredChanged(dynForm, !!$event.checked)">ID Required</mat-slide-toggle>
+  </div>
+  <dynamic-form #dynForm [model]="model"></dynamic-form>
+</form-wrapper>

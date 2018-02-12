@@ -1,8 +1,17 @@
 import { ValidatorFn, AsyncValidatorFn } from '@angular/forms';
-import { MetaClass, PropMetadata, BaseMetadata, DecoratorInfo, TypeMetadataArgs, Constructor, TypeMetadata } from '@tdm/core/tdm';
-import { RenderDef } from '../../interfaces';
+import {
+  stringify,
+  MetaClass,
+  PropMetadata,
+  BaseMetadata,
+  DecoratorInfo,
+  TypeMetadataArgs,
+  Constructor,
+  TypeMetadata
+} from '@tdm/core/tdm';
+import { RenderDef, FormElementType } from '../../interfaces';
 
-export interface FormPropMetadataArgs {
+export interface FormPropMetadataArgs<T extends keyof FormElementType = keyof FormElementType> {
   /**
    * Exclude this property from the form.
    * By default every class property decorated with @Prop or @FormProp is included in the output of
@@ -22,7 +31,7 @@ export interface FormPropMetadataArgs {
    * Definition for element rendering.
    * Set this if you want your models to automatically render into forms.
    */
-  render?: RenderDef;
+  render?: RenderDef<T>;
 
   /**
    * Sugar for adding a required validator
@@ -36,9 +45,9 @@ export interface FormPropMetadataArgs {
    * A flattening definitions is a key -> value map where key's are the properties of the type decorated and the values
    * are [[FormPropMetadataArgs]] for each property, it's sort of manual form control definition for a type.
    *
-   * A flatten definition is defined on [[[[FormPropMetadataArgs]]]] and creates internal [[FormPropMetadataArgs]] values so
-   * we can say that it is recursive, i.e. you can define a flatten definition with one or more of the children having
-   * flatten definitions of their own and the same for the children of the children...
+   * A flatten definition is defined on [[[[FormPropMetadataArgs]]]] and creates internal [[FormPropMetadataArgs]]
+   * values so we can say that it is recursive, i.e. you can define a flatten definition with one or more of the
+   * children having flatten definitions of their own and the same for the children of the children...
    *
    * Notice that flattening apply only on the rendering, it does not change the structure of the model and the generated
    * form structure is identical to the model structure.
@@ -72,7 +81,6 @@ export interface FormPropMetadataArgs {
    */
   childForm?: boolean;
 
-  // tsline:disable
   /**
    * Type definition declaration to be used by the form builder.
    * Setting type definition overrides any existing type definition, explicit or implicit.
@@ -89,9 +97,11 @@ export interface FormPropMetadataArgs {
    *
    * (1) The existing type information is usually enough but in some cases it requires manual definition done in using
    * the `@Prop` decorator, these are the most common scenarios:
-   *   - Circular module dependency (see https://blog.angularindepth.com/what-is-forwardref-in-angular-and-why-we-need-it-6ecefb417d48)
+   *   - Circular module dependency
+   *   SEE https://blog.angularindepth.com/what-is-forwardref-in-angular-and-why-we-need-it-6ecefb417d48
    *   - When using `this` or `any` type
-   *   - When using Array of T (e.g. `string[]` or `Array<number>`) (see https://github.com/Microsoft/TypeScript/issues/7169)
+   *   - When using Array of T (e.g. `string[]` or `Array<number>`)
+   *   SEE https://github.com/Microsoft/TypeScript/issues/7169
    *
    * (2)
    * It is not mandatory to decorate a property with `@Prop` when decorating it with `@FormProp`, i.e. `@FormProp` can
@@ -115,7 +125,6 @@ export interface FormPropMetadataArgs {
    * SEE [[TypeMetadataArgs]] for more information
    */
   rtType?: TypeMetadataArgs;
-  // tsline:enable
 
   /**
    * The default value
@@ -127,11 +136,12 @@ export interface FormPropMetadataArgs {
 }
 
 export const BASE_RENDERER: RenderDef = {
+  vType: 'none',
   ordinal: Number.MAX_SAFE_INTEGER
 };
 
 @MetaClass<FormPropMetadataArgs, FormPropMetadata>({
-  allowOn: ['member'],
+  allowOn: [ 'member' ],
   extend: 'prop',
   proxy: {
     host: PropMetadata,
@@ -144,8 +154,8 @@ export class FormPropMetadata extends BaseMetadata {
   required: boolean;
   defaultValue: any;
   render: RenderDef;
-  validators: ValidatorFn[] | null;
-  asyncValidators: AsyncValidatorFn[] | null;
+  validators: ValidatorFn | ValidatorFn[] | null;
+  asyncValidators: AsyncValidatorFn | AsyncValidatorFn[] | null;
   childForm: boolean;
   flatten?: { [key: string]: FormPropMetadata };
   rtType?: TypeMetadata;
@@ -153,44 +163,44 @@ export class FormPropMetadata extends BaseMetadata {
   constructor(metaArgs: FormPropMetadataArgs, info: DecoratorInfo, target?: Constructor<any>) {
     super(info);
     this.render = Object.create(BASE_RENDERER);
-    if (metaArgs) {
+    if ( metaArgs ) {
       this.transform = metaArgs.transform;
       this.exclude = metaArgs.exclude;
-      if (metaArgs.hasOwnProperty('defaultValue')) {
+      if ( metaArgs.hasOwnProperty('defaultValue') ) {
         this.defaultValue = metaArgs.defaultValue;
       }
-      this.validators = this.normValidators(metaArgs.validators);
+
       this.required = metaArgs.required;
-      this.asyncValidators = this.normValidators(metaArgs.asyncValidators);
-      if (!this.exclude && metaArgs.render) {
+      this.validators = metaArgs.validators || null;
+      this.asyncValidators = metaArgs.asyncValidators || null;
+      if ( !this.exclude && metaArgs.render ) {
+        if (!metaArgs.render.vType) {
+          throw new Error(`Invalid property type or type not set in ${stringify(target)}.${info.name}`);
+        }
         Object.assign(this.render, metaArgs.render);
       }
 
-      if (metaArgs.childForm) {
+      if ( metaArgs.childForm ) {
         // TODO: If childForm, check type and see type is a FormModel as well
         //       This requires some thinking because at this point the type might be undefined if it's a getter.
-        this.render.type = 'form';
+        this.render.vType = 'form';
         this.childForm = true;
       }
 
-      if (metaArgs.rtType) {
+      if ( metaArgs.rtType ) {
         this.rtType = new TypeMetadata(metaArgs.rtType, info, target);
       }
 
-      if (metaArgs.flatten) {
+      if ( metaArgs.flatten ) {
         this.flatten = {};
-        for (let key of Object.keys(metaArgs.flatten)) {
-          this.flatten[key] = new FormPropMetadata(metaArgs.flatten[key], { type: 'member', name: key });
+        for ( let key of Object.keys(metaArgs.flatten) ) {
+          this.flatten[ key ] = new FormPropMetadata(metaArgs.flatten[ key ], { type: 'member', name: key });
         }
       }
     }
   }
 
-  private normValidators(v: any): any[] | null {
-    return !v ? null : Array.isArray(v) ? v : [v];
-  }
-
-  static EMPTY = new FormPropMetadata({} as any, { type: 'class'} );
+  static EMPTY = new FormPropMetadata({} as any, { type: 'class' });
 }
 
 declare module '@tdm/core/tdm/src/metadata/prop' {

@@ -30,25 +30,7 @@ export class FormModelMetadata extends BaseMetadata implements FormModelMetadata
     }
   }
 
-  addProp(prop: PropMetadata, metaArgs: FormPropMetadata, target: any) {
-    if (!metaArgs.exclude && !metaArgs.render.type) {
-      const type = metaArgs.rtType || prop.type;
-      switch (type.ref) {
-        case Boolean:
-          metaArgs.render.type = 'boolean';
-          break;
-        case String:
-          metaArgs.render.type = 'text';
-          break;
-        case Number:
-          metaArgs.render.type = 'number';
-          break;
-        default:
-          if (!metaArgs.flatten) {
-            throw new Error(`Invalid property type or type not set in ${stringify(target)}.${prop.name}`);
-          }
-      }
-    }
+  addProp(prop: PropMetadata, metaArgs: FormPropMetadata) {
     this.props.set(prop.name as any, metaArgs);
   }
 

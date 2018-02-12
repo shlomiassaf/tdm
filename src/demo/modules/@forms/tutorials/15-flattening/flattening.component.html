@@ -1,0 +1,56 @@
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part1'}]:true"></tdm-markdown-view>
+
+<form-wrapper title="Flattening"
+              [code]="code | async | tdmCode:[{title: 'Component'}, {title: 'Template', section: 'tdmDemo'}, {title: 'Model'}]">
+<!--@tdm-example:tdmDemo-->
+  <dynamic-form #dynForm [model]="model" [filter]="['address']">
+    <button mat-raised-button color="primary"
+            [disabled]="dynForm.form.status !== 'VALID' || !dynForm.form.dirty"
+            (click)="dynForm.tdmForm.commitToModel(true)">SAVE</button>
+    <button mat-button [disabled]="dynForm.form.pristine" (click)="dynForm.tdmForm.reset()">CANCEL</button>
+  </dynamic-form>
+  <!--@tdm-example:tdmDemo-->
+</form-wrapper>
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part2'}]:true"></tdm-markdown-view>
+
+<div fxLayout="row">
+  <div fxFlex="50%" class="code-class">
+    <tdm-markdown-view overflowContainer
+                       [markdown]="code | async | tdmCode:[{file: 'other-view.md', section: 'visualReal'}]:true"></tdm-markdown-view>
+  </div>
+  <div fxFlex="50%" class="code-class">
+    <tdm-markdown-view overflowContainer
+                       [markdown]="code | async | tdmCode:[{file: 'other-view.md', section: 'visualVirtual'}]:true"></tdm-markdown-view>
+  </div>
+</div>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part3'}]:true"></tdm-markdown-view>
+
+<tdm-markdown-view>
+  Let's try out, first we create the <code>Coordinates</code> model:
+</tdm-markdown-view>
+<div fxLayout="row">
+  <div fxFlex="50%" class="code-class">
+    <tdm-markdown-view overflowContainer
+                       [markdown]="code | async | tdmCode:[{file: 'other-view.md', section: 'coordinates'}]:true"></tdm-markdown-view>
+  </div>
+  <div fxFlex="50%" class="code-class">
+    <tdm-markdown-view overflowContainer
+                       [markdown]="code | async | tdmCode:[{file: 'other-view.md', section: 'coordinatesClass'}]:true"></tdm-markdown-view>
+  </div>
+</div>
+<tdm-markdown-view>
+  Now the <code>Base</code> model
+</tdm-markdown-view>
+<div fxLayout="row">
+  <div fxFlex="50%" class="code-class">
+    <tdm-markdown-view overflowContainer
+                       [markdown]="code | async | tdmCode:[{file: 'other-view.md', section: 'base'}]:true"></tdm-markdown-view>
+  </div>
+  <div fxFlex="50%" class="code-class">
+    <tdm-markdown-view overflowContainer
+                       [markdown]="code | async | tdmCode:[{file: 'other-view.md', section: 'baseClass'}]:true"></tdm-markdown-view>
+  </div>
+</div>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part4'}]:true"></tdm-markdown-view>

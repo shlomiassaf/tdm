@@ -1,0 +1,54 @@
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part1'}]:true"></tdm-markdown-view>
+
+<form-wrapper title="Local Custom Template"
+              [code]="code | async | tdmCode:[{title: 'Component', section: 'tdmModel'}, {title: 'Template', section: 'tdmModel'}, {title: 'Model'}]">
+<!--@tdm-example:tdmModel-->
+  <dynamic-form #dynFormMaster [model]="model">
+
+    <ng-container *dynamicFormOverride="'*'; let ctx; vType: ['boolean', 'slideToggle']">
+      <dynamic-form-row [fromContext]="ctx" custom>
+        <mat-button-toggle-group [formControl]="ctx.fControl">
+          <mat-button-toggle [value]="true">YES</mat-button-toggle>
+          <mat-button-toggle [value]="false">NO</mat-button-toggle>
+        </mat-button-toggle-group>
+      </dynamic-form-row>
+    </ng-container>
+
+    <ng-container *dynamicFormOverride="'name'; let ctx">
+      <dynamic-form-row [fromContext]="ctx" custom>
+        <mat-form-field>
+          <input type="text" matInput [formControl]="ctx.fControl" [matAutocomplete]="auto">
+        </mat-form-field>
+
+        <mat-autocomplete #auto="matAutocomplete">
+          <mat-option value="batman">Bat Man</mat-option>
+          <mat-option value="superman">Super Man</mat-option>
+          <mat-option value="spiderman">Spider Man</mat-option>
+          <mat-option value="thor">Thor</mat-option>
+          <mat-option value="wonderwomen">Wonder Women</mat-option>
+          <mat-option value="captainamerica">Captain America</mat-option>
+        </mat-autocomplete>
+      </dynamic-form-row>
+    </ng-container>
+
+  </dynamic-form>
+  <!--@tdm-example:tdmModel-->
+</form-wrapper>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part2'}]:true"></tdm-markdown-view>
+
+<form-wrapper title="Programmatic Override"
+              [code]="code | async | tdmCode:[{title: 'Component', section: 'tdmModel2'}, {title: 'Template', section: 'tdmModel2'}, {title: 'Model'}]">
+
+<!--@tdm-example:tdmModel2-->
+  <dynamic-form #dynFormCustomOverride [slaveOf]="dynFormMaster"></dynamic-form>
+  <ng-template #defaultFieldOverrideTpl let-ctx>
+    <div>
+      <span style="display: inline-block; min-width: 200px"><b>{{ctx.item.label}}</b></span>
+      <span>{{ctx.tdmForm.getValue(ctx.item.getRuntimePath(ctx.fControl)) || 'Not Set'}}</span>
+    </div>
+  </ng-template>
+  <!--@tdm-example:tdmModel2-->
+</form-wrapper>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part3'}]:true"></tdm-markdown-view>

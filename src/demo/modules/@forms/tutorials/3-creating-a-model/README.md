@@ -1,20 +1,34 @@
 <!--@tdm-example:part1-->
-A **Model** is a class with metadata information.
-The metadata can be anything, but at the core every model contains information about the
-properties and methods it has including information about their types.
+# The Model
+In the overview we covered the relationship between a model and a form
+and explained the evolution from HTML forms to `@angular/forms` and
+finally dynamic forms.
 
-This alone is not enough information to render a form, we need more
-information such as label, order, type, etc...
+A **Model** is the fundamental building block driving dynamic forms.
 
-<div class="info">
-  Although a **Model** contains type information for the properties it
-  has, they differ from the **type** required for a form control.
-  
-  A `boolean` type can display as a slide toggle or as a checkbox. A
-  `number` type display as input or slider...
-</div>
+## Fundamental for all
+The model is in-fact the fundamental building block for the entire
+**@tdm** framework.
 
-We start with a simple class, our famous hero:
+Let's revisit our definition for the concept:
+
+> The concept is simple, provide a way to describe information and use
+  that information to perform an operation.
+    
+> Provide a way to describe how a property should manifest in a form
+  and use that information to display it.
+
+The first paragraph is abstract, the 2nd is specific to dynamic forms.  
+The concept in the 1st paragraph apply to all libraries in the `@tdm`
+framework: describe -> manage -> process -> execute  
+
+When designing models keep that in mind. The same model that describes
+a form can also describe HTTP calls, database operations, etc...
+
+## The `@Model()` decorator
+
+Starting from scratch, our `Hero` class:
+
 ```ts
 export class Hero {
   id: number;
@@ -23,8 +37,11 @@ export class Hero {
 }
 ```
 
-Now, let's make it a model by decorating the class:
+This is a simple class, it is not known to the library which means it
+is still not a model.
 
+We register it as a model using the `@Model` decorator:
+ 
 ```ts
 import { Model } from '@tdm/ngx-dynamic-forms';
 
@@ -36,18 +53,19 @@ export class Hero {
 }
 ```
 
-<div class="info">
-  A `Model` is the most basic representation, defined in `@tdm/core`, it is
-  extended by other `@tdm` packages to provide more functionality.
-</div>
+We mentioned that the library is part of the `@tdm` framework and it
+depends on `@tdm/core`. The `Model` decorator comes from `@tdm/core` and
+re-exported by the library for convenience.
 
-<div class="info">
-  A `@Model()` decorator accepts an optional metadata argument object.
-</div>
+The decorator accepts an optional metadata argument `ModelMetadataArgs`
+that contains metadata for the model.
+ 
+## A model and a form
+A model is the first step, we now need to declare that the model is also
+capable of becoming a form. There a 2 ways of doing so, the regular way
+and the short-syntax way. We will show both
 
-We need to declare this model as a model that can render to and from a
-form, we do that by decorating with `@FormModel`:
-
+#### Regular
 ```ts
 import { Model, FormModel } from '@tdm/ngx-dynamic-forms';
 
@@ -60,7 +78,8 @@ export class Hero {
 }
 ```
 
-or, use the short syntax:
+#### Short syntax
+
 ```ts
 import { Model } from '@tdm/ngx-dynamic-forms';
 
@@ -74,8 +93,12 @@ export class Hero {
 }
 ```
 
-The `@FormModel` decorator (and short-syntax) accepts an optional
-metadata argument object:
+<div class="alert">
+Going forward we will use the short-syntax.
+</div>
+
+Similar to `@Model`, the `@FormModel` also accepts an optional metadata
+argument with form specific information:
 
 ```ts
 export interface FormModelMetadataArgs {
@@ -84,26 +107,29 @@ export interface FormModelMetadataArgs {
 }
 ```
 
-Great, our model class can now transform from a `Hero` instance into a
-`FormGroup` instance and backwards.
+## Describing form controls
+The next step is to decorate the properties that we want to render
+as form controls, we do it using the `@FormProp` decorator which also
+has a regular and short syntax.
 
-Our next step is to define how the properties in this model render as
-form controls, this involves a bit more detail, let's start with just
+Decorating form properties requires more detail, let's start with just
 the `id` property:
+
+#### Regular
 
 ```ts
 import { Model, FormProp } from '@tdm/ngx-dynamic-forms';
 
 @FormProp({
   render: {
-    type: 'number',
+    vType: 'number',
     label: 'Hero ID'
   }
 })
 id: number;
 ```
 
-or, use the short syntax:
+#### Short syntax
 
 ```ts
 import { Model, Prop } from '@tdm/ngx-dynamic-forms';
@@ -111,7 +137,7 @@ import { Model, Prop } from '@tdm/ngx-dynamic-forms';
 @Prop({
   form: {
     render: {
-      type: 'number',
+      vType: 'number',
       label: 'Hero ID'
     }
   }
@@ -119,29 +145,40 @@ import { Model, Prop } from '@tdm/ngx-dynamic-forms';
 id: number;
 ```
 
-<div class="info">
-  `@Prop()` is also a `@tdm/core` decorator, same as `@Model` but for
-  class members. It is also extended by other `@tdm` packages.
-
-  It is recommended to use `@Prop` over `@FormProp` as `@Prop` is used
-  by other `@tdm` packages.
-
-  For example, A model can be used to created forms (**FormModel**) and
-  as a resource (**HttpResource**) for making HTTP requests via
-  `ngx-http-client`.
+<div class="alert">
+Going forward we will use the short-syntax.
 </div>
 
+`@FormProp` accepts an optional metadata argument `FormPropMetadataArgs`
+with form control specific information.
 
-The `@FormProp` decorator (and short-syntax) accepts the
-`FormPropMetadataArgs` object.
+For now we only define the `render` property. `render` is an object
+of type `RenderDef` and it is where UI related definitions are set.
 
-We only defined the `render` property which configure how a form
-renders, other properties offer additional features and behaviour
-settings. The `render` object contains other optional properties as well.
+When `render` is not set the property will have a form control within
+the form instance but will not display.
 
-We will cover most of the options as we progress, to get a better
-understanding you can explore the `FormPropMetadataArgs` and any child
-type and read the JSDoc comments for every option.
+`RenderDef` and `FormPropMetadataArgs` comes with a lot of other options
+to configure and setup, they are all optional and we will cover most of
+them as we progress, to get a better understanding you can explore these
+types and read the JSDoc comments attached to each option.
+
+Zooming in on the `renderer` object we defined 2 properties:
+
+#### vType
+**vType** stands for visual type, a value that the renderer will use
+to choose which UI element to render.
+
+Note that visual type is not the property type. A type can have many
+visual types, for example A `boolean` type can display as a slide toggle
+or as a checkbox. A  `number` type display as input or slider...
+
+`vType` is not a string, it accepts a specific set of literal string
+values defined by the renderer. 
+
+#### label
+The label to display next to the control, in the material renderer
+this will be the placeholder.
 
 Now, let's complete the whole class:
 
@@ -155,7 +192,7 @@ export class Hero {
   @Prop({
     form: {
       render: {
-        type: 'number',
+        vType: 'number',
         label: 'Hero ID'
       }
     }
@@ -165,7 +202,7 @@ export class Hero {
   @Prop({
     form: {
       render: {
-        type: 'text',
+        vType: 'text',
         label: 'Hero Name'
       }
     }
@@ -175,7 +212,7 @@ export class Hero {
   @Prop({
     form: {
       render: {
-        type: 'boolean',
+        vType: 'boolean',
         label: 'Super Hero'
       }
     }
@@ -184,24 +221,9 @@ export class Hero {
 }
 ```
 
-Straight forward, for every property we want rendered in a form
-we defined a type and a label for display.
+## The Form
+We have our first model ready, we have a renderer set we just need
+to use the `dynamic-form` component and attach a model to it.
 
-<div class="info">
-  We will be using the short-syntax notation where possible.  
-  
-  Because `@Model` and `@Prop` are `@tdm/core` constructs you might bump
-  into different import statements for them:  
-  
-    - `import { Model, Prop } from '@tdm/core';`  
-    - `import { Model, Prop } from '@tdm/ngx-http-client';`  
-    - `import { Model, Prop } from '@tdm/ngx-dynamic-forms';`  
-    
-    
-  These are all similar, re-exported for convenience.
-  
-</div>
-<!--@tdm-example:part1-->
-
-
-
+Make sure to check the source code view.
+ 

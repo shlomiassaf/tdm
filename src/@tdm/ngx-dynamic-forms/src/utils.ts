@@ -1,5 +1,5 @@
-import { isJsObject, isPrimitive, PlainObjectMapper } from '@tdm/core/tdm';
 import { AbstractControl, FormArray, FormGroup, FormControl } from '@angular/forms';
+import { isJsObject, isPrimitive, PlainObjectMapper } from '@tdm/core/tdm';
 
 /**
  * Performs a FormArray deep clone.
@@ -66,4 +66,10 @@ export function objectToForm(obj: any, plainMapper?: PlainObjectMapper): FormGro
       });
   }
   return data;
+}
+
+// Taken from https://github.com/angular/material2/blob/master/src/cdk/coercion/boolean-property.ts
+/** Coerces a data-bound value (typically a string) to a boolean. */
+export function coerceBooleanProperty(value: any): boolean {
+  return value != null && `${value}` !== 'false';
 }

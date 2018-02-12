@@ -17,6 +17,11 @@ module.exports = [
     autoRender: true
   },
   {
+    file: './README.md',
+    section: 'PART-4',
+    autoRender: true
+  },
+  {
     file: './introduction.component.ts',
     autoRender: true,
     title: 'Component'

@@ -8,6 +8,17 @@ module.exports = [
     section: 'part1'
   },
   {
+    file: './creating-a-model.component.ts',
+    autoRender: true,
+    title: 'Component'
+  },
+  {
+    file: './creating-a-model.component.html',
+    autoRender: true,
+    title: 'Template',
+    section: 'tdmDemo'
+  },
+  {
     file: './model.ts',
     autoRender: true,
     title: 'Model'

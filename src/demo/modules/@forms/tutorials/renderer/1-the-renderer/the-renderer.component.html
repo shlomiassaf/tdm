@@ -1,0 +1,28 @@
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part1'}]:true"></tdm-markdown-view>
+<tdm-markdown-view overflowContainer
+                   [code]="(code | async | tdmCode:[{id: 'DynamicControlRenderContext'}])[0]"></tdm-markdown-view>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part2'}]:true"></tdm-markdown-view>
+<tdm-markdown-view overflowContainer
+                   [code]="(code | async | tdmCode:[{title: 'Model', section: 'plain'}])[0]"></tdm-markdown-view>
+
+
+<tdm-markdown-view>
+  <p>A now our Simple Renderer <code>@Component</code></p>
+</tdm-markdown-view>
+<tdm-code-view [code]="code | async | tdmCode:[{file: 'renderer.component.ts'}, {file: 'renderer.types.ts'}, {file: 'renderer.component.html'}]"></tdm-code-view>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part3'}]:true"></tdm-markdown-view>
+
+<tdm-markdown-view>
+  <p>Rendering a dynamic form component:</p>
+</tdm-markdown-view>
+<form-wrapper style="min-height: 300px"
+              [code]="code | async | tdmCode:[{title: 'Component'}, {title: 'Template'}, {title: 'Model'}]">
+  <!--@tdm-example:tdmDemo-->
+  <dynamic-form [model]="model"></dynamic-form>
+  <!--@tdm-example:tdmDemo-->
+</form-wrapper>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part4'}]:true"></tdm-markdown-view>
+

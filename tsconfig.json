@@ -79,7 +79,13 @@
         "@tdm/ngx-http-client/src/*"
       ],
       "@tdm/ngx-dynamic-forms": [
-        "@tdm/ngx-dynamic-forms/src/index.ts"
+        "@tdm/ngx-dynamic-forms/src/ngx-dynamic-forms.ts"
+      ],
+      "@tdm/ngx-dynamic-forms/plugin/material": [
+        "@tdm/ngx-dynamic-forms/plugin/material/src/index.ts"
+      ],
+      "@tdm/ngx-dynamic-forms/plugin/material/src/*": [
+        "@tdm/ngx-dynamic-forms/plugin/material/src/*"
       ],
       "@tdm/ngx-dynamic-forms/src/*": [
         "@tdm/ngx-dynamic-forms/src/*"

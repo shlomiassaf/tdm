@@ -7,7 +7,7 @@ export class User {
   @FormProp({
     required: true,
     render: {
-      type: 'text',
+      vType: 'text',
       label: 'User Name'
     }
   })
@@ -15,7 +15,7 @@ export class User {
 
   @FormProp({
     render: {
-      type: 'text',
+      vType: 'text',
       label: 'User Email Address'
     }
   })
@@ -26,20 +26,20 @@ export class User {
       street: {
         required: true,
         render: {
-          type: 'text',
+          vType: 'text',
           label: 'Street'
         }
       },
       city: {
         required: true,
         render: {
-          type: 'text',
+          vType: 'text',
           label: 'City'
         }
       },
       zip: {
         render: {
-          type: 'number',
+          vType: 'number',
           label: 'ZIP'
         }
       },
@@ -47,7 +47,7 @@ export class User {
         defaultValue: 'CA',
         render: {
           label: 'State',
-          type: 'select',
+          vType: 'select',
           data: {
             options: [
               { value: 'CA', label: 'California' },

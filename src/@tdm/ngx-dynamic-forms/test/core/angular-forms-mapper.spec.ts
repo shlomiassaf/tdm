@@ -1,5 +1,5 @@
 // tslint:disable
-import { async, fakeAsync, tick } from '@angular/core/testing';
+import { fakeAsync, tick } from '@angular/core/testing';
 import { FormArray, FormGroup, FormControl, AbstractControl } from '@angular/forms';
 
 import { Model, Exclude, Prop } from '@tdm/core';
@@ -142,13 +142,13 @@ describe('@tdm/ngx-dynamic-forms', () => {
       @FormModel()
       class DemoForm {
         @FormProp({
-          render: { type: 'text' },
+          render: { vType: 'text' },
           childForm: true
         })
         complexObject1: any = obj;
 
         @FormProp({
-          render: { type: 'text' },
+          render: { vType: 'text' },
           childForm: false
         })
         complexObject2: any = obj;
@@ -186,12 +186,10 @@ describe('@tdm/ngx-dynamic-forms', () => {
       @FormModel()
       class DemoForm {
         @FormProp({
-          render: { type: 'text' },
           childForm: true
         }) child1: DemoChildForm = obj;
 
         @FormProp({
-          render: { type: 'text' },
           childForm: false
         }) child2: DemoChildForm = obj;
 
@@ -402,7 +400,6 @@ describe('@tdm/ngx-dynamic-forms', () => {
           id: number;
 
           @FormProp({
-            render: { type: 'text' },
             childForm: true,
             rtType: () => Address
           })
@@ -733,7 +730,6 @@ describe('@tdm/ngx-dynamic-forms', () => {
         @FormModel()
         class MyChildModel {
           @FormProp({
-            render: { type: 'text' },
             childForm: true
           })
           childModel: MyChildChildModel;
@@ -765,7 +761,6 @@ describe('@tdm/ngx-dynamic-forms', () => {
           addresses: AddressWithAdditional[];
 
           @FormProp({
-            render: { type: 'text' },
             childForm: true
           })
           childModel: MyChildModel;

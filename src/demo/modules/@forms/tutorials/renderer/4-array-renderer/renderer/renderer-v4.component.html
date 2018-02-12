@@ -1,0 +1,68 @@
+<div *ngIf="!item.isArray; else FormArray" [ngSwitch]="item.vType" [style.display]="item.hidden ? 'none' : undefined">
+  <mat-checkbox *ngSwitchCase="'boolean'"
+                [formControl]="fControl">{{ item.label }}</mat-checkbox>
+
+  <mat-slide-toggle *ngSwitchCase="'slideToggle'"
+                    [formControl]="fControl">{{ item.label }}</mat-slide-toggle>
+
+  <ng-container *ngSwitchCase="'slider'">
+    <span>{{item.label}}</span>
+    <mat-slider [formControl]="fControl"
+                thumbLabel="true"
+                [tickInterval]="1"
+                [min]="item.data?.min" [max]="item.data?.max"></mat-slider>
+  </ng-container>
+
+  <ng-container *ngSwitchCase="'radio'">
+    <span>{{item.label}}</span>
+    <mat-radio-group *ngSwitchCase="'radio'"
+                     [class.vertical-mat-radio-group]="item.data?.vertical"
+                     [formControl]="fControl">
+      <mat-radio-button *ngFor="let sel of item.data.options" [value]="sel.value">{{sel.label || sel.value}}</mat-radio-button>
+    </mat-radio-group>
+    <mat-error *ngIf="hasError('required')">Required</mat-error>
+  </ng-container>
+
+  <mat-form-field *ngSwitchCase="'select'">
+    <mat-select [formControl]="fControl"
+                [placeholder]="item.label">
+      <mat-option *ngFor="let sel of item.data.options" [value]="sel.value">{{sel.label || sel.value}}</mat-option>
+    </mat-select>
+    <mat-error *ngIf="hasError('required')">Required</mat-error>
+  </mat-form-field>
+
+  <ng-container *ngSwitchCase="'form'">
+    <a mat-button (click)="editChildFrom()">{{item.label}}</a>
+    <span>{{fGroup.get(item.name + '.' + item.identity)?.value}}</span>
+    <dynamic-form *ngIf="externalTdmForm" [model]="externalTdmForm"></dynamic-form>
+  </ng-container>
+
+  <mat-form-field *ngSwitchDefault>
+    <input matInput
+           [type]="item.vType"
+           [formControl]="fControl"
+           [placeholder]="item.label">
+    <mat-error *ngIf="hasError('required')">Required</mat-error>
+  </mat-form-field>
+</div>
+<ng-template #FormArray>
+  <div *ngIf="item.isArray" [formGroup]="fGroup" [style.display]="item.hidden ? 'none' : undefined">
+    <!--<dynamic-form-array [formArrayName]="item.name"-->
+    <!--[tdmForm]="tdmForm"-->
+    <!--[fGroup]="fGroup"-->
+    <!--[fArray]="fArray"-->
+    <!--[item]="item">-->
+    <!--</dynamic-form-array>-->
+
+    <!--<div [formArrayName]="item.name">-->
+    <!--<ng-container *dynamicFormArray="let ctx; tdmForm: tdmForm; fGroup: fGroup; fArray: fArray; item: item"></ng-container>-->
+    <!--</div>-->
+
+    <div [formArrayName]="item.name" >
+      <div *forFormArray="let c of fArray; tdmForm: tdmForm; fGroup: fGroup; item: item">
+        <renderer-v4 [tdmForm]="c.tdmForm" [item]="c.item" [fGroup]="c.fGroup" [fArray]="c.fArray" [fControl]="c.fControl"></renderer-v4>
+      </div>
+    </div>
+    <mat-error *ngIf="hasError('required')">Required</mat-error>
+  </div>
+</ng-template>

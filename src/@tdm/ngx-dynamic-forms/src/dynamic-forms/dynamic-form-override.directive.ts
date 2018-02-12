@@ -1,12 +1,50 @@
-import { Directive, Input, Inject, forwardRef, TemplateRef } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { Directive, Input, Inject, forwardRef, TemplateRef, SimpleChanges, OnChanges } from '@angular/core';
+import { isString } from '@tdm/core/tdm';
 
+import { FormElementType } from '../interfaces';
 import { RenderInstruction } from '../tdm-model-form/render-instruction';
-import { DynamicFormControlRenderer } from '../tdm-model-form/tdm-model-form';
-import { DynamicFormComponent } from './dynamic-form.component';
+import { DynamicControlRenderContext } from '../tdm-model-form/tdm-model-form';
 
 export interface DynamicFormOverrideContext {
-  $implicit: DynamicFormControlRenderer;
+  $implicit: DynamicControlRenderContext;
+}
+
+export class ControlSelectorBase implements OnChanges {
+  controlName: string | string[];
+  vType: keyof FormElementType | Array<keyof FormElementType>;
+
+  /**
+   * Returns true when the control name is catch all
+   */
+  get isCatchAll(): boolean {
+    return this.controlName === '*';
+  }
+
+  protected filter = {
+    names: [] as string[],
+    vTypes: [] as Array<keyof FormElementType>
+  };
+
+  isMatching(rd: RenderInstruction): boolean {
+    return (!this.vType || this.filter.vTypes.indexOf(rd.vType) > - 1)
+      && (this.controlName && (this.controlName === '*' || this.controlName.indexOf(rd.name) > -1) );
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if ('controlName' in changes || 'vType' in changes) {
+      this.syncQuery();
+    }
+  }
+
+  syncQuery(): void {
+    this.filter.names = Array.isArray(this.controlName)
+      ? this.controlName
+      : isString(this.controlName) ? [this.controlName] : [];
+
+    this.filter.vTypes = Array.isArray(this.vType)
+      ? this.vType
+      : isString(this.vType) ? [this.vType] : [];
+  }
 }
 
 /**
@@ -27,35 +65,12 @@ export interface DynamicFormOverrideContext {
   selector: '[dynamicFormOverride]',
   exportAs: 'dynamicFormOverride'
 })
-export class DynamicFormOverrideDirective {
+export class DynamicFormOverrideDirective extends ControlSelectorBase {
 
-  get dynamicFormOverride(): string { return this.key; };
-  @Input() set dynamicFormOverride(value: string) {
-    this.key = value;
-    if (this.key && this.key !== '*') {
-      this.meta = this.dynForm.tdmForm.renderData.find( rd => rd.name === value);
-    } else {
-      this.meta = undefined;
-    }
-  };
+  @Input('dynamicFormOverride') controlName: string | string[];
+  @Input('dynamicFormOverrideVType') vType: keyof FormElementType | Array<keyof FormElementType>;
 
-  /**
-   * A Shortcut for the parent's DynamicFormComponent#.tdmForm.form
-   * @returns
-   */
-  get formGroup(): FormGroup {
-    return this.dynForm.tdmForm.form;
+  constructor(public template: TemplateRef<DynamicFormOverrideContext>) { // tslint:disable-line
+    super();
   }
-
-  /**
-   * Render instruction exposed as an API for templates
-   */
-  meta: RenderInstruction;
-
-  private key: string;
-
-  constructor(
-    public template: TemplateRef<DynamicFormOverrideContext>,
-    @Inject(forwardRef(() => DynamicFormComponent))  private dynForm: DynamicFormComponent<any>
-  ) {}
 }

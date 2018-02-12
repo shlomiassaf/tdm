@@ -9,7 +9,7 @@ export class User {
   @FormProp({
     required: true,
     render: {
-      type: 'number',
+      vType: 'number',
       label: 'User ID'
     }
   })
@@ -18,7 +18,7 @@ export class User {
   @FormProp({
     required: true,
     render: {
-      type: 'text',
+      vType: 'text',
       label: 'User Name'
     }
   })
@@ -26,7 +26,7 @@ export class User {
 
   @FormProp({
     render: {
-      type: 'text',
+      vType: 'text',
       label: 'User Email Address'
     }
   })
@@ -35,7 +35,7 @@ export class User {
   @FormProp({
     required: true,
     render: {
-      type: 'text',
+      vType: 'text',
       label: 'Alias'
     }
   })
@@ -44,20 +44,21 @@ export class User {
   @FormProp({
     required: true,
     render: {
+      vType: 'none',
       label: 'Movies'
     },
     flatten: {
       name: {
         required: true,
         render: {
-          type: 'text',
+          vType: 'text',
           label: 'Movie Name'
         }
       },
       year: {
         required: true,
         render: {
-          type: 'number',
+          vType: 'number',
           label: 'Movie Year'
         }
       },
@@ -70,20 +71,20 @@ export class User {
       street: {
         required: true,
         render: {
-          type: 'text',
+          vType: 'text',
           label: 'STREET'
         }
       },
       city: {
         required: true,
         render: {
-          type: 'text',
+          vType: 'text',
           label: 'CITY'
         }
       },
       zip: {
         render: {
-          type: 'number',
+          vType: 'number',
           label: 'ZIP'
         }
       },
@@ -91,7 +92,7 @@ export class User {
         defaultValue: 'CA',
         render: {
           label: 'STATE',
-          type: 'select',
+          vType: 'select',
           data: {
             options: [
               { value: 'CA', label: 'California' },
@@ -107,19 +108,19 @@ export class User {
           nested1: {
             required: true,
             render: {
-              type: 'text',
+              vType: 'text',
               label: 'Nested 1 - Required'
             }
           },
           nested2: {
             render: {
-              type: 'number',
+              vType: 'number',
               label: 'Nested 2'
             }
           },
           nested3: {
             render: {
-              type: 'number',
+              vType: 'number',
               label: 'Nested 3'
             }
           },

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { FORM_CONTROL_COMPONENT } from '@tdm/ngx-dynamic-forms';
-import { Hero, TutorialRendererV2Component } from '../6-a-better-renderer';
+import { FORM_CONTROL_COMPONENT } from '@tdm/ngx-dynamic-forms'; /* @tdm-ignore-line */
+import { DynamicFormRowComponent } from '../5-renderer-container'; /* @tdm-ignore-line */
+import { Hero } from '../4-element-metadata';
 
 @Component({
   selector: 'form-virtual-groups',
@@ -8,7 +9,7 @@ import { Hero, TutorialRendererV2Component } from '../6-a-better-renderer';
   styleUrls: [ './virtual-groups.component.scss' ],
   /* @tdm-ignore:* */
   providers: [
-    { provide: FORM_CONTROL_COMPONENT, useValue: TutorialRendererV2Component }
+    { provide: FORM_CONTROL_COMPONENT, useValue: DynamicFormRowComponent }
   ]
   /* @tdm-ignore:* */
 })

@@ -26,17 +26,21 @@ export class FormWrapperComponent implements AfterContentInit, OnChanges {
   form: AbstractControl;
   @ContentChild(DynamicFormComponent) dynForm: DynamicFormComponent;
 
-  formOrModelJson: string;
+  formJson: string;
+  modelJson: string;
   showSpinner: boolean;
 
   @Input() rightDrawerOpened: boolean;
   @Input() title: string;
-  @Input() jsonView: 'model' | 'form' | undefined;
+  @Input() jsonView: boolean;
   @Input() code: ExtractedCode[];
   @Input() noDashboard: boolean;
 
-  onJsonViewChange(source: 'form' | 'model'): void {
-    this.jsonView = this.jsonView !== source ? source : undefined;
+  ledBlinking: boolean;
+  ledColor: 'red' | 'blue' | 'yellow' | 'green';
+
+  toggleJsonView(): void {
+    this.jsonView = !this.jsonView;
     if (this.jsonView) {
       this.refreshJsonView();
     }
@@ -61,13 +65,35 @@ export class FormWrapperComponent implements AfterContentInit, OnChanges {
       this.form = this.dynForm.form;
       this.dynForm.valueChanges.pipe(debounceTime(150))
         .subscribe( v => this.refreshJsonView() );
+      this.form.statusChanges.subscribe( status => {
+        switch (status) {
+          case 'VALID':
+            this.ledColor = 'green';
+            this.ledBlinking = false;
+            break;
+          case 'INVALID':
+            this.ledColor = 'red';
+            this.ledBlinking = true;
+            break;
+          case 'PENDING':
+            this.ledColor = 'blue';
+            this.ledBlinking = true;
+            break;
+          case 'DISABLED':
+            this.ledColor = 'yellow';
+            this.ledBlinking = false;
+            break;
+          default:
+            this.ledColor = <any> '';
+        }
+      });
     }
   }
 
   refreshJsonView(): void {
-    const rawCode = this.jsonView === 'form'
-      ? this.dynForm.form.getRawValue()
-      : this.jsonView === 'model' ? this.dynForm.tdmForm.model : '';
-    this.formOrModelJson = highlightAuto(JSON.stringify(rawCode, null, 2), ['json']).value;
+    if (this.jsonView) {
+      this.formJson = highlightAuto(JSON.stringify(this.dynForm.form.getRawValue(), null, 2), ['json']).value;
+      this.modelJson = highlightAuto(JSON.stringify(this.dynForm.tdmForm.model, null, 2), ['json']).value;
+    }
   }
 }

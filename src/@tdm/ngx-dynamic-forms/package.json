@@ -1,5 +1,5 @@
 {
-  "version": "1.0.2-alpha.8",
+  "version": "1.1.0-alpha.0",
   "description": "Dynamic forms using Typed data models (@tdm).",
   "keywords": [
     "@tdm",
@@ -17,5 +17,14 @@
     "@angular/forms": "^5.0.0",
     "@tdm/tixin": "*",
     "@tdm/core": "*"
+  },
+  "libConfig": {
+    "entry": "ngx-dynamic-forms",
+    "libExtensions": [
+      {
+        "name": "material",
+        "dir": "plugin/material"
+      }
+    ]
   }
 }

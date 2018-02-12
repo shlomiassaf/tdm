@@ -1,0 +1,13 @@
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part1'}]:true"></tdm-markdown-view>
+
+<form-wrapper title="Outlet context"
+              [code]="code | async | tdmCode:[{title: 'Component'}, {title: 'Template', section: 'tdmDemo'}, {title: 'Model'}]">
+<!--@tdm-example:tdmDemo-->
+<dynamic-form #dynForm [model]="model"></dynamic-form>
+</form-wrapper> <!--@tdm-ignore-line-->
+
+<div class="red-super-power-box">
+  <h3 *dynamicControlOutlet="'superPower'; let ctx; dynForm: dynForm" class="red-super-power-title">Super Power Is In The Red Box</h3>
+</div>
+<!--@tdm-example:tdmDemo-->
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part2'}]:true"></tdm-markdown-view>

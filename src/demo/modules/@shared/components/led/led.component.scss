@@ -1,0 +1,122 @@
+$animation-prefix-list: "webkit", "moz", "ms", "o", "";
+@mixin keyframes($animationName){
+  @each $pfx in $animation-prefix-list{
+    $prefix: if($pfx == "", "", #{"-"+$pfx+"-"});
+    @if $pfx == "webkit"{
+      @-webkit-keyframes #{$animationName}{
+        @content;
+      }
+    }@else if $pfx == "moz"{
+      @-moz-keyframes #{$animationName}{
+        @content;
+      }
+    }@else if $pfx == "ms"{
+      @-ms-keyframes #{$animationName}{
+        @content;
+      }
+    }@else if $pfx == "o"{
+      @-o-keyframes #{$animationName}{
+        @content;
+      }
+    }@else{
+      @keyframes #{$animationName}{
+        @content;
+      }
+    }
+  }
+}
+@mixin blink($base, $inset, $outset) {
+  from { background-color: $base; }
+  50% { background-color: darken($base, 33%); box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset $inset 0 -1px 9px, $outset 0 2px 0;}
+  to { background-color: $base; }
+}
+
+.tdm-led {
+  width: 100%;
+  height: 100%;
+
+  .status-indicator {
+    margin: 0 auto;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
+
+  .status-indicator {
+    background-color: transparent;
+    box-shadow: rgba(56, 56, 56, 0.2) 0 -1px 7px 1px, inset #535353 0 -1px 9px, #b0b0b0 0 2px 14px;
+
+    &.status-indicator-green {
+      @at-root {
+        @include keyframes(blinkGreen) {
+          @include blink(#ABFF00, #304701, #89FF00)
+        }
+      }
+      background-color: #ABFF00;
+      box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #304701 0 -1px 9px, #89FF00 0 2px 12px;
+      &.status-blink {
+        -webkit-animation: blinkGreen 0.75s infinite;
+        -moz-animation: blinkGreen 0.75s infinite;
+        -ms-animation: blinkGreen 0.75s infinite;
+        -o-animation: blinkGreen 0.75s infinite;
+        animation: blinkGreen 0.75s infinite;
+      }
+    }
+
+    &.status-indicator-yellow {
+      @at-root {
+        @include keyframes(blinkYellow) {
+          @include blink(#FF0, #808002, #FF0)
+        }
+      }
+      background-color: #FF0;
+      box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #808002 0 -1px 9px, #FF0 0 2px 12px;
+      &.status-blink {
+        -webkit-animation: blinkYellow 0.75s infinite;
+        -moz-animation: blinkYellow 0.75s infinite;
+        -ms-animation: blinkYellow 0.75s infinite;
+        -o-animation: blinkYellow 0.75s infinite;
+        animation: blinkYellow 0.75s infinite;
+      }
+    }
+
+    &.status-indicator-red {
+      @at-root {
+        @include keyframes(blinkRed) {
+          @include blink(#F00, #441313, rgba(255, 0, 0, 0.5))
+        }
+      }
+      background-color: #F00;
+      box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 12px;
+      &.status-blink {
+        -webkit-animation: blinkRed 0.75s infinite;
+        -moz-animation: blinkRed 0.75s infinite;
+        -ms-animation: blinkRed 0.75s infinite;
+        -o-animation: blinkRed 0.75s infinite;
+        animation: blinkRed 0.75s infinite;
+      }
+    }
+
+    &.status-indicator-blue {
+      @at-root {
+        @include keyframes(blinkBlue) {
+          @include blink(#3F8CFF, #006, #3F8CFF)
+        }
+      }
+      background-color: #3F8CFF;
+      box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #006 0 -1px 9px, #3F8CFF 0 2px 14px;
+      &.status-blink {
+        -webkit-animation: blinkBlue 0.75s infinite;
+        -moz-animation: blinkBlue 0.75s infinite;
+        -ms-animation: blinkBlue 0.75s infinite;
+        -o-animation: blinkBlue 0.75s infinite;
+        animation: blinkBlue 0.75s infinite;
+      }
+    }
+
+    &.status-disabled {
+      background-color: #b7b7b7;
+      box-shadow: rgba(56, 56, 56, 0.2) 0 -1px 7px 1px, inset #535353 0 -1px 9px, inset #636363 0 2px 14px;
+    }
+  }
+}

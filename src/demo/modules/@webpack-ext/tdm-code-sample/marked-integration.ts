@@ -16,6 +16,11 @@ renderer.code = function(code, lang, escaped) {
       ;
   }
 };
+renderer.heading = function (text, level) {
+  const escapedText = text.toLowerCase().replace(/[^\w]+/g, '-');
+  return `<h${level}><a id="${escapedText}" class="anchor" href="#${escapedText}">\
+<span class="header-link"></span></a>${text}</h${level}>`;
+};
 
 export const DEFAULT_MARKED_OPTIONS = {
   renderer,

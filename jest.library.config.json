@@ -47,9 +47,12 @@
     "^@tdm/data/plugin/rx-resource-control/src/(.*)": "<rootDir>/src/@tdm/data/plugin/rx-resource-control/src/$1",
     "^@tdm/ngx-http-client$": "<rootDir>/src/@tdm/ngx-http-client/src/index.ts",
     "^@tdm/ngx-http-client/src/(.*)": "<rootDir>/src/@tdm/ngx-http-client/src/$1",
-    "^@tdm/ngx-dynamic-forms$": "<rootDir>/src/@tdm/ngx-dynamic-forms/src/index.ts",
+    "^@tdm/ngx-dynamic-forms$": "<rootDir>/src/@tdm/ngx-dynamic-forms/src/ngx-dynamic-forms.ts",
     "^@tdm/ngx-dynamic-forms/src/(.*)": "<rootDir>/src/@tdm/ngx-dynamic-forms/src/$1",
+    "^@tdm/ngx-dynamic-forms/plugin/material$": "<rootDir>/src/@tdm/ngx-dynamic-forms/plugin/material/src/index.ts",
+    "^@tdm/ngx-dynamic-forms/plugin/material/src/(.*)": "<rootDir>/src/@tdm/ngx-dynamic-forms/plugin/material/src/$1",
     "^@tdm/json-api-mapper$": "<rootDir>/src/@tdm/json-api-mapper/src/index.ts",
-    "^@tdm/json-api-mapper/src/(.*)": "<rootDir>/src/@tdm/json-api-mapper/src/$1"
+    "^@tdm/json-api-mapper/src/(.*)": "<rootDir>/src/@tdm/json-api-mapper/src/$1",
+    "(.*)": "<rootDir>/src/$1"
   }
 }

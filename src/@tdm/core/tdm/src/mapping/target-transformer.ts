@@ -1,7 +1,6 @@
 import { LazyInit, TransformDir, NamingStrategyConfig, isFunction, array } from '../fw';
 import { PropMetadata, ExcludeMetadata, TargetMetadata } from '../metadata';
 
-
 import {
   SerializeMapper,
   DeserializeMapper,
@@ -12,7 +11,6 @@ import {
   InclusivePropertyContainer,
   transformValueIn
 } from './index';
-
 
 /**
  * Returns an array of 2 property names, first is the name of the transformed output
@@ -45,8 +43,6 @@ export function getInstructions<T, Z>(meta: TargetMetadata<T, Z>, dir: Transform
   // only apply naming strategy on outgoing, incoming has no effect here
   const naming = namingStrategyMap(dir, model.transformNameStrategy);
 
-
-
   const fkMap = new Map<PropMetadata, PoClassPropertyMap[]>();
 
   // TODO: move to for loop
@@ -66,13 +62,16 @@ export function getInstructions<T, Z>(meta: TargetMetadata<T, Z>, dir: Transform
 
       // store the PoClassPropertyMap of a belongsTo PropMetadata relation
       // and the PoClassPropertyMap of all foreign key PropMetadata.
-      // These arr actually matching pairs of a belongTo relation and it's fk (not all belongsTo has fk, only different property name is a fk)
+      // These arr actually matching pairs of a belongTo relation and it's fk
+      // (not all belongsTo has fk, only different property name is a fk)
+      //
       // At the end, go through the stored PropMetadata's and see if matching pairs found (2 values in array)
       // for all of them, swap the prop names so:
       // belongsTo PoClassPropertyMap will output (deserialize) to the original fk property name
       // foreignKey PoClassPropertyMap wil input (serialize) to the belongsTo property name
       // this swap make the deserialize/serialize process transparent to fk mismatch defined on the model.
-      // De/Serialize implementations are only responsible to return the right object (e.g. detect when a key is incoming, return obj instead)
+      // De/Serialize implementations are only responsible to return the right object
+      // (e.g. detect when a key is incoming, return obj instead)
       if (prop.relation) {
         const arr = fkMap.get(prop) || [];
         arr[0] = obj;
@@ -124,7 +123,6 @@ export class TargetTransformer<T, Z> {
   })
   protected incoming: CompiledTransformation;
 
-
   @LazyInit(function (this: TargetTransformer<T, Z>): CompiledTransformation {
     return getInstructions(this.meta, 'outgoing');
   })
@@ -169,7 +167,7 @@ export class TargetTransformer<T, Z> {
    * Does not support collection deserialization, if mapper is a collection will throw.
    * @param mapper
    * @param target
-   **/
+   */
   deserialize(mapper: DeserializeMapper, target: any): void {
     const cb = (prop: PoClassPropertyMap) => {
       const propMeta = (prop.prop && prop.prop.foreignKeyOf) || prop.prop;
@@ -185,7 +183,6 @@ export class TargetTransformer<T, Z> {
     } else {
       this.incomingContainer.forEach(mapper.getKeys(), cb);
     }
-
 
     if (isFunction(mapper.getIdentity)) {
       if (this.identity) {

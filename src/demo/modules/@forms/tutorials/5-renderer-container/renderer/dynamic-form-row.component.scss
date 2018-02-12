@@ -1,0 +1,18 @@
+.dyn-form-row {
+  margin: 0 25px 5px 25px;
+}
+
+.dyn-form-label {
+  text-align: right;
+}
+
+.dyn-form-element-container {
+  padding-left: 25px;
+
+  // We cancel padding for radio groups, instead it is set in the css of the element itself
+  // this is required so the left side of the ripple animation is not cut of on vertical radio groups with overflow auto
+  &.dyn-form-element-container-radio {
+    padding-left: 0;
+  }
+
+}

@@ -2,14 +2,17 @@ import { NgModule, ModuleWithProviders } from '@angular/core';
 
 import { MODULES, ROOT_MODULES } from './modules';
 import { UiBlockService } from './services/ui-block';
+import { LocationService } from './services/location.service';
 import {
   UiBlock,
   TdmCodeViewComponent,
   TdmMarkdownViewComponent,
   TdmPackageWelcomeComponent,
-  TdmFeatureListComponent
+  TdmFeatureListComponent,
+  TdmLedComponent
 } from './components';
 import { CdkDetailRowDirective } from './cdk-detail-row.directive';
+import { AnchorTrapDirective } from './directives/anchor-trap.directive';
 import { DataSourceDirective } from './data-source';
 import { TdmCodeExtractPipe } from './pipes';
 
@@ -18,8 +21,10 @@ const DECLARATIONS = [
   TdmMarkdownViewComponent,
   TdmPackageWelcomeComponent,
   TdmFeatureListComponent,
+  TdmLedComponent,
   UiBlock,
   CdkDetailRowDirective,
+  AnchorTrapDirective,
   DataSourceDirective,
   TdmCodeExtractPipe
 ];
@@ -40,10 +45,9 @@ export class DeclarationSharedModule {
     ...MODULES,
     DeclarationSharedModule
   ],
-  providers: [ UiBlockService ]
+  providers: [ UiBlockService, LocationService ]
 })
-export class SharedModuleRoot {
-}
+export class SharedModuleRoot { }
 
 // tslint:disable-next-line
 @NgModule({

@@ -1,32 +1,48 @@
-import { ANALYZE_FOR_ENTRY_COMPONENTS, Type, NgModule, ModuleWithProviders } from '@angular/core';
+import { ANALYZE_FOR_ENTRY_COMPONENTS, NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { Constructor } from '@tdm/core/tdm';
-import { DynamicFormControlRenderer, TDMModelFormService, TDMModelFormDirective } from './tdm-model-form/index';
+import { TDMModelFormService, TDMModelFormDirective } from './tdm-model-form/index';
 import {
   DynamicFormOverrideDirective,
   DynamicFormControlDirective,
-  DynamicFormComponent,
-  FORM_CONTROL_COMPONENT
+  DynamicControlOutletDirective,
+  DynamicFormArrayComponent,
+  DynamicFormArrayDirective,
+  ForFormArrayDirective,
+  DynamicFormComponent
 } from './dynamic-forms/index';
 
+import { FORM_CONTROL_COMPONENT, DefaultRenderer } from './default-renderer';
 @NgModule({
   declarations: [
     TDMModelFormDirective,
-    DynamicFormOverrideDirective, DynamicFormControlDirective, DynamicFormComponent
+    DynamicFormOverrideDirective,
+    DynamicFormControlDirective,
+    DynamicControlOutletDirective,
+    DynamicFormArrayComponent,
+    DynamicFormArrayDirective,
+    ForFormArrayDirective,
+    DynamicFormComponent
   ],
   imports: [CommonModule, ReactiveFormsModule],
   exports: [
     TDMModelFormDirective,
-    DynamicFormOverrideDirective, DynamicFormControlDirective, DynamicFormComponent
+    DynamicFormOverrideDirective,
+    DynamicFormControlDirective,
+    DynamicControlOutletDirective,
+    DynamicFormArrayComponent,
+    DynamicFormArrayDirective,
+    ForFormArrayDirective,
+    DynamicFormComponent
   ]
 })
 export class DynamicFormsModule {
   /**
    * Registers the module with and required services and with the default form control renderer.
    */
-  static forRoot(formComponent: Type<DynamicFormControlRenderer>): ModuleWithProviders {
+  static forRoot(formComponent: DefaultRenderer): ModuleWithProviders {
     return {
       ngModule: DynamicFormsModule,
       providers: [
@@ -45,7 +61,7 @@ export class DynamicFormsModule {
    * Registers the module with the default form control renderer.
    * Use this when adding to child modules which requires a different renderer.
    */
-  static forChild(formComponent: Type<DynamicFormControlRenderer>): ModuleWithProviders {
+  static forChild(formComponent: DefaultRenderer): ModuleWithProviders {
     return {
       ngModule: DynamicFormsModule,
       providers: [
