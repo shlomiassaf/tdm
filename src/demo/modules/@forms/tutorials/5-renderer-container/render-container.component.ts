@@ -14,6 +14,12 @@ import { DynamicFormRowComponent } from './renderer/dynamic-form-row.component';
 export class RenderContainerComponent {
 
   model = new Hero();
+  constructor() {
+    this.model.bmi = 25;
+    this.model.name = 'Bat Man';
+    this.model.doubleAgent = true;
+  }
+
   /* @tdm-ignore:* */
   code: any = System.import(/* webpackChunkName: "RenderContainerComponent" */ './__tdm-code__.ts'); // tslint:disable-line
   static tutorial = {

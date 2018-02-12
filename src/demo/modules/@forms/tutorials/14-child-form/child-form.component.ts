@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { FORM_CONTROL_COMPONENT } from '@tdm/ngx-dynamic-forms'; /* @tdm-ignore-line */
 import { DynamicFormRowComponent } from '../5-renderer-container'; /* @tdm-ignore-line */
-import { DynamicControlRenderContext } from '@tdm/ngx-dynamic-forms';
+import { DynamicControlRenderContext, createChildFormEvent, TDMModelForm } from '@tdm/ngx-dynamic-forms';
 import { Hero } from './model';
 
 @Component({
@@ -17,14 +17,24 @@ import { Hero } from './model';
 export class ChildFormComponent {
   code: any = System.import(/* webpackChunkName: "ChildFormComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
   model = new Hero();
+  childForm: TDMModelForm<any>;
   rightDrawerOpened: boolean;
+  showChildForm: boolean;
 
-  editExternalForm(ctx: DynamicControlRenderContext): void {
+  constructor(private cdr: ChangeDetectorRef) { }
+
+  editExternalForm(context: DynamicControlRenderContext): void {
     this.rightDrawerOpened = true;
-    if (ctx.fControl.value === null) {
-      const heroAddressFormGroup = ctx.tdmForm.createControl(ctx.item.fullName, null, true);
-      ctx.fGroup.setControl(ctx.item.name, heroAddressFormGroup);
-      ctx.item.markAsChanged();
+    this.showChildForm = true;
+    if (!this.childForm) {
+      const event = createChildFormEvent(context);
+      if ( event.isNew ) {
+        event.context.fControl = <any> context.tdmForm.createControl(context.item.fullName, null, true);
+        event.context.fGroup.setControl(context.item.name, event.context.fControl);
+        event.context.item.markAsChanged();
+      }
+      this.childForm = event.createTDMModelForm();
+      this.cdr.detectChanges();
     }
   }
 

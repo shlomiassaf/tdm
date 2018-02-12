@@ -32,7 +32,9 @@ import {
   MatTooltipModule,
   MatSortModule,
   MatPaginatorModule,
-  MatTableModule
+  MatTableModule,
+  MatDatepickerModule,
+  MatNativeDateModule
 } from '@angular/material';
 
 const MATERIAL_MODULES = [
@@ -66,9 +68,10 @@ const MATERIAL_MODULES = [
   MatTooltipModule,
   MatSortModule,
   MatPaginatorModule,
-  MatTableModule
+  MatTableModule,
+  MatDatepickerModule,
+  MatNativeDateModule
 ];
-
 
 @NgModule({
   imports: MATERIAL_MODULES,

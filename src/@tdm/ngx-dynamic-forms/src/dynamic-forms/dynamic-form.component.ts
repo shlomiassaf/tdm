@@ -27,10 +27,12 @@ import {
 } from '@angular/core';
 import { AbstractControl, FormGroup } from '@angular/forms';
 
-import { Omit, isFunction } from '@tdm/core/tdm';
+import { isFunction } from '@tdm/core/tdm';
 import { FormElementType } from '../interfaces';
 import { FORM_CONTROL_COMPONENT, ControlRenderer, DefaultRenderer, DefaultRendererMap } from '../default-renderer';
 import { TDMModelForm, TDMModelFormService, RenderInstruction } from '../tdm-model-form/index';
+import { PropNotifyHandler, PropChanges } from '../prop-notify';
+import { coerceBooleanProperty } from '../utils';
 import { DynamicFormOverrideDirective, DynamicFormOverrideContext } from './dynamic-form-override.directive';
 import { DynamicControlOutletDirective } from './dynamic-control-outlet.directive';
 import { BeforeRenderEventHandler } from './before-render-event-handler';
@@ -76,7 +78,9 @@ type StateKeys = 'filter' | 'disabled' | 'hidden';
   selector: 'dynamic-form',
   templateUrl: './dynamic-form.component.html'
 })
-export class DynamicFormComponent<T = any> implements AfterContentInit, AfterViewInit, OnChanges, DoCheck, OnDestroy {
+export class DynamicFormComponent<T = any>
+  implements PropNotifyHandler, AfterContentInit, AfterViewInit, OnChanges, DoCheck, OnDestroy {
+
   /**
    * The [[TDMModelForm]] instance that is used by the component
    * > This is created after a model is set.
@@ -109,14 +113,20 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    */
   @Input() hotBind: boolean;
 
+  @Input() disabled: boolean;
+
   /**
    * Pass through for @angular/forms `ngNativeValidate` attribute that enables native browser validation
    *
    */
-  @Input() get ngNativeValidate(): any { return this._ngNativeValidate; };
+  @Input()
+  get ngNativeValidate(): any {
+    return this._ngNativeValidate;
+  };
+
   set ngNativeValidate(value: any) { // tslint:disable-line
     const native = value != null && `${value}` !== 'false';
-    if (this._ngNativeValidate !== native) {
+    if ( this._ngNativeValidate !== native ) {
       this._ngNativeValidate = native;
       this.setNativeValidation();
     }
@@ -136,49 +146,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    * `<dynamic-form [model]="[user, User]"></dynamic-form>`
    *
    */
-  @Input() set model(value: T | TDMModelForm<T> | [T, Type<T>]) {
-    if (this.slaveMode) {
-      throw new Error('Setting a model is not allowed when in slave mode.');
-    }
-    this.slaveMode = false;
-
-    if (value instanceof TDMModelForm) {
-      if (this.tdmForm) {
-        if (this.tdmForm === value) {
-          return;
-        } else {
-          throw new Error(
-            'Can not set a model using a TDMModelForm instance when a previous TDMModelForm instance exist'
-          );
-        }
-      }
-      this.instance = value.model;
-      this.type = value.type;
-    } else if (Array.isArray(value)) {
-      this.instance = value[0];
-      this.type = value[1];
-    } else {
-      this.instance = value;
-      this.type = <any> value.constructor;
-    }
-
-    this.valueDiffer = undefined;
-
-    if (!this.tdmForm) {
-      this.tdmForm = value instanceof TDMModelForm
-        ? value
-        : this.tdmModelFormService.create(this.instance, this.type)
-      ;
-
-      const formValue = this.tdmForm.form.getRawValue();
-      this.valueDiffer = this.kvDiffers.find(formValue).create();
-      this.valueDiffer.diff(formValue); // for some reason objects do not commit the 1st time
-      this.applyFormListener();
-    } else {
-      this.tdmForm.setContext(this.instance, this.type);
-    }
-    this.update();
-  }
+  @Input() model: T | TDMModelForm<T> | [ T, Type<T> ];
 
   /**
    * Setting the dynamic form as a slave of another dynamic form.
@@ -200,17 +168,18 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    * override are supported, hidden and disabled are drived by the form state...
    * @param dynForm
    */
-  @Input() set slaveOf(dynForm: DynamicFormComponent<T>) {
-    if (this.slaveMode === true) {
+  @Input()
+  set slaveOf(dynForm: DynamicFormComponent<T>) {
+    if ( this.slaveMode === true ) {
       return; // TODO: warn? error? slave mode can only be set once.
-    } else if (this.slaveMode === false) {
+    } else if ( this.slaveMode === false ) {
       throw new Error('Slave mode does not work when setting a model');
     }
     this.tdmForm = dynForm.tdmForm;
     this.instance = dynForm.instance;
     this.type = dynForm.type;
     this.slaveMode = true;
-    this.rendererEvent$.subscribe( e => dynForm.rendererEvent$.emit(e) );
+    this.rendererEvent$.subscribe(e => dynForm.rendererEvent$.emit(e));
   }
 
   /**
@@ -395,13 +364,13 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     this.renderState = this.rendering$.asObservable();
     this.rendererEvent = this.rendererEvent$.asObservable();
 
-    if (isFunction(controlRenderer)) {
-      this.controlRenderer = { };
+    if ( isFunction(controlRenderer) ) {
+      this.controlRenderer = {};
       this.defaultControlRenderer = controlRenderer;
     } else {
       this.controlRenderer = controlRenderer;
-      this.defaultControlRenderer = this.controlRenderer['*'];
-      if (!this.defaultControlRenderer) {
+      this.defaultControlRenderer = this.controlRenderer[ '*' ];
+      if ( !this.defaultControlRenderer ) {
         throw new Error('Default control renderer not set.');
       }
     }
@@ -409,9 +378,9 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
 
   getComponentRenderer(rd: RenderInstruction): ControlRenderer {
     return rd.isArray
-      ? this.controlRenderer['[]'] || this.defaultControlRenderer
-      : this.controlRenderer[rd.vType] || this.defaultControlRenderer
-    ;
+      ? this.controlRenderer[ '[]' ] || this.defaultControlRenderer
+      : this.controlRenderer[ rd.vType ] || this.defaultControlRenderer
+      ;
   }
 
   attachControlOutlet(outlet: DynamicControlOutletDirective): void {
@@ -433,12 +402,12 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   redraw(returnPromise: boolean): Promise<void>;
   redraw(returnPromise?: boolean): Promise<void> | void {
     this.update();
-    if (returnPromise === true) {
-      if (this.rendering$.getValue() === false) {
+    if ( returnPromise === true ) {
+      if ( this.rendering$.getValue() === false ) {
         return Promise.resolve();
       } else {
         return toPromise.call(this.renderState.pipe(
-          filter( state => !state )
+          filter(state => !state)
         ));
       }
     }
@@ -453,49 +422,58 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.hotBind) {
-      this.hotBind = this.hotBind != null && `${this.hotBind}` !== 'false';
+    if ( changes.model ) {
+      this.onModelChange();
     }
 
-    if (changes.filterMode) {
+    if ( changes.hotBind ) {
+      this.hotBind = coerceBooleanProperty(this.hotBind);
+    }
+
+    if ( changes.disabled ) {
+      this.disabled = coerceBooleanProperty(this.disabled);
+      this.onDisableChange();
+    }
+
+    if ( changes.filterMode ) {
       const prevIncluded = changes.filterMode.previousValue === 'include';
       const currIncluded = changes.filterMode.currentValue === 'include';
-      if (currIncluded !== prevIncluded) {
+      if ( currIncluded !== prevIncluded ) {
         this.update();
       }
     }
 
-    if (changes.filter) {
+    if ( changes.filter ) {
       this.onStateChange('filter', changes.filter);
     }
 
-    if (changes.disabledState) {
+    if ( changes.disabledState ) {
       this.onStateChange('disabled', changes.disabledState);
     }
 
-    if (changes.hiddenState) {
+    if ( changes.hiddenState ) {
       this.onStateChange('hidden', changes.hiddenState);
     }
   }
 
   ngDoCheck() {
-    if (this.filter && this.stateDiffer.filter) {
+    if ( this.filter && this.stateDiffer.filter ) {
       const diff = this.stateDiffer.filter.diff(this.filter);
-      if (diff) {
+      if ( diff ) {
         this.handleDiff('filter', diff);
       }
     }
 
-    if (this.disabledState && this.stateDiffer.disabled) {
+    if ( this.disabledState && this.stateDiffer.disabled ) {
       const diff = this.stateDiffer.disabled.diff(this.disabledState);
-      if (diff) {
+      if ( diff ) {
         this.handleDiff('disabled', diff);
       }
     }
 
-    if (this.hiddenState && this.stateDiffer.hidden) {
+    if ( this.hiddenState && this.stateDiffer.hidden ) {
       const diff = this.stateDiffer.hidden.diff(this.hiddenState);
-      if (diff) {
+      if ( diff ) {
         this.handleDiff('hidden', diff);
       }
     }
@@ -512,14 +490,14 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   }
 
   ngAfterViewInit(): void {
-    if (this._ngNativeValidate === true) {
+    if ( this._ngNativeValidate === true ) {
       this.setNativeValidation();
     }
   }
 
   ngOnDestroy(): void {
     let subs: Subscription;
-    while (subs = this.subscriptions.pop()) { // tslint:disable-line
+    while ( subs = this.subscriptions.pop() ) { // tslint:disable-line
       subs.unsubscribe();
     }
     this.rendererEvent$.complete();
@@ -547,14 +525,14 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     d.controlName = query.controlName;
     d.vType = query.vType;
     d.syncQuery();
-    if (d.isCatchAll && !d.vType) {
+    if ( d.isCatchAll && !d.vType ) {
       this.wildOverride = d;
-      this.wildOverride['__CUSTOM_ADD_OW__'] = true;
+      this.wildOverride[ '__CUSTOM_ADD_OW__' ] = true;
     } else {
       this.codeOverrides.push(d);
     }
 
-    if (update) {
+    if ( update ) {
       this.update();
     }
   }
@@ -563,13 +541,92 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
     this.rendererEvent$.emit(event);
   }
 
+  onPropChange(ri: RenderInstruction, changes: PropChanges<RenderInstruction>): void {
+    let markAsChanged: boolean;
+    if ( changes.required || changes.validators || changes.asyncValidators ) {
+      const control = this.tdmForm.get(ri.fullName);
+      const validators = ri.getValidators();
+      control.setValidators(validators[ 0 ]);
+      control.setAsyncValidators(validators[ 1 ]);
+      markAsChanged = true;
+    }
+    if ( changes.vType || changes.label ) {
+      markAsChanged = true;
+    }
+    if ( changes.ordinal ) {
+      this.update();
+    }
+    if ( markAsChanged ) {
+      ri.markAsChanged();
+    }
+  }
+
+  private onModelChange(): void {
+    const model = this.model;
+
+    if ( this.slaveMode ) {
+      throw new Error('Setting a model is not allowed when in slave mode.');
+    }
+    this.slaveMode = false;
+
+    if ( model instanceof TDMModelForm ) {
+      if ( this.tdmForm ) {
+        if ( this.tdmForm === model ) {
+          return;
+        } else {
+          throw new Error(
+            'Can not set a model using a TDMModelForm instance when a previous TDMModelForm instance exist'
+          );
+        }
+      }
+      this.instance = model.model;
+      this.type = model.type;
+    } else if ( Array.isArray(model) ) {
+      this.instance = model[ 0 ];
+      this.type = model[ 1 ];
+    } else {
+      this.instance = model;
+      this.type = <any> model.constructor;
+    }
+
+    this.valueDiffer = undefined;
+
+    if ( !this.tdmForm ) {
+      this.tdmForm = model instanceof TDMModelForm
+        ? model
+        : this.tdmModelFormService.create(this.instance, this.type)
+      ;
+
+      const formValue = this.tdmForm.form.getRawValue();
+      this.valueDiffer = this.kvDiffers.find(formValue).create();
+      this.valueDiffer.diff(formValue); // for some reason objects do not commit the 1st time
+      if ( this.disabled ) {
+        this.form.disable();
+      }
+      this.applyFormListener();
+    } else {
+      this.tdmForm.setContext(this.instance, this.type);
+    }
+    this.update();
+  }
+
+  private onDisableChange(): void {
+    if ( this.form ) {
+      if ( this.disabled ) {
+        this.form.disable();
+      } else {
+        this.form.enable();
+      }
+    }
+  }
+
   private updateOverrides(): void {
-    const match = this.overrides.find( ow => ow.isCatchAll && !ow.vType );
+    const match = this.overrides.find(ow => ow.isCatchAll && !ow.vType);
     // we update the wildOverride, but we check if the old wildOverride was added using addOverride method (custom)
     // if so (no match and old added manually) we will leave it.
     // we do that because it's most likely we won't find template overrides when custom is set
     // it also means template wins over custom
-    if (match || !this.wildOverride || this.wildOverride['__CUSTOM_ADD_OW__'] !== true) {
+    if ( match || !this.wildOverride || this.wildOverride[ '__CUSTOM_ADD_OW__' ] !== true ) {
       this.wildOverride = match;
     }
 
@@ -577,20 +634,20 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   }
 
   private update(): void {
-    if (!this.tdmForm || !this.afterInit) {
+    if ( !this.tdmForm || !this.afterInit ) {
       return;
     }
 
-    if (this.pendingUpdates > 0) {
+    if ( this.pendingUpdates > 0 ) {
       this.pendingUpdates += 1;
       return;
     }
 
     // we wmit the rendering state async
-    const controlsReady: Array<Promise<any>> = [new Promise((resolve) => setTimeout(() => {
+    const controlsReady: Array<Promise<any>> = [ new Promise((resolve) => setTimeout(() => {
       this.emitRenderingState(true);
       resolve();
-    }))];
+    })) ];
     const controls: LocalRenderInstruction[] = [];
     const controlsMap: { [path: string]: RenderInstruction } = this.instructions = {};
     const controlsPromiseSetter = done => controlsReady.push(done);
@@ -605,20 +662,20 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
 
     const processInstructions = (rd: LocalRenderInstruction) => {
       const fullPath: string = rd.fullName;
-      if (!filter || this.isStaticPathContainsPath(filter, fullPath) === filterMatch) {
-        const override = overrides.find( o => o.isMatching(rd) ) || this.wildOverride;
-        if (override) {
+      if ( !filter || this.isStaticPathContainsPath(filter, fullPath) === filterMatch ) {
+        const override = overrides.find(o => o.isMatching(rd)) || this.wildOverride;
+        if ( override ) {
           this.overrideMap.set(rd, override);
         }
 
-        const outlet = outlets.find( o => o.isMatching(rd) );
-        if (outlet) {
+        const outlet = outlets.find(o => o.isMatching(rd));
+        if ( outlet ) {
           this.outletMap.set(rd, outlet);
         }
 
         // update hidden state of each item
         setHidden(rd, !!( hiddenState && this.isStaticPathContainsPath(hiddenState, fullPath) ));
-        controlsMap[fullPath] = rd;
+        controlsMap[ fullPath ] = rd;
         controls.push(rd);
       }
     };
@@ -630,12 +687,13 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
 
     this.pendingUpdates += 1;
     Promise.all(controlsReady)
-      // tslint:disable-next-line
-      .catch( err => {}) // we swallow errors, these should be handled by the user
-      .then( () => {
+    // tslint:disable-next-line
+      .catch(err => {
+      }) // we swallow errors, these should be handled by the user
+      .then(() => {
         this.pendingUpdates -= 1;
 
-        if (this.pendingUpdates > 0) {
+        if ( this.pendingUpdates > 0 ) {
           this.pendingUpdates = 0;
           this.update();
           return;
@@ -658,41 +716,42 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    * all of the address object is blocked. Current state is full check for all children of address.
    */
   private isStaticPathContainsPath(pathList: string[], fullPath: string): boolean {
-    const idx = pathList.findIndex( p => p === fullPath || fullPath.indexOf(p + '.') === 0 );
-    if (idx > -1) {
-      const nextChar = fullPath[pathList[idx].length];
+    const idx = pathList.findIndex(p => p === fullPath || fullPath.indexOf(p + '.') === 0);
+    if ( idx > -1 ) {
+      const nextChar = fullPath[ pathList[ idx ].length ];
       return !nextChar || nextChar === '.';
     }
     return false;
   }
 
   private emitRenderingState(state: boolean): void {
-    if (this.rendering$.getValue() === !state) {
+    if ( this.rendering$.getValue() === !state ) {
       this.rendering$.next(state);
     }
   }
 
   private applyFormListener(): void {
     let freeze: boolean;
+    this.tdmForm.propNotifyHandler = this;
     const s = this.tdmForm.form.valueChanges.subscribe(formValue => {
       const diff = this.valueDiffer.diff(formValue);
       // we diff before freeze check so we won't pile changes to next step.
-      if (freeze || this.freezeValueChanges) {
+      if ( freeze || this.freezeValueChanges ) {
         return;
       }
-      if (diff) {
+      if ( diff ) {
         const arr: TdmFormChanges = [];
         diff.forEachChangedItem(change => {
-          if (this.hotBind === true) {
-            this.instance[change.key] = change.currentValue;
+          if ( this.hotBind === true ) {
+            this.instance[ change.key ] = change.currentValue;
           }
-          if (this.isFlattenedProp(change.key)) {
-            arr.push(...this.drillDownChange(change, [change.key]));
+          if ( this.isFlattenedProp(change.key) ) {
+            arr.push(...this.drillDownChange(change, [ change.key ]));
           } else {
             arr.push(change);
           }
         });
-        if (arr.length > 0) {
+        if ( arr.length > 0 ) {
           freeze = true;
           this.valueChanges.next(arr);
           freeze = false;
@@ -703,7 +762,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   }
 
   private isFlattenedProp(key: string, level: number = 0): boolean {
-    return this.tdmForm.renderData.some( r => !!r.flattened && r.flattened[level] === key );
+    return this.tdmForm.renderData.some(r => !!r.flattened && r.flattened[ level ] === key);
   }
 
   /**
@@ -736,23 +795,23 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    * @param path
    */
   private drillDownChange(change: KeyValueChangeRecord<string, any>,
-                          path: Array<string |  number>): Array<KeyValueChangeRecord<string, any>> {
+                          path: Array<string | number>): Array<KeyValueChangeRecord<string, any>> {
     const result: Array<KeyValueChangeRecord<string, any>> = [];
-    if (change.previousValue) {
+    if ( change.previousValue ) {
       const differ = this.kvDiffers.find(change.previousValue).create();
       differ.diff(change.previousValue);
       const diff = differ.diff(change.currentValue);
-      if (diff) {
+      if ( diff ) {
         diff.forEachChangedItem((c: any) => {
-          if (this.isFlattenedProp(c.key, path.length)) {
-            result.push(...this.drillDownChange( <any> c, path.concat([c.key]) ));
+          if ( this.isFlattenedProp(c.key, path.length) ) {
+            result.push(...this.drillDownChange(<any> c, path.concat([ c.key ])));
           } else {
             c = Object.create(c, { deep: { value: true }, key: { value: path.join('.') + `.${c.key}` } });
             result.push(c);
           }
         });
       }
-    } else if (change.currentValue) {
+    } else if ( change.currentValue ) {
       change = Object.create(change, { deep: { value: true }, key: { value: path.join('.') + `.${change.key}` } });
       result.push(change);
     }
@@ -760,8 +819,8 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   }
 
   private setNativeValidation(): void {
-    if (this.formElRef) {
-      if (this._ngNativeValidate === true) {
+    if ( this.formElRef ) {
+      if ( this._ngNativeValidate === true ) {
         this.renderer.removeAttribute(this.formElRef.nativeElement, 'novalidate');
       } else {
         this.renderer.setAttribute(this.formElRef.nativeElement, 'novalidate', '');
@@ -770,40 +829,40 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
   }
 
   private onStateChange(type: StateKeys, state: SimpleChange): void {
-    let differ: IterableDiffer<string> = this.stateDiffer[type];
-    if (!state.currentValue && differ) {
+    let differ: IterableDiffer<string> = this.stateDiffer[ type ];
+    if ( !state.currentValue && differ ) {
       const diff = differ.diff([]);
-      if (diff) {
+      if ( diff ) {
         this.handleDiff(type, diff);
       }
       differ = undefined;
-    } else if (!state.previousValue && state.currentValue) {
+    } else if ( !state.previousValue && state.currentValue ) {
       differ = this.itDiffers.find(state.currentValue).create();
     }
-    this.stateDiffer[type] = differ;
+    this.stateDiffer[ type ] = differ;
   }
 
   private handleDiff(type: StateKeys, diff: IterableChanges<string>): void {
-    switch (type) { // tslint:disable-line
+    switch ( type ) { // tslint:disable-line
       case 'disabled':
         this.freezeValueChanges = true;
-        diff.forEachAddedItem( record => this.getControl(record.item).disable());
-        diff.forEachRemovedItem( record => this.getControl(record.item).enable());
+        diff.forEachAddedItem(record => this.getControl(record.item).disable());
+        diff.forEachRemovedItem(record => this.getControl(record.item).enable());
         this.freezeValueChanges = false;
         break;
       case 'filter':
         this.update();
         break;
       case 'hidden':
-        diff.forEachAddedItem( record => {
+        diff.forEachAddedItem(record => {
           const item = this.findRenderInstructionByKey(record.item);
-          if (item && setHidden(item, true)) {
+          if ( item && setHidden(item, true) ) {
             this.update();
           }
         });
-        diff.forEachRemovedItem( record => {
+        diff.forEachRemovedItem(record => {
           const item = this.findRenderInstructionByKey(record.item);
-          if (item && setHidden(item, false)) {
+          if ( item && setHidden(item, false) ) {
             this.update();
           }
         });
@@ -817,15 +876,15 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
    * but has children that does.
    */
   private findRenderInstructionByKey(dotProperty: string): LocalRenderInstruction | undefined {
-    for (let c of this.controls.value) {
+    for ( let c of this.controls.value ) {
       const fullPath = c.fullName;
-      if (fullPath.indexOf(dotProperty) > -1) {
-        const nextChar = fullPath[dotProperty.length];
-        if (!nextChar) {
+      if ( fullPath.indexOf(dotProperty) > -1 ) {
+        const nextChar = fullPath[ dotProperty.length ];
+        if ( !nextChar ) {
           return c;
-        } else if (nextChar === '.') {
+        } else if ( nextChar === '.' ) {
           let len = fullPath.substr(dotProperty.length + 1).split('.').length;
-          while (len-- > 0) {
+          while ( len-- > 0 ) {
             c = <any> c.parent;
           }
           return c;
@@ -841,7 +900,7 @@ export class DynamicFormComponent<T = any> implements AfterContentInit, AfterVie
  * returns `true` when the operation included changes in children
  */
 function setHidden(ri: LocalRenderInstruction, value: boolean): boolean {
-  if (ri.hidden !== value) {
+  if ( ri.hidden !== value ) {
     ri._dSelf = value;
     ri.hidden = ri._dSelf || ri._dParent;
     ri.markAsChanged();
@@ -859,8 +918,8 @@ function setHiddenParent(ri: LocalRenderInstruction, value: boolean): void {
 
 function tryRunOnChildren(ri: LocalRenderInstruction, value: boolean): boolean {
   const children = ri.isVirtual ? ri.virtualChildren : ri.isArray ? ri.children : undefined;
-  if (children) {
-    children.forEach( child => setHiddenParent(<any> child, value) );
+  if ( children ) {
+    children.forEach(child => setHiddenParent(<any> child, value));
     return true;
   }
 }

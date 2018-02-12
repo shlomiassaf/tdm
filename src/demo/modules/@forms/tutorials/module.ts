@@ -14,6 +14,7 @@ import { VirtualGroupsComponent } from './7-virtual-groups';
 import { LocalOverrideComponent } from './8-local-override';
 import { FilterDisableHiddenStateComponent } from './9-filter-disable-hidden-state';
 import { HotBindComponent } from './10-hot-bind';
+import { DisableFormComponent } from './10a-disable-form';
 import { CommitComponent } from './11-commit';
 import { ControlOutletComponent } from './12-control-outlet';
 import { ControlPanelComponent } from './12-control-panel';
@@ -55,6 +56,7 @@ const TUTORIALS: Array<TutoriableComponent<any>> = [
   LocalOverrideComponent,
   FilterDisableHiddenStateComponent,
   HotBindComponent,
+  DisableFormComponent,
   CommitComponent,
   ControlOutletComponent,
   ControlPanelComponent,

@@ -154,8 +154,8 @@ export class FormPropMetadata extends BaseMetadata {
   required: boolean;
   defaultValue: any;
   render: RenderDef;
-  validators: ValidatorFn[] | null;
-  asyncValidators: AsyncValidatorFn[] | null;
+  validators: ValidatorFn | ValidatorFn[] | null;
+  asyncValidators: AsyncValidatorFn | AsyncValidatorFn[] | null;
   childForm: boolean;
   flatten?: { [key: string]: FormPropMetadata };
   rtType?: TypeMetadata;
@@ -169,9 +169,10 @@ export class FormPropMetadata extends BaseMetadata {
       if ( metaArgs.hasOwnProperty('defaultValue') ) {
         this.defaultValue = metaArgs.defaultValue;
       }
-      this.validators = this.normValidators(metaArgs.validators);
+
       this.required = metaArgs.required;
-      this.asyncValidators = this.normValidators(metaArgs.asyncValidators);
+      this.validators = metaArgs.validators || null;
+      this.asyncValidators = metaArgs.asyncValidators || null;
       if ( !this.exclude && metaArgs.render ) {
         if (!metaArgs.render.vType) {
           throw new Error(`Invalid property type or type not set in ${stringify(target)}.${info.name}`);
@@ -197,10 +198,6 @@ export class FormPropMetadata extends BaseMetadata {
         }
       }
     }
-  }
-
-  private normValidators(v: any): any[] | null {
-    return !v ? null : Array.isArray(v) ? v : [ v ];
   }
 
   static EMPTY = new FormPropMetadata({} as any, { type: 'class' });

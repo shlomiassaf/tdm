@@ -28,6 +28,16 @@ export class Hero {
   @Prop({
     form: {
       render: {
+        vType: 'date',
+        label: 'Hero Birth'
+      }
+    }
+  })
+  birth: string;
+
+  @Prop({
+    form: {
+      render: {
         vType: 'boolean',
         label: 'Has Tracking Device'
       }
@@ -74,4 +84,20 @@ export class Hero {
     }
   })
   superPower: 'selfHealing' | 'flying' | 'cloaking' | 'cloning' | 'invisibility';
+
+  @Prop({
+    form: {
+      required: true,
+      render: {
+        vType: 'textarea',
+        label: 'Bio',
+        data: {
+          autoSize: false,
+          minRows: 3,
+          maxRows: 5
+        }
+      }
+    }
+  })
+  bio: string;
 }

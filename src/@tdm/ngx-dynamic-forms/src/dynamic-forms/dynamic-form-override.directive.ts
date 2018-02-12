@@ -15,7 +15,6 @@ export class ControlSelectorBase implements OnChanges {
 
   /**
    * Returns true when the control name is catch all
-   * @returns {boolean}
    */
   get isCatchAll(): boolean {
     return this.controlName === '*';

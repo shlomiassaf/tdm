@@ -23,7 +23,7 @@ export class ValueChangesEventComponent {
     for (let c of $event) {
       switch (c.key) {
         case 'name':
-          const len = c.currentValue && c.currentValue.map;
+          const len = c.currentValue && c.currentValue.length;
           dynForm.tdmForm.setValue('id', len);
           break;
         case 'doubleAgent':
@@ -36,6 +36,8 @@ export class ValueChangesEventComponent {
               this.disabledControls.splice(idx, 1);
             }
           }
+          break;
+        default:
           break;
       }
     }

@@ -1,0 +1,129 @@
+<ng-template #boolean let-ctx let-showLabels="showLabels" let-self="self">
+  <mat-checkbox [formControl]="ctx.fControl">{{ showLabels ? ctx.item.label : ''}}</mat-checkbox>
+</ng-template>
+
+<ng-template #slideToggle let-ctx let-showLabels="showLabels" let-self="self">
+  <mat-slide-toggle [formControl]="ctx.fControl">{{ showLabels ? ctx.item.label : ''}}</mat-slide-toggle>
+</ng-template>
+
+<ng-template #slider let-ctx let-showLabels="showLabels" let-self="self">
+  <span *ngIf="showLabels">{{ctx.item.label}}</span>
+  <mat-slider [formControl]="ctx.fControl"
+              thumbLabel="true"
+              [tickInterval]="1"
+              [min]="ctx.item.data?.min" [max]="ctx.item.data?.max"></mat-slider>
+</ng-template>
+
+<ng-template #radio let-ctx let-showLabels="showLabels" let-self="self">
+  <span *ngIf="showLabels">{{ctx.item.label}}</span>
+  <mat-radio-group [class.vertical-mat-radio-group]="ctx.item.data?.vertical"
+                   [formControl]="ctx.fControl">
+    <mat-radio-button *ngFor="let sel of ctx.item.data.options" [value]="sel.value">{{sel.label || sel.value}}</mat-radio-button>
+  </mat-radio-group>
+</ng-template>
+
+<ng-template #textarea let-ctx let-showLabels="showLabels" let-self="self">
+  <!--
+     matTextareaAutosize can not be used as binding input
+     See https://github.com/angular/material2/issues/9884
+     -->
+  <mat-form-field>
+    <textarea matInput
+              [formControl]="ctx.fControl"
+              [placeholder]="showLabels && ctx.item.label"
+              matTextareaAutosize
+              [matAutosizeMinRows]="ctx.item.data?.autoSize ? ctx.item.data.minRows : 1"
+              [matAutosizeMaxRows]="ctx.item.data?.autoSize ? ctx.item.data.maxRows : 1"></textarea>
+    <mat-error *ngIf="self.hasError('required', ctx)">Required</mat-error>
+  </mat-form-field>
+</ng-template>
+
+<ng-template #select let-ctx let-showLabels="showLabels" let-self="self">
+  <mat-form-field>
+    <mat-select [formControl]="ctx.fControl"
+                [placeholder]="showLabels && ctx.item.label">
+      <mat-option *ngFor="let sel of ctx.item.data.options" [value]="sel.value">{{sel.label || sel.value}}</mat-option>
+    </mat-select>
+    <mat-error *ngIf="self.hasError('required', ctx)">Required</mat-error>
+  </mat-form-field>
+</ng-template>
+
+<ng-template #date let-ctx let-showLabels="showLabels" let-self="self">
+  <mat-form-field>
+    <input matInput
+           [formControl]="ctx.fControl"
+           [placeholder]="showLabels && ctx.item.label"
+           [matDatepicker]="datePicker"
+           [min]="ctx.item.data?.min" [max]="ctx.item.data?.max"
+           [matDatepickerFilter]="ctx.item.data?.filter">
+    <mat-datepicker-toggle matSuffix [for]="datePicker"></mat-datepicker-toggle>
+    <mat-datepicker #datePicker [startView]="ctx.item.data?.startView || 'month'" [startAt]="ctx.item.data?.startAt"></mat-datepicker>
+    <mat-error *ngIf="self.hasError('required', ctx)">Required</mat-error>
+  </mat-form-field>
+</ng-template>
+
+<ng-template #input let-ctx let-showLabels="showLabels" let-self="self">
+  <mat-form-field>
+    <input matInput
+           [type]="ctx.item.vType"
+           [formControl]="ctx.fControl"
+           [placeholder]="showLabels && ctx.item.label"
+           [min]="ctx.item.data?.min" [max]="ctx.item.data?.max">
+    <mat-error *ngIf="self.hasError('required', ctx)">Required</mat-error>
+  </mat-form-field>
+</ng-template>
+
+<ng-template #childForm let-ctx let-self="self">
+  <a mat-button (click)="self.editSingleChildForm(ctx)">edit</a>
+  <mat-error style="display: inline;" *ngIf="self.hasError('required', ctx)">Required</mat-error>
+</ng-template>
+
+<ng-template #formArray let-ctx let-self="self">
+  <div class="dynamic-array">
+    <mat-list class="dynamic-array-container">
+      <ng-container *ngIf="ctx.item.isPrimitive">
+        <mat-list-item *forFormArray="let c of ctx.fArray; index as i; tdmForm: ctx.tdmForm; fGroup: ctx.fGroup; item: ctx.item">
+          <div class="dynamic-list-item" [class.selected]="self.selectedItem === i">
+            <div class="dynamic-list-item-control">
+              <ng-container *ngTemplateOutlet="getTemplate(c.item); context: { $implicit: c, showLabels: false, self: self }"></ng-container>
+            </div>
+            <div class="dynamic-list-item-select">
+              <mat-icon (click)="self.selectedItem = self.selectedItem === i ? undefined : i">check</mat-icon>
+            </div>
+          </div>
+        </mat-list-item>
+      </ng-container>
+
+      <ng-container *ngIf="ctx.item.isChildForm && ctx.item.identity">
+        <mat-list-item *forFormArray="let c of ctx.fArray; index as i; tdmForm: ctx.tdmForm; fGroup: ctx.fGroup; item: ctx.item">
+          <div class="dynamic-list-item dynamic-list-item-ripple"
+               mat-ripple
+               [class.selected]="self.selectedItem === i"
+               (click)="self.selectedItem = self.selectedItem === i ? undefined : i">
+            <div class="dynamic-list-item-control dynamic-child-form-control">
+              <mat-icon *ngIf="c.fControl.invalid"
+                        class="dynamic-child-form-error" [matTooltip]="'Invalid'">error_outline</mat-icon>
+              <span>{{c.fControl.get(ctx.item.identity)?.value}}</span>
+            </div>
+            <div class="dynamic-list-item-select">
+              <mat-icon>check</mat-icon>
+            </div>
+          </div>
+        </mat-list-item>
+      </ng-container>
+    </mat-list>
+
+    <div class="dynamic-array-actions">
+      <button *ngIf="ctx.fArray.length" mat-icon-button [disabled]="! (self.selectedItem > -1)" (click)="self.removeFromList()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <button *ngIf="ctx.fArray.length && !ctx.item.isPrimitive" mat-icon-button [disabled]="! (self.selectedItem > -1)" (click)="self.editFromList()">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button (click)="self.addToList()">
+        <mat-icon style="color: green">add</mat-icon>
+      </button>
+    </div>
+  </div>
+
+</ng-template>

@@ -3,20 +3,15 @@ import { FormGroup } from '@angular/forms';
 import { targetStore, PropMetadata } from '@tdm/core/tdm';
 import { TDMModelForm } from './tdm-model-form';
 import { RenderInstruction } from './render-instruction';
+import { PropNotifier, PropNotifyHandler } from '../prop-notify';
 
-import { BASE_RENDERER, FormModelMetadata, FormPropMetadata } from '../core/index';
+import { FormModelMetadata, FormPropMetadata } from '../core/index';
 
 function createRI(formProp: FormPropMetadata,
                   name: string,
                   assign: any,
                   parent?: RenderInstruction): RenderInstruction {
-  const renderInstructions = new RenderInstruction(formProp.render, name, parent);
-  if (formProp.required) {
-    renderInstructions.required = true;
-  }
-  if (formProp.childForm === true) {
-    renderInstructions.isChildForm = true;
-  }
+  const renderInstructions = new RenderInstruction(name, formProp, parent);
 
   Object.assign(renderInstructions, assign);
   return renderInstructions;
@@ -66,7 +61,7 @@ export class TDMModelFormService {
    * Instead of recreating the metadata over and over we just use JS's prototype to create layers over the metadata that
    * act as instances while not duplicating the data.
    */
-  createRICloneFactory<T extends RenderInstruction>(): (ri: T) => T {
+  createRICloneFactory<T extends RenderInstruction>(propChange?: PropNotifyHandler): (ri: T) => T {
     // We clone a [[RenderInstruction]] by creating a new layer in the prototype chain so the current layer can not be
     // changed by assigning but can be used when retrieving, this saves space and time.
     // Usually Object.create() is the only thing we need but there are 2 special cases: Arrays and `flatten` expressions
@@ -85,9 +80,12 @@ export class TDMModelFormService {
 
     // map for storing used virtual's
     const parentMap = new Map<any, any>();
-
+    const propNotifier: { [P in keyof PropNotifier]?: { value: PropNotifier[P] } } = propChange
+      ? { onPropChange: { value: propChange } }
+      : undefined
+    ;
     const riClone = <Z extends RenderInstruction>(renderInstruction: Z): Z => {
-      const rd: Z = Object.create(renderInstruction);
+      const rd: Z = Object.create(renderInstruction, propNotifier);
       if (rd.isArray) {
         rd.children = rd.children.map( c =>  riClone(c) );
         // we take 1 child and climb up till we get to the virtual that has this array as parent
@@ -126,7 +124,7 @@ export class TDMModelFormService {
     for (let p of props) {
       const formProp = formMeta.getProp(p.name as string);
       if (!formProp) {
-        instructions.push(new RenderInstruction(BASE_RENDERER, p.name as string));
+        instructions.push(new RenderInstruction(p.name as string));
       } else if (!formProp.exclude) {
         const typeMeta = formProp.rtType || p.type;
 

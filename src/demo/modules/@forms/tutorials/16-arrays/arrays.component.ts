@@ -1,13 +1,7 @@
 import { Component } from '@angular/core';
 import { FORM_CONTROL_COMPONENT } from '@tdm/ngx-dynamic-forms'; /* @tdm-ignore-line */
 import { DynamicFormRowComponent } from '../5-renderer-container'; /* @tdm-ignore-line */
-import {
-  RendererEvent,
-  ChildFormEditRendererEvent,
-  DynamicControlRenderContext,
-  TDMModelForm,
-  DynamicFormComponent
-} from '@tdm/ngx-dynamic-forms';
+import { RendererEvent, ChildFormEditRendererEvent, TDMModelForm } from '@tdm/ngx-dynamic-forms';
 import { matTabsAnimations, MatTabBodyPositionState } from '@angular/material/tabs';
 
 import { Hero, HeroAddress } from './model';
@@ -63,8 +57,8 @@ export class ArraysComponent {
     }
   }
 
-  cancelForm(dynForm: DynamicFormComponent): void {
-    dynForm.tdmForm.reset();
+  cancelForm(tdmForm: TDMModelForm<any>): void {
+    tdmForm.reset();
   }
 
   closeExternalForm(updated: boolean): void {
@@ -81,23 +75,13 @@ export class ArraysComponent {
     ext.event.context.item.markAsChanged();
   }
 
-  hasError(errorName: string, ctx: DynamicControlRenderContext): boolean {
-    if ( ctx.fControl ) {
-      return ctx.fControl.hasError(errorName);
-    } else if ( ctx.fArray ) {
-      return ctx.fArray.hasError(errorName);
-    } else if ( ctx.fGroup ) {
-      return ctx.fGroup.hasError(errorName);
-    }
-    return false;
-  }
-
   private addForm(event: ChildFormEditRendererEvent): void {
     const external = {
       event,
       form: event.createTDMModelForm(),
       pos: 'center' as 'center'
     };
+
     this.external.forms.push(external);
     if ( this.external.current === -1 ) {
       this.external.posMaster = 'left';

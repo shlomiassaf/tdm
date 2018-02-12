@@ -50,11 +50,9 @@ export class FieldSyncRedrawComponent {
     const superPower = this.dynForm.instructions['superPower'];
     if (superPower && this.stateFieldType !== superPower.vType) {
       superPower.vType = this.stateFieldType;
-
       if (this.stateFieldType === 'radio') {
         superPower.mergeData({ vertical: true });
       }
-      superPower.markAsChanged();
     }
   }
   /* @tdm-ignore:* */

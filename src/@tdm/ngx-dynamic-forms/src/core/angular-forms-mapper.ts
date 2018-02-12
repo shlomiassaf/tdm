@@ -2,10 +2,7 @@ import {
   FormGroup,
   FormControl,
   AbstractControl,
-  Validators,
-  FormArray,
-  ValidatorFn,
-  AsyncValidatorFn
+  FormArray
 } from '@angular/forms';
 import {
   targetStore,
@@ -28,6 +25,7 @@ import {
 
 import { FormModelMetadata, FormPropMetadata } from './metadata/index';
 import { objectToForm } from '../utils';
+import { getValidators } from '../validation';
 
 export type DeserializableForm = FormGroup | FormArray;
 
@@ -299,7 +297,7 @@ export class NgFormsSerializeMapper extends SerializeMapper {
     const { rtType } = formProp;
     const isArray = Array.isArray(value) || ( ignoreArray ? false : rtType && rtType.isArray );
     let ctrl: AbstractControl;
-    const [syncValidator, asyncValidator] = this.getValidators(formProp);
+    const [syncValidator, asyncValidator] = getValidators(formProp, { required: formProp.required });
 
     if (formProp.flatten) {
       value = value ? this.plainMapper.serialize(value) : (isArray ? [] : {});
@@ -360,24 +358,6 @@ export class NgFormsSerializeMapper extends SerializeMapper {
       }
     }
     return ctrl;
-  }
-
-  protected getValidators(formProp: FormPropMetadata): [ValidatorFn | null, AsyncValidatorFn | null] {
-    const sync: ValidatorFn[] = formProp.validators
-      ? formProp.validators.slice()
-      : []
-    ;
-
-    if (formProp.required === true) {
-      sync.push(Validators.required);
-    }
-
-    const async = formProp.asyncValidators &&  formProp.asyncValidators.length > 0
-      ? Validators.composeAsync(formProp.asyncValidators)
-      : null
-    ;
-
-    return [sync.length > 0 ? Validators.compose(sync) : null, async];
   }
 
   protected serializeChild(type: TypeMetadata, obj: any): FormGroup | FormArray {

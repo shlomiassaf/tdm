@@ -5,7 +5,8 @@ import {
   ViewContainerRef,
   ComponentFactoryResolver,
   ComponentRef,
-  Inject
+  Inject,
+  Injector
 } from '@angular/core';
 
 import { DynamicControlRenderContext, RenderInstruction } from '../tdm-model-form/index';
@@ -53,18 +54,22 @@ export class DynamicFormControlDirective {
         this.dynForm.tdmForm.bindRenderingData($implicit, value);
         this.vcRef.createEmbeddedView(override.template, { $implicit } );
       } else {
-        const injector = this.defaultVCRef.parentInjector;
+        const injector = this.defaultVCRef.injector;
         const resolver = injector.get(ComponentFactoryResolver);
         const component = this.dynForm.getComponentRenderer(value);
         const componentFactory = resolver.resolveComponentFactory(component);
-        this.cmpRef = this.vcRef.createComponent<DynamicControlRenderContext> (
+        this.cmpRef = this.defaultVCRef.createComponent<DynamicControlRenderContext> (
           componentFactory,
-          this.vcRef.length,
+          this.defaultVCRef.length,
           injector
         );
         this.dynForm.tdmForm.bindRenderingData(this.cmpRef.instance, value);
         if (typeof this.cmpRef.instance.tdmOnControlContextInit === 'function') {
           this.cmpRef.instance.tdmOnControlContextInit();
+        }
+        if (outlet) {
+          this.cmpRef.hostView.detectChanges();
+          this.vcRef.insert(this.defaultVCRef.detach());
         }
       }
     }

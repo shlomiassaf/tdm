@@ -1,5 +1,8 @@
-import { AbstractControl, FormArray } from '@angular/forms';
+import { AbstractControl, FormArray, ValidatorFn, AsyncValidatorFn } from '@angular/forms';
+import { FormPropMetadata } from '../core/metadata/form-prop';
 import { FormElementType, RenderDef } from '../interfaces';
+import { getValidators } from '../validation';
+import { PropNotify } from '../prop-notify';
 
 /**
  * Render definition with the name of the control.
@@ -13,7 +16,6 @@ import { FormElementType, RenderDef } from '../interfaces';
  * @internal
  */
 export class RenderInstruction<T extends keyof FormElementType = keyof FormElementType> implements RenderDef<T> {
-
   /**
    * A object used to mark changes in the instruction for ngFor iterations.
    *
@@ -26,17 +28,17 @@ export class RenderInstruction<T extends keyof FormElementType = keyof FormEleme
    */
   hidden?: boolean;
 
-  required?: boolean;
+  @PropNotify() required: boolean;
 
   /**
    * The order of the control in the form
    */
-  ordinal?: number;
+  @PropNotify() ordinal?: number;
 
   /**
    * The label to display (e.g. placeholder, description etc...)
    */
-  label?: string;
+  @PropNotify() label?: string;
 
   /**
    * The visual type of the element.
@@ -46,7 +48,11 @@ export class RenderInstruction<T extends keyof FormElementType = keyof FormEleme
    * If no type is set the library will try to assign a primitive (string, number or boolean) based
    * on the type information. If no primitive was matched an error is thrown.
    */
-  vType: T;
+  @PropNotify() vType: T;
+
+  @PropNotify() validators: ValidatorFn | ValidatorFn[] | null;
+
+  @PropNotify() asyncValidators: AsyncValidatorFn | AsyncValidatorFn[] | null;
 
   /**
    * Extra data to be used by the renderer.
@@ -87,7 +93,9 @@ export class RenderInstruction<T extends keyof FormElementType = keyof FormEleme
    */
   isVirtual: boolean;
 
-  isChildForm: boolean;
+  get isChildForm(): boolean {
+    return this.formProp.childForm;
+  }
 
   /**
    * Valid on when isVirtual is true.
@@ -180,8 +188,20 @@ export class RenderInstruction<T extends keyof FormElementType = keyof FormEleme
     return fullName;
   }
 
-  constructor(renderDef: RenderDef, public name: string, public parent?: RenderInstruction) {
-    Object.assign(this, renderDef);
+  constructor(public name: string,
+              private formProp: FormPropMetadata = FormPropMetadata.EMPTY,
+              public parent?: RenderInstruction) {
+    if (formProp.required) {
+      this.required = true;
+    }
+    if (formProp.validators) {
+      this.validators = formProp.validators;
+    }
+    if (formProp.asyncValidators) {
+      this.asyncValidators = formProp.asyncValidators;
+    }
+
+    Object.assign(this, formProp.render);
     this.hash = this;
   }
 
@@ -240,5 +260,9 @@ export class RenderInstruction<T extends keyof FormElementType = keyof FormEleme
   resolveFormArrayChild(control: AbstractControl): AbstractControl {
     return this._arrayPath ? control.get(this._arrayPath) : control ;
 
+  }
+
+  getValidators() {
+    return getValidators(this, this);
   }
 }

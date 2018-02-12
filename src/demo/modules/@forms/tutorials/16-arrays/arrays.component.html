@@ -12,7 +12,7 @@
       <button mat-raised-button color="primary"
               [disabled]="dynForm.form.status !== 'VALID' || !dynForm.form.dirty"
               (click)="dynForm.tdmForm.commitToModel(true)">SAVE</button>
-      <button mat-button [disabled]="dynForm.form.pristine" (click)="cancelForm(dynForm)">CANCEL</button>
+      <button mat-button [disabled]="dynForm.form.pristine" (click)="cancelForm(dynForm.tdmForm)">CANCEL</button>
     </div>
 
     <div *ngFor="let f of external.forms; index as i"
@@ -28,5 +28,4 @@
   </div>
   <!--@tdm-example:tdmDemo-->
 </form-wrapper>
-
 <tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part2'}]:true"></tdm-markdown-view>

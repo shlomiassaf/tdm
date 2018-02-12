@@ -3,9 +3,10 @@ import { AbstractControl, FormGroup, FormArray, FormControl } from '@angular/for
 
 import { stringify, isNumber } from '@tdm/core/tdm';
 import { FormModelMetadata, FormPropMetadata, NgFormsBoundMapper, NgFormsSerializeMapper } from '../core/index';
+import { createControl } from '../create-control';
 import { TDMModelFormService } from './tdm-model-form.service';
 import { RenderInstruction } from './render-instruction';
-import { createControl } from '../create-control';
+import { PropNotifyHandler, PropChanges } from '../prop-notify';
 
 export interface DynamicControlRenderContext {
   item: RenderInstruction;
@@ -43,9 +44,16 @@ function normalizeFormPath<T = any>(path: Array<string | number> | string): [key
  *   - mapping between model and form (serialization and deserialization)
  *   - exposing rendering instructions for a model (the instructions are used to render form elements)
  */
-export class TDMModelForm<T = any> {
+export class TDMModelForm<T = any> implements PropNotifyHandler {
 
   form: FormGroup;
+
+  /**
+   * When set, will proxy all incoming property changes from RenderInstruction to this handler.
+   */
+  set propNotifyHandler(value: PropNotifyHandler) {
+    this.onPropChange = value.onPropChange.bind(value);
+  }
 
   get model(): T {
     return this._model;
@@ -58,13 +66,14 @@ export class TDMModelForm<T = any> {
   get ready(): boolean {
     return this._ready;
   }
+
   /**
    * The render instructions for the TDMModel type of this instance.
    * @returns
    */
   get renderData(): RenderInstruction[] {
     if (!this._renderData) {
-      const clone = this.modelFormService.createRICloneFactory<any>();
+      const clone = this.modelFormService.createRICloneFactory<any>(this);
       this._renderData = this.modelFormService.getInstructions(this.type).map(clone);
     }
     return this._renderData;
@@ -78,6 +87,8 @@ export class TDMModelForm<T = any> {
   private _ready: boolean;
 
   constructor(protected modelFormService: TDMModelFormService) { }
+
+  onPropChange(ri: RenderInstruction, changes: PropChanges<RenderInstruction>): void { } // tslint:disable-line
 
   /**
    * Retrieves a child control given the control's name or path.
@@ -168,19 +179,18 @@ export class TDMModelForm<T = any> {
    * This method has no effect when a hot bind is set between the model and the form, it will reset the form
    * and sync it with the model in it's current state.
    */
-  reset(): void {
+  reset(options?: { onlySelf?: boolean; emitEvent?: boolean; }): void {
     for (let r of this.renderData) {
       if (r.isArray) {
         const formArray: FormArray = <any> this.get(r.fullName);
-        if (formArray.dirty) {
-          this.resetFormArray(formArray, r.fullName);
+        if (this.resetFormArray(formArray, this.getValueModel(r, formArray), r.fullName)) {
           r.markAsChanged();
         }
       }
       // TODO: move resetControl to here, with optional `path` param
       // TODO: handle standalone childForm in here
     }
-    this.form.reset(this._model);
+    this.form.reset(this._model, options);
   }
 
   /**
@@ -192,7 +202,7 @@ export class TDMModelForm<T = any> {
     const formProp = this.getFormProp(pathArr);
     const control = this.get(path);
     if (control instanceof FormArray) {
-      this.resetFormArray(control, pathArr.join('.'));
+      this.resetFormArray(control, value, pathArr.join('.'));
     } else if (formProp.childForm && ! (control.parent instanceof FormArray) ) {
       // standalone child form will recreate itself, this will set the control to FormControl if it's null
       control.parent.setControl(<any> formProp.name, this.createControl(pathArr.join('.'), value, false));
@@ -391,15 +401,16 @@ export class TDMModelForm<T = any> {
   /**
    * FormArray's require specific reset because `@angular/forms` logic does not match the array but the content only.
    */
-  private resetFormArray(formArray: FormArray, staticPath: string): void {
-    const value = this.getValueModel(staticPath);
-    if (formArray.length !== (value ? value.length : 0)) {
+  private resetFormArray(formArray: FormArray, value: any, staticPath: string): boolean {
+    if (formArray.dirty || formArray.length !== (value ? value.length : 0)) {
       formArray.controls.splice(0, formArray.controls.length);
       if (value) {
         for (let m of value) {
           formArray.push(this.createControl(staticPath, m));
         }
       }
+      return true;
     }
+    return false;
   }
 }

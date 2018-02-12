@@ -73,3 +73,23 @@ Let see it all in action:
   blue, this means **PENDING** state.
 </div>
 
+## Dynamic validation
+Validations are set on the metadata, which is static.
+You can modify the validation per instance of a dynamic form component.
+
+Get a hold of the render instruction for the control you want to update
+to modify to and update value of `validation` or `asyncValidation`
+properties.
+
+<div class="alert">
+The `validation` and `asyncValidation` properties are not tracked by
+the change detection, you must update the whole array, mutating the
+array will not trigger a rebuild of the validation function for the
+control.
+</div>
+<div class="info">
+Setting the property `required` to true/false will add/remove the
+required validation so you do not need to handle that in the
+`validation` or `asyncValidation` properties.
+</div>
+
