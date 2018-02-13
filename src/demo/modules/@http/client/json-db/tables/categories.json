@@ -1,0 +1,50 @@
+[
+  {
+    "CategoryID": 1,
+    "CategoryName": "Beverages",
+    "Description": "Soft drinks",
+    "Picture": "coffees"
+  },
+  {
+    "CategoryID": 2,
+    "CategoryName": "Condiments",
+    "Description": "Sweet and savory sauces",
+    "Picture": "relishes"
+  },
+  {
+    "CategoryID": 3,
+    "CategoryName": "Confections",
+    "Description": "Desserts",
+    "Picture": "candies"
+  },
+  {
+    "CategoryID": 4,
+    "CategoryName": "Dairy Products",
+    "Description": "Cheeses",
+    "Picture": 5.790629235645673e+304
+  },
+  {
+    "CategoryID": 5,
+    "CategoryName": "Grains/Cereals",
+    "Description": "Breads",
+    "Picture": "crackers"
+  },
+  {
+    "CategoryID": 6,
+    "CategoryName": "Meat/Poultry",
+    "Description": "Prepared meats",
+    "Picture": 5.790629235645673e+304
+  },
+  {
+    "CategoryID": 7,
+    "CategoryName": "Produce",
+    "Description": "Dried fruit and bean curd",
+    "Picture": 5.790629235645673e+304
+  },
+  {
+    "CategoryID": 8,
+    "CategoryName": "Seafood",
+    "Description": "Seaweed and fish",
+    "Picture": 5.790629235645673e+304
+  }
+]

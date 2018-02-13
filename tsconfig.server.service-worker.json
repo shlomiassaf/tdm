@@ -23,21 +23,15 @@
       "hammerjs",
       "node"
     ],
+    "baseUrl": "./src/demo/modules/@http/server",
+    "paths": { },
     "declaration": false,
     "outDir": "./dist"
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "scripts/**/*",
-    "node_modules",
-    "dist",
-    "e2e",
-    "src/demo/modules/@http/service-worker/sw/**/*",
-    "src/**/*.spec.ts",
-    "src/**/*.type-spec.ts",
-    "src/@tdm/ngx-http"
+  "files": [
+    "src/demo/modules/@http/server/index.ts",
+    "src/demo/modules/@http/server/service-worker.d.ts",
+    "src/demo/modules/@http/server/custom-typings.d.ts"
   ],
   "compileOnSave": false
 }

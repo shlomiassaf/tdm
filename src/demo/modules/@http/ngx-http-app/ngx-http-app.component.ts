@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { TdmFeatureListItem } from '@shared';
 
+import { Client } from '@http/client';
+
 @Component({
   selector: 'ngx-http-app',
   styleUrls: [ './ngx-http-app.component.scss' ],
@@ -17,4 +19,21 @@ export class NgxHttpAppComponent {
         md: true
       };
     });
+
+  constructor() {
+    Client.create()
+      .then( client => {
+        console.log('CLIENT CREATED');
+        client.restoreDB()
+          .then(() => {
+            console.log('DB RESTORED');
+          })
+          .catch( err => {
+            console.error(err);
+          });
+      })
+      .catch( err => {
+        console.error(err);
+      });
+  }
 }

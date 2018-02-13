@@ -12,7 +12,6 @@ import { ROUTES } from './app.routes';
 import { AppComponent } from './app.component';
 import { AppState } from './app.service';
 import { HomeComponent } from './home';
-import { AboutComponent } from './about';
 import { NoContentComponent } from './no-content';
 
 // we first include material-core then styles because styles has @imports that needs to come after material core
