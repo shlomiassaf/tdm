@@ -19,11 +19,14 @@ export function FormModel(metaArgs?: FormModelMetadataArgs): (target: Function) 
   return formModel(metaArgs) as any;
 }
 
-/**
- * @propertyDecorator instance
- * @param metaArgs
- */
-export const FormProp = MetaClass.decorator(FormPropMetadata);
+// we need to export `FormProp` explicitly or else the type of the parameter "def" in the "d.ts" file will be set
+// to FormModelMetadataArgs<"form" | "none">
+export let formProp: any = {};
+formProp = MetaClass.decorator(FormPropMetadata);
+
+export function FormProp(def?: FormModelMetadataArgs): (target: Object, key: PropertyKey) => any {
+  return formProp(def) as any;
+}
 
 targetStore.on
   .processType((target: Constructor<any>) => {
