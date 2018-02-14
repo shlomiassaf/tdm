@@ -22,17 +22,15 @@ export class MaterialDynamicFormsModule {
     }
   }
 
-  static forRoot(defaultRenderer?: DefaultRenderer): ModuleWithProviders {
-    if (defaultRenderer && !isFunction(defaultRenderer)) {
-      if ( !('*' in defaultRenderer) ) {
-        defaultRenderer['*'] = MaterialFormControlRenderer;
-      }
-    }
+  static forRoot(defaultRenderer: DefaultRenderer): ModuleWithProviders {
+    // if (defaultRenderer && !isFunction(defaultRenderer)) {
+    //   if ( !('*' in defaultRenderer) ) {
+    //     defaultRenderer['*'] = MaterialFormControlRenderer;
+    //   }
+    // }
     return {
       ngModule: MaterialDynamicFormsModule,
-      providers: [
-        ...DynamicFormsModule.forRoot(defaultRenderer || MaterialFormControlRenderer).providers
-      ]
+      providers: [...DynamicFormsModule.forRoot(defaultRenderer || MaterialFormControlRenderer).providers]
     };
   }
 }
