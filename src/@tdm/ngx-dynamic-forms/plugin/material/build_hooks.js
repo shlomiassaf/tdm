@@ -121,6 +121,8 @@ const globals = {
   'rxjs/operators/share': 'Rx.operators',
   'rxjs/operators/delay': 'Rx.operators',
   'rxjs/operators/combineLatest': 'Rx.operators',
+
+  '@tdm/ngx-dynamic-forms': 'tdm.ngxDynamicForms'
 };
 
 // module.exports.tsconfig = function tsconfig(config) { }

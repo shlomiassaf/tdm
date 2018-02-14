@@ -104,11 +104,12 @@ module.exports = function(metadata: PackageMetadata) {
     plugins: [
       new NgcWebpackPlugin(ngcWebpackConfig),
 
-      new BannerPlugin({
-        banner: banner,
-        raw: true,
-        entryOnly: true
-      }),
+      /* Disabled for now because it will add banners to the each compilation of the resources (html, css, etc...) */
+      // new BannerPlugin({
+      //   banner: banner,
+      //   raw: true,
+      //   entryOnly: true
+      // }),
 
       new CopyWebpackPlugin([
         { from: 'README.md', to: helpers.root(`./${FS_REF.PKG_DIST}/${metadata.dir}`) },

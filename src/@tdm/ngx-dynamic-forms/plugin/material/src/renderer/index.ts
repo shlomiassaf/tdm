@@ -1,4 +1,4 @@
-import './dynamic-forms';
+import './material-visual-types';
 export {
   MaterialFormControlRenderer,
   storeContainer

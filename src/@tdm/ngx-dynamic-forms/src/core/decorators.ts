@@ -24,7 +24,7 @@ export function FormModel(metaArgs?: FormModelMetadataArgs): (target: Function) 
 export let formProp: any = {};
 formProp = MetaClass.decorator(FormPropMetadata);
 
-export function FormProp(def?: FormModelMetadataArgs): (target: Object, key: PropertyKey) => any {
+export function FormProp(def: FormPropMetadataArgs): (target: Object, key: PropertyKey) => any {
   return formProp(def) as any;
 }
 
