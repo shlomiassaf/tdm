@@ -1,5 +1,5 @@
 import { Prop, ExtendAction, ExecuteContext, Identity, Exclude } from '@tdm/data';
-import { ARMixin, HttpResource, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/ngx-http-client';
+import { ActiveRecord, HttpResource, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/ngx-http-client';
 
 import { packageMapper } from '../mapper';
 
@@ -147,5 +147,5 @@ export class Package {
       return options;
     }
   })
-  static query: (packages: string | string[], options?: HttpActionOptions) => ARMixin<Package>;
+  static query: (packages: string | string[], options?: HttpActionOptions) => ActiveRecord<Package>;
 }

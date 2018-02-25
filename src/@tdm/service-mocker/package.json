@@ -1,0 +1,28 @@
+{
+  "version": "1.1.0-alpha.0",
+  "description": "Express like server within a service Worker for typed data models.",
+  "keywords": [
+    "@tdm",
+    "service-worker",
+    "express"
+  ],
+  "peerDependencies": {
+    "typescript": "^2.4.2",
+    "tslib": "^1.6.0",
+    "service-mocker": "^2.1.2",
+    "service-mocker-polyfills": "^1.1.4",
+    "@tdm/tixin": "*",
+    "@tdm/core": "*"
+  },
+  "libConfig": {
+    "entry": "service-mocker",
+    "libExtensions": [
+      {
+        "name": "shared"
+      },
+      {
+        "name": "client"
+      }
+    ]
+  }
+}

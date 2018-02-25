@@ -22,7 +22,7 @@ export class MaterialDynamicFormsModule {
     }
   }
 
-  static forRoot(defaultRenderer: DefaultRenderer): ModuleWithProviders {
+  static forRoot(defaultRenderer?: DefaultRenderer): ModuleWithProviders {
     // if (defaultRenderer && !isFunction(defaultRenderer)) {
     //   if ( !('*' in defaultRenderer) ) {
     //     defaultRenderer['*'] = MaterialFormControlRenderer;

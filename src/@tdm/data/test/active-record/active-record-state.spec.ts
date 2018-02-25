@@ -1,6 +1,6 @@
 import 'rxjs';
 
-import { MockMixin, MockResource, bucketFactory, eventConsumer } from '@tdm/data/testing';
+import { ActiveRecord, MockResource, bucketFactory, eventConsumer } from '@tdm/data/testing';
 import { ActionEndResourceEvent } from "@tdm/data";
 import { ARMethods } from '@tdm/data/active-record';
 import { ActionErrorResourceEvent } from '@tdm/data/active-record/active-record-events';
@@ -13,7 +13,7 @@ class User_ {
 @MockResource({
   endpoint: '/api/users/:id?'
 })
-class User extends MockMixin(User_) { }
+class User extends ActiveRecord(User_) { }
 
 describe('@tdm/data', () => {
   describe('Active Record State', () => {
@@ -100,7 +100,7 @@ describe('@tdm/data', () => {
       @MockResource({
         endpoint: '/api/users/:id?'
       })
-      class User extends MockMixin(class {}) { }
+      class User extends ActiveRecord(class {}) { }
       const user = bucket.create(User);
       const busyStates = [true, false];
 
@@ -234,7 +234,7 @@ describe('@tdm/data', () => {
       @MockResource({
         endpoint: '/api/users/:id?'
       })
-      class User extends MockMixin(class {}) { }
+      class User extends ActiveRecord(class {}) { }
       const user = bucket.create(User);
 
       const run = (onDone: (err?: any) => void) => {

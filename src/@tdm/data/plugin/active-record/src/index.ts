@@ -33,7 +33,7 @@ import {
  */
 function getActions(target: Constructor<any>, adapterClass: AdapterStatic<any, any>): ActionMetadata[] {
   const chain = getProtoChain(target);
-  const actions = new Map<PropertyKey, ActionMetadata>();
+  const actions = new Map<TdmPropertyKey, ActionMetadata>();
 
   for (let i = 0, len = chain.length; i < len; i++) {
     if (targetStore.hasTarget(chain[i])) {
@@ -56,7 +56,9 @@ function composeAction(obj: any, action: ActionMetadata, fn: (...args: any[]) =>
   }
 }
 
-function registerAction(this: ActionController, action: ActionMetadata, collProto: any, override: boolean = false): void {
+function registerAction(this: ActionController,
+                        action: ActionMetadata,
+                        collProto: any, override: boolean = false): void {
   const ctx = new ExecuteContext(this.targetMetadata, action);
   const self = this;
 
@@ -86,7 +88,6 @@ function registerAction(this: ActionController, action: ActionMetadata, collProt
   }
 }
 
-
 function activeRecord(target: Constructor<any>): void {
   // don't apply active record on non TDMModel targets (i.e. @Model targets)
   // TODO: the event should be specific to `@tdm/data` and not onProcessType
@@ -107,7 +108,7 @@ function activeRecord(target: Constructor<any>): void {
         a = metaClass.factory(metaArgs, target, extAction.decoratorInfo).metaValue;
       }
 
-      registerAction.call(ac, a, collProto, true)
+      registerAction.call(ac, a, collProto, true);
     });
   }
 
@@ -122,7 +123,6 @@ function attachResourceControl(propertyName: string): void {
 
   // extend TDMModel
   Object.defineProperty(TDMModelBase.prototype, propertyName, { configurable: true, get: getThisCtrl });
-
 
   // extend TDMCollection
   function StatefulActiveRecordCollection() { }
@@ -189,7 +189,7 @@ export class ActiveRecordPlugin {
    */
   init(options: ActiveRecordOptions): void {
     if (options.resourceControl) {
-      attachResourceControl(options.resourceControl)
+      attachResourceControl(options.resourceControl);
     }
 
     if (options.hasOwnProperty('enableActions') === false || options.enableActions === true) {

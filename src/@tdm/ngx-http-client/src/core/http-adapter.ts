@@ -1,10 +1,11 @@
 import { Subscription } from 'rxjs/Subscription';
-import { HttpParams, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { HttpParams, HttpHeaders, HttpResponse, HttpClient } from '@angular/common/http';
 import { isUndefined, stringify, TargetMetadata } from '@tdm/core/tdm';
 
 import {
   Adapter,
   findProp,
+  ExecuteParams,
   ExecuteContext,
   AdapterResponse,
   ExecuteResponse
@@ -13,10 +14,32 @@ import {
 import { HttpResourceMetadata, HttpActionMetadata, UrlParamMetadata } from '../metadata';
 
 import { HttpActionOptions, TrailingSlashesStrategy } from './interfaces';
-import { httpDefaultConfig } from '../http-default-config';
+import { HttpDefaultConfig } from '../http-default-config';
 import { Params, getParamNames, formatPattern } from '../utils/match-pattern';
 import { HttpActionMethodType } from '../metadata/method-mapper';
-import { getHttp } from '../providers';
+
+export interface HttpAdapterFactoryArgs {
+  httpClient: HttpClient;
+  defaultConfig: HttpDefaultConfig;
+}
+
+const defaultFactoryArgs = {
+  value: undefined as HttpAdapterFactoryArgs
+};
+
+export function setDefaultFactoryArgs(args: HttpAdapterFactoryArgs): HttpAdapterFactoryArgs {
+  return defaultFactoryArgs.value = args;
+}
+
+function getFactoryArgs(params: ExecuteParams<HttpAdapterFactoryArgs>): HttpAdapterFactoryArgs {
+  const args: HttpAdapterFactoryArgs = params.factoryArgs || defaultFactoryArgs.value;
+  if (!args) {
+    throw new Error(
+      'HttpClientResourceModule did not init, are you trying to invoke an action before the modules registered?'
+    );
+  }
+  return args;
+}
 
 export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOptions> {
   readonly supports = { cancel: true };
@@ -27,10 +50,11 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
 
   execute(ctx: ExecuteContext<HttpActionMetadata>,
           options: HttpActionOptions,
-          args: any[]): AdapterResponse {
+          params: ExecuteParams<HttpAdapterFactoryArgs>): AdapterResponse {
     const id = this.idCount++;
     try {
-      const http = getHttp();
+      const { httpClient, defaultConfig } = getFactoryArgs(params);
+
       options = options || <any> {};
 
       const {action} = ctx;
@@ -41,15 +65,15 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
         throw new Error('Http resource not set.');
       }
 
-      const rawUrl = findProp('endpoint', resource, action);
+      const rawUrl = parseRawUrl(resource, action, defaultConfig);
       if (!rawUrl) {
         // TODO: move to @tdm error with more info.
         throw new Error('Invalid endpoint, no endpoint found.');
       }
 
-      const withCredentials = findProp('withCredentials', httpDefaultConfig, resource, action, options);
-      const strip = findProp('trailingSlashes', httpDefaultConfig, resource, action, options);
-      const urlParams = this.getParams(ctx, ctx.targetMeta, resource, options);
+      const withCredentials = findProp('withCredentials', defaultConfig, resource, action, options);
+      const strip = findProp('trailingSlashes', defaultConfig, resource, action, options);
+      const urlParams = this.getParams(ctx, ctx.targetMeta, resource, options, defaultConfig);
 
       const {path, query} = this.splitParams(rawUrl, urlParams);
 
@@ -58,7 +82,7 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
       const url = processUrl(this.parseUrl(rawUrl, path), strip);
       const request = {
         body: ctx.data,
-        headers: this.getHeaders(ctx, resource, options),
+        headers: this.getHeaders(ctx, resource, options, defaultConfig),
         reportProgress: false, // its the default but let be verbose
         observe: 'response',
         params: this.paramsToSearchParams(query),
@@ -80,7 +104,7 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
 
       const response = new Promise<ExecuteResponse>((resolve, reject) => {
         let httpResponse: HttpResponse<any>;
-        const subscription = http.request<any>(method, url, request)
+        const subscription = httpClient.request<any>(method, url, request)
           .subscribe(
             v => httpResponse = v,
             err => {
@@ -109,7 +133,8 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
 
   protected getHeaders(ctx: ExecuteContext<HttpActionMetadata>,
                        resource: HttpResourceMetadata,
-                       options: HttpActionOptions): HttpHeaders {
+                       options: HttpActionOptions,
+                       httpDefaultConfig: HttpDefaultConfig): HttpHeaders {
     let headers = new HttpHeaders(findProp('headers', httpDefaultConfig, resource, ctx.action));
     if (options.headers) {
       Object.keys(options.headers).forEach(k => {
@@ -126,7 +151,8 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
   protected getParams(ctx: ExecuteContext<HttpActionMetadata>,
                       meta: TargetMetadata,
                       resource: HttpResourceMetadata,
-                      options: HttpActionOptions): Params {
+                      options: HttpActionOptions,
+                      httpDefaultConfig: HttpDefaultConfig): Params {
     const params = Object.assign({}, findProp('urlParams', httpDefaultConfig, resource, ctx.action));
 
     if (ctx.instance) {
@@ -187,6 +213,35 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
   private paramsToSearchParams(params: Params): HttpParams {
     return new HttpParams({ fromObject: params });
   }
+}
+
+function parseRawUrl(resource: HttpResourceMetadata,
+                     action: HttpActionMetadata,
+                     defaultConfig: HttpDefaultConfig): string {
+  const urlParts = [
+    defaultConfig.baseUrl,
+    action.absolute !== true ? resource.endpoint : '',
+    action.endpoint
+  ];
+
+  let suffix = '';
+
+  const rawParts = [];
+  for (let part of urlParts) {
+    if (part) {
+      if (/^.+\/$/.test(part)) {
+        suffix = '/';
+      }
+      const raw = part.split('/')
+        .filter( p => !!p )
+        .map(u => u.replace(/\/(.*(?:\/))\/*/, '$1'))
+        .filter( p => !!p );
+      rawParts.push(...raw);
+    }
+  }
+
+  // TODO: this can be moved to the action, cached there without recalc, only baseUrl might change
+  return '/' + rawParts.join('/') + suffix;
 }
 
 function processUrl(url: string, slashes: TrailingSlashesStrategy): string {

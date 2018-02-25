@@ -8,7 +8,8 @@ export {
   UiBlock,
   TdmCodeViewComponent,
   CodeViewItem,
-  TdmFeatureListItem
+  TdmFeatureListItem,
+  TutorialPageComponent
 } from './components';
 
 export * from './toc';

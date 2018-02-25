@@ -1,5 +1,5 @@
-import { MockMixin, MockResource, MockDeserializer, MockActionOptions, MockAdapter, bucketFactory } from '@tdm/data/testing';
-import { ActiveRecord, Constructor, Prop } from '@tdm/data';
+import { ActiveRecord, MockResource, MockDeserializer, MockActionOptions, MockAdapter, bucketFactory } from '@tdm/data/testing';
+import { Constructor, Prop } from '@tdm/data';
 
 describe('CORE', () => {
   describe('TargetAdapterMetadataStore', () => {

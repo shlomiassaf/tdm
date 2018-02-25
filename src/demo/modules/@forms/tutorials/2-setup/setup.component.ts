@@ -7,7 +7,7 @@ import { Component } from '@angular/core';
 })
 export class SetupComponent {
   /* @tdm-ignore:* */
-  code: any = System.import(/* webpackChunkName: "SetupComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = System.import(/* webpackChunkName: "FormsSetupComponent" */ './__tdm-code__.ts'); // tslint:disable-line
   static tutorial = {
     id: 'setup',
     name: 'Setup'

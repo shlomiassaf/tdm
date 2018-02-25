@@ -14,15 +14,15 @@
  * Cons:
  *   - Having 2 classes, cumbersome.
  *
- *   - Instance members defined in a class that extends ARMixin<BASE> will not reflect on types returned from
- *     static methods defined in ARMixin which return the instance.
+ *   - Instance members defined in a class that extends ActiveRecord<BASE> will not reflect on types returned from
+ *     static methods defined in ActiveRecord which return the instance.
  *     i.e.: Invoking a static method on the derived class that returns an instance of that class will not refelect
  *     member defined on the derived class.
  *     This does not apply to instance types returned from methods on the instance itself - CONFUSING.
  */
 import { TDMModel } from '@tdm/core';
 import { Identity, ExtendAction, ExecuteContext } from '@tdm/data';
-import { ARMixin, HttpResource, HttpActionOptions, HttpAction, HttpActionMethodType } from '@tdm/ngx-http-client';
+import { ActiveRecord, HttpResource, HttpActionOptions, HttpAction, HttpActionMethodType } from '@tdm/ngx-http-client';
 import './init-tdm';
 
 @HttpResource({
@@ -44,11 +44,11 @@ class User_ {
       return options;
     }
   })
-  static find: (id: 'CatA' | 'CatB', options?: HttpActionOptions) => ARMixin<User_>;
+  static find: (id: 'CatA' | 'CatB', options?: HttpActionOptions) => ActiveRecord<User_>;
 }
 
-export const User = ARMixin(User_);
-export type User = ARMixin<User_>;
+export const User = ActiveRecord(User_);
+export type User = ActiveRecord<User_>;
 
 const user1: User & TDMModel<User> = new User().$rc.clone();
 const user2: TDMModel<User> = new User().$rc.clone();
@@ -59,7 +59,7 @@ new User().$refresh().$rc.next().then( value => {
 /**
  * @tssert
  * @tsError 2322
- * @tsErrorMsg Type 'TDMModel<ARMixin<User_>> & User_ & TDMModel<User_> & HttpActiveRecord' is not assignable to type 'string'.
+ * @tsErrorMsg Type 'TDMModel<ActiveRecord<User_>> & User_ & TDMModel<User_> & HttpActiveRecord' is not assignable to type 'string'.
  * @loc 2:9
  */
 new User().$refresh().$rc.next().then( value => {

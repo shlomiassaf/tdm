@@ -3,15 +3,13 @@ import {
   DualKeyMap,
   BaseMetadata,
   isString,
-  DecoratorInfo,
   GLOBAL_KEY,
   MetadataClassStatic
 } from '../fw';
 
 import { targetStore } from './target-store';
-import { PropMetadata } from './prop';
+// import { PropMetadata } from './prop';
 import { TDMCollection } from '../model';
-
 
 /**
  * The metadata store for a target.
@@ -23,9 +21,9 @@ import { TDMCollection } from '../model';
  */
 export class TargetMetadata<T = any, Z = any> {
 
-  protected config: DualKeyMap<Constructor<any>, PropertyKey, any>;
+  protected config: DualKeyMap<Constructor<any>, TdmPropertyKey, any>;
 
-  constructor(public readonly target: Z & Constructor<T>, config: DualKeyMap<MetadataClassStatic, PropertyKey, any>) {
+  constructor(public readonly target: Z & Constructor<T>, config: DualKeyMap<MetadataClassStatic, TdmPropertyKey, any>) {
     this.config = config;
   }
 
@@ -42,12 +40,10 @@ export class TargetMetadata<T = any, Z = any> {
     return values ? Array.from(values.values()) : [];
   }
 
-
-
   /**
    * Get the whole map of non-single metadata class
    */
-  getMetaFor<T extends MetadataClassStatic, Z extends BaseMetadata>(metaClass: T & Constructor<Z>): Map<PropertyKey, Z> | undefined;
+  getMetaFor<T extends MetadataClassStatic, Z extends BaseMetadata>(metaClass: T & Constructor<Z>): Map<TdmPropertyKey, Z> | undefined;
   /**
    * Get metadata for a single value metadata class
    */
@@ -97,7 +93,7 @@ export class TargetMetadata<T = any, Z = any> {
     return new TDMCollection<T>();
   }
 
-  protected get<T, Z, P extends keyof T>(type: T & Constructor<Z>, key: P): Z {
-    return this.config.get(PropMetadata, key);
-  }
+  // protected get<T, Z, P extends keyof T>(type: T & Constructor<Z>, key: P): Z {
+  //   return this.config.get(PropMetadata, key);
+  // }
 }

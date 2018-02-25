@@ -1,12 +1,11 @@
 import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { shareReplay } from 'rxjs/operator/shareReplay';
+import { shareReplay } from 'rxjs/operators';
 
 import { TixinFree } from '@tdm/tixin';
 import { LazyInit, TDMModel } from '@tdm/core/tdm';
 import {
   ResourceEvent,
-  ResourceEventType,
   StateChangeResourceEvent,
   ResourceControl
 } from '@tdm/data';
@@ -68,20 +67,20 @@ export class RxResourceControl<T> extends ResourceControl<T> {
     }
   }
 
-  private static rxHandler(this: RxResourceControl<any>, event: ResourceEvent): void {
-    if (event instanceof StateChangeResourceEvent) {
-      if (event.key === 'busy') {
-        this._busySubject.next(event.newVal);
+  // workaround for https://github.com/Microsoft/TypeScript/issues/15892
+  // has a slight impact as it set's a property on the class.
+  private static _rx = ResourceControl
+    .addEventListener(function rootHandler(this: RxResourceControl<any>, event: ResourceEvent): void {
+      if (event instanceof StateChangeResourceEvent) {
+        if (event.key === 'busy') {
+          this._busySubject.next(event.newVal);
+        }
+      } else if (event.type === 'ActionSuccess') {
+        this._selfSubject.next(this.parent);
       }
-    } else if (event.type === ResourceEventType.ActionSuccess) {
-      this._selfSubject.next(this.parent);
-    }
-  }
+    });
 }
 
 export function init(): void {
   TixinFree(ResourceControl, RxResourceControl, 'proto');
-
-  // https://github.com/Microsoft/TypeScript/issues/15892
-  ResourceControl.addHandler(RxResourceControl['rxHandler']);
 }

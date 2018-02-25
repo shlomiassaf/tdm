@@ -1,5 +1,5 @@
 import { Prop, Exclude, ExtendAction, ExecuteContext } from '@tdm/data';
-import { HttpResource, ARMixin, HttpActionOptions, UrlParam } from '@tdm/ngx-http-client';
+import { HttpResource, ActiveRecord, HttpActionOptions, UrlParam } from '@tdm/ngx-http-client';
 
 import { vehicleMapper } from '../mapper';
 
@@ -65,5 +65,5 @@ export class Model {
       return options;
     }
   })
-  static query: (makeId: number, options?: HttpActionOptions) => ARMixin<Model>;
+  static query: (makeId: number, options?: HttpActionOptions) => ActiveRecord<Model>;
 }

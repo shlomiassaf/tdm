@@ -9,6 +9,5 @@ import {
 
 import { MockAdapter } from '../core';
 
-
 export const MockResource = MetaClass.get(MockResourceMetadata).createResourceDecorator(MockAdapter);
 export const MockAction = MetaClass.decorator(MockActionMetadata);

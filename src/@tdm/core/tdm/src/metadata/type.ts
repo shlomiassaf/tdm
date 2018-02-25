@@ -122,10 +122,9 @@ export interface TypeDefinition {
  */
 export type TypeMetadataArgs = { (): Constructor<any> } | TypeDefinition;
 
-
 @MetaClass<TypeMetadataArgs, TypeMetadata>({
   allowOn: ['member'],
-  extend: 'prop'
+  extend: 'mergeMap'
 })
 export class TypeMetadata extends BaseMetadata {
 

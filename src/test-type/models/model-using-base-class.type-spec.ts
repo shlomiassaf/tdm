@@ -14,14 +14,14 @@
  * Cons:
  *   - Having 2 classes, cumbersome.
  *
- *   - Instance members defined in a class that extends ARMixin<BASE> will not reflect on types returned from
- *     static methods defined in ARMixin which return the instance.
+ *   - Instance members defined in a class that extends ActiveRecord<BASE> will not reflect on types returned from
+ *     static methods defined in ActiveRecord which return the instance.
  *     i.e.: Invoking a static method on the derived class that returns an instance of that class will not refelect
  *     member defined on the derived class.
  *     This does not apply to instance types returned from methods on the instance itself - CONFUSING.
  */
 import { Identity, ExtendAction, ExecuteContext } from '@tdm/data';
-import { ARMixin, HttpResource, HttpActionOptions, HttpAction, HttpActionMethodType } from '@tdm/ngx-http-client';
+import { ActiveRecord, HttpResource, HttpActionOptions, HttpAction, HttpActionMethodType } from '@tdm/ngx-http-client';
 import './init-tdm';
 
 @HttpResource({
@@ -43,13 +43,13 @@ class User_ {
       return options;
     }
   })
-  static find: (id: 'CatA' | 'CatB', options?: HttpActionOptions) => ARMixin<User_>;
+  static find: (id: 'CatA' | 'CatB', options?: HttpActionOptions) => ActiveRecord<User_>;
 }
 
 @HttpResource({
   endpoint: '/path'
 })
-export class UserBaseClass extends ARMixin(User_) {
+export class UserBaseClass extends ActiveRecord(User_) {
   valueOnDerived: number;
 
   @HttpAction({
@@ -72,12 +72,12 @@ export class UserBaseClass extends ARMixin(User_) {
 UserBaseClass.findById(2).username;
 
 /**
- * This shows the limitation of not being able to reflect instance members of classes deriving from ARMixin<Base...>
+ * This shows the limitation of not being able to reflect instance members of classes deriving from ActiveRecord<Base...>
  * when the type is returned from a static member.
  *
  * @tssert
  * @tsError 2339
- * @tsErrorMsg Property 'valueOnDerived' does not exist on type 'ARMixin<User_>'.
+ * @tsErrorMsg Property 'valueOnDerived' does not exist on type 'ActiveRecord<User_>'.
  * @loc 27
  */
 UserBaseClass.findById(2).valueOnDerived;
@@ -248,23 +248,23 @@ export class UserBaseClassExt extends UserBaseClass {
 UserBaseClassExt.findById(2).username;
 
 /**
- * This shows the limitation of not being able to reflect instance members of classes deriving from ARMixin<Base...>
+ * This shows the limitation of not being able to reflect instance members of classes deriving from ActiveRecord<Base...>
  * when the type is returned from a static member.
  *
  * @tssert
  * @tsError 2339
- * @tsErrorMsg Property 'valueOnDerived' does not exist on type 'ARMixin<User_>'.
+ * @tsErrorMsg Property 'valueOnDerived' does not exist on type 'ActiveRecord<User_>'.
  * @loc 30
  */
 UserBaseClassExt.findById(2).valueOnDerived;
 
 /**
- * This shows the limitation of not being able to reflect instance members of classes deriving from ARMixin<Base...>
+ * This shows the limitation of not being able to reflect instance members of classes deriving from ActiveRecord<Base...>
  * when the type is returned from a static member.
  *
  * @tssert
  * @tsError 2339
- * @tsErrorMsg Property 'valueOnDerivedExt' does not exist on type 'ARMixin<User_>'.
+ * @tsErrorMsg Property 'valueOnDerivedExt' does not exist on type 'ActiveRecord<User_>'.
  * @loc 30
  */
 UserBaseClassExt.findById(2).valueOnDerivedExt;

@@ -5,9 +5,10 @@ import {
   DecoratorInfo,
   RegisterFn,
   ExtendFn,
-  ExtendSingleFn
+  ExtendSingleFn,
+  MetaClassRegisterHelpers,
+  MetaClassExtendHelpers
 } from './types';
-import { extendHelpers } from './utils';
 import { MetaClassMetadata } from './meta-class';
 
 /**
@@ -70,7 +71,8 @@ export interface ProxyHostMetadataArgs<T extends MetadataClassStatic<any, any> =
    * the value is taken as the metadata arguments object for the current metadata class.
    *
    * > Defining a key on the proxy metadata arguments interface will result in a type error since typescript
-   * will not recognize the key, to solve that a type extension is required. A ProxyHost can not be set without a type extension
+   * will not recognize the key, to solve that a type extension is required. A ProxyHost can not be set without a type
+   * extension
    *
    * Example: Creating a type extension to `PropMetadataArgs`
    * declare module './prop' {
@@ -132,7 +134,7 @@ export interface MetaClassMetadataArgs<TMetaArgs = any, TMetaClass = any> {
            metaArgs: TMetaArgs,
            target: Object | Function,
            info: DecoratorInfo,
-           key?: PropertyKey,
+           key?: TdmPropertyKey,
            desc?: PropertyDescriptor): MetaClassInstanceDetails<TMetaArgs, TMetaClass> | undefined;
 
   /**
@@ -140,17 +142,18 @@ export interface MetaClassMetadataArgs<TMetaArgs = any, TMetaClass = any> {
    * This operation save the instance in the targetStore.
    * @param meta
    */
-  register?: RegisterFn<TMetaArgs, TMetaClass>;
+  register?: RegisterFn<TMetaArgs, TMetaClass> | keyof MetaClassRegisterHelpers;
 
   /**
-   * Optional implementation of extend logic FOR non-single metadata, logic that handles one type extending another type.
+   * Optional implementation of extend logic FOR non-single metadata, logic that handles 1 type extending another type.
    * If not set, the Metadata class is not extendable and will not inherit metadata from child types.
    * If the method returns undefined it will also not extend the Metadata class.
    *
    * 'to' can be undefined, if so it means that that Metadata class was never assigned to the type.
    *
    * #### You can set on of the predefined extend functions.
-   *   - prop: An extending implementation suitable for property decorators. Expecting a `Map<PropertyKey, T>`, it will merge the source into the target.
+   *   - prop: An extending implementation suitable for property decorators. Expecting a `Map<TdmPropertyKey, T>`, it
+   *   will merge the source into the target.
    *
    * @param from
    * @param to
@@ -159,7 +162,7 @@ export interface MetaClassMetadataArgs<TMetaArgs = any, TMetaClass = any> {
    * @param meta.to the target target
    * @returns the new extended value.
    */
-  extend?: ExtendFn | keyof typeof extendHelpers;
+  extend?: ExtendFn | keyof MetaClassExtendHelpers;
 
   /**
    * Optional implementation of extend logic FOR single metadata, logic that handles one type extending another type.

@@ -15,7 +15,7 @@ import { Hero } from '../../4-element-metadata';
   /* @tdm-ignore:* */
 })
 export class ValueChangesEventComponent {
-  code: any = System.import(/* webpackChunkName: "ValueChangesEventComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
+  code: any = System.import(/* webpackChunkName: "FormsValueChangesEventComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
   model = new Hero();
   disabledControls: string[] = ['id'];
 

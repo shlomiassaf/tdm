@@ -1,24 +1,18 @@
-import { createClient, MockerClient } from 'service-mocker/client';
+import { Client, ClientBase, OnMessage } from '@tdm/service-mocker/client';
+import { ClientPostMessageEvent, ServerRequest, ClientResponse } from '@tdm/service-mocker/shared';
 
-function initApp() {
-  fetch('/greet')
-    .then( response => {
-      console.log(response.text());
-    });
-}
-
-export class Client {
-
-  private constructor(private mockClient: MockerClient) { }
-
-  public restoreDB(): Promise<void> {
-    return System.import(/* webpackChunkName: "northwind" */ './json-db/index').then( module => {
-      console.log(module);
-    });
+@Client({
+  scriptURL: './sw.js'
+})
+export class SWClient extends ClientBase {
+  @OnMessage()
+  installed(data: ServerRequest<'installed'>): Promise<ClientResponse<'installed'>> {
+    return <any> Promise.resolve(12);
   }
 
-  static create(): Promise<Client> {
-    const mockClient = createClient('sw.js');
-    return mockClient.ready.then( () => new Client(mockClient));
+  restoreDB(): Promise<ClientPostMessageEvent<'restoreDb'>> {
+    return System.import(/* webpackChunkName: "northwind" */ './json-db/index')
+      .then( module => this.send('restoreDb', module.DB, 1000 * 60) );
   }
+
 }

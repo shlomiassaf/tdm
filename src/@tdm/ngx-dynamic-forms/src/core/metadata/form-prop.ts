@@ -142,7 +142,7 @@ export const BASE_RENDERER: RenderDef = {
 
 @MetaClass<FormPropMetadataArgs, FormPropMetadata>({
   allowOn: [ 'member' ],
-  extend: 'prop',
+  extend: 'mergeMap',
   proxy: {
     host: PropMetadata,
     containerKey: 'form'

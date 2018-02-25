@@ -62,6 +62,9 @@ export function stringify(token: any): string {
 export const reflection = {
   designType(target: any, key: string | symbol): any {
     return (Reflect as any).getMetadata('design:type', target, key);
+  },
+  paramTypes(target: any, key: string | symbol) {
+    return (Reflect as any).getMetadata('design:paramtypes', target, key);
   }
 };
 
@@ -107,4 +110,9 @@ export function getProtoChain(cls: Constructor<any>): Array<Constructor<any>> {
     cls = isFunction(proto) || !proto ? proto : proto.constructor;
   }
   return classes;
+}
+
+export function getBaseClass(cls: Constructor<any>): Constructor<any> | void {
+  const proto = Object.getPrototypeOf(cls.prototype);
+  return !proto || isFunction(proto) ? proto : proto.constructor;
 }

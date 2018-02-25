@@ -31,7 +31,7 @@ export class LocalOverrideComponent implements AfterViewInit {
   }
   /* @tdm-ignore:tdmModel */
   /* @tdm-ignore:* */
-  code: any = System.import(/* webpackChunkName: "LocalOverrideComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = System.import(/* webpackChunkName: "FormsLocalOverrideComponent" */ './__tdm-code__.ts'); // tslint:disable-line
   static tutorial = {
     id: 'local-override',
     name: 'Local Override'

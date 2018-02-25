@@ -1,9 +1,8 @@
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import 'rxjs/add/observable/fromEvent';
-import 'rxjs/add/operator/debounceTime';
-import { isPromise } from 'rxjs/util/isPromise';
+import { fromEvent } from 'rxjs/observable/fromEvent';
+import { debounceTime } from 'rxjs/operators';
 import { AfterContentInit, Directive, ElementRef, Input, OnDestroy, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
@@ -14,6 +13,10 @@ const DEFAULT_OFFSET_CACHE: [number, number] = [0, 0];
 
 const DEFAULT_SELECTOR = `h1[id]:not(.no-toc), h2[id]:not(.no-toc), h3[id]:not(.no-toc)\
 , h1 > a[id].anchor, h2 > a[id].anchor, h3 > a[id].anchor`;
+
+function isPromise<T>(value: any | Promise<T>): value is Promise<T> {
+  return value && typeof (<any> value).subscribe !== 'function' && typeof (value as any).then === 'function';
+}
 
 /**
  * A logical container and unit of work for a table of contents.
@@ -66,8 +69,8 @@ export class TocAreaDirective implements AfterContentInit, OnDestroy {
       }
       this._scrollContainer = scrollContainer;
       if (scrollContainer) {
-        this._scrollSubscription = Observable.fromEvent(this._scrollContainer, 'scroll')
-          .debounceTime(10)
+        this._scrollSubscription = fromEvent(this._scrollContainer, 'scroll')
+          .pipe(debounceTime(10))
           .subscribe(() => this.onScroll());
       }
     }

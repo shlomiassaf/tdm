@@ -11,7 +11,6 @@ import { AdapterMetadata, AdapterMetadataArgs } from '../metadata';
 
 class CoreTargetStore extends TargetStore {
 
-
   getAdapter(adapterClass: AdapterStatic<any, any>): AdapterMetadata {
     return this.local<AdapterMetadata>(adapterClass)
       || ( this.locals.add(adapterClass,  new AdapterMetadata()), this.getAdapter(adapterClass) );

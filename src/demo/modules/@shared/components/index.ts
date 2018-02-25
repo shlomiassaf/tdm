@@ -4,3 +4,4 @@ export { TdmMarkdownViewComponent } from './markdown-view/markdown-view.componen
 export { TdmPackageWelcomeComponent } from './package-welcome/package-welcome.component';
 export { TdmFeatureListComponent, TdmFeatureListItem } from './feature-list/feature-list.component';
 export { TdmLedComponent } from './led/led.component';
+export { TutorialPageComponent } from './tutorial-page';

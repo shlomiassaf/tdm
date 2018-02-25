@@ -7,11 +7,10 @@ import { DynamicFormsModule } from '@tdm/ngx-dynamic-forms';
 import { FormsSharedModule } from './shared';
 import { FormsTutorialsModule } from './tutorials';
 import { FormsAppComponent } from './forms-app';
-import { TutorialPageComponent } from './tutorial-page';
 import { ROUTES } from './routes';
 
 @NgModule({
-  declarations: [ FormsAppComponent, TutorialPageComponent ],
+  declarations: [ FormsAppComponent ],
   imports: [
     SharedModule,
     DynamicFormsModule,

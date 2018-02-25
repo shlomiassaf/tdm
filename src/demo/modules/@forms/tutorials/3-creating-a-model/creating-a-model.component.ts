@@ -11,7 +11,7 @@ export class CreatingAModelComponent {
   model = new Hero();
 
   /* @tdm-ignore:* */
-  code: any = System.import(/* webpackChunkName: "CreatingAModelComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = System.import(/* webpackChunkName: "FormsCreatingAModelComponent" */ './__tdm-code__.ts'); // tslint:disable-line
   static tutorial = {
     id: 'creating-a-model',
     name: 'Creating A Model'

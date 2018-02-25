@@ -1,7 +1,10 @@
+import { Injectable, Optional } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { targetStore, Constructor } from '@tdm/core/tdm';
 import { DAO } from '@tdm/data';
+import { HttpDefaultConfig } from './http-default-config';
 import { HttpDao } from './core/http-dao';
-import { HttpAdapter } from './core';
+import { HttpAdapter, HttpAdapterFactoryArgs } from './core/http-adapter';
 import { HttpActionMetadata, HttpResourceMetadata } from './metadata';
 
 targetStore.registerAdapter(HttpAdapter, {
@@ -13,20 +16,15 @@ targetStore.registerAdapter(HttpAdapter, {
 /**
  * An HttpDAO factory based for a target.
  */
+@Injectable()
 export class NgDAO {
-  get<T, Z>(target: Z & Constructor<T>): HttpDao<T> {
-    return <any> DAO.of(HttpAdapter, target);
+  private factoryArgs: HttpAdapterFactoryArgs;
+
+  constructor(httpClient: HttpClient, @Optional() defaultConfig?: HttpDefaultConfig) {
+    this.factoryArgs = { httpClient, defaultConfig: defaultConfig || new HttpDefaultConfig() };
   }
-}
 
-DAO.angularHttp = NgDAO.prototype.get;
-
-declare module '@tdm/data/src/dao' {
-  module DAO {
-    /**
-     * Data Access Object for Angular HTTP adapter.
-     * @extension '@tdm/ngx-http'
-     */
-    function angularHttp<T>(target: Constructor<T>): HttpDao<T>;
+  get<T, Z>(target: Z & Constructor<T>): HttpDao<T> {
+    return <any> DAO.of(HttpAdapter, target, this.factoryArgs);
   }
 }

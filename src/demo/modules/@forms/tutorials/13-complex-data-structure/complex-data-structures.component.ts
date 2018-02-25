@@ -6,7 +6,7 @@ import { Component } from '@angular/core';
   styleUrls: [ './complex-data-structures.component.scss' ]
 })
 export class ComplexDataStructuresComponent {
-  code: any = System.import(/* webpackChunkName: "ComplexDataStructuresComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
+  code: any = System.import(/* webpackChunkName: "FormsComplexDataStructuresComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
   /* @tdm-ignore:* */
   static tutorial = {
     id: 'complex-data-structures',

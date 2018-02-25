@@ -19,7 +19,7 @@ export class Errors {
     Errors.create(this);
   }
 
-  decorator(target: any, message: string, propertyName?: PropertyKey): Error {
+  decorator(target: any, message: string, propertyName?: TdmPropertyKey): Error {
     const CLS = isFunction(target) ? target : target.constructor;
 
     if (!propertyName) {

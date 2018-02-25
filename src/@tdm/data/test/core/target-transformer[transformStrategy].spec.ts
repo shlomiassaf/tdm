@@ -1,6 +1,6 @@
 import 'rxjs';
 
-import { MockMixin, MockResource, bucketFactory } from '@tdm/data/testing';
+import { ActiveRecord, MockResource, bucketFactory } from '@tdm/data/testing';
 import { Prop, Exclude } from '@tdm/data';
 
 class User_ {
@@ -46,13 +46,13 @@ class User_ {
   transformStrategy: 'inclusive',
   endpoint: '/api/users/:id?'
 })
-class UserInc extends MockMixin(User_) { }
+class UserInc extends ActiveRecord(User_) { }
 
 @MockResource({
   transformStrategy: 'exclusive',
   endpoint: '/api/users/:id?'
 })
-class UserExc extends MockMixin(User_) { }
+class UserExc extends ActiveRecord(User_) { }
 
 const returnValue = {
   id: 5,

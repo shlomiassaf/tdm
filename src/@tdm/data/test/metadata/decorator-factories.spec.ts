@@ -1,6 +1,6 @@
 import { targetStore, TargetMetadata } from '@tdm/core/tdm';
-import { MockMixin, MockResource, MockActionOptions, bucketFactory } from '@tdm/data/testing';
-import { ActiveRecord, Constructor, Prop } from '@tdm/data';
+import { ActiveRecord, MockResource, MockActionOptions, bucketFactory } from '@tdm/data/testing';
+import { ARInterface, Constructor, Prop } from '@tdm/data';
 
 describe('@tdm/data', () => {
   describe('Decorator Factories', () => {
@@ -60,8 +60,8 @@ describe('@tdm/data', () => {
         @Prop({transform}) value: string;
       }
 
-      const User = MockMixin(User_);
-      type User = MockMixin<User_>;
+      const User = ActiveRecord(User_);
+      type User = ActiveRecord<User_>;
 
       const user: User = bucket.create<any>(User);
       user.$refresh({returnValue}).$rc.next()
@@ -81,7 +81,7 @@ describe('@tdm/data', () => {
       interface IUserStatic extends Constructor<IUser> {
 
       }
-      interface IUser extends ActiveRecord<IUser, MockActionOptions> {
+      interface IUser extends ARInterface<IUser, MockActionOptions> {
         name: string;
         value: string;
       }
@@ -89,7 +89,7 @@ describe('@tdm/data', () => {
       @MockResource({
         endpoint: '/api/users/:id?'
       })
-      class User extends MockMixin<IUser, IUserStatic>() {
+      class User extends ActiveRecord<IUser, IUserStatic>() {
         name: string;
         @Prop({transform}) value: string;
       }
@@ -118,7 +118,7 @@ describe('@tdm/data', () => {
       @MockResource({
         endpoint: '/api/users/:id?'
       })
-      class User extends MockMixin(User_) { }
+      class User extends ActiveRecord(User_) { }
 
       const user = bucket.create(User);
       user.$refresh({returnValue}).$rc.next()
@@ -140,7 +140,7 @@ describe('@tdm/data', () => {
         resName: 'TestUser',
         endpoint: '/api/users/:id?'
       })
-      class User extends MockMixin(User_) { }
+      class User extends ActiveRecord(User_) { }
 
       expect(targetStore.getTargetMeta(User).model().resName).toBe('TestUser');
     });

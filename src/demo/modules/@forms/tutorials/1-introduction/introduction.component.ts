@@ -16,7 +16,7 @@ import { UIDeveloper } from './model';
 export class IntroductionComponent {
   model = new UIDeveloper();
   /* @tdm-ignore:* */
-  code: any = System.import(/* webpackChunkName: "IntroductionComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = System.import(/* webpackChunkName: "FormsIntroductionComponent" */ './__tdm-code__.ts'); // tslint:disable-line
   static tutorial = {
     id: 'introduction',
     name: 'Introduction'

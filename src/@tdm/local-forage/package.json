@@ -1,0 +1,20 @@
+{
+  "version": "1.1.0-alpha.0",
+  "description": "Local forage data adapter for typed data models.",
+  "keywords": [
+    "@tdm",
+    "adapter",
+    "localForage"
+  ],
+  "peerDependencies": {
+    "typescript": "^2.4.2",
+    "tslib": "^1.6.0",
+    "localforage": "^1.5.6",
+    "@tdm/tixin": "*",
+    "@tdm/core": "*",
+    "@tdm/data": "*"
+  },
+  "libConfig": {
+    "entry": "localForage"
+  }
+}

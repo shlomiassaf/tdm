@@ -14,7 +14,7 @@ import { BeforeRenderEventComponent } from '../before-render-event';
   /* @tdm-ignore:* */
 })
 export class RenderStateEventComponent extends BeforeRenderEventComponent {
-  code: any = System.import(/* webpackChunkName: "FieldSyncRedrawComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
+  code: any = System.import(/* webpackChunkName: "FormsFieldSyncRedrawComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
 
   /* @tdm-ignore:* */
   static tutorial = <any> {

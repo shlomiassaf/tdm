@@ -1,0 +1,1 @@
+export { NgxHttpTutorialsModule } from './module';

@@ -19,7 +19,7 @@ import { Hero, HeroAddress } from './model';
 })
 export class ArraysComponent {
   model: Hero;
-  code: any = System.import(/* webpackChunkName: "ArraysComponent" */ './__tdm-code__.ts');   /* @tdm-ignore-line */
+  code: any = System.import(/* webpackChunkName: "FormsArraysComponent" */ './__tdm-code__.ts');   /* @tdm-ignore-line */
 
   external = {
     posMaster: 'center' as MatTabBodyPositionState,

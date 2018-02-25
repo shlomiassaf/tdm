@@ -16,7 +16,7 @@ export const ROOT_MODULES: any = [
   ReactiveFormsModule,
   HttpClientModule,
   MaterialModule,
-  HttpClientResourceModule.forRoot(),
+  HttpClientResourceModule,
   TocModule
 ];
 

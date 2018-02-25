@@ -6,7 +6,7 @@ import { ExcludeMetadata, PropMetadata } from '../metadata';
  * @internal
  */
 export interface PoClassPropertyMap {
-  cls: PropertyKey;
+  cls: TdmPropertyKey;
   obj: string;
   exclude?: ExcludeMetadata;
   prop?: PropMetadata;

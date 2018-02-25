@@ -1,5 +1,11 @@
 import { isPrimitive } from '@tdm/core/tdm';
-import { TDMCollection as ARecordColl, TargetDAO, IdentityValueType, ExecuteContext, ActionMethodType } from '@tdm/data';
+import {
+  TDMCollection as ARecordColl,
+  TargetDAO,
+  IdentityValueType,
+  ExecuteContext,
+  ActionMethodType
+} from '@tdm/data';
 
 import { MockActionOptions } from './interfaces';
 import { MockActionMetadata } from '../metadata';
@@ -38,9 +44,9 @@ export class MockDao<T> implements TargetDAO<T, MockActionOptions> {
     validation: 'skip' as 'skip',
     pre: (ctx: ExecuteContext<MockActionMetadata>, id: IdentityValueType | any, options?: MockActionOptions) => {
 
-      if (isPrimitive(id)) {
+      if ( isPrimitive(id) ) {
         ctx.setIdentity(id);
-      } else if (ctx.instanceOf(id)) {
+      } else if ( ctx.instanceOf(id) ) {
         ctx.setInstance(id);
       } else {
         ctx.deserialize(id);
@@ -55,7 +61,7 @@ export class MockDao<T> implements TargetDAO<T, MockActionOptions> {
     method: ActionMethodType.CREATE,
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<MockActionMetadata>, data: any, options?: MockActionOptions) => {
-      if (ctx.instanceOf(data)) {
+      if ( ctx.instanceOf(data) ) {
         ctx.setInstance(data);
       } else {
         ctx.deserialize(data);
@@ -72,7 +78,7 @@ export class MockDao<T> implements TargetDAO<T, MockActionOptions> {
     method: ActionMethodType.UPDATE,
     validation: 'both' as 'both',
     pre: (ctx: ExecuteContext<MockActionMetadata>, data: any, options?: MockActionOptions) => {
-      if (ctx.instanceOf(data)) {
+      if ( ctx.instanceOf(data) ) {
         ctx.setInstance(data);
       } else {
         ctx.deserialize(data);
@@ -84,4 +90,21 @@ export class MockDao<T> implements TargetDAO<T, MockActionOptions> {
     }
   })
   update: (data: any, options?: MockActionOptions) => Promise<T | void>;
+
+  @MockAction({
+    method: ActionMethodType.REPLACE,
+    validation: 'both' as 'both',
+    pre: (ctx: ExecuteContext<MockActionMetadata>, data: any, options?: MockActionOptions) => {
+      if ( ctx.instanceOf(data) ) {
+        ctx.setInstance(data);
+      } else {
+        ctx.deserialize(data);
+      }
+
+      ctx.data = ctx.serialize();
+
+      return options;
+    }
+  })
+  replace: (data: any, options?: MockActionOptions) => Promise<T | void>;
 }

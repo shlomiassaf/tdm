@@ -1,15 +1,12 @@
 import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/combineLatest';
-import 'rxjs/add/operator/distinctUntilChanged';
-import 'rxjs/add/operator/debounceTime';
+import { filter, map, combineLatest, distinctUntilChanged, debounceTime } from 'rxjs/operators';
 
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { TDMCollection } from "@tdm/data";
+import { TDMCollection } from '@tdm/data';
 
 import { UiBlockService, UiBlock } from '@shared';
 import { Model, Make } from '../models';
-
 
 @Component({
   selector: 'vehicle-page',
@@ -30,14 +27,17 @@ export class VehiclePageComponent {
     this.uiBlock.closeWithPromise(this.makes.$rc.next()).open(UiBlock);
 
     const filterCtrl$ = this.makerCtrl.valueChanges
-      .distinctUntilChanged()
-      .debounceTime(200)
-      .filter( value => value && value.length > 1);
-
+      .pipe(
+        distinctUntilChanged(),
+        debounceTime(200),
+        filter( value => value && value.length > 1)
+      );
 
     this.filtered$ = this.makes.$rc.self$
-      .combineLatest(filterCtrl$, (v1, v2) => ([v1, v2]))
-      .map(combined => this.filterMakes(combined[0], combined[1]));
+      .pipe(
+        combineLatest(filterCtrl$, (v1, v2) => ([v1, v2])),
+        map(combined => this.filterMakes(combined[0], combined[1]))
+      );
   }
 
   filterMakes(list: Make[], filter: string): Make[] {

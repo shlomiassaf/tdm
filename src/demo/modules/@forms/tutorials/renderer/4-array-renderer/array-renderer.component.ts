@@ -15,7 +15,7 @@ import { Hero } from './model';
 })
 export class ArrayRendererComponent {
   model: Hero;
-  code: any = System.import(/* webpackChunkName: "ArrayRendererComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
+  code: any = System.import(/* webpackChunkName: "FormsArrayRendererComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
 
   constructor() {
     this.model = new Hero();

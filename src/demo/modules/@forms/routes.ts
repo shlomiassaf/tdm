@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { FormsAppComponent } from './forms-app';
-import { TutorialPageComponent } from './tutorial-page';
+import { TutorialPageComponent } from '@shared';
 
 export const ROUTES: Routes = [
   {

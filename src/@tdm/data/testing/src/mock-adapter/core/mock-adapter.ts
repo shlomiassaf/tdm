@@ -1,4 +1,4 @@
-import { Adapter, AdapterResponse, ExecuteContext, findProp, ExecuteResponse } from '@tdm/data';
+import { Adapter, AdapterResponse, ExecuteParams, ExecuteContext, findProp, ExecuteResponse } from '@tdm/data';
 
 import { MockActionMetadata, MockResourceMetadata } from '../metadata';
 import { MockActionOptions } from './interfaces';
@@ -9,8 +9,10 @@ export class MockAdapter implements Adapter<MockActionMetadata, MockActionOption
   private executing = new Map<number, {resolve: any, reject: any}>();
   private idCount = 1;
 
-  execute(ctx: ExecuteContext<MockActionMetadata>, options: MockActionOptions, args: any[]): AdapterResponse {
-    if (!options) options = {} as any;
+  execute(ctx: ExecuteContext<MockActionMetadata>, options: MockActionOptions, params: ExecuteParams): AdapterResponse {
+    if (!options) {
+      options = {} as any;
+    }
 
     const action = ctx.action ;
     const resource = ctx.targetMeta.model<MockResourceMetadata>();
@@ -22,7 +24,7 @@ export class MockAdapter implements Adapter<MockActionMetadata, MockActionOption
 
     const id = this.idCount++;
     let ref = { resolve: undefined, reject: undefined };
-    const response = new Promise<ExecuteResponse>( (resolve, reject) => { ref = {resolve, reject} } );
+    const response = new Promise<ExecuteResponse>( (resolve, reject) => { ref = {resolve, reject}; } );
     this.executing.set(id, ref);
 
     setTimeout(() => {
@@ -30,9 +32,9 @@ export class MockAdapter implements Adapter<MockActionMetadata, MockActionOption
       if (ref) {
         this.executing.delete(id);
         if (options.throwError) {
-          ref.reject(options.throwError)
+          ref.reject(options.throwError);
         } else {
-          ref.resolve({ data: options.returnValue || {} })
+          ref.resolve({ data: options.returnValue || {} });
         }
       }
     }, options.timeout);

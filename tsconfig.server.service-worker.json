@@ -23,9 +23,6 @@
       "hammerjs",
       "node"
     ],
-    "baseUrl": "./src/demo/modules/@http/server",
-    "paths": { },
-    "declaration": false,
     "outDir": "./dist"
   },
   "files": [

@@ -32,6 +32,8 @@ interface Client {
   frameType: ClientFrameType;
   id: string;
   url: string;
+  type: 'window' | 'worker' | 'sharedworker';
+  postMessage(message: any, transfer?: any[]): void;
 }
 
 interface Clients {

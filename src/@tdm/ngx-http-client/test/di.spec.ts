@@ -2,7 +2,7 @@ import 'rxjs';
 import { Injectable } from '@angular/core';
 
 import { TestBed, inject,  } from '@angular/core/testing';
-import { ARMixin, HttpResource } from '@tdm/ngx-http-client';
+import { ActiveRecord, HttpResource } from '@tdm/ngx-http-client';
 
 describe('NG-HTTP', () => {
   describe('Angular integration', () => {
@@ -21,8 +21,8 @@ describe('NG-HTTP', () => {
       }
       id: number;
     }
-    const User = ARMixin(User_);
-    type User = ARMixin<User_>;
+    const User = ActiveRecord(User_);
+    type User = ActiveRecord<User_>;
 
     beforeEach(() => {
       TestBed.configureTestingModule({

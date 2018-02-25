@@ -1,6 +1,6 @@
 import 'rxjs';
 
-import { MockMixin, MockResource, MockActionOptions, MockAction, bucketFactory } from '@tdm/data/testing';
+import { ActiveRecord, MockResource, MockActionOptions, MockAction, bucketFactory } from '@tdm/data/testing';
 import { Hook, TDMCollection, ActionMethodType, ExecuteResponse } from '@tdm/data';
 
 class User_ {
@@ -17,7 +17,7 @@ class User_ {
     method: ActionMethodType.READ,
     post: User_.prototype.rawDeserializedHandler
   })
-  rawDeserialized: (options?: MockActionOptions) => MockMixin<User_>;
+  rawDeserialized: (options?: MockActionOptions) => ActiveRecord<User_>;
   rawDeserializedHandler(resp: ExecuteResponse, options?: MockActionOptions) {
   }
 
@@ -27,23 +27,23 @@ class User_ {
       handler: User_.prototype.rawHandler,
     }
   })
-  raw: (options?: MockActionOptions) => MockMixin<User_>;
+  raw: (options?: MockActionOptions) => ActiveRecord<User_>;
   rawHandler(resp: ExecuteResponse, options?: MockActionOptions) {
   }
 
 
   @Hook({event: 'before', action: 'query'})
-  static beforeQuery(this: TDMCollection<MockMixin<User_>>) { }
+  static beforeQuery(this: TDMCollection<ActiveRecord<User_>>) { }
 
   @Hook({event: 'after', action: 'query'})
-  static afterQuery(this: TDMCollection<MockMixin<User_>>) { }
+  static afterQuery(this: TDMCollection<ActiveRecord<User_>>) { }
 
 }
 
 @MockResource({
   endpoint: '/api/users/:id?'
 })
-class User extends MockMixin(User_) { }
+class User extends ActiveRecord(User_) { }
 
 type Spify<T> = { [P in keyof T]: jasmine.Spy}
 

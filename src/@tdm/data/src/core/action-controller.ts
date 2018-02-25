@@ -38,13 +38,13 @@ export class ActionController<T = any, Z = any> {
     this.adapterMeta = targetStore.getAdapter(adapterClass);
   }
 
-  createExecFactory<T>(action: ActionMetadata, ret: 'promise'): (self: T, ...args: any[]) => Promise<T>;
-  createExecFactory<T>(action: ActionMetadata, ret?: 'instance'): (self: T, ...args: any[]) => T;
+  createExecFactory<T>(action: ActionMetadata, ret: 'promise'): (self: T, params: ExecuteParams) => Promise<T>;
+  createExecFactory<T>(action: ActionMetadata, ret?: 'instance'): (self: T, params: ExecuteParams) => T;
   createExecFactory<T>(action: ActionMetadata,
-                       ret?: 'instance' | 'promise'): (self: T, ...args: any[]) => T | Promise<T> {
+                       ret?: 'instance' | 'promise'): (self: T, params: ExecuteParams) => T | Promise<T> {
     const ac = this;
-    return function (self: T, ...args: any[]) {
-      return ac.execute(this.clone(self), {args}, <any> ret);
+    return function (self: T, params: ExecuteParams) {
+      return ac.execute(this.clone(self), params, <any> ret);
     }.bind(new ExecuteContext(this.targetMetadata, action));
   }
 
@@ -64,36 +64,26 @@ export class ActionController<T = any, Z = any> {
       ctx.setInstance();
     }
 
-    const state = ResourceControl.get(ctx.instance);
-    const isPostReturns = action.post && action.post.returns;
-    if (isPostReturns) {
+    const keepAliveResourceControl = ret !== 'promise';
+
+    if (action.post && action.post.returns) {
       ret = 'promise';
     }
 
-    const err = state && state.busy && !isPostReturns
-      ? eventFactory.error(ctx.instance, new Error('An action is already running'))
-      : (!!action.isCollection !== TDMCollection.instanceOf(ctx.instance))
-        ? eventFactory.error(ctx.instance, errors.modelSingleCol(ctx.instance, action.isCollection))
-        : undefined
-    ;
-    if (err) {
-      return ret === 'promise' ? Promise.reject(err) : dispatchEvent(err, 0);
-    }
-
-    state.set('busy', true);
-
-    dispatchEvent(new ExecuteInitResourceEvent(ctx.instance, {ac: this, action, args}), 0);
-    dispatchEvent(eventFactory.actionStart(ctx.instance), 0);
-
     const eState: ExecuteState = {};
-
-    if (this.adapter.supports.cancel) {
-      dispatchEvent(new CancellationTokenResourceEvent(ctx.instance, () => this.cancel(eState, ctx)), 0);
+    let state: ResourceControl<any>;
+    let wasBusy: boolean;
+    if (ret !== 'promise') {
+      state = ResourceControl.get(ctx.instance);
+      wasBusy = state.busy;
+      state.set('busy', true);
     }
 
     // TODO: move this to be part of the promise flow
     const doFinally = () => {
-      state.set('busy', false);
+      if (state) {
+        state.set('busy', false);
+      }
     };
 
     let postReturnsResult: any;
@@ -101,6 +91,19 @@ export class ActionController<T = any, Z = any> {
     //        "ARHookableMethods", let user set the action method in ActionMetadata or something
     //        - Also applied to fireEvent "after" below.
     const promise = new Promise( resolve => setTimeout(resolve, 5) )
+      .then( () => {
+        if (!!action.isCollection !== TDMCollection.instanceOf(ctx.instance)) {
+          throw errors.modelSingleCol(ctx.instance, action.isCollection);
+        } else if (wasBusy) {
+          throw new Error('An action is already running');
+        }
+
+        dispatchEvent(eventFactory.actionStart(ctx.instance));
+
+        if (this.adapter.supports.cancel) {
+          dispatchEvent(new CancellationTokenResourceEvent(ctx.instance, () => this.cancel(eState, ctx)));
+        }
+      })
       .then( () => this.fireHook(action.name as any, 'before', ctx.instance, options) )
       .then( () => this.validate('outgoing', action.validation, ctx) )
       .then(() => {
@@ -109,7 +112,7 @@ export class ActionController<T = any, Z = any> {
           throw new Error('Cancelled');
         }
 
-        const adapterResponse = this.adapter.execute(ctx, options, args);
+        const adapterResponse = this.adapter.execute(ctx, options,  params);
 
         eState.id = adapterResponse.id;
 
@@ -119,7 +122,7 @@ export class ActionController<T = any, Z = any> {
         //       this also applies on the first 2 steps
         return adapterResponse.response
           .then((response: ExecuteResponse) => {
-            if (!action.post || !action.post.returns) {
+            if (response.skipDeserialize !== true || !action.post || !action.post.returns) {
               ctx.deserialize(response.data);
             }
             if (action.post) {
@@ -145,8 +148,17 @@ export class ActionController<T = any, Z = any> {
         doFinally();
       });
 
-    // TODO: implement timeout to protect from stale promises?
+    // fired before the promise is returned to the user (the last param, async, is not set)
+    // this is important, because we must register the instance/promise for lookup's before the user can
+    // do ResourceControl.get(...)
+    dispatchEvent(new ExecuteInitResourceEvent(
+      ctx.instance,
+      {ac: this, action, params},
+      promise,
+      keepAliveResourceControl
+    ));
 
+    // TODO: implement timeout to protect from stale promises?
     return ret === 'promise' ? promise : ctx.instance;
   }
 

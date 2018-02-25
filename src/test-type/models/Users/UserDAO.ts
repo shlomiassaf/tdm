@@ -13,7 +13,7 @@
  *
  * Cons:
  *   - Requires manual type creation (https://github.com/Microsoft/TypeScript/issues/6606)
- *   - For multiple mixins need to create type without ARMixin<> help.
+ *   - For multiple mixins need to create type without ActiveRecord<> help.
  *     https://github.com/Microsoft/TypeScript/issues/13798
  *   - Won't work with angular DI + AOT (https://github.com/angular/angular/issues/14128)
  */
@@ -21,7 +21,7 @@
 
 import { Injectable } from '@angular/core';
 import { Hook, BeforeHook, AfterHook, TDMCollection, Prop, Exclude, ExecuteResponse, ExtendAction, ExecuteContext, IdentityValueType, Identity } from '@tdm/data';
-import { ARMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/ngx-http-client';
+import { ActiveRecord, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/ngx-http-client';
 
 @HttpResource({
   endpoint: '/path'

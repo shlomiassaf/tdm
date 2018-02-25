@@ -1,3 +1,4 @@
+// tslint:disable:no-var-requires
 import { Stats, Compiler, Watching } from 'webpack';
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const ServiceWorkerWebpackPlugin: ServiceWorkerWebpackPlugin = require('serviceworker-webpack-plugin');
@@ -97,7 +98,7 @@ export class ServiceWorkerTsPlugin extends ServiceWorkerWebpackPlugin {
     super(swPluginOptions);
 
     tsPluginOptions.logger = this.logger = Object.create(console);
-    this.logger.warn = this.logger.error = () => {};
+    this.logger.warn = this.logger.error = () => { }; // tslint:disable-line:no-empty
 
     tsPluginOptions.formatter = (message: NormalizedMessage, useColors: boolean) => {
       if (this.running) {
@@ -143,6 +144,20 @@ export class ServiceWorkerTsPlugin extends ServiceWorkerWebpackPlugin {
 
   handleMake(compilation: any, compiler: Compiler) {
     this.compilation = compilation;
+
+    // Assign the ngtools webpack plugin instance from the parent compilation to all compilation created by a child
+    // compiler of the parent compilation.
+    // We need this so imports from the server bundle to outside of it will work (they go to the ngtools webpack plugin)
+    let syncAotPluginBetweenCompilations = (childCompiler: Compiler, compilerName: string, compilerIndex: number) => {
+      if (syncAotPluginBetweenCompilations) {
+        childCompiler.plugin('compilation', compilation2 => {
+          compilation2._ngToolsWebpackPluginInstance = compilation._ngToolsWebpackPluginInstance;
+        });
+        syncAotPluginBetweenCompilations = undefined;
+      }
+    };
+    compilation.plugin('child-compiler', syncAotPluginBetweenCompilations);
+
     return super.handleMake(compilation, compiler);
   }
 

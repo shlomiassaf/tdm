@@ -5,7 +5,6 @@ import { Subscription } from 'rxjs/Subscription';
 import { combineLatest as CombineLatest } from 'rxjs/observable/combineLatest';
 import { map, tap, combineLatest } from 'rxjs/operators';
 
-
 import { SelectionModel, CollectionViewer } from '@angular/cdk/collections';
 import { DataSource } from '@angular/cdk/table';
 import { MatTableSortData } from './types';
@@ -68,7 +67,6 @@ export class DataSourceContainer<T = any> extends DataSource<T> {
     return this._filter$.value;
   }
 
-
   get length(): number {
     return this._rawData$.value.length;
   }
@@ -102,7 +100,6 @@ export class DataSourceContainer<T = any> extends DataSource<T> {
   private _sourceChanged$: Subject<void> = new Subject<void>();
   private _filteredData: T[];
 
-
   constructor(initialData: T[] | Observable<T[]> | boolean, keepAlive: boolean)
   constructor(initialData: T[] | Observable<T[]>)
   constructor(keepAlive: boolean)
@@ -123,7 +120,6 @@ export class DataSourceContainer<T = any> extends DataSource<T> {
     this.keepAlive = keepAlive;
 
     this.onSourceChanged = this._sourceChanged$.asObservable();
-
 
     this._filteredData$ = CombineLatest([this._rawData$, this._filter$])
       .pipe(
@@ -146,7 +142,7 @@ export class DataSourceContainer<T = any> extends DataSource<T> {
           return this._filteredData =  sortFn(sort, filteredData);
         })
       );
-    this.onDataChanged = this._filteredData$.map( f => {} );
+    this.onDataChanged = this._filteredData$.pipe(map( f => { return undefined; } ));
   }
 
   // workaround to refresh the page since row header and row can't communicate
@@ -230,16 +226,14 @@ export class DataSourceContainer<T = any> extends DataSource<T> {
       );
   }
 
-
   protected updateRawData(data: T[], aggregateMode: boolean): void {
     this.selection.clear();
     this.sort = emptySort;
 
     const coll: T[] = aggregateMode === true &&  Array.isArray(this._rawData$.value)
-      ? [ ...this._rawData$.value, ...data ] //TODO: check performance
+      ? [ ...this._rawData$.value, ...data ] // TODO: check performance
       : data.slice()
     ;
-
 
     this._rawData$.next(coll);
     this._sourceChanged$.next();

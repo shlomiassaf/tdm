@@ -64,10 +64,18 @@ export function serialize<T, Z>(mapper: MapperFactory, instance: T, type?: Z & C
  * @param instance Optional, if not set a new instance of the type will be created.
  * @returns
  */
-export function deserialize<T, Z>(mapper: MapperFactory, plainObject: any, type: Z & Constructor<T>, instance?: any): T {
+export function deserialize<T, Z>(mapper: MapperFactory,
+                                  plainObject: any,
+                                  type: Z & Constructor<T>,
+                                  instance?: any): T {
   return targetStore.deserialize(mapper.deserializer(plainObject, type), instance);
 }
 
 TDMModelBase.clone = function(resource: any, mapperFactory: MapperFactory = directMapper) {
   return deserialize(mapperFactory, serialize(mapperFactory, resource), <any> resource.constructor);
+};
+
+// tslint:disable-next-line:no-namespace
+declare global {
+  type TdmPropertyKey = string | symbol;
 }

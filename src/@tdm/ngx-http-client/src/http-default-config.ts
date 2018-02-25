@@ -1,7 +1,14 @@
-import { BaseHttpConfig, TrailingSlashesStrategy } from "./core/interfaces";
-import { Params } from "./utils/match-pattern";
+import { Injectable } from '@angular/core';
+import { BaseHttpConfig, TrailingSlashesStrategy } from './core/interfaces';
+import { Params } from './utils/match-pattern';
 
+@Injectable()
 export class HttpDefaultConfig implements BaseHttpConfig {
+  /**
+   * The base URL to use as prefix for all models.
+   */
+  baseUrl?: string;
+
   /**
    * Optional set of pre-bound parameters all actions in this resource.
    *
@@ -39,6 +46,12 @@ export class HttpDefaultConfig implements BaseHttpConfig {
    * @default 'ignore'
    */
   trailingSlashes: TrailingSlashesStrategy = 'ignore';
-}
 
-export const httpDefaultConfig: HttpDefaultConfig = new HttpDefaultConfig();
+  static create(config?: Partial<HttpDefaultConfig>): HttpDefaultConfig {
+    const cfg = new HttpDefaultConfig();
+    if (config) {
+      Object.assign(cfg, config);
+    }
+    return cfg;
+  }
+}

@@ -1,4 +1,4 @@
-import { MockMixin, MockResource, bucketFactory } from '@tdm/data/testing';
+import { ActiveRecord, MockResource, bucketFactory } from '@tdm/data/testing';
 import { Prop, validators } from '@tdm/data';
 
 describe('@tdm/data', () => {
@@ -42,7 +42,7 @@ describe('@tdm/data', () => {
       @MockResource({
         endpoint: '/api/users/:id?'
       })
-      class User extends MockMixin(User_) { }
+      class User extends ActiveRecord(User_) { }
 
       const returnValue = {
         instanceOf: 5,
@@ -91,7 +91,7 @@ describe('@tdm/data', () => {
       @MockResource({
         endpoint: '/api/users/:id?'
       })
-      class User extends MockMixin(User_) { }
+      class User extends ActiveRecord(User_) { }
 
       const returnValuePass = {
         instanceOfBoolean: true,

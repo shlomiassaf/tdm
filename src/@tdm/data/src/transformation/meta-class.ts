@@ -66,13 +66,13 @@ export function resource<TMetaArgs extends ModelMetadataArgs>(
       targetStore.registerTarget(TDMModel);
       const tdmModelMeta = metaClass.extendSingle(modelMeta, undefined, { from: target, to: TDMModel });
 
-      if (metaArgs.skip !== true) {
+      if (modelMeta.skip !== true) {
         tdmModelMeta.build();
       }
 
       return TDMModel;
     };
-  }
+  };
 }
 
 MetaClassMetadata.prototype.createResourceDecorator = resource;
@@ -86,4 +86,3 @@ targetStore.on.beforeProcessType( target => {
     }
   }
 });
-

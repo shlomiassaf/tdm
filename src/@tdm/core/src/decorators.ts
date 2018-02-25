@@ -21,7 +21,7 @@ targetStore.on
         const prop = meta.getCreateProp(relation.decoratorInfo);
         prop.setRelationship(relation);
 
-        // if the fk is a different key, attach a reference to the foreign key PropMetadata (and create one if not there)
+        // if the fk is a different key, attach a reference to the foreign key PropMetadata (and create 1 if not there)
         if (relation.name !== relation.foreignKey) {
           meta.getCreateProp(relation.foreignKey).foreignKeyOf = prop;
         }
@@ -36,13 +36,14 @@ export const Prop = MetaClass.decorator(PropMetadata, true);
 
 /** @internal */
 export let exclude: any = {};
-exclude = MetaClass.decorator(ExcludeMetadata, true, 'both'); // for Angular AOT
+exclude = MetaClass.decorator(ExcludeMetadata, true, 'classPropMethod'); // for Angular AOT
 
 /**
  * @propertyDecorator instance
- * @param def
  */
-export function Exclude(metaArgs?: ExcludeMetadataArgs): (target: Object | Function, key?: PropertyKey, desc?: PropertyDescriptor) => any {
+export function Exclude(metaArgs?: ExcludeMetadataArgs): (target: Object | Function,
+                                                          key?: TdmPropertyKey,
+                                                          desc?: PropertyDescriptor) => any {
   return exclude(metaArgs) as any;
 }
 
@@ -62,7 +63,7 @@ export const Type = MetaClass.decorator(TypeMetadata);
  * @propertyDecorator instance
  */
 export function Identity(): Function {
-  return (target: Object, key: PropertyKey) => {
+  return (target: Object, key: TdmPropertyKey) => {
     targetStore.getTargetMeta(<any> target.constructor).model().identity = key;
   };
 }

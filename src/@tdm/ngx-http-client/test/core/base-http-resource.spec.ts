@@ -1,4 +1,4 @@
-import { ARMixin, HttpResource } from '@tdm/ngx-http-client';
+import { ActiveRecord, HttpResource } from '@tdm/ngx-http-client';
 
 class User_ {
   id: number;
@@ -9,7 +9,7 @@ class User_ {
 @HttpResource({
   endpoint: '/api/users/:id?'
 })
-class User extends ARMixin(User_) { }
+class User extends ActiveRecord(User_) { }
 
 
 describe('NG-HTTP', () => {

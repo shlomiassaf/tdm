@@ -12,7 +12,7 @@ import {
 import { TestBed, async, fakeAsync, tick, inject } from '@angular/core/testing';
 import { MockBackend, MockConnection } from '@angular/http/testing';
 
-import { ARMixin, HttpResource, HttpAction, UrlParam, HttpResourceModule, HttpActionMethodType } from '@tdm/ngx-http';
+import { ActiveRecord, HttpResource, HttpAction, UrlParam, HttpResourceModule, HttpActionMethodType } from '@tdm/ngx-http';
 import { bucketFactory, eventConsumer } from '@tdm/data/testing';
 
 describe('NG-HTTP', () => {
@@ -24,7 +24,7 @@ describe('NG-HTTP', () => {
       @HttpResource({
         endpoint: '/api/users/:id?'
       })
-      class User extends ARMixin(class { id: number; }) { }
+      class User extends ActiveRecord(class { id: number; }) { }
 
       return eventConsumer(new User())
         .events('ActionStart', 'ActionError')
@@ -67,7 +67,7 @@ describe('NG-HTTP', () => {
           endpoint: '/api/users/',
           trailingSlashes: 'strip'
         })
-        class User extends ARMixin(class { id: number; }) { }
+        class User extends ActiveRecord(class { id: number; }) { }
 
         mockBackend.connections.subscribe( conn => {
           expect(conn.request.url).toBe('/api/users');
@@ -82,7 +82,7 @@ describe('NG-HTTP', () => {
           endpoint: '/api/users',
           trailingSlashes: 'force'
         })
-        class User extends ARMixin(class { id: number; }) { }
+        class User extends ActiveRecord(class { id: number; }) { }
 
         mockBackend.connections.subscribe( conn => {
           expect(conn.request.url).toBe('/api/users/');
@@ -102,7 +102,7 @@ describe('NG-HTTP', () => {
           endpoint: '/api/users/:id/:param',
           urlParams: { param: '99' }
         })
-        class User extends ARMixin(UserBase) { }
+        class User extends ActiveRecord(UserBase) { }
 
         mockBackend.connections.subscribe( conn => {
           expect(conn.request.url).toBe('/api/users/15/99');
@@ -117,7 +117,7 @@ describe('NG-HTTP', () => {
         @HttpResource({
           endpoint: '/api/users'
         })
-        class User extends ARMixin(class {
+        class User extends ActiveRecord(class {
           @Identity()
           @UrlParam() id: number;
         }) { }
@@ -135,7 +135,7 @@ describe('NG-HTTP', () => {
         @HttpResource({
           endpoint: '/api/users/:id'
         })
-        class User extends ARMixin(class {
+        class User extends ActiveRecord(class {
           @Identity()
           @UrlParam() id: number;
         }) { }
@@ -163,7 +163,7 @@ describe('NG-HTTP', () => {
           endpoint: '/api/users/:id/:param',
           urlParams: { param: '15' }
         })
-        class User extends ARMixin(User_) { }
+        class User extends ActiveRecord(User_) { }
 
         mockBackend.connections.subscribe( conn => {
           expect(conn.request.url).toBe('/api/users/15/99');
@@ -193,7 +193,7 @@ describe('NG-HTTP', () => {
         @HttpResource({
           endpoint: '/api/users/:id/:myId/:myId2'
         })
-        class User extends ARMixin(User_) { }
+        class User extends ActiveRecord(User_) { }
 
         mockBackend.connections.subscribe( conn => {
           const [path, qs] = conn.request.url.split('?');
@@ -252,7 +252,7 @@ describe('NG-HTTP', () => {
             myId: '5'
           }
         })
-        class User extends ARMixin(User_) { }
+        class User extends ActiveRecord(User_) { }
 
         mockBackend.connections.subscribe( conn => {
           const [path, qs] = conn.request.url.split('?');
@@ -279,7 +279,7 @@ describe('NG-HTTP', () => {
         @HttpResource({
           endpoint: '/api/users'
         })
-        class User extends ARMixin(User_) { }
+        class User extends ActiveRecord(User_) { }
 
         mockBackend.connections.subscribe( conn => {
           const qs = conn.request.url.split('?')[1];
@@ -308,7 +308,7 @@ describe('NG-HTTP', () => {
             qs2: 'param2',
           }
         })
-        class User extends ARMixin(User_) { }
+        class User extends ActiveRecord(User_) { }
 
         mockBackend.connections.subscribe( conn => {
           const qs = conn.request.url.split('?')[1];

@@ -25,11 +25,18 @@ export {
 
   MetadataAllowOn,
 
+  setMetaHelper,
+  MetaClassRegisterHelpers,
+  MetaClassExtendHelpers,
+
   BaseMetadata,
+  BaseParamMetadata,
   DecoratorInfo,
   TargetEvents,
   lazyRef,
+  getBaseClass,
   getProtoChain,
+  reflection,
 
   ProxyHostMetadataArgs,
   MetaClassMetadataArgs,
@@ -74,11 +81,9 @@ export {
 
 export { TDMCollection, TDMModel, TDMModelBase } from './model/index';
 
-export { Model, ModelMetadata } from './add/model/index';
+export { Model, ModelMetadata, processModel } from './add/model/index';
 
 import './add/target-store';
 import { initMapping } from './add/mapping';
 initMapping();
 import './add/mapping'; // we need this for d.ts export, the 2 rows above are not set in d.ts)
-
-export * from './helpers';

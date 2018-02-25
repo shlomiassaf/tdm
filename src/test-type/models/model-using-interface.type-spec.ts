@@ -19,16 +19,16 @@
  *     appear on the return type of STATIC methods that return "this" - CONFUSING.
  */
 
-import { Identity, ExtendAction, ExecuteContext, Constructor, ActiveRecord } from '@tdm/data';
-import { ARMixin, HttpResource, HttpActionOptions, HttpAction, HttpActionMethodType } from '@tdm/ngx-http-client';
+import { Identity, ExtendAction, ExecuteContext, Constructor, ARInterface } from '@tdm/data';
+import { ActiveRecord, HttpResource, HttpActionOptions, HttpAction, HttpActionMethodType } from '@tdm/ngx-http-client';
 import './init-tdm';
 
 export interface IUserInterfaceStatic extends Constructor<IUserInterface> {
   num: number;
-  // find: (id: 'CatA' | 'CatB', options?: HttpActionOptions) => ARMixin<IUserInterface>;
+  // find: (id: 'CatA' | 'CatB', options?: HttpActionOptions) => ActiveRecord<IUserInterface>;
 }
 
-export interface IUserInterface extends ActiveRecord<IUserInterface, HttpActionOptions> {
+export interface IUserInterface extends ARInterface<IUserInterface, HttpActionOptions> {
   id: number;
   username: string;
 
@@ -39,7 +39,7 @@ export interface IUserInterface extends ActiveRecord<IUserInterface, HttpActionO
 @HttpResource({
   endpoint: '/path'
 })
-export class UsersInterface extends ARMixin<IUserInterface, IUserInterfaceStatic>() implements IUserInterface {
+export class UsersInterface extends ActiveRecord<IUserInterface, IUserInterfaceStatic>() implements IUserInterface {
   @Identity()
   id: number;
   username: string;
@@ -70,7 +70,7 @@ export class UsersInterface extends ARMixin<IUserInterface, IUserInterfaceStatic
   //     return options;
   //   }
   // })
-  // static find: (id: 'CatA' | 'CatB', options?: HttpActionOptions) => ARMixin<UsersInterface>;
+  // static find: (id: 'CatA' | 'CatB', options?: HttpActionOptions) => ActiveRecord<UsersInterface>;
 }
 
 UsersInterface.findById(2).username;
@@ -241,7 +241,7 @@ export class UsersInterfaceExt extends UsersInterface {
 UsersInterfaceExt.findById(2).username;
 
 /**
- * This shows the limitation of not being able to reflect instance members of classes deriving from ARMixin<Base...>
+ * This shows the limitation of not being able to reflect instance members of classes deriving from ActiveRecord<Base...>
  * when the type is returned from a static member.
  *
  * @tssert keep property type information.

@@ -15,10 +15,9 @@ export interface RelationMetadataArgs {
   foreignKey?: string;
 }
 
-
 @MetaClass<RelationMetadataArgs, RelationMetadata>({
   allowOn: ['member'],
-  extend: 'prop'
+  extend: 'mergeMap'
 })
 export class RelationMetadata extends BaseMetadata {
 

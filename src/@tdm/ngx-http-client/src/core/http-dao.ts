@@ -1,13 +1,9 @@
 import { isPrimitive } from '@tdm/core/tdm';
-import { TDMCollection as ARecordColl, TargetDAO, IdentityValueType, ExecuteContext } from '@tdm/data';
+import { TargetDAO, IdentityValueType, ExecuteContext } from '@tdm/data';
 
 import { HttpActionOptions } from './interfaces';
 import { HttpActionMetadata, HttpActionMethodType } from '../metadata';
 import { HttpAction } from '../decorators';
-
-// export type X = {
-//   [P in keyof TargetDAO<any, any>]?: PropertyDecorator
-// }
 
 export const HttpDAOActions = {
   query: HttpAction({
@@ -65,6 +61,22 @@ export const HttpDAOActions = {
     }
   }),
 
+  replace: HttpAction({
+    method: HttpActionMethodType.Patch,
+    validation: 'both' as 'both',
+    pre: (ctx: ExecuteContext<HttpActionMetadata>, data: any, options?: HttpActionOptions) => {
+      if (ctx.instanceOf(data)) {
+        ctx.setInstance(data);
+      } else {
+        ctx.deserialize(data);
+      }
+
+      ctx.data = ctx.serialize();
+
+      return options;
+    }
+  }),
+
   remove: HttpAction({
     method: HttpActionMethodType.Delete,
     validation: 'skip' as 'skip',
@@ -85,8 +97,8 @@ export const HttpDAOActions = {
 
 export class HttpDao<T> implements TargetDAO<T, HttpActionOptions> {
   @HttpDAOActions.query
-  query: (options?: HttpActionOptions) => Promise<ARecordColl<T>>;
-  findAll: (options?: HttpActionOptions) => Promise<ARecordColl<T>>;
+  query: (options?: HttpActionOptions) => Promise<T[]>;
+  findAll: (options?: HttpActionOptions) => Promise<T[]>;
 
   @HttpDAOActions.findById
   findById: (id: IdentityValueType, options?: HttpActionOptions) => Promise<T>;
@@ -100,6 +112,9 @@ export class HttpDao<T> implements TargetDAO<T, HttpActionOptions> {
 
   @HttpDAOActions.update
   update: (data: T | Partial<T>, options?: HttpActionOptions) => Promise<T | void>;
+
+  @HttpDAOActions.replace
+  replace: (data: T | Partial<T>, options?: HttpActionOptions) => Promise<T | void>;
 
   @HttpDAOActions.remove
   remove: ( (id: IdentityValueType | T, options?: HttpActionOptions) => Promise<void> );

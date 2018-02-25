@@ -55,7 +55,7 @@ module.exports = function (options) {
   const isSim = !!options.sim;
 
 
-  const METADATA = Object.assign({}, buildUtils.DEFAULT_METADATA, {title: 'ngx-modialog'}, options.metadata || {});
+  const METADATA = Object.assign({}, buildUtils.DEFAULT_METADATA, {title: 'TDM'}, options.metadata || {});
 
 
   if (METADATA.AOT) {
@@ -249,15 +249,6 @@ module.exports = function (options) {
         'process.env.HMR': METADATA.HMR
       }),
 
-      ...ServiceWorkerTsPlugin.create(
-        {
-          tsconfig: 'tsconfig.server.service-worker.json'
-        },
-        {
-          entry: helpers.root('src', 'demo', 'modules', '@http', 'server', 'index.ts')
-        }
-       ),
-
       /**
        * Plugin: CommonsChunkPlugin
        * Description: Shares common code between the pages.
@@ -370,6 +361,17 @@ module.exports = function (options) {
       new LoaderOptionsPlugin({}),
 
       new ngcWebpack.NgcWebpackPlugin(ngcWebpackConfig.plugin),
+      // ServiceWorkerTsPlugin must come AFTER!!! ngc webpack plugin
+      // because ServiceWorkerTsPlugin assigns the instance of the AOT plugin set on the compilation to the child
+      // compilation created by ServiceWorkerWebpackPlugin
+      ...ServiceWorkerTsPlugin.create(
+        {
+          tsconfig: 'tsconfig.server.service-worker.json'
+        },
+        {
+          entry: helpers.root('src', 'demo', 'modules', '@http', 'server', 'index.ts')
+        }
+      ),
 
       /**
        * Plugin: InlineManifestWebpackPlugin

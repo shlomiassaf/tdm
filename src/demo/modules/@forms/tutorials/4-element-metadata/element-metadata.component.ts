@@ -11,7 +11,7 @@ export class ElementMetadataComponent {
   model = new Hero();
 
   /* @tdm-ignore:* */
-  code: any = System.import(/* webpackChunkName: "ElementMetadataComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = System.import(/* webpackChunkName: "FormsElementMetadataComponent" */ './__tdm-code__.ts'); // tslint:disable-line
   static tutorial = {
     id: 'element-metadata',
     name: 'Element Metadata'

@@ -5,11 +5,11 @@ export function registerOfflineWorker(self: ServiceWorkerGlobalScope) {
 
   const log = DEBUG ? console.log : (msg: string) => {}; // tslint:disable-line
 
-// When the user navigates to your site,
-// the browser tries to redownload the script file that defined the service
-// worker in the background.
-// If there is even a byte's difference in the service worker file compared
-// to what it currently has, it considers it 'new'.
+  // When the user navigates to your site,
+  // the browser tries to redownload the script file that defined the service
+  // worker in the background.
+  // If there is even a byte's difference in the service worker file compared
+  // to what it currently has, it considers it 'new'.
   const { assets } = serviceWorkerOption;
   const CACHE_NAME = new Date().toISOString();
   let assetsToCache = [...assets, './'];
@@ -60,7 +60,6 @@ export function registerOfflineWorker(self: ServiceWorkerGlobalScope) {
 
   self.addEventListener('fetch', event => {
     const { request } = event;
-
     // Ignore not GET request.
     if (request.method !== 'GET') {
       log(`[SW] Ignore non GET request ${request.method}`);
@@ -68,6 +67,10 @@ export function registerOfflineWorker(self: ServiceWorkerGlobalScope) {
     }
 
     const requestUrl = new URL(request.url);
+    if (requestUrl.pathname.match('^\/api')) {
+      log(`[SW] Ignore API request ${request.url}`);
+      return;
+    }
 
     // Ignore difference origin.
     if (requestUrl.origin !== location.origin) {

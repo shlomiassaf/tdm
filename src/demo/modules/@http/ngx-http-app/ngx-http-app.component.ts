@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, NgZone } from '@angular/core';
 import { TdmFeatureListItem } from '@shared';
 
-import { Client } from '@http/client';
+import { SWClient } from '@http/client';
 
 @Component({
   selector: 'ngx-http-app',
@@ -20,20 +20,38 @@ export class NgxHttpAppComponent {
       };
     });
 
-  constructor() {
-    Client.create()
-      .then( client => {
-        console.log('CLIENT CREATED');
-        client.restoreDB()
-          .then(() => {
-            console.log('DB RESTORED');
-          })
-          .catch( err => {
-            console.error(err);
-          });
+  private client: SWClient;
+
+  constructor(private ngZone: NgZone) { }
+
+  initClient() {
+    if (this.client) {
+      this.client.dispose();
+    }
+    this.ngZone.runOutsideAngular(() => {
+      const client = this.client = new SWClient();
+      client.ready
+        .then( () => console.log('CLIENT CREATED') )
+        .catch( err => console.error(err) );
+    });
+  }
+
+  restoreDB() {
+    if (this.client) {
+      this.client.restoreDB()
+        .then(data => console.log('DB RESTORED') )
+        .catch( err => console.error(err) );
+    }
+  }
+
+  fetch(url: string, method: string = 'GET') {
+    fetch(url, { method })
+      .then( response => response.json() )
+      .then( response => {
+        console.log(`URL: ${url}, METHOD: ${method}, RESPONSE: ${JSON.stringify(response, null, 2)}`);
       })
       .catch( err => {
-        console.error(err);
+        console.log(`URL: ${url}, METHOD: ${method}, ERR: ${err.toString()}`);
       });
   }
 }

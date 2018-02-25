@@ -23,5 +23,4 @@ targetStore.registerAdapter(MockAdapter, {
   resourceMetaClass: MockResourceMetadata
 });
 
-
-export { MockMixin } from './mixin-factory';
+export { ActiveRecord } from './mixin-factory';

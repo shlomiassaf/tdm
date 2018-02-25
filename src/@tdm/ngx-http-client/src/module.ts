@@ -1,25 +1,19 @@
-import { NgModule, ModuleWithProviders } from '@angular/core';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { runAfterBootstrap } from './providers';
+import { NgModule, Optional } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
+import { setDefaultFactoryArgs } from './core/http-adapter';
 import { NgDAO } from './register';
+import { HttpDefaultConfig } from './http-default-config';
 
 @NgModule({
-  imports: [ HttpClientModule ]
+  providers: [ NgDAO ]
 })
-export class HttpClientResourceModuleForRoot {
-  constructor(http: HttpClient) {
-    runAfterBootstrap(http);
-  }
-}
-
-
-@NgModule()
 export class HttpClientResourceModule {
-  static forRoot(): ModuleWithProviders {
-    return {
-      ngModule: HttpClientResourceModuleForRoot,
-      providers: [ NgDAO ]
-    };
+  constructor(@Optional() httpClient: HttpClient, @Optional() defaultConfig?: HttpDefaultConfig) {
+    if (!httpClient) {
+      throw new Error('HttpClientResourceModule could not access HttpClient, did you import HttpClientModule?');
+    }
+    // every module, we set the last http client.
+    setDefaultFactoryArgs({ httpClient, defaultConfig: defaultConfig || new HttpDefaultConfig() });
   }
 }

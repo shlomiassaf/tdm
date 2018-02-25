@@ -27,9 +27,10 @@ declare module './prop' {
 
 // exporting to satisfy angular AOT
 export function factory(this: MetaClassMetadata<ExcludeMetadataArgs, ExcludeMetadata>,
-                 metaArgs: ExcludeMetadataArgs, target: Object | Function, info: DecoratorInfo): MetaClassInstanceDetails<ExcludeMetadataArgs, ExcludeMetadata> | undefined {
+                        metaArgs: ExcludeMetadataArgs, target: Object | Function,
+                        info: DecoratorInfo): MetaClassInstanceDetails<ExcludeMetadataArgs, ExcludeMetadata> | undefined {
   if (info.type === 'class') {
-    targetStore.getTargetMeta(<any>target).model().transformStrategy = 'exclusive';
+    targetStore.getTargetMeta(<any> target).model().transformStrategy = 'exclusive';
   } else {
     return {
       info,
@@ -43,12 +44,12 @@ export function factory(this: MetaClassMetadata<ExcludeMetadataArgs, ExcludeMeta
 
 @MetaClass<ExcludeMetadataArgs, ExcludeMetadata>({
   allowOn: ['class', 'member'],
+  extend: 'mergeMap',
   proxy: {
     host: PropMetadata,
     containerKey: 'exclude'
   },
-  factory,
-  extend: 'prop'
+  factory
 })
 export class ExcludeMetadata extends BaseMetadata {
   from?: TransformDir;
@@ -68,4 +69,3 @@ declare module '../fw/metadata-framework/meta-class' {
     function get(target: typeof ExcludeMetadata): MetaClassMetadata<ExcludeMetadataArgs, ExcludeMetadata>;
   }
 }
-

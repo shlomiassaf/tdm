@@ -1,2 +1,2 @@
-import 'service-mocker-polyfilles';
+// import 'service-mocker-polyfilles';
 export { NgxHttpAppModule } from './module';

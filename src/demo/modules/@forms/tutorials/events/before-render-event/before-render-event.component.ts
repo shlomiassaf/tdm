@@ -28,7 +28,7 @@ export function getSuperPowersAsync(): Promise<Array<{ labe?: string; value: str
   /* @tdm-ignore:* */
 })
 export class BeforeRenderEventComponent {
-  code: any = System.import(/* webpackChunkName: "BeforeRenderEventComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
+  code: any = System.import(/* webpackChunkName: "FormsBeforeRenderEventComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
   model = new Hero();
 
   beforeRender($event: BeforeRenderEventHandler): void {

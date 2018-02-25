@@ -1,6 +1,5 @@
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/filter';
 import { Subject } from 'rxjs/Subject';
+import { debounceTime, filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs/Subscription';
 import {
   ChangeDetectionStrategy,
@@ -19,7 +18,7 @@ export interface TocLinkTemplateContext {
   $implicit: {
     rootUrl: string;
     link: TocLink;
-  }
+  };
 }
 
 @Component({
@@ -53,10 +52,12 @@ export class TocComponent implements OnDestroy {
       this._tocArea = value;
       this.destroyLocal();
       if (value) {
-        this._linksChangedSubscription = value.linksChanged.debounceTime(10).subscribe(this.linksChanged);
+        this._linksChangedSubscription = value.linksChanged
+          .pipe(debounceTime(10))
+          .subscribe(this.linksChanged);
 
         this._activeLinkSubscription = value.activeLinkChanged
-          .filter(activeLink => activeLink !== this.activeLink)
+          .pipe(filter(activeLink => activeLink !== this.activeLink))
           .subscribe(al => {
             this.activeLink = al;
             this.cdr.detectChanges();
@@ -74,7 +75,7 @@ export class TocComponent implements OnDestroy {
 
   constructor(router: Router, private cdr: ChangeDetectorRef) {
     this._routeSubscription = router.events
-      .filter(event => event instanceof NavigationEnd)
+      .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(event => (this.rootUrl = router.url.split('#')[0]));
   }
 

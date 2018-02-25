@@ -20,13 +20,13 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Hook, BeforeHook, AfterHook, ActiveRecord, TDMCollection, Constructor, Prop, Exclude, ExecuteResponse, Identity } from '@tdm/data';
-import { ARMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/ngx-http-client';
+import { Hook, BeforeHook, AfterHook, ARInterface, TDMCollection, Constructor, Prop, Exclude, ExecuteResponse, Identity } from '@tdm/data';
+import { ActiveRecord, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/ngx-http-client';
 
 export interface IUserInterfaceStatic extends Constructor<IUserInterface> {
   num: number;
 }
-export interface IUserInterface extends ActiveRecord<IUserInterface, HttpActionOptions> {
+export interface IUserInterface extends ARInterface<IUserInterface, HttpActionOptions> {
   id: number;
   username: string;
 }
@@ -35,7 +35,7 @@ export interface IUserInterface extends ActiveRecord<IUserInterface, HttpActionO
   endpoint: '/path'
 })
 @Injectable()
-export class UsersInterface extends ARMixin<IUserInterface, IUserInterfaceStatic>() implements  IUserInterface {
+export class UsersInterface extends ActiveRecord<IUserInterface, IUserInterfaceStatic>() implements  IUserInterface {
   @Identity()
   id: number;
   username: string;

@@ -1,21 +1,18 @@
+import { ResourceEventType, ResourceEventTypes } from './interfaces';
 
-export const ResourceEventType = {
-  ActionStart: 'ActionStart' as 'ActionStart',
-  ActionError: 'ActionError' as 'ActionError',
-  ActionSuccess: 'ActionSuccess' as 'ActionSuccess',
-  ActionEnd: 'ActionEnd' as 'ActionEnd',
-  ActionCancel: 'ActionCancel' as 'ActionCancel'
-};
+declare module './interfaces' {
+  interface ResourceEventType {
+    ActionStart: ResourceEvent;
+    ActionError: ActionErrorResourceEvent;
+    ActionSuccess: ResourceEvent;
+    ActionEnd: ActionEndResourceEvent;
+    ActionCancel: ResourceEvent;
+  }
+}
 
-export const InternalResourceEventType = {
-  $CancellationToken: '$CancellationToken' as '$CancellationToken',
-  $ExecuteInit: '$ExecuteInit' as '$ExecuteInit',
-  $StateChange: '$StateChange' as '$StateChange'
-};
-
-export class ResourceEvent {
+export class ResourceEvent<T extends ResourceEventTypes = ResourceEventTypes>{
   constructor(public readonly resource: any,
-              public readonly type: keyof (typeof ResourceEventType & typeof InternalResourceEventType),
+              public readonly type: T,
               public readonly internal: boolean = false) {
   }
 }

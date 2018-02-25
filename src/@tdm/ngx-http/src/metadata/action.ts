@@ -17,8 +17,8 @@ export interface HttpActionMetadataArgs extends ActionMetadataArgs<HttpActionMet
 
 @MetaClass<HttpActionMetadataArgs, HttpActionMetadata>({
   allowOn: ['staticMember', 'member'],
-  extend: ActionMetadata.extend,
-  register: ActionMetadata.register
+  extend: 'actionMetadata',
+  register: 'actionMetadata'
 })
 export class HttpActionMetadata extends ActionMetadata {
   methodInfo: MappedMethod;

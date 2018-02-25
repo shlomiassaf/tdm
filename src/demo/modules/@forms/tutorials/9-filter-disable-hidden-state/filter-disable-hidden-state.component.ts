@@ -21,7 +21,7 @@ export class FilterDisableHiddenStateComponent {
   model = new Hero();
   /* @tdm-ignore:tdmDemo */
   modelExcludeDisabled = new Hero(); /* @tdm-ignore-line:tdmDemoInteractive */
-  code: any = System.import(/* webpackChunkName: "FilterDisableHiddenStateComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
+  code: any = System.import(/* webpackChunkName: "FormsFilterDisableHiddenStateComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
   controlState = { exclude: [], disabled: [], hidden: [] }; /* @tdm-ignore-line:tdmDemoExcludeRequired */ // tslint:disable-line
   controlStateExcludeDisabled = { exclude: ['name'], disabled: [], hidden: [] }; /* @tdm-ignore-line:tdmDemoInteractive */
 
