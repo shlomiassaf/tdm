@@ -15,6 +15,13 @@ function getForwardLink(ctx: RequestContext): Promise<string> {
   return Promise.resolve(forwardValue);
 }
 
+function delay(method: ServiceMockMethodExtensionsHost): Promise<void> {
+  return method.delayMeta
+    ? new Promise( resolve => setTimeout(resolve, method.delayMeta.delay || 0) )
+    : Promise.resolve()
+  ;
+}
+
 function getHttpCode(method: ServiceMockMethodExtensionsHost): number {
   return method.httpCodeMeta ? method.httpCodeMeta.code : 200;
 }
@@ -38,13 +45,14 @@ function emitInstanceMethod(ctx: RequestContext, instance: any, name: string): a
       injection[p.paramIndex] = resolveRouteHandlerParam(ctx, p, metaType, metaArgs);
     }
   }
-  return instance[name](...injection);
+  return Promise.all(injection)
+    .then( args => instance[name](...args));
 }
 
 function emitError(res: MockerResponse, error: Error, extendError?: any): void {
   const httpError: HttpError = error instanceof HttpError
     ? error
-    : HttpError.createKnown('500', 'Unknown Error')
+    : HttpError.createKnown('500', error.message || 'Unknown Error')
   ;
 
   const sendData: any = {
@@ -70,15 +78,18 @@ export function createHandlerFromController(ctrl: ServiceMockControllerMetadata,
 export function createHandler(instance: () => any,
                               method: ServiceMockMethodExtensionsHost): RouteCallback {
   return (req: MockerRequest, res: MockerResponse) => {
-    const ctx: RequestContext = { instance, method, req, res };
-    if (method.forwardMeta) {
-      return getForwardLink(ctx).then( value => res.forward(value) );
-    } else {
-      res.type('json');
-      return Promise.resolve(resolveMethodValue(ctx))
-        .then( value => res.status(getHttpCode(method)).json(value) )
-        .catch( err => emitError(res, err) );
-    }
+    return delay(method)
+      .then( () => {
+        const ctx: RequestContext = { instance, method, req, res };
+        if (method.forwardMeta) {
+          return getForwardLink(ctx).then( value => res.forward(value) );
+        } else {
+          res.type('json');
+          return Promise.resolve(resolveMethodValue(ctx))
+            .then( value => res.status(getHttpCode(method)).json(value) );
+        }
+      })
+      .catch( err => emitError(res, err) );
   };
 }
 

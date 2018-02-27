@@ -1,44 +1,9 @@
 <!--@tdm-example:part1-->
-# The Model
-The **Model** is a fundamental building block in `@tdm/core`, it
-provides a way to describe information and use that information to
-perform an operation.
+# Creating a Resource
 
-<div class="info">
-If you use `@tdm/ngx-dynamic-forms` you already know how to define a
-model using the `@Model()` decorator, which is covered in the
-<a class="tdm-anchor-trap" href="../../../forms/tutorial/creating-a-model">dynamic forms tutorial</a>
-</div>
+In the <a class="tdm-anchor-trap" href="../overview">Overview</a> we've
+established some of the concepts being used, let's see how we use them:
 
-Let's revisit some of the terms from the introduction:
-  - **Model**: A class representing a structure
-  - **Action**: An HTTP operation that the model supports (a.k.a operation)
-  - **Adapter**: A logical unit that executes an **Action** on a **Model**
-  - **Resource**: A **Model** bound to an **Adapter** with mapped **Actions**. 
-
-The definition for a **Resource** starts by telling us that it is
-a **Model**, it is an extended **Model**, it has all of it's features
-but it also required an **Adapter**.
-
-<div class="info">
-**Model** comes from `@tdm/core`, which comes with basic concepts and
-features related to a model.
-<br> 
-<br>
-**Resource** comes from `@tdm/data`, which extends the **Model** and
-provides additional tools required when working with **Adapters**.
-
-A **Resource** is an abstract term, a concrete resource is the
-combination of a model and adapter.
-</div>
-
-We will not use the term **Model** from here on but note that when we
-refer to a **Resource** it is also a **Model**
-
-<div class="alert">
-Because a **Resource** is an extension of a **Model** we can use a
-**Model** with dynamic form definitions as an http **Resource**.
-</div>
 
 ## The `@HttpResource()` decorator
 
@@ -182,10 +147,7 @@ you can even decorate multiple `@UrlParam`s on the same property.
 
 See `UrlParamMetadataArgs` for more details.
 
-## Actions built-in
-We now have an http resource that we can use to perform CRUD operations,
-what we call actions.
+----
+We are now ready to use this model with the Data Access Object
 
-**HttpResource** comes with a set of predefined actions, we will cover
-them in the next chapter...
-
+----

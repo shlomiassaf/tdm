@@ -1,6 +1,7 @@
 import {
   targetStore,
   isFunction,
+  isJsObject,
   errors,
   TDMCollection,
   TargetMetadata
@@ -22,7 +23,11 @@ import { ExecuteContext, ExecuteParams } from './execute-context';
 
 interface ExecuteState {
   id?: any;
+  rc?: ResourceControl<any>;
+  wasBusy?: boolean;
   cancelled?: boolean;
+  request?: any;
+  postReturnsResult?: any;
 }
 
 export class ActionController<T = any, Z = any> {
@@ -70,31 +75,21 @@ export class ActionController<T = any, Z = any> {
       ret = 'promise';
     }
 
-    const eState: ExecuteState = {};
-    let state: ResourceControl<any>;
-    let wasBusy: boolean;
-    if (ret !== 'promise') {
-      state = ResourceControl.get(ctx.instance);
-      wasBusy = state.busy;
-      state.set('busy', true);
-    }
+    let eState: ExecuteState;
 
     // TODO: move this to be part of the promise flow
     const doFinally = () => {
-      if (state) {
-        state.set('busy', false);
-      }
+      eState.rc.set('busy', false);
     };
 
-    let postReturnsResult: any;
     // TODO:  fireEvent uses member name as Hook matcher, this requires member name to be one of
     //        "ARHookableMethods", let user set the action method in ActionMetadata or something
     //        - Also applied to fireEvent "after" below.
-    const promise = new Promise( resolve => setTimeout(resolve, 5) )
+    const promise = new Promise( resolve => setTimeout(resolve, 0) )
       .then( () => {
         if (!!action.isCollection !== TDMCollection.instanceOf(ctx.instance)) {
           throw errors.modelSingleCol(ctx.instance, action.isCollection);
-        } else if (wasBusy) {
+        } else if (eState.wasBusy) {
           throw new Error('An action is already running');
         }
 
@@ -115,6 +110,7 @@ export class ActionController<T = any, Z = any> {
         const adapterResponse = this.adapter.execute(ctx, options,  params);
 
         eState.id = adapterResponse.id;
+        eState.request = adapterResponse.request;
 
         // TODO: If user cancelled and the adapter does not throw an error on cancellation
         //       this means that the promise chain will continue, need to fix it.
@@ -122,24 +118,32 @@ export class ActionController<T = any, Z = any> {
         //       this also applies on the first 2 steps
         return adapterResponse.response
           .then((response: ExecuteResponse) => {
-            if (response.skipDeserialize !== true || !action.post || !action.post.returns) {
-              ctx.deserialize(response.data);
+            if (isJsObject(response.data)) {
+              if (response.skipDeserialize !== true || !action.post || !action.post.returns) {
+                ctx.deserialize(response.data);
+              }
             }
             if (action.post) {
-              postReturnsResult = action.post.handler.apply(ctx.instance, [response, options]);
+              eState.postReturnsResult = action.post.handler.apply(ctx.instance, [response, options]);
             }
 
             return (action.isCollection ? Promise.resolve() : this.validate('incoming', action.validation, ctx))
-              .then( () => this.fireHook(action.name as any, 'after', ctx.instance, options, response) );
+              .then( () => this.fireHook(action.name as any, 'after', ctx.instance, options, response) )
+              .then( () => response );
           });
       })
-      .then(() => dispatchEvent(eventFactory.success(ctx.instance)))
-      .then(() => doFinally() )
-      .then(() => dispatchEvent(eventFactory.actionEnd(ctx.instance, 'success')))
-      .then(() => action.post && action.post.returns ? postReturnsResult : ctx.instance )
+      .then( (response: ExecuteResponse) => {
+        dispatchEvent(eventFactory.success(ctx.instance));
+        doFinally();
+        dispatchEvent(eventFactory.actionEnd(ctx.instance, 'success', eState.request, response.response));
+        return action.post && action.post.returns
+          ? eState.postReturnsResult
+          : ret === 'promise' && !isJsObject(response.data) ? response.data : ctx.instance
+        ;
+      })
       .catch(error => {
         if (eState.cancelled !== true) {
-          dispatchEvent(eventFactory.error(ctx.instance, error));
+          dispatchEvent(eventFactory.error(ctx.instance, error, eState.request));
           if (ret === 'promise') { // rethrow if the user handles the promise
             doFinally();
             throw error;
@@ -158,6 +162,12 @@ export class ActionController<T = any, Z = any> {
       keepAliveResourceControl
     ));
 
+    eState = {
+      rc: ResourceControl.get(ctx.instance)
+    };
+    eState.wasBusy = eState.rc.busy;
+    eState.rc.set('busy', true);
+
     // TODO: implement timeout to protect from stale promises?
     return ret === 'promise' ? promise : ctx.instance;
   }
@@ -166,10 +176,11 @@ export class ActionController<T = any, Z = any> {
     if (!eState.cancelled) {
       eState.cancelled = true;
       dispatchEvent(eventFactory.cancel(ctx.instance));
+      eState.rc.set('busy', false);
       if (eState.id) {
         this.adapter.cancel(eState.id);
       }
-      dispatchEvent(eventFactory.actionEnd(ctx.instance, 'cancel'));
+      dispatchEvent(eventFactory.actionEnd(ctx.instance, 'cancel', eState.request));
     }
   }
 

@@ -1,2 +1,10 @@
-<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md'}]:true"></tdm-markdown-view>
-<button mat-button (click)="click()">Get Customer</button>
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'PART-1'}]:true"></tdm-markdown-view>
+
+<http-resource-wrapper title="DAO" [run]="run">
+  <div class="http-source-code-snip">
+    <tdm-code-view [code]="(code | async | tdmCode:[{file: 'dao.component.ts', section: 'code'}])[0]"></tdm-code-view>
+  </div>
+</http-resource-wrapper>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'PART-2'}]:true"></tdm-markdown-view>
+

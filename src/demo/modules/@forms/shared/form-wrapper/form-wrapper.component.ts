@@ -1,6 +1,6 @@
 import '!!style-loader!css-loader!sass-loader!./form-wrapper.global.scss';
 
-import { hljs } from 'highlight.js/lib/highlight';
+import * as hljs from 'highlight.js/lib/highlight';
 hljs.registerLanguage('json', require(`highlight.js/lib/languages/json.js`));
 
 import { debounceTime } from 'rxjs/operators';

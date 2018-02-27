@@ -60,8 +60,8 @@ export function registerMethods(ctrl: ServiceMockControllerMetadata , server: Se
       default:
         break;
     }
-    subRouter.all(m.path, methodNotAllowed);
   }
+  subRouter.all('/*', methodNotAllowed);
 }
 
 function methodNotAllowed(req: MockerRequest, res: MockerResponse) {

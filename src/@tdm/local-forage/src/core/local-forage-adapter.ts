@@ -187,10 +187,14 @@ export class LocalForageAdapter implements Adapter<LocalForageActionMetadata, Lo
                 return Promise.reject(new Error('Not Found'));
               } else {
                 const idToUpdate = ctx.data[resource.identity];
-                const newCtx = action.method === ActionMethodType.UPDATE
-                  ? ctx.clone(item)
-                  : ctx
-                ;
+                let newCtx: ExecuteContext<any>;
+
+                if (action.method === ActionMethodType.UPDATE) {
+                  newCtx = ctx.clone();
+                  newCtx.deserialize(item);
+                } else {
+                  newCtx = ctx;
+                }
                 newCtx.deserialize(ctx.data);
                 return localForage.setItem(this.appendKey(resourceKey, idToUpdate), newCtx.serialize());
               }

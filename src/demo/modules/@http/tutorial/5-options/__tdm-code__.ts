@@ -4,11 +4,19 @@ module.exports = [
   {
     file: './README.md',
     autoRender: true,
-    title: 'DAO'
+    title: 'Options',
+    section: 'PART-1'
   },
   {
-    file: '../../client/models/customer.ts',
+    file: './README.md',
     autoRender: true,
-    title: 'Model'
+    title: 'Options',
+    section: 'PART-2'
+  },
+  {
+    file: './options.component.ts',
+    autoRender: true,
+    section: 'code',
+    reformat: true
   }
 ] as CodeExtractionInstructions[];

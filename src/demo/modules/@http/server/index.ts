@@ -76,4 +76,4 @@ class MyServer extends ServerBase {
   }
 }
 
-new MyServer();
+const server = new MyServer();

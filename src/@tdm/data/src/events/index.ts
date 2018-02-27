@@ -28,7 +28,10 @@ export function dispatchEvent(event: ResourceEvent, async?: number | true): void
   } else if (async === true) {
     Promise.resolve(null).then( () => dispatcher.next(event) );
   } else {
-    dispatcher.next(event);
+    try {
+      dispatcher.next(event);
+    } catch (err) { } // tslint:disable-line:no-empty
+    // we don't want handler's error to interrupt the process, the handler should handle it's own errors.
   }
 }
 

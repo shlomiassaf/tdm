@@ -9,8 +9,8 @@ export class CreatingAModelComponent {
   /* @tdm-ignore:* */
   code: any = System.import(/* webpackChunkName: "NgxHttpCreatingAModelComponent" */ './__tdm-code__.ts'); // tslint:disable-line
   static tutorial = {
-    id: 'creating-a-model',
-    name: 'Creating A Model'
+    id: 'creating-a-resource',
+    name: 'Creating A Resource'
   };
   /* @tdm-ignore:* */
 }

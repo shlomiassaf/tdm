@@ -81,6 +81,8 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
       const method = HttpActionMethodType[action.methodInfo.source].toUpperCase();
       const url = processUrl(this.parseUrl(rawUrl, path), strip);
       const request = {
+        method,
+        url,
         body: ctx.data,
         headers: this.getHeaders(ctx, resource, options, defaultConfig),
         reportProgress: false, // its the default but let be verbose
@@ -113,12 +115,12 @@ export class HttpAdapter implements Adapter<HttpActionMetadata, HttpActionOption
             },
             () => {
               this.executing.delete(id);
-              resolve({ data: httpResponse.body, response: httpResponse, request });
+              resolve({ data: httpResponse.body, response: httpResponse });
             });
 
         this.executing.set(id, subscription);
       });
-      return { id, response };
+      return { id, response, request };
     } catch (err) {
       return { id, response: Promise.reject(err) };
     }

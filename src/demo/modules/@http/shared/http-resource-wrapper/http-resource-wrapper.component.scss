@@ -1,0 +1,61 @@
+.http-status-indicator {
+  width: 24px;
+  height: 24px;
+  margin: 0 15px;
+}
+
+.http-wrapper-container-main-content, .http-object-showcase {
+  min-height: 300px;
+  max-height: 450px;
+}
+
+.http-object-showcase {
+  position: relative;
+  padding: 10px;
+
+  .http-object-showcase-spinner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.event-log-header {
+  text-align: center;
+}
+
+.http-event-log-container {
+  background-color: white;
+  padding: 10px 0;
+}
+
+.event-log-item-header {
+  padding: 0 6px;
+}
+
+.http-event-log-record {
+  padding-bottom: 15px;
+}
+
+.http-event-log-time {
+  font-size: 0.74em;
+  color: darkgray;
+}
+
+.http-request-status {
+  transition: color 250ms ease-in-out;
+  flex-grow: 1;
+}
+
+.http-request-status-Success {
+  color: #599001;
+}
+
+.http-request-status-In-Flight {
+  color: #3F8CFF;
+}
+
+.http-request-status-Error {
+  color: #F00;
+}

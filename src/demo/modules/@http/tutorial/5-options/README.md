@@ -1,3 +1,5 @@
+<!--@tdm-example:PART-1-->
+
 # Options
 When we talk about *Options* we talk about:
 
@@ -18,37 +20,37 @@ Which will send a `GET` call to:
 /api/customers/ALFKI
 ```
 
-
 Now, same thing but we want to add a query string parameter of some
 sort...
 
+<!--@tdm-example:PART-1-->
+
+<!--@tdm-example:PART-2-->
+<br>
 To add query string parameters we need to provide **ad-hoc** options
-object with the url parameters we want to include:
- 
-```ts
-this.ngDao.get(Customer).findById('ALFKI', { /* SPECIFIC OPTIONS */
-  urlParams: {
-    someQueryKey: 'someQueryValue'
-  }  
-});
-```
+object with the url parameters we want to include.
 
-Which will send a `GET` call to:
-```
-/api/customers/ALFKI?someQueryKey=someQueryValue
-```
+Run the example and look at url in the *Request* object.
 
-Each of the methods in the DAO accepts an optional **ad-hoc** options
-object.
+  - **Ad-hoc** options are options provided with the execution of a
+  request.
+  - Each of the built in methods in the DAO accepts an optional
+  *options* object.
+  - **Ad-hoc** options have top-most priority, they will override any
+  other predefined configuration.
+  - **Ad-hoc** options are best used for call specific parameters, things
+    like query strings, search API integration etc...
+  - The library will merge **ad-hoc** options with **static** options
+  and use the resolved options object.
+  
+<div class="info">
+Beside **ad-hoc**, there are **static** options. These are set through
+metadata when defining the resource / action. We will cover them next.
+</div>
 
-The library will merge **ad-hoc** options with **static** options and
-use the resolved options object.
 
-**ad-hoc** options have top-most priority, they will override any other
-predefined values.
 
-**ad-hoc** options are best used for call specific parameters, things
-like query strings, search API integration etc...
+
 
 ### Static options
 Beside **ad-hoc** options, there are **static options** set at 3 levels:
@@ -119,4 +121,4 @@ to modify a request before it leaves. Again, a module level or resource
 level options object can work here and when more dynamic control is
 needed you can always use interceptors.
 
-
+<!--@tdm-example:PART-2-->

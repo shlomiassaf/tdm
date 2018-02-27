@@ -9,24 +9,24 @@ import { Customer } from '../../client';
   styleUrls: [ './options.component.scss' ],
 })
 export class OptionsComponent {
-  constructor(private ngDao: NgDAO) { }
-
-  click() {
-    this.ngDao.get(Customer).findById('ALFKI', { /* SPECIFIC OPTIONS */
-      urlParams: {
-        someQueryKey: 'someQueryValue'
-      }
-    })
-      .then( c => {
-        console.log(c);
-      });
-  }
-
-  /* @tdm-ignore:* */
   code: any = System.import(/* webpackChunkName: "NgxHttpOptionsComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  run: () => any;
+
+  /* @tdm-example: code */
+  constructor(private ngDao: NgDAO) {
+
+    this.run = () => /* @tdm-ignore-line */
+      ngDao.get(Customer).findById('ALFKI', {
+        urlParams: {
+          someQueryKey: 'someQueryValue'
+        }
+      });
+
+  }
+  /* @tdm-example: code */
+
   static tutorial = {
     id: 'options',
     name: 'Options'
   };
-  /* @tdm-ignore:* */
 }

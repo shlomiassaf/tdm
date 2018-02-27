@@ -11,6 +11,7 @@ export { FallbackRouteMetadata } from './fallback-route';
 export {
   HttpCodeMetadata,
   ForwardMetadata,
+  DelayMetadata,
   RouteHandlerParamMetadata,
   RouteHandleParamType
 } from './method-extensions';

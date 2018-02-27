@@ -1,3 +1,4 @@
+// tslint:disable:max-classes-per-file
 import { InternalResourceEventType } from './interfaces';
 import { ResourceEvent } from './events';
 import { ActionController } from '../core';
@@ -12,6 +13,12 @@ declare module './interfaces' {
   }
 }
 
+const internalError = Symbol('Internal Resource Error');
+
+export function isInternalError(event: ResourceEvent): boolean {
+  return event[internalError] === true;
+}
+
 /**
  * Sends the cancellation token (function) so the listener (resource control) can cancel.
  *
@@ -19,7 +26,8 @@ declare module './interfaces' {
  */
 export class CancellationTokenResourceEvent extends ResourceEvent {
   constructor(public readonly resource: any, public readonly cancel: () => void) {
-    super(resource, '$CancellationToken', true);
+    super(resource, '$CancellationToken');
+    this[internalError] = true;
   }
 }
 
@@ -58,7 +66,8 @@ export class ExecuteInitResourceEvent extends ResourceEvent {
               public readonly data: ExecuteInitResourceEventArgs,
               promise: Promise<any>,
               keepAlive: boolean) {
-    super(resource, '$ExecuteInit', true);
+    super(resource, '$ExecuteInit');
+    this[internalError] = true;
     this.promise = promise;
     this.keepAlive = keepAlive;
   }
@@ -72,6 +81,7 @@ export class StateChangeResourceEvent extends ResourceEvent {
               public readonly key: string,
               public readonly oldVal: any,
               public readonly newVal: any) {
-    super(resource, '$StateChange', true);
+    super(resource, '$StateChange');
+    this[internalError] = true;
   }
 }

@@ -1,1 +1,48 @@
-<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md'}]:true"></tdm-markdown-view>
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'PART-1'}]:true"></tdm-markdown-view>
+
+<tdm-code-view [code]="code | async | tdmCode:[{file: 'dao-ar-example.ts', section: 'MODEL'}, {file: 'dao-ar-example.ts', section: 'DAO'}, {file: 'dao-ar-example.ts', section: 'AR'}]"></tdm-code-view>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'PART-2'}]:true"></tdm-markdown-view>
+
+<http-resource-wrapper title="Live Example" [run]="run">
+  <div class="http-source-code-snip">
+    <tdm-code-view [code]="(code | async | tdmCode:[{file: 'introduction.component.ts', section: 'code'}])[0]"></tdm-code-view>
+  </div>
+</http-resource-wrapper>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'PART-3'}]:true"></tdm-markdown-view>
+
+<div fxLayout="row" fxLayoutAlign="space-around center">
+  <div fxLayout="column" fxLayoutAlign="center center">
+    <div class="led-sample">
+      <tdm-led></tdm-led>
+    </div>
+    <span>Idle</span>
+  </div>
+  <div fxLayout="column" fxLayoutAlign="center center">
+    <div class="led-sample">
+      <tdm-led color="blue" blink></tdm-led>
+    </div>
+    <span>In Flight</span>
+  </div>
+  <div fxLayout="column" fxLayoutAlign="center center">
+    <div class="led-sample">
+      <tdm-led color="green"></tdm-led>
+    </div>
+    <span>Success</span>
+  </div>
+  <div fxLayout="column" fxLayoutAlign="center center">
+    <div class="led-sample">
+      <tdm-led color="red" blink></tdm-led>
+    </div>
+    <span>Error</span>
+  </div>
+  <div fxLayout="column" fxLayoutAlign="center center">
+    <div class="led-sample">
+      <tdm-led color="yellow"></tdm-led>
+    </div>
+    <span>Cancelled</span>
+  </div>
+</div>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'PART-4'}]:true"></tdm-markdown-view>

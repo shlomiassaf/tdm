@@ -20,7 +20,8 @@ import {
   StateChangeResourceEvent,
   SimpleEvents,
   ResourceEvent,
-  isResourceEvent
+  isResourceEvent,
+  isInternalError
 } from './events';
 
 // Weak map for private emitter
@@ -83,6 +84,8 @@ export class ResourceControl<T> implements RecordControlState<T> {
     this.dispatcher = eventSys.dispatcher;
     this.events$ = eventSys.emitter;
   }
+
+  private _next: Promise<TDMModel<T> & T>;
 
   /**
    * Set a new state value
@@ -190,7 +193,10 @@ export class ResourceControl<T> implements RecordControlState<T> {
       .then( () => {
         if ( !this.busy ) {
           return Promise.reject(errors.model(this.parent, 'Call to next() while not in an active action.'));
+        } else if (this._next) {
+          return this._next;
         } else {
+          // Consider removing as we should never get here.
           return new Promise<TDMModel<T> & T>((resolve, reject) => {
             const subs = this.events$.subscribe(event => {
               if ( isResourceEvent('ActionError', event) ) {
@@ -214,7 +220,6 @@ export class ResourceControl<T> implements RecordControlState<T> {
    */
   cancel(): void {
     if ( this.busy && this.actionCancel ) {
-      this.set('busy', false);
       this.actionCancel();
       this.actionCancel = undefined;
     }
@@ -271,6 +276,15 @@ export class ResourceControl<T> implements RecordControlState<T> {
     handlers.push(handler);
   }
 
+  static removeEventListener(handler: ResourceEventListener): boolean {
+    const idx = handlers.indexOf(handler);
+    if (idx > -1) {
+      handlers.splice(idx, 1);
+      return true;
+    }
+    return false;
+  }
+
   /**
    * Returns a resource control for an instance of a resource.
    * If it's an instance and a resource control does not exist it will create it.
@@ -298,7 +312,7 @@ export class ResourceControl<T> implements RecordControlState<T> {
       handlers[ i ].call(rc, event);
     }
 
-    if ( event.internal !== true ) {
+    if (!isInternalError(event)) {
       rc.dispatcher.next(event);
     }
   }
@@ -320,11 +334,13 @@ export class ResourceControl<T> implements RecordControlState<T> {
         } else if ( event instanceof ExecuteInitResourceEvent ) {
           mapPromiseAndKeepAlive(this, event);
           this.lastExecute = event.data;
+          this._next = event.promise;
         } else {
           switch ( event.type ) { // tslint:disable-line
             case 'ActionError':
             case 'ActionEnd':
               this.actionCancel = undefined;
+              this._next = undefined;
               break;
           }
         }

@@ -70,7 +70,7 @@ and layout of the API.
 ```
 
 In the example above we've added a base url to the API we work with, so
-every model we define will address `/api/...`.
+every model we define will have `/api/` added to the url.
 
 Notice how we use `HttpDefaultConfig.create` to setup a configuration,
 this will ensure default values that we do not set are set to their

@@ -11,6 +11,12 @@ export interface AdapterResponse {
   id: any;
 
   response: Promise<ExecuteResponse>;
+
+  /**
+   * The raw request object
+   * This is optional, the type of the request changes between adapters.
+   */
+  request?: any;
 }
 
 export interface ExecuteResponse {
@@ -23,12 +29,6 @@ export interface ExecuteResponse {
    * When set to true, the library will not deserialize the `data` object into the instance.
    */
   skipDeserialize?: boolean;
-
-  /**
-   * The raw reqiest object
-   * This is optional, the type of the request changes between adapters.
-   */
-  request?: any;
 
   /**
    * The raw response object
