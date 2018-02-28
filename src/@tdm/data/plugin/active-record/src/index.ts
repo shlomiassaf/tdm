@@ -65,14 +65,14 @@ function registerAction(this: ActionController,
   if (action.decoratorInfo.isStatic) {
     if (override || !isFunction(this.target[action.name])) {
       composeAction(this.target, action, function (this: AdapterStatic<any, any>, ...args: any[]) {
-        return self.execute(ctx.clone(), {args});
+        return self.execute(ctx.clone(), {args}, 'instance');
       });
     }
 
     if (action.isCollection && action.collInstance && (override || !isFunction(collProto[action.name]))) {
       composeAction(collProto, action, function (this: TDMCollection<any>, ...args: any[]): any {
         this.splice(0, this.length);
-        return self.execute(ctx.clone(this), {args});
+        return self.execute(ctx.clone(this), {args}, 'instance');
       });
     }
   } else {
@@ -82,7 +82,9 @@ function registerAction(this: ActionController,
 
     if (override || !isFunction(this.target.prototype[action.name])) {
       composeAction(this.target.prototype, action, function (this: TDMModel<any>, ...args: any[]) {
-        return self.execute(ctx.clone(this), {args});
+        // we call `self.execute` with 'instance' so it acts like AR in its resource control but we need the promise
+        // so we use the resource control to get it right away.
+        return ResourceControl.get(self.execute(ctx.clone(this), {args}, 'instance'));
       });
     }
   }

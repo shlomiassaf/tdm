@@ -97,18 +97,18 @@ UsersInterface.num as string;
  */
 UsersInterface.findById(2).usernam23e;
 
-new UsersInterface().$refresh().username;
+new UsersInterface().$get().username;
 
 const user: UsersInterface = new UsersInterface();
 
-user.$refresh().username;
+user.$get().username;
 
 /**
  * @tssert not cast to any
  * @tsError 2339
  * @loc 17
  */
-user.$refresh().abcd;
+user.$get().abcd;
 
 /**
  * Keep type information in promise chain - property
@@ -189,9 +189,9 @@ UsersInterface.query().erer();
 UsersInterface.findAll().findOne(null);
 UsersInterface.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method(15));
 
 /**
@@ -201,9 +201,9 @@ UsersInterface.findOne(null)
  */
 UsersInterface.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method('XX'));
 
 // UsersInterface.find('CatA');
@@ -274,18 +274,18 @@ UsersInterfaceExt.num as string;
  */
 UsersInterfaceExt.findById(2).usernam23e;
 
-new UsersInterfaceExt().$refresh().username;
+new UsersInterfaceExt().$get().username;
 
 const userExt: UsersInterfaceExt = new UsersInterfaceExt();
 
-userExt.$refresh().username;
+userExt.$get().username;
 
 /**
  * @tssert not cast to any
  * @tsError 2339
  * @loc 20
  */
-userExt.$refresh().abcd;
+userExt.$get().abcd;
 
 /**
  * Keep type information in promise chain - property
@@ -366,9 +366,9 @@ UsersInterfaceExt.query().erer();
 UsersInterfaceExt.findAll().findOne(null);
 UsersInterfaceExt.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method(15));
 
 /**
@@ -378,9 +378,9 @@ UsersInterfaceExt.findOne(null)
  */
 UsersInterfaceExt.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method('XX'));
 
 // UsersInterfaceExt.find('CatA');

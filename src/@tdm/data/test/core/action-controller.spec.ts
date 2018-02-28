@@ -7,10 +7,10 @@ class User_ {
   id: number;
   username: string;
 
-  @Hook({event: 'before', action: '$refresh'})
+  @Hook({event: 'before', action: '$get'})
   beforeRefresh() { }
 
-  @Hook({event: 'after', action: '$refresh'})
+  @Hook({event: 'after', action: '$get'})
   afterRefresh() { }
 
   @MockAction({
@@ -77,7 +77,7 @@ describe('@tdm/data', () => {
 
     it('should call instance level hooks', () => {
       const user = bucket.create(User);
-      return user.$refresh().$rc.next()
+      return user.$get().next()
         .then( data => {
           expect(PUser.beforeRefresh).toHaveBeenCalledTimes(1);
           expect(PUser.afterRefresh).toHaveBeenCalledTimes(1);

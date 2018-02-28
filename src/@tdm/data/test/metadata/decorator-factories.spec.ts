@@ -64,7 +64,7 @@ describe('@tdm/data', () => {
       type User = ActiveRecord<User_>;
 
       const user: User = bucket.create<any>(User);
-      user.$refresh({returnValue}).$rc.next()
+      user.$get({returnValue}).next()
         .then( data => {
           expect(targetStore.getTargetMeta(User).model().resName).toBe('User_');
           expect(user.name).toBe('test');
@@ -96,7 +96,7 @@ describe('@tdm/data', () => {
 
 
       const user = bucket.create(User);
-      user.$refresh({returnValue}).$rc.next()
+      user.$get({returnValue}).next()
         .then( data => {
           expect(targetStore.getTargetMeta(User).model().resName).toBe('User');
           expect(user.name).toBe('test');
@@ -121,7 +121,7 @@ describe('@tdm/data', () => {
       class User extends ActiveRecord(User_) { }
 
       const user = bucket.create(User);
-      user.$refresh({returnValue}).$rc.next()
+      user.$get({returnValue}).next()
         .then( data => {
           expect(targetStore.getTargetMeta(User).model().resName).toBe('User');
           expect(user.name).toBe('test');

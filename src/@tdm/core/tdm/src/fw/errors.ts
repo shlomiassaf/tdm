@@ -46,12 +46,14 @@ export class Errors {
    */
   ERROR<T = any>(message: string, assign?: T): Error & T {
     const err = new Error(message);
-    if (assign) Object.assign(err, assign);
+    if (assign) {
+      Object.assign(err, assign);
+    }
 
     if (this[ERROR_EXEC_TYPE] === 'throw') {
       throw err;
     } else {
-      return <any>err;
+      return <any> err;
     }
   }
 

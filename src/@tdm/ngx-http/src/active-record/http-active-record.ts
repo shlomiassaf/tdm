@@ -21,7 +21,7 @@ export class HttpActiveRecord {
     method: HttpActionMethodType.Get,
     validation: 'incoming' as 'incoming'
   })
-  $refresh: (options?: HttpActionOptions) => this;
+  $get: (options?: HttpActionOptions) => this;
 
   @HttpAction({
     method: HttpActionMethodType.Put,
@@ -32,6 +32,16 @@ export class HttpActiveRecord {
     }
   })
   $update: (options?: HttpActionOptions) => this;
+
+  @HttpAction({
+    method: HttpActionMethodType.Patch,
+    validation: 'both' as 'both',
+    pre: (ctx: ExecuteContext<HttpActionMetadata>, options?: HttpActionOptions) => {
+      ctx.data = ctx.serialize();
+      return options;
+    }
+  })
+  $replace: (options?: HttpActionOptions) => this;
 
   @HttpAction({
     method: HttpActionMethodType.Delete,
@@ -56,6 +66,9 @@ export class HttpActiveRecord {
   @HttpDAOActions.update
   static update: (data: any | Partial<any>, options?: HttpActionOptions) => any;
 
+  @HttpDAOActions.replace
+  static replace: (data: any | Partial<any>, options?: HttpActionOptions) => any;
+
   @HttpDAOActions.remove
   static remove: ( (id: IdentityValueType | any, options?: HttpActionOptions) => any );
 }
@@ -64,7 +77,6 @@ export const ActiveRecordCollection = ARecordColl;
 export type ActiveRecordCollection<T> =
   ARecordColl<Tixin<T, TDMModel<T> & HttpActiveRecord>>
     & { query: ActiveRecordCollection<T> };
-
 
 export interface HttpActiveRecordStatic<T>  {
   findById(id: IdentityValueType, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
@@ -77,7 +89,6 @@ export interface HttpActiveRecordStatic<T>  {
 
   create(data: T, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
   update(data: Partial<T>, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
+  replace(data: Partial<T>, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
   remove(id: IdentityValueType | T, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
 }
-
-

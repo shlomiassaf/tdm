@@ -68,12 +68,12 @@ export class UsersInterface extends ActiveRecord<IUserInterface, IUserInterfaceS
   _motto_: string;
 
 
-  @BeforeHook('$refresh')
+  @BeforeHook('$get')
   bfRef() {
     console.log('BeforeRefresh');
   }
 
-  @AfterHook('$refresh')
+  @AfterHook('$get')
   afRef() {
     console.log('AfterRefresh');
   }
@@ -117,10 +117,10 @@ export class UsersInterface extends ActiveRecord<IUserInterface, IUserInterfaceS
 // UsersInterface.find(2).username__;                                   // OK
 // UsersInterface.find(2).usernam23e;                                   // SHOULD ERROR
 // UsersInterface.num;                                                  // OK
-// new UsersInterface().$refresh().username__;                          // OK
+// new UsersInterface().$get().username__;                          // OK
 // const user: UsersInterface = new UsersInterface();                   // OK
-// user.$refresh().username__;                                          // OK
-// user.$refresh().abcd;                                                // SHOULD ERROR
+// user.$get().username__;                                          // OK
+// user.$get().abcd;                                                // SHOULD ERROR
 // user.$rc.next().then( u => u.id );                                   // OK
 // user.$rc.next().then( u => u.f34 );                                  // SHOULD ERROR
 // UsersInterface.query().$rc.next().then( coll => coll );   // OK

@@ -43,12 +43,12 @@ export class User_ implements   BeforeHook<'bfRef', HttpActionOptions>,
 
   constructor() { }
 
-  @BeforeHook('$refresh')
+  @BeforeHook('$get')
   bfRef() {
     console.log('BeforeRefresh');
   }
 
-  @AfterHook('$refresh')
+  @AfterHook('$get')
   afRef() {
     console.log('AfterRefresh');
   }
@@ -103,10 +103,10 @@ export class UserBaseClass extends ActiveRecord(User_) { }
 // UserBaseClass.find(2).username__;                                    // OK
 // UserBaseClass.find(2).usernam23e;                                    // SHOULD ERROR
 // UserBaseClass.num;                                                   // OK
-// new UserBaseClass().$refresh().username__;                           // OK
+// new UserBaseClass().$get().username__;                           // OK
 // const user: UserBaseClass = new UserBaseClass();                     // OK
-// user.$refresh().username__;                                          // OK
-// user.$refresh().abcd;                                                // SHOULD ERROR
+// user.$get().username__;                                          // OK
+// user.$get().abcd;                                                // SHOULD ERROR
 // user.$rc.next().then( u => u.id );                                   // OK
 // user.$rc.next().then( u => u.f34 );                                  // SHOULD ERROR
 // UserBaseClass.query().$rc.next().then(coll => coll );     // OK

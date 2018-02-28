@@ -35,7 +35,7 @@ describe('NG-HTTP', () => {
             expect(event[ 'error' ].toString()).toEqual('Error: HttpClientResourceModule did not init, are you trying to invoke an action before the modules registered?');
           }
         })
-        .run(ec => ec.ar.$refresh());
+        .run(ec => ec.ar.$get());
     });
 
     describe('URL Parsing', () => {
@@ -154,14 +154,16 @@ describe('NG-HTTP', () => {
 
         const EVENTS = [ 'ActionStart', 'ActionError' ];
 
-        const unsub = new User().$refresh().$rc.events$.subscribe(event => {
+        let error;
+        const unsub = new User().$get().events$.subscribe(event => {
           expect(event.type).toEqual(EVENTS.shift());
           if ( event.type === 'ActionError' ) {
-            expect(event[ 'error' ].toString()).toEqual('Error: URL Parameter Error in HttpAdapter: Expected "id" to be defined');
+            error  = event['error'];
             unsub.unsubscribe();
           }
         });
         tick(10);
+        expect(error.toString()).toEqual('Error: URL Parameter Error in HttpAdapter: Expected "id" to be defined');
       }));
 
       it('should build resource with bound param', fakeAsync(() => {

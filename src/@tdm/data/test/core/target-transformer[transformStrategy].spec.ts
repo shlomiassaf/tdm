@@ -90,7 +90,7 @@ describe('@tdm/data', () => {
         expect(payload['freeSpirit']).toBe(true);
       };
 
-      user.$refresh({returnValue}).$rc.next()
+      user.$get({returnValue}).next()
         .then( data => {
           expect(user.age).toBe(returnValue.age);
 
@@ -113,7 +113,7 @@ describe('@tdm/data', () => {
 
           user['freeSpirit'] = true;
         })
-        .then( () => user.$update({payloadInspect}).$rc.next() )
+        .then( () => user.$update({payloadInspect}) )
         .then( data => done() )
         .catch( err => done.fail(err) );
     });
@@ -121,7 +121,7 @@ describe('@tdm/data', () => {
     it('should include only marked properties when strategy === "exclusive" except explicitly excluded properties', (done) => {
       const user = bucket.create(UserExc);
 
-      user.$refresh({returnValue}).$rc.next()
+      user.$get({returnValue}).next()
         .then( data => {
           expect(user.age).toBe(returnValue.age);
 

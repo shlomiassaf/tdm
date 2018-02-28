@@ -1,5 +1,5 @@
 import { Tixin } from '@tdm/tixin';
-import { TDMCollection as ARecordColl, TDMModel, IdentityValueType, ExecuteContext } from '@tdm/data';
+import { TDMCollection as ARecordColl, TDMModel, IdentityValueType, ExecuteContext, ResourceControl } from '@tdm/data';
 
 import { HttpActionOptions } from '../core/interfaces';
 import { HttpActionMetadata, HttpActionMethodType } from '../metadata';
@@ -15,13 +15,13 @@ export class HttpActiveRecord {
       return options;
     }
   })
-  $create: (options?: HttpActionOptions) => this;
+  $create: (options?: HttpActionOptions) => ResourceControl<this>;
 
   @HttpAction({
     method: HttpActionMethodType.Get,
     validation: 'incoming' as 'incoming'
   })
-  $refresh: (options?: HttpActionOptions) => this;
+  $get: (options?: HttpActionOptions) => ResourceControl<this>;
 
   @HttpAction({
     method: HttpActionMethodType.Put,
@@ -31,13 +31,23 @@ export class HttpActiveRecord {
       return options;
     }
   })
-  $update: (options?: HttpActionOptions) => this;
+  $update: (options?: HttpActionOptions) => ResourceControl<this>;
+
+  @HttpAction({
+    method: HttpActionMethodType.Patch,
+    validation: 'both' as 'both',
+    pre: (ctx: ExecuteContext<HttpActionMetadata>, options?: HttpActionOptions) => {
+      ctx.data = ctx.serialize();
+      return options;
+    }
+  })
+  $replace: (options?: HttpActionOptions) => ResourceControl<this>;
 
   @HttpAction({
     method: HttpActionMethodType.Delete,
     validation: 'skip' as 'skip'
   })
-  $remove: (options?: HttpActionOptions) => this;
+  $remove: (options?: HttpActionOptions) => ResourceControl<this>;
 
   @HttpDAOActions.query
   static query: (options?: HttpActionOptions) => any;
@@ -55,6 +65,9 @@ export class HttpActiveRecord {
 
   @HttpDAOActions.update
   static update: (data: any | Partial<any>, options?: HttpActionOptions) => any;
+
+  @HttpDAOActions.replace
+  static replace: (data: any | Partial<any>, options?: HttpActionOptions) => any;
 
   @HttpDAOActions.remove
   static remove: ( (id: IdentityValueType | any, options?: HttpActionOptions) => any );
@@ -76,5 +89,6 @@ export interface HttpActiveRecordStatic<T>  {
 
   create(data: T, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
   update(data: Partial<T>, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
+  replace(data: Partial<T>, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
   remove(id: IdentityValueType | T, options?: HttpActionOptions): Tixin<T, TDMModel<T> & HttpActiveRecord>;
 }

@@ -60,12 +60,12 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
 
   constructor() { }
 
-  @Hook({event: 'before', action: '$refresh'})
+  @Hook({event: 'before', action: '$get'})
   bfRef() {
     console.log('BeforeRefresh');
   }
 
-  @Hook({event: 'after', action: '$refresh'})
+  @Hook({event: 'after', action: '$get'})
   afRef() {
     console.log('AfterRefresh');
   }
@@ -120,10 +120,10 @@ export type UserConst = ActiveRecord<User_>;
 // UserConst.find(2, 3, 4).username__;                              // OK
 // UserConst.find(2, 3, 4).usernam23e;                              // SHOULD ERROR
 // UserConst.num;                                                   // OK
-// new UserConst().$refresh().username__;                           // OK
+// new UserConst().$get().username__;                           // OK
 // const user: UserConst = new UserConst();                         // OK
-// user.$refresh().username__;                                      // OK
-// user.$refresh().abcd;                                            // SHOULD ERROR
+// user.$get().username__;                                      // OK
+// user.$get().abcd;                                            // SHOULD ERROR
 // user.$rc.next().then( u => u.id );                               // OK
 // user.$rc.next().then( u => u.f34 );                              // SHOULD ERROR
 // UserConst.query().$rc.next().then(coll => coll );     // OK

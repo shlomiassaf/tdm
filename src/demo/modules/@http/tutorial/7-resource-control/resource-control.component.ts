@@ -10,8 +10,7 @@ export class ResourceControlComponent {
   code: any = System.import(/* webpackChunkName: "NgxHttpResourceControlComponent" */ './__tdm-code__.ts'); // tslint:disable-line
   static tutorial = {
     id: 'resource-control',
-    name: 'Resource Control',
-    subHeader: 'Resource Control'
+    name: 'Resource Control'
   };
   /* @tdm-ignore:* */
 }

@@ -4,7 +4,8 @@ import {
   isJsObject,
   errors,
   TDMCollection,
-  TargetMetadata
+  TargetMetadata,
+  TDMModelBase
 } from '@tdm/core/tdm';
 
 import { dispatchEvent, eventFactory, CancellationTokenResourceEvent, ExecuteInitResourceEvent } from '../events';
@@ -63,17 +64,29 @@ export class ActionController<T = any, Z = any> {
       args[action.paramHint - 1] = {};
     }
 
+    // we keep alive any resource that returns an instance, which is AR.
+    const keepAliveResourceControl = ret !== 'promise';
+
+    // if the user opt in to force promise response, mark it
+    if (action.post && action.post.returns && ret !== 'promise') {
+      ret = 'promise';
+      // 'instance' is ActiveRecord but post process that also controls the return value is not longer 'instance'
+      // We must clone the instance otherwise it will create strange behaviour in `ResourceControl` (busy, _next, etc..)
+      ctx = ctx.clone();
+      if (ctx.instance) {
+        // TODO: instead of clone we can do Object.create(ctx.instance), should be b
+        ctx.setInstance(TDMModelBase.clone(ctx.instance));
+      }
+    }
+
     const options = isFunction(action.pre) ? action.pre(ctx, ...args) : args[0];
 
     if (!ctx.instance) {
       ctx.setInstance();
     }
 
-    const keepAliveResourceControl = ret !== 'promise';
-
-    if (action.post && action.post.returns) {
-      ret = 'promise';
-    }
+    // finally set the mode after the initial setup.
+    const promiseMode = ret === 'promise';
 
     let eState: ExecuteState;
 
@@ -138,13 +151,13 @@ export class ActionController<T = any, Z = any> {
         dispatchEvent(eventFactory.actionEnd(ctx.instance, 'success', eState.request, response.response));
         return action.post && action.post.returns
           ? eState.postReturnsResult
-          : ret === 'promise' && !isJsObject(response.data) ? response.data : ctx.instance
+          : promiseMode && !isJsObject(response.data) ? response.data : ctx.instance
         ;
       })
       .catch(error => {
         if (eState.cancelled !== true) {
           dispatchEvent(eventFactory.error(ctx.instance, error, eState.request));
-          if (ret === 'promise') { // rethrow if the user handles the promise
+          if (promiseMode) { // rethrow if the user handles the promise
             doFinally();
             throw error;
           }
@@ -158,6 +171,7 @@ export class ActionController<T = any, Z = any> {
     dispatchEvent(new ExecuteInitResourceEvent(
       ctx.instance,
       {ac: this, action, params},
+      ret,
       promise,
       keepAliveResourceControl
     ));
@@ -165,11 +179,15 @@ export class ActionController<T = any, Z = any> {
     eState = {
       rc: ResourceControl.get(ctx.instance)
     };
-    eState.wasBusy = eState.rc.busy;
+
+    // we only care about busy mode when working on an instance to prevent race conditions.
+    if (!promiseMode) {
+      eState.wasBusy = eState.rc.busy;
+    }
     eState.rc.set('busy', true);
 
     // TODO: implement timeout to protect from stale promises?
-    return ret === 'promise' ? promise : ctx.instance;
+    return promiseMode ? promise : ctx.instance;
   }
 
   private cancel(eState: ExecuteState, ctx: ExecuteContext<any>): void {

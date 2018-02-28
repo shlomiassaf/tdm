@@ -35,7 +35,7 @@ export class PlaygroundPageComponent {
 
 
     // this.user.id = 5;
-    // this.user.$refresh().$rc.next()
+    // this.user.$get().$rc.next()
     //   .then(() => {
     //
     //   })
@@ -64,13 +64,13 @@ export class PlaygroundPageComponent {
           if (this.user.id === 0) {
             $rc.disconnect();
           } else {
-            this.user.$refresh();
+            this.user.$get();
           }
         }, 500)
       }
     });
 
     this.user.id = 2;
-    this.user.$refresh();
+    this.user.$get();
   }
 }

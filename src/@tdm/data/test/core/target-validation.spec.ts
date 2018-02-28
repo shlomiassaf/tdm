@@ -34,7 +34,7 @@ describe('@tdm/data', () => {
       };
 
       return expect(
-        bucket.create(User).$refresh({returnValue}).$rc.next()
+        bucket.create(User).$get({returnValue}).next()
           .catch( err => {
             expect(err.errors.length).toBe(1);
             expect(err.errors[0].errors['test-validator']).toBe('error');

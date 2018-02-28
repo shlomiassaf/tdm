@@ -34,10 +34,13 @@ export type PostActionMetadata = {
    * When set to true the action, when invoked, will not return the instance of the model, instead it will return a
    * promise to the return value of the handler.
    *
-   * When setting returns to true the incoming data is not managed by the library (no deserialization)
+   * When setting returns to true the incoming data is not managed by the library (no deserialization).
+   * When called on an ActiveRecord instance the instance is cloned and the action will work on the clone and not the
+   * original instance this is why you SHOULD NOT return the instance when setting returns to true.
    *
    * This mode is useful for custom methods that does not return the instance itself but a different value, for example
    * an action operation with an indicator (true/false)
+   *
    * @default false
    */
   returns?: boolean;

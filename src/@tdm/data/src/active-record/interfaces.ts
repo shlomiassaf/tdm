@@ -1,12 +1,13 @@
 import { TDMModel } from '@tdm/core';
 import { DAOMethodType } from '../dao/index';
+import { ResourceControl } from '../resource-control';
 
 export interface ARMethodType {
   $create: any;
   $update: any;
   $replace: any;
   $remove: any;
-  $refresh: any;
+  $get: any;
 }
 
 export type ARMethods = {
@@ -21,7 +22,7 @@ export const ARMethods: ARMethodType = <any> { // Keep this any, or 3rd party ex
   $update: '$update',
   $replace: '$replace',
   $remove: '$remove',
-  $refresh: '$refresh'
+  $get: '$get'
 };
 
 export type ARHookableMethods = keyof ARMethodType | keyof DAOMethodType;
@@ -35,7 +36,7 @@ export const ARHooks: { [P in ARHookableMethods]: ARHookRule } = {
   $update: { type: 'instance'},
   $replace: { type: 'instance'},
   $remove: { type: 'instance'},
-  $refresh: { type: 'instance'},
+  $get: { type: 'instance'},
 
   findById: { type: 'static'},
 
@@ -57,5 +58,5 @@ export const ARHooks: { [P in ARHookableMethods]: ARHookRule } = {
 };
 
 export type ARInterface<T, Z> = TDMModel<T> & {
-  [P in keyof typeof ARMethods]: (options?: Z) => T;
+  [P in keyof typeof ARMethods]: (options?: Z) => ResourceControl<T>;
 };

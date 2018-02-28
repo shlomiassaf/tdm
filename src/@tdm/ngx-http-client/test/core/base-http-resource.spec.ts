@@ -23,7 +23,7 @@ describe('NG-HTTP', () => {
     });
 
     it('should build resource actions', () => {
-      expect(typeof User.prototype.$refresh).toBe('function');
+      expect(typeof User.prototype.$get).toBe('function');
       expect(typeof User.prototype.$remove).toBe('function');
       expect(typeof User.prototype.$create).toBe('function');
       expect(typeof User.prototype.$update).toBe('function');

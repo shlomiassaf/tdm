@@ -34,7 +34,7 @@ describe('NG-HTTP', () => {
             expect(event['error'].toString()).toEqual('Error: Http service not present. Make sure you registered the provider and you are not invoking actions before angular bootstrapped.');
           }
         })
-        .run( ec => ec.ar.$refresh() );
+        .run( ec => ec.ar.$get() );
     });
 
 
@@ -142,7 +142,7 @@ describe('NG-HTTP', () => {
 
         const EVENTS = ['ActionStart', 'ActionError'];
 
-        const unsub = new User().$refresh().$rc.events$.subscribe( event => {
+        const unsub = new User().$get().$rc.events$.subscribe( event => {
           expect(event.type).toEqual(EVENTS.shift());
           if (event.type === 'ActionError') {
             expect(event['error'].toString()).toEqual('Error: URL Parameter Error in HttpAdapter: Expected "id" to be defined');

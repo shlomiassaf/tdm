@@ -50,12 +50,12 @@ export class UserDAO implements  BeforeHook<'bfRef', HttpActionOptions>,
 
   constructor() { }
 
-  @Hook({event: 'before', action: '$refresh'})
+  @Hook({event: 'before', action: '$get'})
   bfRef() {
     console.log('BeforeRefresh');
   }
 
-  @Hook({event: 'after', action: '$refresh'})
+  @Hook({event: 'after', action: '$get'})
   afRef() {
     console.log('AfterRefresh');
   }

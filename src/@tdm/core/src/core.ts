@@ -102,7 +102,7 @@ export function autoDeserialize<T, Z>(plainObject: any,
 }
 
 TDMModelBase.clone = function(resource: any, mapperFactory: MapperFactory = directMapper) {
-  return deserialize(mapperFactory, serialize(mapperFactory, resource), <any> resource.constructor);
+  return autoDeserialize(autoSerialize(resource, mapperFactory), <any> resource.constructor, null, mapperFactory);
 };
 
 // tslint:disable-next-line:no-namespace

@@ -52,7 +52,7 @@ export type User = ActiveRecord<User_>;
 
 const user1: User & TDMModel<User> = new User().$rc.clone();
 const user2: TDMModel<User> = new User().$rc.clone();
-new User().$refresh().$rc.next().then( value => {
+new User().$get().$rc.next().then( value => {
   const user3: User & TDMModel<User> = value;
 });
 
@@ -62,7 +62,7 @@ new User().$refresh().$rc.next().then( value => {
  * @tsErrorMsg Type 'TDMModel<ActiveRecord<User_>> & User_ & TDMModel<User_> & HttpActiveRecord' is not assignable to type 'string'.
  * @loc 2:9
  */
-new User().$refresh().$rc.next().then( value => {
+new User().$get().$rc.next().then( value => {
   const user4: string = value;
 });
 
@@ -73,9 +73,9 @@ class Y extends X<User> {
   constructor(user: User) {
     super();
     this.user = user;
-    this.user.$refresh();
+    this.user.$get();
     const user1: User & TDMModel<User> = this.user.$rc.clone();
-    this.user.$refresh().$rc.self$.subscribe( value => {
+    this.user.$get().$rc.self$.subscribe( value => {
       this.user = value;
     });
   }

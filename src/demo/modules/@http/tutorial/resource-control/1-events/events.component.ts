@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ResourceControl, isResourceEvent } from '@tdm/data';
 import { NgDAO } from '@tdm/ngx-http-client';
 
-import { Customer } from '../../client';
+import { Customer } from '../../../client';
 
 @Component({
   selector: 'ngx-http-events',
@@ -35,7 +35,8 @@ export class EventsComponent {
   code: any = System.import(/* webpackChunkName: "NgxHttpEventsComponent" */ './__tdm-code__.ts'); // tslint:disable-line
   static tutorial = {
     id: 'resource-events',
-    name: 'Resource Events'
+    name: 'Resource Events',
+    subHeader: 'Resource Control'
   };
   /* @tdm-ignore:* */
 }

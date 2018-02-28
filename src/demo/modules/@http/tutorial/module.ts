@@ -10,8 +10,11 @@ import { DaoComponent } from './4-dao';
 import { OptionsComponent } from './5-options';
 import { StaticOptionsComponent } from './6-static-options';
 import { ResourceControlComponent } from './7-resource-control';
-import { EventsComponent } from './8-events';
-import { CancellingComponent } from './9-cancelling';
+import { ActiveRecordComponent } from './8-active-record';
+import {
+  EventsComponent,
+  CancellingComponent
+} from './resource-control';
 
 const TUTORIALS: Array<TutoriableComponent<any>> = [
   IntroductionComponent,
@@ -22,6 +25,7 @@ const TUTORIALS: Array<TutoriableComponent<any>> = [
   OptionsComponent,
   StaticOptionsComponent,
   ResourceControlComponent,
+  ActiveRecordComponent,
   EventsComponent,
   CancellingComponent
 ];

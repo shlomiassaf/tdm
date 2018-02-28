@@ -4,7 +4,7 @@ import {
   TDMCollection,
   errors,
   directMapper,
-  serialize,
+  autoSerialize,
   deserialize
 } from '@tdm/core';
 import { MapperFactory } from '@tdm/core/tdm';
@@ -86,6 +86,7 @@ export class ResourceControl<T> implements RecordControlState<T> {
   }
 
   private _next: Promise<TDMModel<T> & T>;
+  private _mode: 'promise' | 'instance';
 
   /**
    * Set a new state value
@@ -188,15 +189,15 @@ export class ResourceControl<T> implements RecordControlState<T> {
    * Will throw is there is no active action for this resource (i.e. not busy)
    * @returns
    */
-  next(): Promise<TDMModel<T> & T> {
+  next(silent?: boolean): Promise<TDMModel<T> & T> {
+    if (this._mode === 'promise' && this._next) {
+      return this._next;
+    }
     return Promise.resolve()
       .then( () => {
         if ( !this.busy ) {
           return Promise.reject(errors.model(this.parent, 'Call to next() while not in an active action.'));
-        } else if (this._next) {
-          return this._next;
         } else {
-          // Consider removing as we should never get here.
           return new Promise<TDMModel<T> & T>((resolve, reject) => {
             const subs = this.events$.subscribe(event => {
               if ( isResourceEvent('ActionError', event) ) {
@@ -205,7 +206,7 @@ export class ResourceControl<T> implements RecordControlState<T> {
               } else if ( isResourceEvent('ActionEnd', event) ) {
                 // TODO: ActionEnd is fired for both ActionSuccess and ActionCancel
                 // since promises does not cancel this is a design hole...
-                resolve(this.parent);
+                resolve(this._next || this.parent);
                 subs.unsubscribe();
               }
             });
@@ -233,7 +234,7 @@ export class ResourceControl<T> implements RecordControlState<T> {
    * @param mapperFactory The [[MapperFactory]] to use, defaults to [[directMapper]].
    */
   createSnapshot(mapperFactory: MapperFactory = directMapper): void {
-    this.snapshot = serialize(mapperFactory, this.parent);
+    this.snapshot = autoSerialize(this.parent, mapperFactory);
   }
 
   /**
@@ -259,7 +260,6 @@ export class ResourceControl<T> implements RecordControlState<T> {
    */
   clone(mapperFactory: MapperFactory = directMapper): T {
     return TDMModelBase.clone(this.parent, mapperFactory);
-    // return deserialize(mapperFactory, serialize(mapperFactory, this.parent), <any> this.parent.constructor);
   }
 
   /**
@@ -335,6 +335,7 @@ export class ResourceControl<T> implements RecordControlState<T> {
           mapPromiseAndKeepAlive(this, event);
           this.lastExecute = event.data;
           this._next = event.promise;
+          this._mode = event.mode;
         } else {
           switch ( event.type ) { // tslint:disable-line
             case 'ActionError':

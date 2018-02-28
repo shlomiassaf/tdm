@@ -29,8 +29,9 @@
                 <div fxLayout="row">
                   <div fxFlex="30%" class="http-event-log-container">
                     <h3 class="event-log-header">Requests</h3>
-                    <mat-accordion>
+                    <mat-accordion displayMode="flat">
                       <mat-expansion-panel *ngFor="let ad of resourceActions; index as index"
+                                           [class.selected]="index === selectedActionIndex"
                                            [expanded]="index === selectedActionIndex"
                                            (closed)="actionDataClose(index)"
                                            (opened)="actionDataOpen(index)">

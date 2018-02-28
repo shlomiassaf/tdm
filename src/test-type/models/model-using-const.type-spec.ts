@@ -94,18 +94,18 @@ UserConst.num as string;
  */
 UserConst.findById(2).usernam23e;
 
-new UserConst().$refresh().username;
+new UserConst().$get().username;
 
 const user: UserConst = new UserConst();
 
-user.$refresh().username;
+user.$get().username;
 
 /**
  * @tssert not cast to any
  * @tsError 2339
  * @loc 17
  */
-user.$refresh().abcd;
+user.$get().abcd;
 
 /**
  * Keep type information in promise chain - property
@@ -186,9 +186,9 @@ UserConst.query().erer();
 UserConst.findAll().findOne(null);
 UserConst.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method(15));
 
 /**
@@ -198,9 +198,9 @@ UserConst.findOne(null)
  */
 UserConst.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method('XX'));
 
 UserConst.find('CatA');
@@ -270,18 +270,18 @@ UserConstExt.num as string;
  */
 UserConstExt.findById(2).usernam23e;
 
-new UserConstExt().$refresh().username;
+new UserConstExt().$get().username;
 
 const userExt: UserConstExt = new UserConstExt();
 
-userExt.$refresh().username;
+userExt.$get().username;
 
 /**
  * @tssert not cast to any
  * @tsError 2339
  * @loc 20
  */
-userExt.$refresh().abcd;
+userExt.$get().abcd;
 
 /**
  * Keep type information in promise chain - property
@@ -361,9 +361,9 @@ UserConstExt.query().erer();
 UserConstExt.findAll().findOne(null);
 UserConstExt.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method(15));
 
 /**
@@ -373,9 +373,9 @@ UserConstExt.findOne(null)
  */
 UserConstExt.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method('XX'));
 
 UserConstExt.find('CatA');

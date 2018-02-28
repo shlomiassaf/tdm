@@ -110,9 +110,15 @@ export class HttpResourceWrapperComponent implements OnChanges {
         return;
       }
 
-      if (self.resources.indexOf(this) === -1) {
+      // we need to support DAO and AR.
+      // With DAO the ResourceControl (this) will always be different from call to call.
+      // With AR it will be the same instance of ResourceControl for all calls, but luckily 2 can't run together (busy)
+      // so we can use that.
+      let index = self.resources.findIndex( (r, i) => r === this && !self.resourceActions[i].complete);
+
+      if (index === -1) {
         const actionData: ActionData = {eventLog: [], tabStringify: [], status: 'In-Flight'};
-        self.resources.push(this);
+        index = self.resources.push(this) - 1;
         self.resourceActions.push(actionData);
         if (self.resources.length === 1) {
           self.selectedAction = actionData;
@@ -127,7 +133,7 @@ export class HttpResourceWrapperComponent implements OnChanges {
         });
       }
 
-      const actionData = self.resourceActions[self.resources.indexOf(this)];
+      const actionData = self.resourceActions[index];
       const isLast = self.handleEvent(e, actionData);
 
       if (isLast) {

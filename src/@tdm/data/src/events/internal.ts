@@ -64,6 +64,7 @@ export class ExecuteInitResourceEvent extends ResourceEvent {
   keepAlive: boolean;
   constructor(public readonly resource: any,
               public readonly data: ExecuteInitResourceEventArgs,
+              public readonly mode: 'promise' | 'instance',
               promise: Promise<any>,
               keepAlive: boolean) {
     super(resource, '$ExecuteInit');

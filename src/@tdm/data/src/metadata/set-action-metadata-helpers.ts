@@ -14,8 +14,8 @@ function register(this: MetaClassMetadata<ActionMetadataArgs, ActionMetadata>,
                   meta: MetaClassInstanceDetails<ActionMetadataArgs<any>, ActionMetadata>): void {
   if ( !this.target.adapterClass ) {
     throw new Error(
-      `Class ${stringify(this)} must implement a static property 'adapterClass' that points to the Adapter it uses
-     `);
+      `Class ${stringify(this)} must implement a static property 'adapterClass' that points to the Adapter it uses`
+    );
   } else if ( !isFunction(this.target.adapterClass.prototype.execute) ) {
     throw new Error(`Class ${stringify(this)} points to an invalid Adapter class`);
   }

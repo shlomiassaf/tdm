@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ResourceControl, isResourceEvent } from '@tdm/data';
 import { NgDAO } from '@tdm/ngx-http-client';
 
-import { Customer } from '../../client';
+import { Customer } from '../../../client';
 
 @Component({
   selector: 'ngx-http-cancelling',

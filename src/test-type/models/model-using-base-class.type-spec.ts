@@ -105,18 +105,18 @@ UserBaseClass.num as string;
  */
 UserBaseClass.findById(2).usernam23e;
 
-new UserBaseClass().$refresh().username;
+new UserBaseClass().$get().username;
 
 const user: UserBaseClass = new UserBaseClass();
 
-user.$refresh().username;
+user.$get().username;
 
 /**
  * @tssert not cast to any
  * @tsError 2339
  * @loc 17
  */
-user.$refresh().abcd;
+user.$get().abcd;
 
 /**
  * Keep type information in promise chain - property
@@ -197,9 +197,9 @@ UserBaseClass.query().erer();
 UserBaseClass.findAll().findOne(null);
 UserBaseClass.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method(15));
 
 /**
@@ -209,9 +209,9 @@ UserBaseClass.findOne(null)
  */
 UserBaseClass.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method('XX'));
 
 UserBaseClass.find('CatA');
@@ -292,18 +292,18 @@ UserBaseClassExt.num as string;
  */
 UserBaseClassExt.findById(2).usernam23e;
 
-new UserBaseClassExt().$refresh().username;
+new UserBaseClassExt().$get().username;
 
 const userExt: UserBaseClassExt = new UserBaseClassExt();
 
-userExt.$refresh().username;
+userExt.$get().username;
 
 /**
  * @tssert not cast to any
  * @tsError 2339
  * @loc 20
  */
-userExt.$refresh().abcd;
+userExt.$get().abcd;
 
 /**
  * Keep type information in promise chain - property
@@ -384,9 +384,9 @@ UserBaseClassExt.query().erer();
 UserBaseClassExt.findAll().findOne(null);
 UserBaseClassExt.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method(15));
 
 /**
@@ -396,9 +396,9 @@ UserBaseClassExt.findOne(null)
  */
 UserBaseClassExt.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method('XX'));
 
 UserBaseClassExt.find('CatA');
