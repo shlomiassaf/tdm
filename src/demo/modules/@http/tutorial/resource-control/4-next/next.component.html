@@ -1,0 +1,15 @@
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'PART-1'}]:true"></tdm-markdown-view>
+
+<http-resource-wrapper title="Options"
+                       [run]="run"
+                       [code]="code | async | tdmCode:[{title: 'Component', section: 'code'}, {title: 'Template', section: 'code'}]">
+  <div class="http-source-code-snip">
+    <tdm-code-view [code]="(code | async | tdmCode:[{file: 'cancelling.component.ts', section: 'code'}])[0]"></tdm-code-view>
+  </div>
+</http-resource-wrapper>
+
+<!--@tdm-example:code-->
+<h2>Error message: {{ errorMessage }}</h2>
+<!--@tdm-example:code-->
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'PART-2'}]:true"></tdm-markdown-view>

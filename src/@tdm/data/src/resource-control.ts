@@ -1,16 +1,6 @@
-import {
-  TDMModel,
-  TDMModelBase,
-  TDMCollection,
-  errors,
-  directMapper,
-  autoSerialize,
-  deserialize
-} from '@tdm/core';
-import { MapperFactory } from '@tdm/core/tdm';
+import { TDMModel, TDMModelBase, TDMCollection, errors } from '@tdm/core';
 
 import {
-  eventFactory,
   events$,
   ResourceEventDispatcher,
   ResourceEventEmitter,
@@ -32,6 +22,7 @@ export interface RecordControlState<T = any> {
   busy: boolean;
 }
 
+export type ResourceControlToken<T = any> = Promise<T> | T;
 export type ResourceEventListener = (this: ResourceControl<any>, event: ResourceEvent) => void;
 
 const handlers: ResourceEventListener[] = [];
@@ -69,24 +60,18 @@ export class ResourceControl<T> implements RecordControlState<T> {
     return this.state.busy;
   }
 
-  get hasSnapshot(): boolean {
-    return !!this.snapshot;
-  }
-
   protected dispatcher: ResourceEventDispatcher;
   protected actionCancel: () => void;
   protected lastExecute: ExecuteInitResourceEventArgs;
   protected state: RecordControlState<T> = { busy: false };
-  protected snapshot: any;
+  protected _next: Promise<TDMModel<T> & T>;
+  protected _mode: 'promise' | 'instance';
 
   protected constructor(public parent: TDMModel<T> & T) {
     const eventSys = this.initEventSys();
     this.dispatcher = eventSys.dispatcher;
     this.events$ = eventSys.emitter;
   }
-
-  private _next: Promise<TDMModel<T> & T>;
-  private _mode: 'promise' | 'instance';
 
   /**
    * Set a new state value
@@ -98,90 +83,6 @@ export class ResourceControl<T> implements RecordControlState<T> {
       const event = new StateChangeResourceEvent(this.parent, key, this.state[ key ], this.state[ key ] = value);
       ResourceControl.emitEvent(event);
     }
-  }
-
-  /**
-   * Reply the last operation.
-   * Busy state must be false and the resource should have been executed at least once (any action)
-   */
-  replay(): void {
-    if ( this.busy ) {
-      errors.throw.model(this.parent, `Can not replay while busy.`);
-    }
-
-    if ( !this.lastExecute ) {
-      errors.throw.model(this.parent, `No replay data`);
-    }
-
-    const last = this.lastExecute;
-    if ( TDMCollection.instanceOf(this.parent) ) {
-      this.parent.splice(0, this.parent.length);
-    }
-    last.ac.createExecFactory(last.action)(this.parent, last.params);
-  }
-
-  /**
-   * Reply the last operation after the the supplied items finish their current operation. (not busy)
-   * Busy state must be false and the resource should have been executed at least once (any action)
-   * @param resources
-   * @param ignoreError Whether to reply or not if an error is thrown from some or all of the resources.
-   * always: Always execute the reply operation
-   * some: Execute the reply operation if at least one item did not throw.
-   * never: Don't execute the reply operation if at least one item threw.
-   */
-  replayAfter(resources: TDMModel<any> | Array<TDMModel<any>>,
-              ignoreError: 'always' | 'some' | 'never' = 'never'): void {
-    if ( this.busy ) {
-      errors.throw.model(this.parent, `Can not replay while busy.`);
-    }
-
-    if ( !this.lastExecute ) {
-      errors.throw.model(this.parent, `No replay data`);
-    }
-
-    this.set('busy', true);
-
-    const arr: Array<TDMModel<any>> = Array.isArray(resources) ? resources.slice() : [ resources ];
-
-    let catcher: (err?: Error) => any | void;
-
-    switch ( ignoreError ) {
-      case 'always':
-
-        catcher = () => {
-        }; // tslint:disable-line
-        break;
-      case 'some':
-        catcher = err => {
-          arr.pop();
-          if ( arr.length === 0 ) {
-            throw err;
-          }
-        };
-        break;
-      default:
-        catcher = err => {
-          throw err;
-        };
-        break;
-    }
-
-    const flowControl = resource => {
-      return ResourceControl.get(resource).busy
-        ? ResourceControl.get(resource).next().catch(catcher)
-        : Promise.resolve()
-        ;
-    };
-
-    Promise.all(arr.map(flowControl))
-      .then(() => {
-        this.set('busy', false);
-        this.replay();
-      })
-      .catch(err => {
-        this.set('busy', false);
-        ResourceControl.emitEvent(eventFactory.error(this.parent, err));
-      });
   }
 
   /**
@@ -227,42 +128,6 @@ export class ResourceControl<T> implements RecordControlState<T> {
   }
 
   /**
-   * Creates a snapshot of the current instance and stores it.
-   * Only one snapshot is stored per instance, if a new one is created the previous snapshot is overwriten.
-   * This snapshot is created using serialization which means that all rules apply (i.e @Exclude)
-   *
-   * @param mapperFactory The [[MapperFactory]] to use, defaults to [[directMapper]].
-   */
-  createSnapshot(mapperFactory: MapperFactory = directMapper): void {
-    this.snapshot = autoSerialize(this.parent, mapperFactory);
-  }
-
-  /**
-   * Restores a previously created snapshot into the current instance (merge).
-   * If a snapshot does not exist it will not restore, nothing is thrown.
-   * Snapshot is removed after restoring.
-   * This snapshot is restored using deserialization which means that all rules apply (i.e @Exclude)
-   *
-   * @param mapperFactory The [[MapperFactory]] to use, defaults to [[directMapper]].
-   */
-  restoreSnapshot(mapperFactory: MapperFactory = directMapper): void {
-    if ( this.hasSnapshot ) {
-      deserialize(mapperFactory, this.snapshot, <any> this.parent.constructor, this.parent);
-      this.snapshot = undefined;
-    }
-  }
-
-  /**
-   * Clone's (deep) the resource.
-   * This is a deep clone done using serialization -> deserialization, which means that all rules apply (i.e @Exclude)
-   *
-   * @param mapperFactory The [[MapperFactory]] to use, defaults to [[directMapper]].
-   */
-  clone(mapperFactory: MapperFactory = directMapper): T {
-    return TDMModelBase.clone(this.parent, mapperFactory);
-  }
-
-  /**
    * Initialize the event system, return the dispatcher and emitter
    *
    * Derived implementations can implement different mechanisms
@@ -290,9 +155,7 @@ export class ResourceControl<T> implements RecordControlState<T> {
    * If it's an instance and a resource control does not exist it will create it.
    * If it's a promise for a resource, will return it only if a resource was already created.
    */
-  static get<T>(instance: T): ResourceControl<T>;
-  static get<T>(instance: Promise<T>): ResourceControl<T> | undefined;
-  static get<T>(instance: T | Promise<T>): ResourceControl<T> | undefined {
+  static get<T>(instance: ResourceControlToken<T>): ResourceControl<T> | undefined {
     let rc = privateDict.get(instance);
     if ( !rc && (TDMModelBase.instanceOf(instance) || TDMCollection.instanceOf(instance))) {
       privateDict.set(instance, rc = new ResourceControl<any>(instance as any));

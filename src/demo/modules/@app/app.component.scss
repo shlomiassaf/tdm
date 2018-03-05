@@ -38,10 +38,15 @@ main {
   }
 
 }
-a.active {
-  background-color: gray;
+
+.tdm-top-nav-link {
+  img {
+    height: 26px;
+    vertical-align: middle;
+    margin: 0 4px 3px 0;
+  }
+
+  &.active {
+    background: rgba(0, 0, 0, 0.1);
+  }
 }
-
-
-
-

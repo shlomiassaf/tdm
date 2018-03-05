@@ -43,6 +43,8 @@
     "^@tdm/data/testing/src/(.*)": "<rootDir>/src/@tdm/data/testing/src/$1",
     "^@tdm/data/plugin/active-record$": "<rootDir>/src/@tdm/data/plugin/active-record/src/index.ts",
     "^@tdm/data/plugin/active-record/src/(.*)": "<rootDir>/src/@tdm/data/plugin/active-record/src/$1",
+    "^@tdm/data/plugin/control-flow$": "<rootDir>/src/@tdm/data/plugin/control-flow/src/index.ts",
+    "^@tdm/data/plugin/control-flow/src/(.*)": "<rootDir>/src/@tdm/data/plugin/control-flow/src/$1",
     "^@tdm/data/plugin/rx-resource-control$": "<rootDir>/src/@tdm/data/plugin/rx-resource-control/src/index.ts",
     "^@tdm/data/plugin/rx-resource-control/src/(.*)": "<rootDir>/src/@tdm/data/plugin/rx-resource-control/src/$1",
     "^@tdm/ngx-http-client$": "<rootDir>/src/@tdm/ngx-http-client/src/index.ts",

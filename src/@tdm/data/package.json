@@ -21,6 +21,10 @@
         "dir": "plugin/active-record"
       },
       {
+        "name": "control-flow",
+        "dir": "plugin/control-flow"
+      },
+      {
         "name": "rx-resource-control",
         "dir": "plugin/rx-resource-control"
       }

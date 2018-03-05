@@ -100,6 +100,10 @@ more of the following:
 Clicking on a selected request will close it and show the code view
 again.
 
+#### Single/Multi file code view
+When the example is based on a single file it will display in the main view as is, when the example is based on multiple
+files (component, template, styles...) it will display within tabs.
+
 ## Demo Server
 To demonstrate the capabilities and features of the library the examples
 in this tutorial perform all CRUD operations, custom actions and more...

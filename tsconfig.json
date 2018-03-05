@@ -63,6 +63,12 @@
       "@tdm/data/plugin/active-record/src/*": [
         "@tdm/data/plugin/active-record/src/*"
       ],
+      "@tdm/data/plugin/control-flow": [
+        "@tdm/data/plugin/control-flow/src/index.ts"
+      ],
+      "@tdm/data/plugin/control-flow/src/*": [
+        "@tdm/data/plugin/control-flow/src/*"
+      ],
       "@tdm/data/plugin/rx-resource-control": [
         "@tdm/data/plugin/rx-resource-control/src/index.ts"
       ],

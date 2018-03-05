@@ -13,7 +13,7 @@ import { ARHookableMethods, ARHooks } from '../../fw';
 
 export interface StoredHook {
   before?: HookMetadata;
-  after?: HookMetadata
+  after?: HookMetadata;
 }
 
 export interface HookMetadataArgs {
@@ -23,11 +23,11 @@ export interface HookMetadataArgs {
 
 /** @internal */
 export function factory(this: MetaClassMetadata<HookMetadataArgs, HookMetadata>,
-                 metaArgs: HookMetadataArgs,
-                 target: Object,
-                 info: DecoratorInfo,
-                 key: TdmPropertyKey,
-                 desc: PropertyDescriptor): MetaClassInstanceDetails<HookMetadataArgs, HookMetadata> {
+                        metaArgs: HookMetadataArgs,
+                        target: Object,
+                        info: DecoratorInfo,
+                        key: TdmPropertyKey,
+                        desc: PropertyDescriptor): MetaClassInstanceDetails<HookMetadataArgs, HookMetadata> {
   const { action } = metaArgs;
 
   if (!ARHooks.hasOwnProperty(action)) {

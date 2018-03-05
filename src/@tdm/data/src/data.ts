@@ -82,4 +82,4 @@ export {
 
 export { DAO, AdapterDAO, TargetDAO, DAOMethodType } from './dao/index';
 
-export { ResourceControl } from './resource-control';
+export { ResourceControl, ResourceControlToken } from './resource-control';

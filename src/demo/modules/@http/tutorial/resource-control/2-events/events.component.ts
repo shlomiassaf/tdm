@@ -35,8 +35,7 @@ export class EventsComponent {
   code: any = System.import(/* webpackChunkName: "NgxHttpEventsComponent" */ './__tdm-code__.ts'); // tslint:disable-line
   static tutorial = {
     id: 'resource-events',
-    name: 'Resource Events',
-    subHeader: 'Resource Control'
+    name: 'Resource Events'
   };
   /* @tdm-ignore:* */
 }

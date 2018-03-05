@@ -11,12 +11,6 @@
       <button mat-icon-button (click)="invokeAction()">
         <mat-icon>{{ inFlight ? 'stop' : 'play_arrow'}}</mat-icon>
       </button>
-      <button *ngIf="tabs && code"
-              mat-icon-button
-              matTooltip="View Source"
-              (click)="tabs.selectedIndex = (tabs.selectedIndex === 1) ? 0 : 1">
-        <mat-icon>code</mat-icon>
-      </button>
     </mat-toolbar>
     <div fxFlex="grow" class="http-wrapper-content">
       <mat-drawer-container>
@@ -58,7 +52,11 @@
                     </mat-accordion>
                   </div>
                   <div fxFlex="70%" class="http-object-showcase">
-                    <ng-content *ngIf="!selectedAction" select=".http-source-code-snip"></ng-content>
+                    <ng-container *ngIf="!selectedAction">
+                      <ng-content *ngIf="!code" select=".http-source-code-snip"></ng-content>
+                      <tdm-code-view *ngIf="code" [code]="code" noElevation></tdm-code-view>
+                    </ng-container>
+
                     <ng-container *ngIf="selectedAction">
                       <mat-tab-group *ngIf="selectedAction.complete">
                         <mat-tab *ngFor="let t of selectedAction.tabStringify" [label]="t.label">
@@ -75,9 +73,6 @@
                 </div>
               </div>
               <ng-content select=".http-footer"></ng-content>
-            </mat-tab>
-            <mat-tab>
-              <tdm-code-view [code]="code" noElevation></tdm-code-view>
             </mat-tab>
           </mat-tab-group>
         </mat-drawer-content>

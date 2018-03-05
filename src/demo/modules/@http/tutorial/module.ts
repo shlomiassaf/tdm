@@ -9,11 +9,19 @@ import { CreatingAModelComponent } from './3-creating-a-model';
 import { DaoComponent } from './4-dao';
 import { OptionsComponent } from './5-options';
 import { StaticOptionsComponent } from './6-static-options';
-import { ResourceControlComponent } from './7-resource-control';
-import { ActiveRecordComponent } from './8-active-record';
+
+import { TodoComponent } from './todo';
+
 import {
+  ActiveRecordComponent,
+  FlowControlComponent,
+  RxResourceControlComponent
+} from './plugins';
+import {
+  ResourceControlComponent,
   EventsComponent,
-  CancellingComponent
+  CancellingComponent,
+  NextComponent
 } from './resource-control';
 
 const TUTORIALS: Array<TutoriableComponent<any>> = [
@@ -25,9 +33,13 @@ const TUTORIALS: Array<TutoriableComponent<any>> = [
   OptionsComponent,
   StaticOptionsComponent,
   ResourceControlComponent,
-  ActiveRecordComponent,
   EventsComponent,
-  CancellingComponent
+  CancellingComponent,
+  NextComponent,
+  ActiveRecordComponent,
+  FlowControlComponent,
+  RxResourceControlComponent,
+  TodoComponent
 ];
 
 const COMPONENTS = [

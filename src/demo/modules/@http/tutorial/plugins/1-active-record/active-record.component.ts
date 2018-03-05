@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { Customer } from '../../client';
+import { Customer } from '../../../client/index';
 
 @Component({
   selector: 'ngx-http-active-record',
@@ -34,6 +34,7 @@ export class ActiveRecordComponent {
 
   static tutorial = {
     id: 'active-record',
-    name: 'Active Record'
+    name: 'Active Record',
+    subHeader: 'Plugins'
   };
 }

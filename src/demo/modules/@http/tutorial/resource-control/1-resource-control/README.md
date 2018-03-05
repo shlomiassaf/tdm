@@ -23,17 +23,6 @@ A single instance of `ResourceControl` controls a single instance of
 a resource. i.e. for every instance of our model a single resource
 control is created.
 
-<div class="info">
-The `ResourceControl` class comes from `@tdm/data` with a limited set
-of features and a basic event mechanism implementation. 
-<br>
-<br>
-Plugins can extend it with additional features, for example
-the **rx-resource-control** plugin add's **RxJS** support to
-`ResourceControl` allowing `Observable` bases event stream, observable
-states and more...
-</div>
-
 ## Getting the resource control
 To get a resource control for a resource instance:
 
@@ -66,3 +55,32 @@ const rc = ResourceControl.get(promise);
 
 `rc` is undefined because `promise` is not the promise returned from
 `findById`, it is a chained promise.
+
+## Busy
+For the same instance, **actions** are not allowed to run in parallel. An error is thrown when a resource is in the
+middle of executing an action and an other action is fired.
+
+The property `busy` on the `ResourceControl` instance indicates if a resource is in the middle of executing an action
+(true) or it is idle (false).
+
+Because DAO methods return a new resource for every call this have almost no effect. When using Active Record the same
+instance is used so the `busy` flag can be used as a guard.
+
+Of course, the most obvious use for `busy` is UI/UX, things like UI blockers, spinners, etc...
+
+Some notes:
+  - This limitation is required to ensure data integrity, a resource is populated with the data coming from an action.
+  - The `rx-resource-control` plugin add's a `busy$` observable fitting best for angular templates. 
+
+  
+## Plugin based
+`ResourceControl` comes with a very basic feature set, including event handling API, promise control flow and
+request cancellation. We wil discuss these in the following chapters.
+
+Additional features for `ResourceControl` are provided as plugins that require explicit opt-in, these plugins and
+the features they add are discussed in the plugins section.  
+
+## Active Record
+The resource control is frequently used when working with the Active Record pattern, mainly because it provides async
+control flow API (`next()`) which the Active Record lacks. This does not mean it is only for active record, DAO users
+can work with it as well.
