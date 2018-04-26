@@ -2,7 +2,7 @@ export interface ValidationContext {
   /**
    * The identifier for the member being validated.
    */
-  member: PropertyKey;
+  member: TdmPropertyKey;
 
   /**
    * The instance

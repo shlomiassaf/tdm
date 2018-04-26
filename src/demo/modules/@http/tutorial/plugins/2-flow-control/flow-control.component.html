@@ -1,0 +1,13 @@
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md'}]:true"></tdm-markdown-view>
+
+<http-resource-wrapper title="Active Record" [run]="run"
+                       [code]="code | async | tdmCode:[{title: 'Component', section: 'code'}, {title: 'Template', section: 'code'}]">
+  <div class="http-source-code-snip">
+    <tdm-code-view [code]="(code | async | tdmCode:[{file: 'active-record.component.ts', section: 'code'}])[0]"></tdm-code-view>
+  </div>
+</http-resource-wrapper>
+
+<!--@tdm-example:code-->
+<h2>Busy State: {{ resourceControl?.busy }}</h2>
+<h2>Success Count: {{ count }}</h2>
+<!--@tdm-example:code-->

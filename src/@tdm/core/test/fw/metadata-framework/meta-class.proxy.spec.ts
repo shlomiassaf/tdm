@@ -1,8 +1,7 @@
-import { targetStore, registerHelpers, PropMetadata, MetaClass, BaseMetadata, DecoratorInfo, ModelMetadata } from '@tdm/core/tdm';
+// tslint:disable:max-classes-per-file
+import { targetStore, PropMetadata, MetaClass, BaseMetadata, DecoratorInfo, ModelMetadata } from '@tdm/core/tdm';
 import { Prop, Model } from '@tdm/core';
-
 import { TargetMetaModifier } from '@tdm/core/testing';
-
 
 export interface ExtendMeMetadataArgs {
   testProp: string;
@@ -57,7 +56,7 @@ export interface TopLevelMetadataArgs {
     containerKey: 'top',
     forEach: true
   },
-  register: registerHelpers.array
+  register: 'array'
 })
 class TopLevelMetadata extends BaseMetadata {
   value: number;
@@ -68,7 +67,7 @@ class TopLevelMetadata extends BaseMetadata {
 }
 declare module '@tdm/core/tdm/src/metadata/model-metadata' {
   interface ModelMetadataArgs {
-    top?: TopLevelMetadataArgs[]
+    top?: TopLevelMetadataArgs[];
   }
 }
 const TopLevel = MetaClass.decorator(TopLevelMetadata, 'class');
@@ -92,7 +91,6 @@ class User {
   })
   prop2: string;
 
-
   @Prop({
     extendMe1: {
       testProp: 'test'
@@ -115,7 +113,6 @@ describe('@tdm/core', () => {
   describe('fw', () => {
     describe('@MetaClass()', () => {
       it('should be able to define metadata from a remote metadata host', () => {
-
 
         const userModifier = TargetMetaModifier.create(User);
         expect(userModifier.getProp('prop1')['extendMe']).toBeUndefined();
@@ -145,13 +142,14 @@ describe('@tdm/core', () => {
       });
 
       it('should reflect iterable proxy', () => {
-        const arr = targetStore.getMetaFor<TopLevelMetadata, TopLevelMetadata[]>(User, <any>TopLevelMetadata, true);
+        const arr = targetStore
+          .getMetaFor<TopLevelMetadata, TopLevelMetadata[]>(User, <any> TopLevelMetadata, true);
         expect(arr).toBeInstanceOf(Array);
         expect(arr[0].value).toEqual(1);
         expect(arr[1].value).toEqual(2);
         expect(arr[2].value).toEqual(3);
         expect(arr[3].value).toEqual(4);
       });
-    })
-  })
+    });
+  });
 });

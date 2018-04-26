@@ -1,7 +1,7 @@
 import { Constructor, isUndefined } from '../fw/utils';
-import { KeySet, SetExt, MapExt,DualKeyMap } from '../fw/set-map-ext';
+import { KeySet, SetExt, MapExt, DualKeyMap } from '../fw/set-map-ext';
 import { MetaClass, MetadataClassStatic, MetaClassInstanceDetails, GLOBAL_KEY } from '../fw/metadata-framework';
-import { targetEvents, TargetEvents } from '../fw/events'
+import { targetEvents, TargetEvents } from '../fw/events';
 
 import { TargetMetadata } from './target-metadata';
 
@@ -29,7 +29,7 @@ export class TargetStore {
    */
   protected locals: KeySet<any, any>;
   protected namedTargets: Map<string, Constructor<any>>;
-  protected targets: Map<Constructor<any>, DualKeyMap<MetadataClassStatic, PropertyKey, any>>;
+  protected targets: Map<Constructor<any>, DualKeyMap<MetadataClassStatic, TdmPropertyKey, any>>;
   protected builtTargets: Map<Constructor<any>, TargetMetadata>;
 
   protected constructor() {
@@ -54,15 +54,24 @@ export class TargetStore {
     return this.targets.has(target);
   }
 
+  /**
+   * Returns the target metadata of all models registered. (targets with ModelMetadata or derived)
+   * Only built models are returned, with valid ModelMetadata instances.
+   * Do not call this method from a decorator.
+   */
+  getAllModels(): TargetMetadata[] {
+    return Array.from(this.builtTargets.values()).filter( tMeta => tMeta.hasModel );
+  }
+
   findTarget(name: string): Constructor<any> | undefined {
     return this.namedTargets.get(name);
   }
 
-  getMetaFor<T, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>): Map<PropertyKey, Z> | undefined;
+  getMetaFor<T, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>): Map<TdmPropertyKey, Z> | undefined;
   getMetaFor<T, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, single: true): Z | undefined;
   getMetaFor<T, Z, P extends keyof Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, single: true, singleKey: P): Z[P] | undefined;
-  getMetaFor<T, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, name: PropertyKey): Z | undefined;
-  getMetaFor<T, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, name?: PropertyKey | true, singleKey?: any): Z | Map<PropertyKey, Z> | undefined {
+  getMetaFor<T, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, name: TdmPropertyKey): Z | undefined;
+  getMetaFor<T, Z>(target: Constructor<any>, metaClass: T & Constructor<Z>, name?: TdmPropertyKey | true, singleKey?: any): Z | Map<TdmPropertyKey, Z> | undefined {
     const dkm = this.targets.get(target);
     if (dkm) {
       if (name === true) {
@@ -103,7 +112,7 @@ export class TargetStore {
    */
   registerTarget(target: Constructor<any>): void {
     if (!this.hasTarget(target)) {
-      this.targets.set(target, new DualKeyMap<MetadataClassStatic, PropertyKey, any>());
+      this.targets.set(target, new DualKeyMap<MetadataClassStatic, TdmPropertyKey, any>());
     }
   }
 
@@ -128,7 +137,7 @@ export class TargetStore {
 
            MapExt.asKeyValArray(singleTypes)
              .forEach( ([type, instance]) => {
-               // type is a class, using <any> since for TS its a PropertyKey
+               // type is a class, using <any> since for TS its a TdmPropertyKey
                const metaClass = MetaClass.get(<any> type);
                if (metaClass.extendSingle) {
                  const toInstance = toSingleTypes.get(<any>type);
@@ -160,7 +169,7 @@ export class TargetStore {
     let dkm = this.targets.get(target);
 
     if (!dkm) {
-      this.targets.set(target, dkm = new DualKeyMap<MetadataClassStatic, PropertyKey, any>());
+      this.targets.set(target, dkm = new DualKeyMap<MetadataClassStatic, TdmPropertyKey, any>());
     }
 
     dkm.set(k as any, k1, v as any);
@@ -178,7 +187,7 @@ export class TargetStore {
 
     targetStore.locals = new KeySet<any, any>();
     targetStore.namedTargets = new Map<string, Constructor<any>>();
-    targetStore.targets = new Map<Constructor<any>, DualKeyMap<MetadataClassStatic, PropertyKey, any>>();
+    targetStore.targets = new Map<Constructor<any>, DualKeyMap<MetadataClassStatic, TdmPropertyKey, any>>();
     targetStore.builtTargets = new Map<Constructor<any>, TargetMetadata>();
 
     return targetStore;
@@ -187,3 +196,5 @@ export class TargetStore {
 
 export const targetStore: TargetStore = TargetStore.create();
 MetaClass.defaultRegistrator( meta => targetStore.setMetaFormFactory(meta) );
+
+import './helpers';

@@ -1,0 +1,52 @@
+.tdm-app {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 64px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
+
+.tdm-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+
+  .title {
+    margin-right: 25px;
+  }
+}
+
+main {
+  height: 100%;
+  width: 100%;
+
+  .main-view {
+    flex: 1;
+    height: 100%;
+    width: 100%;
+    router-outlet + * {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+    }
+  }
+
+}
+
+.tdm-top-nav-link {
+  img {
+    height: 26px;
+    vertical-align: middle;
+    margin: 0 4px 3px 0;
+  }
+
+  &.active {
+    background: rgba(0, 0, 0, 0.1);
+  }
+}

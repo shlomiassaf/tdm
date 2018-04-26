@@ -1,6 +1,6 @@
 <tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md'}]:true"></tdm-markdown-view>
 
-<form-wrapper title="Field Sync / Redraw" [code]="code"> <!--@tdm-ignore-line-->
+<form-wrapper title="Field Sync / Redraw" [code]="code | async | tdmCode:[{title: 'Component'}, {title: 'Template'}, {title: 'Style'}, {title: 'Model'}]"> <!--@tdm-ignore-line-->
   <div class="custom-form-actions" *ngIf="! (dynForm?.renderState | async)">
     <mat-form-field>
       <mat-select [value]="stateFieldType" (change)="stateFieldType = $event.value">

@@ -1,6 +1,6 @@
 import { Tixin } from '@tdm/tixin';
 import { isPrimitive } from '@tdm/core/tdm';
-import { TDMCollection, ActionMethodType, TDMModel, IdentityValueType, ExecuteContext } from '@tdm/data';
+import { TDMCollection, ActionMethodType, TDMModel, IdentityValueType, ExecuteContext, ResourceControl } from '@tdm/data';
 
 import { MockActionOptions } from './core/interfaces';
 import { MockAction, MockActionMetadata } from './metadata';
@@ -15,13 +15,13 @@ export class MockActiveRecord extends MockDao<any> {
       return options;
     }
   })
-  $create: (options?: MockActionOptions) => this;
+  $create: (options?: MockActionOptions) => ResourceControl<this>;
 
   @MockAction({
     method: ActionMethodType.READ,
     validation: 'incoming' as 'incoming'
   })
-  $refresh: (options?: MockActionOptions) => this;
+  $get: (options?: MockActionOptions) => ResourceControl<this>;
 
   @MockAction({
     method: ActionMethodType.UPDATE,
@@ -31,13 +31,13 @@ export class MockActiveRecord extends MockDao<any> {
       return options;
     }
   })
-  $update: (options?: MockActionOptions) => this;
+  $update: (options?: MockActionOptions) => ResourceControl<this>;
 
   @MockAction({
     method: ActionMethodType.DELETE,
     validation: 'skip' as 'skip'
   })
-  $remove: (options?: MockActionOptions) => this;
+  $remove: (options?: MockActionOptions) => ResourceControl<this>;
 
   @MockAction({
     method: ActionMethodType.READ,

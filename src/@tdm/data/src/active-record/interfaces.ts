@@ -1,19 +1,31 @@
 import { TDMModel } from '@tdm/core';
-import { DAOMethods } from '../fw';
+import { DAOMethodType } from '../dao/index';
+import { ResourceControl } from '../resource-control';
+
+export interface ARMethodType {
+  $create: any;
+  $update: any;
+  $replace: any;
+  $remove: any;
+  $get: any;
+}
+
+export type ARMethods = {
+  [P in keyof ARMethodType]: any
+};
 
 /**
  * String enumeration of active record object methods
  */
-export const ARMethods = {
-  $create: '$create' as '$create',
-  $update: '$update' as '$update',
-  $remove: '$remove' as '$remove',
-  $refresh: '$refresh' as '$refresh',
+export const ARMethods: ARMethodType = <any> { // Keep this any, or 3rd party extending of ARMethodType will fail
+  $create: '$create',
+  $update: '$update',
+  $replace: '$replace',
+  $remove: '$remove',
+  $get: '$get'
 };
 
-export const ARFactoryMethods = DAOMethods;
-
-export type ARHookableMethods = keyof typeof ARMethods | keyof typeof ARFactoryMethods;
+export type ARHookableMethods = keyof ARMethodType | keyof DAOMethodType;
 
 export interface ARHookRule {
   type: 'both' | 'static' | 'instance';
@@ -22,8 +34,9 @@ export interface ARHookRule {
 export const ARHooks: { [P in ARHookableMethods]: ARHookRule } = {
   $create: { type: 'instance'},
   $update: { type: 'instance'},
+  $replace: { type: 'instance'},
   $remove: { type: 'instance'},
-  $refresh: { type: 'instance'},
+  $get: { type: 'instance'},
 
   findById: { type: 'static'},
 
@@ -35,12 +48,15 @@ export const ARHooks: { [P in ARHookableMethods]: ARHookRule } = {
 
   create: { type: 'static'},
   update: { type: 'static'},
+  replace: { type: 'static'},
   remove: { type: 'static'},
+
+  /**
+   * Clear the whole table representing a resource.
+   */
+  clear: { type: 'static'}
 };
 
-export type ActiveRecord<T, Z> = TDMModel<T> & {
-  [P in keyof typeof ARMethods]: (options?: Z) => T;
+export type ARInterface<T, Z> = TDMModel<T> & {
+  [P in keyof typeof ARMethods]: (options?: Z) => ResourceControl<T>;
 };
-
-
-

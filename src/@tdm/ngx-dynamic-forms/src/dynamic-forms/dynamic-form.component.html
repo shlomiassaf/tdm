@@ -1,4 +1,4 @@
-<form #formElRef [formGroup]="tdmForm.form">
+<form #formElRef [formGroup]="tdmForm.form" [class]="formClass">
     <ng-container *ngFor="let item of controls | async; trackBy: tdmForm.trackBy">
         <ng-container *dynamicFormControl="item"></ng-container>
     </ng-container>

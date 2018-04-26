@@ -13,7 +13,7 @@ import { ARHookableMethods, ARHooks } from '../../fw';
 
 export interface StoredHook {
   before?: HookMetadata;
-  after?: HookMetadata
+  after?: HookMetadata;
 }
 
 export interface HookMetadataArgs {
@@ -23,11 +23,11 @@ export interface HookMetadataArgs {
 
 /** @internal */
 export function factory(this: MetaClassMetadata<HookMetadataArgs, HookMetadata>,
-                 metaArgs: HookMetadataArgs,
-                 target: Object,
-                 info: DecoratorInfo,
-                 key: PropertyKey,
-                 desc: PropertyDescriptor): MetaClassInstanceDetails<HookMetadataArgs, HookMetadata> {
+                        metaArgs: HookMetadataArgs,
+                        target: Object,
+                        info: DecoratorInfo,
+                        key: TdmPropertyKey,
+                        desc: PropertyDescriptor): MetaClassInstanceDetails<HookMetadataArgs, HookMetadata> {
   const { action } = metaArgs;
 
   if (!ARHooks.hasOwnProperty(action)) {
@@ -51,9 +51,9 @@ export function register(this: MetaClassMetadata<HookMetadataArgs, HookMetadata>
 }
 
 /** @internal */
-export function extend(from: Map<PropertyKey, StoredHook>, to: Map<PropertyKey, StoredHook> | undefined): Map<PropertyKey, StoredHook> {
+export function extend(from: Map<TdmPropertyKey, StoredHook>, to: Map<TdmPropertyKey, StoredHook> | undefined): Map<TdmPropertyKey, StoredHook> {
   if (!to) {
-    to = new Map<PropertyKey, StoredHook>(from.entries());
+    to = new Map<TdmPropertyKey, StoredHook>(from.entries());
   } else {
     // TODO: Refactor to support static/instance like ExtendAction in case 2 hooks with same prop name
     MapExt.asKeyValArray(from)

@@ -43,6 +43,8 @@
     "^@tdm/data/testing/src/(.*)": "<rootDir>/src/@tdm/data/testing/src/$1",
     "^@tdm/data/plugin/active-record$": "<rootDir>/src/@tdm/data/plugin/active-record/src/index.ts",
     "^@tdm/data/plugin/active-record/src/(.*)": "<rootDir>/src/@tdm/data/plugin/active-record/src/$1",
+    "^@tdm/data/plugin/control-flow$": "<rootDir>/src/@tdm/data/plugin/control-flow/src/index.ts",
+    "^@tdm/data/plugin/control-flow/src/(.*)": "<rootDir>/src/@tdm/data/plugin/control-flow/src/$1",
     "^@tdm/data/plugin/rx-resource-control$": "<rootDir>/src/@tdm/data/plugin/rx-resource-control/src/index.ts",
     "^@tdm/data/plugin/rx-resource-control/src/(.*)": "<rootDir>/src/@tdm/data/plugin/rx-resource-control/src/$1",
     "^@tdm/ngx-http-client$": "<rootDir>/src/@tdm/ngx-http-client/src/index.ts",
@@ -51,8 +53,15 @@
     "^@tdm/ngx-dynamic-forms/src/(.*)": "<rootDir>/src/@tdm/ngx-dynamic-forms/src/$1",
     "^@tdm/ngx-dynamic-forms/plugin/material$": "<rootDir>/src/@tdm/ngx-dynamic-forms/plugin/material/src/index.ts",
     "^@tdm/ngx-dynamic-forms/plugin/material/src/(.*)": "<rootDir>/src/@tdm/ngx-dynamic-forms/plugin/material/src/$1",
+    "^@tdm/local-forage$": "<rootDir>/src/@tdm/local-forage/src/localForage.ts",
+    "^@tdm/local-forage/src/(.*)": "<rootDir>/src/@tdm/local-forage/src/$1",
+    "^@tdm/service-mocker$": "<rootDir>/src/@tdm/service-mocker/src/service-mocker.ts",
+    "^@tdm/service-mocker/src/(.*)": "<rootDir>/src/@tdm/service-mocker/src/$1",
+    "^@tdm/service-mocker/shared$": "<rootDir>/src/@tdm/service-mocker/shared/src/index.ts",
+    "^@tdm/service-mocker/shared/src/(.*)": "<rootDir>/src/@tdm/service-mocker/shared/src/$1",
+    "^@tdm/service-mocker/client$": "<rootDir>/src/@tdm/service-mocker/client/src/index.ts",
+    "^@tdm/service-mocker/client/src/(.*)": "<rootDir>/src/@tdm/service-mocker/client/src/$1",
     "^@tdm/json-api-mapper$": "<rootDir>/src/@tdm/json-api-mapper/src/index.ts",
-    "^@tdm/json-api-mapper/src/(.*)": "<rootDir>/src/@tdm/json-api-mapper/src/$1",
-    "(.*)": "<rootDir>/src/$1"
+    "^@tdm/json-api-mapper/src/(.*)": "<rootDir>/src/@tdm/json-api-mapper/src/$1"
   }
 }

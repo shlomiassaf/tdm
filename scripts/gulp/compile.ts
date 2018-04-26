@@ -13,25 +13,36 @@ if (validation.warn) {
 }
 
 function filterPackageSelection(packages) {
-  const idx = process.argv.indexOf('--select');
+  const selectedIdx = process.argv.indexOf('--select');
+  const excludedIdx = process.argv.indexOf('--exclude');
 
-  if (idx > -1) {
-    if (!process.argv[idx + 1]) {
+  if (selectedIdx > -1) {
+    if (!process.argv[selectedIdx + 1] || process.argv[selectedIdx + 1].startsWith('--')) {
       throw new Error('Invalid library selection.');
     }
-    const selected = process.argv[idx + 1].split(',').map( v => v.trim() );
+    const selected = process.argv[selectedIdx + 1].split(',').map( v => v.trim() );
     selected.forEach( s => {
       if (packages.indexOf(s) === -1) {
         throw new Error(`Could not apply selection, "${s}" is not a known package name.`);
       }
     });
     packages = selected;
+  } else if (excludedIdx > -1) {
+    if (!process.argv[excludedIdx + 1] || process.argv[excludedIdx + 1].startsWith('--')) {
+      throw new Error('Invalid library exclusion.');
+    }
+    const excluded = process.argv[excludedIdx + 1].split(',').map( v => v.trim() );
+    excluded.forEach( ex => {
+      const pkgIndex = packages.indexOf(ex);
+      if (pkgIndex === -1) {
+        throw new Error(`Could not apply exclusion, "${ex}" is not a known package name.`);
+      }
+      packages.splice(pkgIndex, 1);
+    });
   }
 
   return packages;
 }
-
-
 
 @util.GulpClass.Gulpclass()
 export class Gulpfile {

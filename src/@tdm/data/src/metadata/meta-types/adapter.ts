@@ -8,9 +8,10 @@ import {
   MetaClassMetadata,
   MetaClassInstanceDetails
 } from '@tdm/core/tdm';
+
+import { array } from '../../utils/index';
+import { DAOMethods, DAOContext, DAOContextSymbol } from '../../dao/index';
 import { ActionMetadata, ActionMetadataArgs } from './action';
-import { array } from '../../utils';
-import { DAOMethods, DAOAdapter, DAOTarget } from '../../fw';
 
 function unsupportedDAOCmd() {
   // TODO: normalize error.
@@ -35,16 +36,16 @@ export interface AdapterMetadataArgs {
 // the register() method is aware of that and knows how to handle this scenario.
 /** @internal */
 export function factory(this: MetaClassMetadata<AdapterMetadataArgs, AdapterMetadata>,
-                 metaArgs: AdapterMetadataArgs,
-                 target: Object,
-                 info: DecoratorInfo): MetaClassInstanceDetails<AdapterMetadataArgs, AdapterMetadata> {
-  return <any>Object.assign(this.constructor.prototype.factory.call(this, metaArgs, target, info), { metaArgs });
+                        metaArgs: AdapterMetadataArgs,
+                        target: Object,
+                        info: DecoratorInfo): MetaClassInstanceDetails<AdapterMetadataArgs, AdapterMetadata> {
+  return <any> Object
+    .assign(this.constructor.prototype.factory.call(this, metaArgs, target, info), { metaArgs });
 }
 
 /** @internal */
 export function register(this: MetaClassMetadata<AdapterMetadataArgs, AdapterMetadata>,
-                  meta: MetaClassInstanceDetails<AdapterMetadataArgs, AdapterMetadata>): void {
-
+                         meta: MetaClassInstanceDetails<AdapterMetadataArgs, AdapterMetadata>): void {
   const adapter = targetStore.getAdapter(meta.target);
   Object.assign(adapter, meta['metaArgs']);
 
@@ -65,13 +66,14 @@ export class AdapterMetadata {
 
   addAction(meta: ActionMetadata, target: Constructor<any>): void;
   addAction(meta: MetaClassInstanceDetails<ActionMetadataArgs, ActionMetadata>): void;
-  addAction(meta: ActionMetadata | MetaClassInstanceDetails<ActionMetadataArgs, ActionMetadata>, target?: Constructor<any>): void {
+  addAction(meta: ActionMetadata | MetaClassInstanceDetails<ActionMetadataArgs, ActionMetadata>,
+            target?: Constructor<any>): void {
     if (!isFunction(target)) {
-      target = (<any>meta).target;
-      meta = (<any>meta).metaValue;
+      target = (<any> meta).target;
+      meta = (<any> meta).metaValue;
     }
     const actions = this.actions.get(target) || [];
-    actions.push((<any>meta));
+    actions.push((<any> meta));
     this.actions.set(target, actions);
   }
 
@@ -93,12 +95,13 @@ export class AdapterMetadata {
 
     actions.forEach(action => {
       if (action.decoratorInfo.isStatic) {
-        throw new Error('DAO can define static actions.');
+        throw new Error('DAO can not define static actions.');
       }
 
       daoProto[action.name] = function (...args: any[]) {
-        return targetStore.getAC(this[DAOTarget], this[DAOAdapter])
-          .createExecFactory(action, 'promise')(undefined, ...args);
+        const ctx: DAOContext = this[DAOContextSymbol];
+        return targetStore.getAC(ctx.target, ctx.adapter)
+          .createExecFactory(action, 'promise')(undefined, { args, factoryArgs: ctx.factoryArgs });
       };
 
       if (action.alias) {
@@ -109,11 +112,10 @@ export class AdapterMetadata {
 
     // set unsupported handlers for missing commands.
     const keys = Object.keys(DAOMethods);
-    for (let i=0, len=keys.length; i<len; i++) {
-      if (!daoProto[keys[i]]) {
-        daoProto[keys[i]] = unsupportedDAOCmd;
+    for (let key of keys) {
+      if (!daoProto[key]) {
+        daoProto[key] = unsupportedDAOCmd;
       }
     }
-
   }
 }

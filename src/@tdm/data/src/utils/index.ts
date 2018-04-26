@@ -10,7 +10,7 @@ export * from './type-utils';
  * @returns
  */
 export function findProp<T, P extends keyof T>(key: P, fallback: T, ...objects: any[]): T[P] {
-  for (let i = objects.length - 1; i>=0; i--) {
+  for (let i = objects.length - 1; i >= 0; i--) {
     if (objects[i] && objects[i].hasOwnProperty(key)) {
       return objects[i][key];
     }
@@ -23,10 +23,9 @@ export function isSymbol(obj: any): obj is symbol {
   return typeof obj === 'symbol';
 }
 
-export function isPropertyKey(obj: any): obj is PropertyKey {
+export function isTdmPropertyKey(obj: any): obj is TdmPropertyKey {
   return isString(obj) || isSymbol(obj) || isNumber(obj);
 }
-
 
 export function noop(...args: any[]): void { };
 

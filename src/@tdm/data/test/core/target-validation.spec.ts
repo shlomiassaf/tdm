@@ -1,6 +1,6 @@
 import 'rxjs';
 
-import { MockMixin, MockResource, bucketFactory } from '@tdm/data/testing';
+import { ActiveRecord, MockResource, bucketFactory } from '@tdm/data/testing';
 import { Prop, ValidationContext } from '@tdm/data';
 
 describe('@tdm/data', () => {
@@ -27,14 +27,14 @@ describe('@tdm/data', () => {
       @MockResource({
         endpoint: '/api/users/:id?'
       })
-      class User extends MockMixin(User_) { }
+      class User extends ActiveRecord(User_) { }
 
       const returnValue = {
         validatable: 'validatable'
       };
 
       return expect(
-        bucket.create(User).$refresh({returnValue}).$rc.next()
+        bucket.create(User).$get({returnValue}).next()
           .catch( err => {
             expect(err.errors.length).toBe(1);
             expect(err.errors[0].errors['test-validator']).toBe('error');

@@ -7,4 +7,4 @@ declare module './meta-class' {
   }
 }
 
-MetaClass.get = <any>getMetaClass;
+MetaClass.get = <any> getMetaClass;

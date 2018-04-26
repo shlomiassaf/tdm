@@ -1,6 +1,5 @@
 import {
   isString,
-  registerHelpers,
   MapExt,
   BaseMetadata,
   DecoratorInfo,
@@ -30,9 +29,9 @@ export interface UrlParamMetadataArgs {
 }
 
 /** @internal */
-export function extend(from: Map<PropertyKey, UrlParamMetadata[]>, to: Map<PropertyKey, UrlParamMetadata[]> | undefined): Map<PropertyKey, UrlParamMetadata[]> {
+export function extend(from: Map<TdmPropertyKey, UrlParamMetadata[]>, to: Map<TdmPropertyKey, UrlParamMetadata[]> | undefined): Map<TdmPropertyKey, UrlParamMetadata[]> {
   if (!to) {
-    to = new Map<PropertyKey, UrlParamMetadata[]>();
+    to = new Map<TdmPropertyKey, UrlParamMetadata[]>();
   }
 
   MapExt.asKeyValArray(from)

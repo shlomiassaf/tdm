@@ -1,7 +1,6 @@
 import { ActionOptions } from '@tdm/data';
 import { Params } from '../utils/match-pattern';
 
-
 export type TrailingSlashesStrategy = 'ignore' | 'force' | 'strip';
 
 export interface BaseHttpConfig {
@@ -17,7 +16,8 @@ export interface BaseHttpConfig {
    *
    * Note that `urlParams` declared in **metadata** decorators are not merged, they are replaced.
    *
-   * In addition, ad-hoc `urlParams` can be supplied with the `HttpActionOptions` action method parameter [ user.create(options) ]
+   * In addition, ad-hoc `urlParams` can be supplied with the `HttpActionOptions` action method
+   * parameter [ user.create(options) ]
    * ad-hoc `urlParams` are **merged** into the resolved value of metadata `urlParams`.
    * ad-hoc `urlParams` with an `undefined` value are considered a delete instruction.
    *
@@ -38,7 +38,8 @@ export interface BaseHttpConfig {
    *
    * > Note that `headers` declared in **metadata** decorators are not merged, they are replaced.
    *
-   * In addition, ad-hoc `headers` can be supplied with the `HttpActionOptions` action method parameter [ user.create(options) ]
+   * In addition, ad-hoc `headers` can be supplied with the `HttpActionOptions` action method
+   * parameter [ user.create(options) ]
    * ad-hoc `headers` are **merged** into the resolved value of metadata `headers`.
    * ad-hoc ``headers`` with an `undefined` value are considered a delete instruction.
    * @optional
@@ -59,7 +60,8 @@ export interface BaseHttpConfig {
    *   3. Global configuration
    *
    *
-   * In addition, ad-hoc `withCredentials` can be supplied with the `HttpActionOptions` action method parameter [ user.create(options) ]
+   * In addition, ad-hoc `withCredentials` can be supplied with the `HttpActionOptions` action method
+   * parameter [ user.create(options) ]
    *
    * @optional
    * @default globalConfig.withCredentials
@@ -81,14 +83,14 @@ export interface BaseHttpConfig {
    *   3. Global configuration
    *
    *
-   * In addition, ad-hoc `trailingSlashes` can be supplied with the `HttpActionOptions` action method parameter [ user.create(options) ]
+   * In addition, ad-hoc `trailingSlashes` can be supplied with the `HttpActionOptions` action method
+   * parameter [ user.create(options) ]
    *
    * @optional
    * @default globalConfig.trailingSlashes
    */
   trailingSlashes?: TrailingSlashesStrategy;
 }
-
 
 export interface HttpActionOptions extends BaseHttpConfig, ActionOptions {
 

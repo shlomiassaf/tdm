@@ -17,6 +17,7 @@ declare module '@tdm/core/tdm/src/metadata/target-store' {
      */
     registerMixins(target: any, adapterClass: AdapterStatic<any, any>, ...mixins: any[]): void;
     getMixins(target: any, adapterClass: AdapterStatic<any, any>): Set<any>;
+    hasMixins(target: any, adapterClass: AdapterStatic<any, any>): boolean;
   }
 }
 
@@ -66,4 +67,10 @@ TargetStore.prototype.registerMixins = function registerMixins(target: any, adap
 TargetStore.prototype.getMixins = function getMixins(target: any, adapterClass: AdapterStatic<any, any>): Set<any> {
   const model = this.getTargetMeta(target).model();
   return (model.mixins && model.mixins.get(adapterClass)) || new Set<any>();
+};
+
+TargetStore.prototype.hasMixins = function hasMixins(target: any, adapterClass: AdapterStatic<any, any>): boolean {
+  const mixins = this.getTargetMeta(target).model().mixins;
+  const registered = mixins && mixins.get(adapterClass);
+  return registered && registered.size > 0;
 };

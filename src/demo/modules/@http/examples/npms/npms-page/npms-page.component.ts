@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs/Observable';
+import { map } from 'rxjs/operators';
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { animate, state, style, transition, trigger } from '@angular/animations';
@@ -37,7 +38,7 @@ export class NpmsPageComponent {
     if (this.packages) {
       return this.packages.$rc.self$;
     } else if (this.package) {
-      return this.package.$rc.self$.map( v => [v]);
+      return this.package.$rc.self$.pipe(map( v => [v] ));
     }
   }
   constructor(fb: FormBuilder, public uiBlock: UiBlockService) {
@@ -55,14 +56,14 @@ export class NpmsPageComponent {
 
     if (value.length === 1) {
       this.packages = undefined;
-      this.package = <any>Package.findById(value[0]);
+      this.package = <any> Package.findById(value[0]);
       this.uiBlock.closeWithPromise(this.package.$rc.next()).open(UiBlock);
       this.package.$rc.next().then( self => {
         self.name = value[0];
         this.dataSource.updateSource(this.obs$);
       });
     } else {
-      this.packages = <any>Package.query(value);
+      this.packages = <any> Package.query(value);
       this.packages.$rc.next().then( () => this.dataSource.updateSource(this.obs$) );
       this.uiBlock.closeWithPromise(this.packages.$rc.next()).open(UiBlock);
     }

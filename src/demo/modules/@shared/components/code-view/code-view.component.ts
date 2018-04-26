@@ -14,6 +14,7 @@ export interface CodeViewItem {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TdmCodeViewComponent implements OnChanges {
+
   @Input() code: CodeViewItem | CodeViewItem[];
   multi: boolean;
 

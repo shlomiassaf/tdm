@@ -1,0 +1,34 @@
+{
+  "extends": "./tsconfig",
+  "compilerOptions": {
+    "target": "es5",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "noEmitHelpers": true,
+    "importHelpers": true,
+    "strictNullChecks": false,
+    "lib": [
+      "es2015",
+      "dom"
+    ],
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "types": [
+      "jasmine",
+      "hammerjs",
+      "node"
+    ],
+    "outDir": "./dist"
+  },
+  "files": [
+    "src/demo/modules/server/index.ts",
+    "src/@tdm/service-mocker/shared/src/service-worker.d.ts",
+    "src/demo/modules/server/custom-typings.d.ts"
+  ],
+  "compileOnSave": false
+}

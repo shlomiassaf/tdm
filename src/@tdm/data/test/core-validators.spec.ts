@@ -1,4 +1,4 @@
-import { MockMixin, MockResource, bucketFactory } from '@tdm/data/testing';
+import { ActiveRecord, MockResource, bucketFactory } from '@tdm/data/testing';
 import { Prop, validators } from '@tdm/data';
 
 describe('@tdm/data', () => {
@@ -42,7 +42,7 @@ describe('@tdm/data', () => {
       @MockResource({
         endpoint: '/api/users/:id?'
       })
-      class User extends MockMixin(User_) { }
+      class User extends ActiveRecord(User_) { }
 
       const returnValue = {
         instanceOf: 5,
@@ -53,7 +53,7 @@ describe('@tdm/data', () => {
       };
 
       return expect(
-        bucket.create(User).$refresh({returnValue}).$rc.next()
+        bucket.create(User).$get({returnValue}).next()
           .catch( err => {
             expect(err.errors.length).toBe(6);
             expect(err.message).toBe('Validation Error [User]');
@@ -91,7 +91,7 @@ describe('@tdm/data', () => {
       @MockResource({
         endpoint: '/api/users/:id?'
       })
-      class User extends MockMixin(User_) { }
+      class User extends ActiveRecord(User_) { }
 
       const returnValuePass = {
         instanceOfBoolean: true,
@@ -106,9 +106,10 @@ describe('@tdm/data', () => {
       };
 
       return expect(
-        bucket.create(User).$refresh({returnValue: returnValuePass}).$rc.next()
+        bucket.create(User)
+          .$get({returnValue: returnValuePass}).next()
           .catch( err => { throw null; })
-          .then( () => bucket.create(User).$refresh({returnValue: returnValueFail}).$rc.next() )
+          .then( () => bucket.create(User).$get({returnValue: returnValueFail}).next() )
           .catch( err => {
             expect(err.errors.length).toBe(4);
             expect(err.message).toBe('Validation Error [User]');

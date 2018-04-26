@@ -1,3 +1,4 @@
+import { map } from 'rxjs/operators';
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { animate, state, style, transition, trigger } from '@angular/animations';
@@ -50,7 +51,8 @@ export class CountryPageComponent {
         break;
       case 'countryCode':
         const country = this.countries = Country.findCountryCode(value);
-        country.$rc.next().then( () => this.dataSource.updateSource(country.$rc.self$.map( c => [c] )) );
+        country.$rc.next()
+          .then( () => this.dataSource.updateSource(country.$rc.self$.pipe(map( c => [c] ))) );
         break;
       default:
         return;

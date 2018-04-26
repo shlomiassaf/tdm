@@ -1,12 +1,8 @@
 // tslint:disable
-import { of } from 'rxjs/observable/of';
-import { EventEmitter } from '@angular/core';
-import { async, fakeAsync, tick } from '@angular/core/testing';
-import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 
-import { Identity, Model } from '@tdm/core';
+import { Model } from '@tdm/core';
 import { TestTargetStore } from '@tdm/core/testing';
-import { targetStore } from '@tdm/core/tdm';
 import { FormModel, FormProp, NgFormsBoundMapper } from '@tdm/ngx-dynamic-forms';
 
 function createMapper(instance: any): NgFormsBoundMapper {

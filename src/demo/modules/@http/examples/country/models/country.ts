@@ -1,6 +1,6 @@
 import { camelCase, snakeCase } from 'voca';
 import { ExtendAction, ExecuteContext, Identity, TDMCollection } from '@tdm/data';
-import { ARMixin, HttpResource, UrlParam, HttpActionOptions, HttpAction, HttpActionMethodType } from '@tdm/ngx-http-client';
+import { ActiveRecord, HttpResource, UrlParam, HttpActionOptions, HttpAction, HttpActionMethodType } from '@tdm/ngx-http-client';
 
 export function toCamelCase(propertyName: string) { return camelCase(propertyName) }
 export function toSnakeCase(propertyName: string) { return snakeCase(propertyName) }
@@ -87,7 +87,7 @@ export class Country {
       return options;
     }
   })
-  static findCountryCode: (countryCode: string, options?: HttpActionOptions) => ARMixin<Country>;
+  static findCountryCode: (countryCode: string, options?: HttpActionOptions) => ActiveRecord<Country>;
 
   @ExtendAction({
     pre: (ctx: ExecuteContext<any>, filter: 'name' | 'eee', value: string, options?: HttpActionOptions) => {
@@ -113,7 +113,7 @@ export class Country {
   static query: (filter: 'name' | 'eee', value: string, options?: HttpActionOptions) => CountryCollection;
 }
 
-export type CountryCollection = (TDMCollection<ARMixin<Country>> & {
+export type CountryCollection = (TDMCollection<ActiveRecord<Country>> & {
   query: typeof Country.query
   findCountryCode: typeof Country.findCountryCode
 });

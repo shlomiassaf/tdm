@@ -1,0 +1,82 @@
+<ng-content select=".form-description"></ng-content>
+<div class="http-wrapper-container">
+  <div class="form-wrapper mat-elevation-z4" fxLayout="column">
+    <mat-toolbar *ngIf="!noDashboard">
+      <div fxFlex="nogrow">
+        <div class="http-status-indicator" [matTooltip]="'Status: ' + status">
+          <tdm-led [blink]="ledBlinking" [color]="ledColor"></tdm-led>
+        </div>
+      </div>
+      <span class="form-title" fxFlex>{{title}}</span>
+      <button mat-icon-button (click)="invokeAction()">
+        <mat-icon>{{ inFlight ? 'stop' : 'play_arrow'}}</mat-icon>
+      </button>
+    </mat-toolbar>
+    <div fxFlex="grow" class="http-wrapper-content">
+      <mat-drawer-container>
+        <mat-drawer-content>
+          <mat-tab-group #tabs style="margin-top: -48px;">
+            <mat-tab>
+              <ng-template mat-tab-label></ng-template>
+              <div class="http-wrapper-container-main-content">
+                <ng-content select=".custom-http-actions"></ng-content>
+                <div fxLayout="row">
+                  <div fxFlex="30%" class="http-event-log-container">
+                    <h3 class="event-log-header">Requests</h3>
+                    <mat-accordion displayMode="flat">
+                      <mat-expansion-panel *ngFor="let ad of resourceActions; index as index"
+                                           [class.selected]="index === selectedActionIndex"
+                                           [expanded]="index === selectedActionIndex"
+                                           (closed)="actionDataClose(index)"
+                                           (opened)="actionDataOpen(index)">
+                        <mat-expansion-panel-header class="event-log-item-header">
+                          <mat-panel-title>
+                            <mat-spinner diameter="24" *ngIf="!ad.complete"></mat-spinner>
+                            <span *ngIf="ad.complete">#{{ index + 1 }}</span>
+                          </mat-panel-title>
+                          <mat-panel-description class="http-request-status http-request-status-{{ad.status}}">
+                            {{ad.status}}
+                          </mat-panel-description>
+                        </mat-expansion-panel-header>
+
+                        <div fxLayout="column" *ngFor="let eLog of ad.eventLog" class="http-event-log-record">
+                          <div fxFlex class="http-event-log-time">
+                            {{eLog.date | date: 'HH:mm:SSS' }}
+                          </div>
+                          <div fxFlex class="http-event-log-type">
+                            {{ eLog.event.type }}
+                          </div>
+                        </div>
+
+                      </mat-expansion-panel>
+                    </mat-accordion>
+                  </div>
+                  <div fxFlex="70%" class="http-object-showcase">
+                    <ng-container *ngIf="!selectedAction">
+                      <ng-content *ngIf="!code" select=".http-source-code-snip"></ng-content>
+                      <tdm-code-view *ngIf="code" [code]="code" noElevation></tdm-code-view>
+                    </ng-container>
+
+                    <ng-container *ngIf="selectedAction">
+                      <mat-tab-group *ngIf="selectedAction.complete">
+                        <mat-tab *ngFor="let t of selectedAction.tabStringify" [label]="t.label">
+                          <div class="json-view">
+                            <pre><code [innerHtml]="t.html"></code></pre>
+                          </div>
+                        </mat-tab>
+                      </mat-tab-group>
+                      <div *ngIf="!selectedAction.complete" class="http-object-showcase-spinner">
+                        <mat-spinner></mat-spinner>
+                      </div>
+                    </ng-container>
+                  </div>
+                </div>
+              </div>
+              <ng-content select=".http-footer"></ng-content>
+            </mat-tab>
+          </mat-tab-group>
+        </mat-drawer-content>
+      </mat-drawer-container>
+    </div>
+  </div>
+</div>

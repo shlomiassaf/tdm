@@ -19,7 +19,7 @@ export class Errors {
     Errors.create(this);
   }
 
-  decorator(target: any, message: string, propertyName?: PropertyKey): Error {
+  decorator(target: any, message: string, propertyName?: TdmPropertyKey): Error {
     const CLS = isFunction(target) ? target : target.constructor;
 
     if (!propertyName) {
@@ -46,12 +46,14 @@ export class Errors {
    */
   ERROR<T = any>(message: string, assign?: T): Error & T {
     const err = new Error(message);
-    if (assign) Object.assign(err, assign);
+    if (assign) {
+      Object.assign(err, assign);
+    }
 
     if (this[ERROR_EXEC_TYPE] === 'throw') {
       throw err;
     } else {
-      return <any>err;
+      return <any> err;
     }
   }
 

@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { DAO } from '@tdm/data';
 import { NgDAO } from '@tdm/ngx-http-client';
 
 import { UserBaseClass, UserConst, UsersInterface, UserDAO } from '../models';
@@ -23,7 +22,7 @@ export class PlaygroundPageComponent {
         console.log(user);
       }, err => alert(err));
 
-    DAO.angularHttp(UserDAO).findById(5)
+    ngDAO.get(UserDAO).findById(5)
       .then( user => {
         console.log(user);
       }, err => alert(err));
@@ -36,7 +35,7 @@ export class PlaygroundPageComponent {
 
 
     // this.user.id = 5;
-    // this.user.$refresh().$rc.next()
+    // this.user.$get().$rc.next()
     //   .then(() => {
     //
     //   })
@@ -65,13 +64,13 @@ export class PlaygroundPageComponent {
           if (this.user.id === 0) {
             $rc.disconnect();
           } else {
-            this.user.$refresh();
+            this.user.$get();
           }
         }, 500)
       }
     });
 
     this.user.id = 2;
-    this.user.$refresh();
+    this.user.$get();
   }
 }

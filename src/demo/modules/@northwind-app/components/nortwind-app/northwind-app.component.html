@@ -1,0 +1,13 @@
+<mat-table #table [dataSource]="dataSource">
+  <ng-container *ngFor="let col of columns" [matColumnDef]="col">
+    <mat-header-cell *matHeaderCellDef> {{col}} </mat-header-cell>
+    <mat-cell *matCellDef="let element">{{element[col]}}</mat-cell>
+  </ng-container>
+
+  <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: columns;"
+           class="element-row"
+           matRipple
+           [cdkDetailRow]="row" [cdkDetailRowTpl]="tpl"></mat-row>
+
+</mat-table>

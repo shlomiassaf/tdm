@@ -18,7 +18,7 @@ export class ExtendingTheRendererComponent {
   model = new Hero();
 
   /* @tdm-ignore:* */
-  code: any = System.import(/* webpackChunkName: "ExtendingTheRendererComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = System.import(/* webpackChunkName: "FormsExtendingTheRendererComponent" */ './__tdm-code__.ts'); // tslint:disable-line
   static tutorial = {
     id: 'extending-the-renderer',
     name: 'Extending the Renderer'

@@ -63,6 +63,12 @@
       "@tdm/data/plugin/active-record/src/*": [
         "@tdm/data/plugin/active-record/src/*"
       ],
+      "@tdm/data/plugin/control-flow": [
+        "@tdm/data/plugin/control-flow/src/index.ts"
+      ],
+      "@tdm/data/plugin/control-flow/src/*": [
+        "@tdm/data/plugin/control-flow/src/*"
+      ],
       "@tdm/data/plugin/rx-resource-control": [
         "@tdm/data/plugin/rx-resource-control/src/index.ts"
       ],
@@ -89,6 +95,30 @@
       ],
       "@tdm/ngx-dynamic-forms/src/*": [
         "@tdm/ngx-dynamic-forms/src/*"
+      ],
+      "@tdm/local-forage": [
+        "@tdm/local-forage/src/localForage.ts"
+      ],
+      "@tdm/local-forage/src/*": [
+        "@tdm/local-forage/src/*"
+      ],
+      "@tdm/service-mocker": [
+        "@tdm/service-mocker/src/service-mocker.ts"
+      ],
+      "@tdm/service-mocker/shared": [
+        "@tdm/service-mocker/shared/src/index.ts"
+      ],
+      "@tdm/service-mocker/shared/src/*": [
+        "@tdm/service-mocker/shared/src/*"
+      ],
+      "@tdm/service-mocker/client": [
+        "@tdm/service-mocker/client/src/index.ts"
+      ],
+      "@tdm/service-mocker/client/src/*": [
+        "@tdm/service-mocker/client/src/*"
+      ],
+      "@tdm/service-mocker/src/*": [
+        "@tdm/service-mocker/src/*"
       ],
       "@tdm/json-api-mapper": [
         "@tdm/json-api-mapper/src/index.ts"

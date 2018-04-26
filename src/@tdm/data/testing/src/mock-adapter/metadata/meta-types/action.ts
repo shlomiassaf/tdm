@@ -15,8 +15,8 @@ export interface MockActionMetadataArgs extends ActionMetadataArgs<ActionMethodT
 
 @MetaClass<MockActionMetadataArgs, MockActionMetadata>({
   allowOn: ['staticMember', 'member'],
-  extend: ActionMetadata.extend,
-  register: ActionMetadata.register
+  extend: 'actionMetadata',
+  register: 'actionMetadata'
 })
 export class MockActionMetadata extends ActionMetadata {
   method: ActionMethodType;

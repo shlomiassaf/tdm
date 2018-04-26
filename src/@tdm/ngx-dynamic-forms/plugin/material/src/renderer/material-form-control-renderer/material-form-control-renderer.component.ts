@@ -6,7 +6,7 @@ import {
   Input,
   OnChanges,
   SimpleChanges,
-  ChangeDetectorRef
+  ChangeDetectorRef, Optional
 } from '@angular/core';
 
 import {
@@ -68,7 +68,7 @@ export class MaterialFormControlRenderer implements MaterialStoreInstance, Dynam
 
   private _dynForm: DynamicFormComponent;
 
-  constructor(dynForm: DynamicFormComponent, private cdr: ChangeDetectorRef) {
+  constructor(@Optional() dynForm: DynamicFormComponent, private cdr: ChangeDetectorRef) {
     if ( dynForm ) {
       this.dynForm = dynForm;
     }

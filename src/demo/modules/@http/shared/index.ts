@@ -1,0 +1,1 @@
+export { HttpResourceSharedModule } from './module';

@@ -1,4 +1,4 @@
-import { MockMixin, MockResource, bucketFactory } from '@tdm/data/testing';
+import { ActiveRecord, MockResource, bucketFactory } from '@tdm/data/testing';
 import { TDMModel, TDMModelBase, Model, Prop, Relation } from '@tdm/core';
 import { ResourceControl } from '@tdm/data';
 
@@ -15,7 +15,7 @@ describe('@tdm/data', () => {
       @MockResource({
         endpoint: '/api/users/:id?'
       })
-      class Address extends MockMixin(AddressBase) { }
+      class Address extends ActiveRecord(AddressBase) { }
 
       class UserBase {
         @Prop()
@@ -36,7 +36,7 @@ describe('@tdm/data', () => {
       @MockResource({
         endpoint: '/api/users/:id?'
       })
-      class User extends MockMixin(UserBase) { }
+      class User extends ActiveRecord(UserBase) { }
 
       const user = new User();
       expect(user.$rc instanceof ResourceControl).toBe(true);
@@ -77,7 +77,7 @@ describe('@tdm/data', () => {
       @MockResource({
         endpoint: '/api/users/:id?'
       })
-      class Address extends MockMixin(AddressBase) { }
+      class Address extends ActiveRecord(AddressBase) { }
 
       class UserBase {
         @Prop()
@@ -98,7 +98,7 @@ describe('@tdm/data', () => {
       @MockResource({
         endpoint: '/api/users/:id?'
       })
-      class User extends MockMixin(UserBase) { }
+      class User extends ActiveRecord(UserBase) { }
 
       const user = new User();
       expect(user.$rc instanceof ResourceControl).toBe(true);

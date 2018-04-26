@@ -4,8 +4,8 @@ const envSetup = getEnv({
   env: 'dev',
   // env: 'prod',
 
-  aot: true,
-  // aot: false,
+  // aot: true,
+  aot: false,
 
   // sim: true
 });

@@ -13,26 +13,26 @@
  * Cons:
  *   - Requires manual type creation (https://github.com/Microsoft/TypeScript/issues/6606)
  *
- *   - For multiple mixins need to create type without ARMixin<> help.
+ *   - For multiple mixins need to create type without ActiveRecord<> help.
  *     https://github.com/Microsoft/TypeScript/issues/13798
  *
  *   - Won't work with angular DI + AOT (https://github.com/angular/angular/issues/14128)
  *
- *   - Instance members defined in a class that extends ARMixin<BASE> will not reflect on types returned from
- *     static methods defined in ARMixin which return the instance.
+ *   - Instance members defined in a class that extends ActiveRecord<BASE> will not reflect on types returned from
+ *     static methods defined in ActiveRecord which return the instance.
  *     i.e.: Invoking a static method on the derived class that returns an instance of that class will not refelect
  *     member defined on the derived class.
  *     This does not apply to instance types returned from methods on the instance itself - CONFUSING.
  */
 import { Identity, ExtendAction, ExecuteContext } from '@tdm/data';
-import { ARMixin, HttpResource, HttpActionOptions, HttpAction, HttpActionMethodType } from '@tdm/ngx-http-client';
+import { ActiveRecord, HttpResource, HttpActionOptions, HttpAction, HttpActionMethodType } from '@tdm/ngx-http-client';
 import './init-tdm';
 
 @HttpResource({
   endpoint: '/path',
   skip: true
 })
-class User_ {
+class $User {
   @Identity()
   id: number;
   username: string;
@@ -64,11 +64,11 @@ class User_ {
       return options;
     }
   })
-  static find: (id: 'CatA' | 'CatB', options?: HttpActionOptions) => ARMixin<User_>;
+  static find: (id: 'CatA' | 'CatB', options?: HttpActionOptions) => ActiveRecord<$User>;
 }
 
-export const UserConst = ARMixin(User_);
-export type UserConst = ARMixin<User_>;
+export const UserConst = ActiveRecord($User);
+export type UserConst = ActiveRecord<$User>;
 
 UserConst.findById(2).username;
 UserConst.num;
@@ -94,18 +94,18 @@ UserConst.num as string;
  */
 UserConst.findById(2).usernam23e;
 
-new UserConst().$refresh().username;
+new UserConst().$get().username;
 
 const user: UserConst = new UserConst();
 
-user.$refresh().username;
+user.$get().username;
 
 /**
  * @tssert not cast to any
  * @tsError 2339
  * @loc 17
  */
-user.$refresh().abcd;
+user.$get().abcd;
 
 /**
  * Keep type information in promise chain - property
@@ -135,7 +135,7 @@ user.$rc.next().then( u => u.method('dd') );
 /**
  * Keep type information in promise chain - active record method
  * @tssert
- * @tsType Promise<TDMModel<ARMixin<User_>> & User_ & TDMModel<User_> & HttpActiveRecord>
+ * @tsType Promise<TDMModel<ActiveRecord<$User>> & $User & TDMModel<$User> & HttpActiveRecord>
  * @loc 16
  */
 user.$rc.next().then( u => u.$remove() );
@@ -143,7 +143,7 @@ user.$rc.next().then( u => u.$remove() );
 /**
  * Keep type information in promise chain - active record method
  * @tssert
- * @tsType Promise<TDMModel<ARMixin<User_>> & User_ & TDMModel<User_> & HttpActiveRecord>
+ * @tsType Promise<TDMModel<ActiveRecord<$User>> & $User & TDMModel<$User> & HttpActiveRecord>
  * @loc 37
  */
 user.getSomething('value').$rc.next();
@@ -186,9 +186,9 @@ UserConst.query().erer();
 UserConst.findAll().findOne(null);
 UserConst.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method(15));
 
 /**
@@ -198,9 +198,9 @@ UserConst.findOne(null)
  */
 UserConst.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method('XX'));
 
 UserConst.find('CatA');
@@ -237,12 +237,12 @@ export class UserConstExt extends UserConst {
 UserConstExt.findById(2).username;
 
 /**
- * This shows the limitation of not being able to reflect instance members of classes deriving from ARMixin<Base...>
+ * This shows the limitation of not being able to reflect instance members of classes deriving from ActiveRecord<Base...>
  * when the type is returned from a static member.
  *
  * @tssert keep property type information.
  * @tsError 2339
- * @tsErrorMsg Property 'valueOnDerived' does not exist on type 'ARMixin<User_>'.
+ * @tsErrorMsg Property 'valueOnDerived' does not exist on type 'ActiveRecord<$User>'.
  * @loc 26
  */
 UserConstExt.findById(2).valueOnDerived;
@@ -270,18 +270,18 @@ UserConstExt.num as string;
  */
 UserConstExt.findById(2).usernam23e;
 
-new UserConstExt().$refresh().username;
+new UserConstExt().$get().username;
 
 const userExt: UserConstExt = new UserConstExt();
 
-userExt.$refresh().username;
+userExt.$get().username;
 
 /**
  * @tssert not cast to any
  * @tsError 2339
  * @loc 20
  */
-userExt.$refresh().abcd;
+userExt.$get().abcd;
 
 /**
  * Keep type information in promise chain - property
@@ -311,14 +311,14 @@ userExt.$rc.next().then( u => u.method('dd') );
 /**
  * Keep type information in promise chain - active record method
  * @tssert
- * @tsType Promise<TDMModel<UserConstExt & User_> & UserConstExt & User_>
+ * @tsType Promise<TDMModel<UserConstExt & $User> & UserConstExt & $User>
  * @loc 19
  */
 userExt.$rc.next().then( u => u.$remove() );
 
 /**
  * Keep type information in promise chain - active record method
- * @tsType Promise<UserConstExt & User_>
+ * @tsType Promise<UserConstExt & $User>
  * @loc 40
  */
 userExt.getSomething('value').$rc.next();
@@ -361,9 +361,9 @@ UserConstExt.query().erer();
 UserConstExt.findAll().findOne(null);
 UserConstExt.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method(15));
 
 /**
@@ -373,9 +373,9 @@ UserConstExt.findOne(null)
  */
 UserConstExt.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method('XX'));
 
 UserConstExt.find('CatA');

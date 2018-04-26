@@ -1,7 +1,7 @@
 import 'rxjs';
 
-import { MockMixin, MockResource, bucketFactory, eventConsumer } from '@tdm/data/testing';
-import { ActionEndResourceEvent } from "@tdm/data";
+import { ActiveRecord, MockResource, bucketFactory, eventConsumer } from '@tdm/data/testing';
+import { ActionEndResourceEvent } from '@tdm/data';
 import { ARMethods } from '@tdm/data/active-record';
 import { ActionErrorResourceEvent } from '@tdm/data/active-record/active-record-events';
 
@@ -13,7 +13,7 @@ class User_ {
 @MockResource({
   endpoint: '/api/users/:id?'
 })
-class User extends MockMixin(User_) { }
+class User extends ActiveRecord(User_) { }
 
 describe('@tdm/data', () => {
   describe('Active Record State', () => {
@@ -25,29 +25,30 @@ describe('@tdm/data', () => {
       return eventConsumer(bucket.create(User))
         .events('ActionStart', 'ActionSuccess', 'ActionEnd')
         .timeout(100)
-        .run( ec => ec.ar.$refresh() );
+        .run( ec => ec.ar.$get() );
     });
 
     it('should not emit error, only error event', () => {
       return eventConsumer(bucket.create(User))
         .events('ActionStart', 'ActionError')
         .timeout(100)
-        .run( ec => ec.ar.$refresh({ throwError: new Error('testError') }) )
-        .then( events => expect((<any>events[1]).error.toString()).toBe('Error: testError') );
+        .run( ec => ec.ar.$get({ throwError: new Error('testError') }) )
+        .then( events => expect((<any> events[1]).error.toString()).toBe('Error: testError') );
     });
 
     it('should resolve the next action result', () => {
-      return bucket.create(User).$refresh({ returnValue: {username: 'test'} }).$rc.next()
-        .then( instance => expect(instance.username).toBe('test') )
+      return bucket.create(User).$get({ returnValue: {username: 'test'} }).next()
+        .then( instance => expect(instance.username).toBe('test') );
     });
 
     it('should reject the next action if no action is running', () => {
       return bucket.create(User).$rc.next()
-        .catch( err => expect(err.message).toEqual('Model Error [User]: Call to next() while not in an active action.') );
+        .catch( err => expect(err.message)
+          .toEqual('Model Error [User]: Call to next() while not in an active action.') );
     });
 
     it('should reject the next action on error', () => {
-      return bucket.create(User).$refresh({ throwError: new Error('testError') }).$rc.next()
+      return bucket.create(User).$get({ throwError: new Error('testError') }).next()
         .catch(err => expect(err.toString()).toEqual('Error: testError') );
     });
 
@@ -69,7 +70,7 @@ describe('@tdm/data', () => {
               break;
           }
         })
-        .run( ec => ec.ar.$refresh() )
+        .run( ec => ec.ar.$get() )
         .then( () => {
           return eventConsumer(user)
             .events('ActionStart', 'ActionCancel', 'ActionEnd')
@@ -80,7 +81,7 @@ describe('@tdm/data', () => {
                   expect(user.$rc.busy).toBe(true);
                   break;
                 case 'ActionCancel':
-                  expect(user.$rc.busy).toBe(false);
+                  expect(user.$rc.busy).toBe(true);
                   break;
                 case 'ActionEnd':
                   expect( (event as ActionEndResourceEvent).result).toBe('cancel');
@@ -89,7 +90,7 @@ describe('@tdm/data', () => {
               }
             })
             .run( ec => {
-              ec.ar.$refresh({ timeout: 100 });
+              ec.ar.$get({ timeout: 100 });
               setTimeout(() => ec.ar.$rc.cancel(), 20);
             });
         });
@@ -100,12 +101,12 @@ describe('@tdm/data', () => {
       @MockResource({
         endpoint: '/api/users/:id?'
       })
-      class User extends MockMixin(class {}) { }
+      class User extends ActiveRecord(class {}) { }
       const user = bucket.create(User);
       const busyStates = [true, false];
 
-
-      user.$refresh().$rc.busy$.subscribe(
+      user.$get();
+      user.$rc.busy$.subscribe(
         busy => {
           expect(typeof busy).toBe('boolean');
           expect(busy).toBe(busyStates.shift());
@@ -131,7 +132,7 @@ describe('@tdm/data', () => {
               break;
           }
         })
-        .run( ec => ec.ar.$refresh() )
+        .run( ec => ec.ar.$get() )
         .then( () => {
           return eventConsumer(user)
             .events('ActionStart', 'ActionCancel', 'ActionEnd')
@@ -144,7 +145,7 @@ describe('@tdm/data', () => {
               }
             })
             .run( ec => {
-              ec.ar.$refresh({ timeout: 100 });
+              ec.ar.$get({ timeout: 100 });
               setTimeout(() => ec.ar.$rc.cancel(), 20);
             });
         })
@@ -159,14 +160,15 @@ describe('@tdm/data', () => {
                   break;
               }
             })
-            .run( ec => ec.ar.$refresh({ throwError: new Error('testError') }) );
+            .run( ec => ec.ar.$get({ throwError: new Error('testError') }) );
         });
     });
 
     it('busy status should update even if events not subscribed.', () => {
       const user = bucket.create(User);
       expect(user.$rc.busy).toBe(false);
-      expect(user.$refresh().$rc.busy).toBe(true);
+      user.$get();
+      expect(user.$rc.busy).toBe(true);
     });
 
     it('should apply the response', () => {
@@ -174,7 +176,7 @@ describe('@tdm/data', () => {
       return eventConsumer(user)
         .events('ActionStart', 'ActionSuccess', 'ActionEnd')
         .loose(true)
-        .run( ec => ec.ar.$refresh({ returnValue: { username: 'test' } }) )
+        .run( ec => ec.ar.$get({ returnValue: { username: 'test' } }) )
         .then( () => expect(user.username).toBe('test') );
     });
 
@@ -192,7 +194,7 @@ describe('@tdm/data', () => {
           }
         })
         .run( ec => {
-          ec.ar.$refresh({ returnValue: { username: 'test' }, timeout: 100 });
+          ec.ar.$get({ returnValue: { username: 'test' }, timeout: 100 });
           setTimeout(() => ec.ar.$rc.cancel(), 20);
         })
         .then( () => expect(user.username).toBeUndefined() );
@@ -220,8 +222,7 @@ describe('@tdm/data', () => {
           }
         })
         .run( ec => {
-          ec.ar.$refresh({ returnValue: { username: 'test' } });
-          next = ec.ar.$rc.next();
+          next = ec.ar.$get({ returnValue: { username: 'test' } }).next();
         })
         .then( () => next )
         .then( data => {
@@ -234,12 +235,13 @@ describe('@tdm/data', () => {
       @MockResource({
         endpoint: '/api/users/:id?'
       })
-      class User extends MockMixin(class {}) { }
+      class User extends ActiveRecord(class {}) { }
       const user = bucket.create(User);
 
       const run = (onDone: (err?: any) => void) => {
         const busyStates = [true, false];
-        user.$refresh().$rc.busy$.subscribe(
+        user.$get();
+        user.$rc.busy$.subscribe(
           busy => {
             expect(typeof busy).toBe('boolean');
             expect(busy).toBe(busyStates.shift());

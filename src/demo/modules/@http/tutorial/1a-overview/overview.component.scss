@@ -1,0 +1,8 @@
+.led-sample {
+  height: 24px;
+  width: 24px;
+  margin-bottom: 15px;
+  & + span {
+    font-weight: bold;
+  }
+}

@@ -13,7 +13,7 @@
  *
  * Cons:
  *   - Requires manual type creation (https://github.com/Microsoft/TypeScript/issues/6606)
- *   - For multiple mixins need to create type without ARMixin<> help.
+ *   - For multiple mixins need to create type without ActiveRecord<> help.
  *     https://github.com/Microsoft/TypeScript/issues/13798
  *   - Won't work with angular DI + AOT (https://github.com/angular/angular/issues/14128)
  */
@@ -21,7 +21,7 @@
 
 import { Injectable } from '@angular/core';
 import { Hook, BeforeHook, AfterHook, TDMCollection, Prop, Exclude, ExecuteResponse, ExtendAction, ExecuteContext, IdentityValueType, Identity } from '@tdm/data';
-import { ARMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/ngx-http-client';
+import { ActiveRecord, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/ngx-http-client';
 
 @HttpResource({
   endpoint: '/api/users/:id?',
@@ -60,12 +60,12 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
 
   constructor() { }
 
-  @Hook({event: 'before', action: '$refresh'})
+  @Hook({event: 'before', action: '$get'})
   bfRef() {
     console.log('BeforeRefresh');
   }
 
-  @Hook({event: 'after', action: '$refresh'})
+  @Hook({event: 'after', action: '$get'})
   afRef() {
     console.log('AfterRefresh');
   }
@@ -74,7 +74,7 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
     method: HttpActionMethodType.Get,
     post: User_.prototype.postDeserializedHandler
   })
-  postDeserialized: (options?: HttpActionOptions) => ARMixin<User_>;
+  postDeserialized: (options?: HttpActionOptions) => ActiveRecord<User_>;
   private postDeserializedHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
   }
 
@@ -84,14 +84,14 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
       handler: User_.prototype.postHandler,
     }
   })
-  raw: (options?: HttpActionOptions) => ARMixin<User_>;
+  raw: (options?: HttpActionOptions) => ActiveRecord<User_>;
   private postHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
   }
 
   static num: number;
 
   @Hook({event: 'before', action: 'query'})
-  static bfQuery(this: TDMCollection<ARMixin<User_>>) {
+  static bfQuery(this: TDMCollection<ActiveRecord<User_>>) {
     this.$rc.next()
       .then( coll => {
         console.log(`BeforeQuery-AfterQuery: got ${coll.length}`)
@@ -100,7 +100,7 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
   }
 
   @Hook({event: 'after', action: 'query'})
-  static afQuery(this: TDMCollection<ARMixin<User_>>) {
+  static afQuery(this: TDMCollection<ActiveRecord<User_>>) {
     console.log('AfterQuery');
     console.log(`AfterQuery: got ${this.length}`)
   }
@@ -111,19 +111,19 @@ class User_ implements  BeforeHook<'bfRef', HttpActionOptions>,
       return options;
     }
   })
-  static find: (id: IdentityValueType, a:number, b: number, options?: HttpActionOptions) => ARMixin<User_>;
+  static find: (id: IdentityValueType, a:number, b: number, options?: HttpActionOptions) => ActiveRecord<User_>;
 }
 
-export const UserConst = ARMixin(User_);
-export type UserConst = ARMixin<User_>;
+export const UserConst = ActiveRecord(User_);
+export type UserConst = ActiveRecord<User_>;
 
 // UserConst.find(2, 3, 4).username__;                              // OK
 // UserConst.find(2, 3, 4).usernam23e;                              // SHOULD ERROR
 // UserConst.num;                                                   // OK
-// new UserConst().$refresh().username__;                           // OK
+// new UserConst().$get().username__;                           // OK
 // const user: UserConst = new UserConst();                         // OK
-// user.$refresh().username__;                                      // OK
-// user.$refresh().abcd;                                            // SHOULD ERROR
+// user.$get().username__;                                      // OK
+// user.$get().abcd;                                            // SHOULD ERROR
 // user.$rc.next().then( u => u.id );                               // OK
 // user.$rc.next().then( u => u.f34 );                              // SHOULD ERROR
 // UserConst.query().$rc.next().then(coll => coll );     // OK

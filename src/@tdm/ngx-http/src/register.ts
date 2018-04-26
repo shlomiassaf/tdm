@@ -21,7 +21,7 @@ export class NgDAO {
 
 DAO.angularHttp = NgDAO.prototype.get;
 
-declare module '@tdm/data/src/dao' {
+declare module '@tdm/data/src/dao/dao' {
   module DAO {
     /**
      * Data Access Object for Angular HTTP adapter.

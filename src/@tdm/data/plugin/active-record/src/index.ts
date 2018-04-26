@@ -33,7 +33,7 @@ import {
  */
 function getActions(target: Constructor<any>, adapterClass: AdapterStatic<any, any>): ActionMetadata[] {
   const chain = getProtoChain(target);
-  const actions = new Map<PropertyKey, ActionMetadata>();
+  const actions = new Map<TdmPropertyKey, ActionMetadata>();
 
   for (let i = 0, len = chain.length; i < len; i++) {
     if (targetStore.hasTarget(chain[i])) {
@@ -56,21 +56,23 @@ function composeAction(obj: any, action: ActionMetadata, fn: (...args: any[]) =>
   }
 }
 
-function registerAction(this: ActionController, action: ActionMetadata, collProto: any, override: boolean = false): void {
+function registerAction(this: ActionController,
+                        action: ActionMetadata,
+                        collProto: any, override: boolean = false): void {
   const ctx = new ExecuteContext(this.targetMetadata, action);
   const self = this;
 
   if (action.decoratorInfo.isStatic) {
     if (override || !isFunction(this.target[action.name])) {
       composeAction(this.target, action, function (this: AdapterStatic<any, any>, ...args: any[]) {
-        return self.execute(ctx.clone(), {args});
+        return self.execute(ctx.clone(), {args}, 'instance');
       });
     }
 
     if (action.isCollection && action.collInstance && (override || !isFunction(collProto[action.name]))) {
       composeAction(collProto, action, function (this: TDMCollection<any>, ...args: any[]): any {
         this.splice(0, this.length);
-        return self.execute(ctx.clone(this), {args});
+        return self.execute(ctx.clone(this), {args}, 'instance');
       });
     }
   } else {
@@ -80,12 +82,13 @@ function registerAction(this: ActionController, action: ActionMetadata, collProt
 
     if (override || !isFunction(this.target.prototype[action.name])) {
       composeAction(this.target.prototype, action, function (this: TDMModel<any>, ...args: any[]) {
-        return self.execute(ctx.clone(this), {args});
+        // we call `self.execute` with 'instance' so it acts like AR in its resource control but we need the promise
+        // so we use the resource control to get it right away.
+        return ResourceControl.get(self.execute(ctx.clone(this), {args}, 'instance'));
       });
     }
   }
 }
-
 
 function activeRecord(target: Constructor<any>): void {
   // don't apply active record on non TDMModel targets (i.e. @Model targets)
@@ -107,7 +110,7 @@ function activeRecord(target: Constructor<any>): void {
         a = metaClass.factory(metaArgs, target, extAction.decoratorInfo).metaValue;
       }
 
-      registerAction.call(ac, a, collProto, true)
+      registerAction.call(ac, a, collProto, true);
     });
   }
 
@@ -122,7 +125,6 @@ function attachResourceControl(propertyName: string): void {
 
   // extend TDMModel
   Object.defineProperty(TDMModelBase.prototype, propertyName, { configurable: true, get: getThisCtrl });
-
 
   // extend TDMCollection
   function StatefulActiveRecordCollection() { }
@@ -189,7 +191,7 @@ export class ActiveRecordPlugin {
    */
   init(options: ActiveRecordOptions): void {
     if (options.resourceControl) {
-      attachResourceControl(options.resourceControl)
+      attachResourceControl(options.resourceControl);
     }
 
     if (options.hasOwnProperty('enableActions') === false || options.enableActions === true) {

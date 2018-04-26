@@ -1,9 +1,9 @@
-import { ARMixin } from '@tdm/ngx-http-client';
+import { ActiveRecord } from '@tdm/ngx-http-client';
 import * as models from './models';
 
 
-export const Make = ARMixin(models.Make);
-export type Make = ARMixin<models.Make>;
+export const Make = ActiveRecord(models.Make);
+export type Make = ActiveRecord<models.Make>;
 
-export const Model = ARMixin(models.Model);
-export type Model = ARMixin<models.Model>;
+export const Model = ActiveRecord(models.Model);
+export type Model = ActiveRecord<models.Model>;

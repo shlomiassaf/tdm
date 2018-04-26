@@ -1,6 +1,6 @@
 import 'rxjs';
 
-import { MockMixin, MockResource, bucketFactory } from '@tdm/data/testing';
+import { ActiveRecord, MockResource, bucketFactory } from '@tdm/data/testing';
 import { Prop, Exclude } from '@tdm/data';
 
 class User_ {
@@ -46,13 +46,13 @@ class User_ {
   transformStrategy: 'inclusive',
   endpoint: '/api/users/:id?'
 })
-class UserInc extends MockMixin(User_) { }
+class UserInc extends ActiveRecord(User_) { }
 
 @MockResource({
   transformStrategy: 'exclusive',
   endpoint: '/api/users/:id?'
 })
-class UserExc extends MockMixin(User_) { }
+class UserExc extends ActiveRecord(User_) { }
 
 const returnValue = {
   id: 5,
@@ -90,7 +90,7 @@ describe('@tdm/data', () => {
         expect(payload['freeSpirit']).toBe(true);
       };
 
-      user.$refresh({returnValue}).$rc.next()
+      user.$get({returnValue}).next()
         .then( data => {
           expect(user.age).toBe(returnValue.age);
 
@@ -113,7 +113,7 @@ describe('@tdm/data', () => {
 
           user['freeSpirit'] = true;
         })
-        .then( () => user.$update({payloadInspect}).$rc.next() )
+        .then( () => user.$update({payloadInspect}) )
         .then( data => done() )
         .catch( err => done.fail(err) );
     });
@@ -121,7 +121,7 @@ describe('@tdm/data', () => {
     it('should include only marked properties when strategy === "exclusive" except explicitly excluded properties', (done) => {
       const user = bucket.create(UserExc);
 
-      user.$refresh({returnValue}).$rc.next()
+      user.$get({returnValue}).next()
         .then( data => {
           expect(user.age).toBe(returnValue.age);
 

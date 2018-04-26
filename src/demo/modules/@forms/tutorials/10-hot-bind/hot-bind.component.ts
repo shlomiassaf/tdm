@@ -16,7 +16,7 @@ import { Hero } from '../4-element-metadata';
 export class HotBindComponent {
   hotBind: boolean = true;
   model = new Hero();
-  code: any = System.import(/* webpackChunkName: "HotBindComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
+  code: any = System.import(/* webpackChunkName: "FormsHotBindComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
   /* @tdm-ignore:* */
   static tutorial = {
     id: 'hot-bind',

@@ -129,7 +129,7 @@ export class TDMModelFormService {
         const typeMeta = formProp.rtType || p.type;
 
         let localInstructions: RenderInstruction[] = instructions;
-        let name: PropertyKey  = p.name;
+        let name: TdmPropertyKey  = p.name;
         let parent: RenderInstruction;
         const isPrimitive = !(formProp.flatten || formProp.childForm);
         if (typeMeta && typeMeta.isArray) {

@@ -1,15 +1,19 @@
 import { NgModule, ModuleWithProviders } from '@angular/core';
+import { HttpDefaultConfig } from '@tdm/ngx-http-client';
 
 import { MODULES, ROOT_MODULES } from './modules';
 import { UiBlockService } from './services/ui-block';
 import { LocationService } from './services/location.service';
+import { TopNavService } from './services/top-nav.service';
+
 import {
   UiBlock,
   TdmCodeViewComponent,
   TdmMarkdownViewComponent,
   TdmPackageWelcomeComponent,
   TdmFeatureListComponent,
-  TdmLedComponent
+  TdmLedComponent,
+  TutorialPageComponent
 } from './components';
 import { CdkDetailRowDirective } from './cdk-detail-row.directive';
 import { AnchorTrapDirective } from './directives/anchor-trap.directive';
@@ -22,6 +26,7 @@ const DECLARATIONS = [
   TdmPackageWelcomeComponent,
   TdmFeatureListComponent,
   TdmLedComponent,
+  TutorialPageComponent,
   UiBlock,
   CdkDetailRowDirective,
   AnchorTrapDirective,
@@ -45,7 +50,12 @@ export class DeclarationSharedModule {
     ...MODULES,
     DeclarationSharedModule
   ],
-  providers: [ UiBlockService, LocationService ]
+  providers: [
+    UiBlockService,
+    LocationService,
+    TopNavService,
+    { provide: HttpDefaultConfig, useValue: HttpDefaultConfig.create({baseUrl: '/api'} ) }
+  ]
 })
 export class SharedModuleRoot { }
 

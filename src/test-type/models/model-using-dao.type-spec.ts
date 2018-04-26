@@ -13,13 +13,13 @@
  * Cons:
  *   - Requires manual type creation (https://github.com/Microsoft/TypeScript/issues/6606)
  *
- *   - For multiple mixins need to create type without ARMixin<> help.
+ *   - For multiple mixins need to create type without ActiveRecord<> help.
  *     https://github.com/Microsoft/TypeScript/issues/13798
  *
  *   - Won't work with angular DI + AOT (https://github.com/angular/angular/issues/14128)
  *
- *   - Instance members defined in a class that extends ARMixin<BASE> will not reflect on types returned from
- *     static methods defined in ARMixin which return the instance.
+ *   - Instance members defined in a class that extends ActiveRecord<BASE> will not reflect on types returned from
+ *     static methods defined in ActiveRecord which return the instance.
  *     i.e.: Invoking a static method on the derived class that returns an instance of that class will not refelect
  *     member defined on the derived class.
  *     This does not apply to instance types returned from methods on the instance itself - CONFUSING.
@@ -53,4 +53,4 @@ class User {
  * @tsType Promise<User>
  * @loc 23
  */
-DAO.angularHttp(User).findById(15);
+DAO.angularHttp.get(User).findById(15);

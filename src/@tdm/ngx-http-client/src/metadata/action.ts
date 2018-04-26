@@ -15,6 +15,12 @@ export interface HttpActionMetadataArgs extends ActionMetadataArgs<HttpActionMet
   endpoint?: string;
 
   /**
+   * when true, the endpoint is treated as absolute, otherwise the endpoint is added to the endpoint of the resource.
+   * Defaults to false.
+   */
+  absolute?: boolean;
+
+  /**
    * When setting a [[PostActionHandler]] (post) with the `returns` property set to true
    * you can adjust the response type that will be set in the data property of the [[ExecuteResponse]].
    *
@@ -25,13 +31,15 @@ export interface HttpActionMetadataArgs extends ActionMetadataArgs<HttpActionMet
 
 @MetaClass<HttpActionMetadataArgs, HttpActionMetadata>({
   allowOn: ['staticMember', 'member'],
-  extend: ActionMetadata.extend,
-  register: ActionMetadata.register
+  extend: 'actionMetadata',
+  register: 'actionMetadata'
 })
 export class HttpActionMetadata extends ActionMetadata {
   methodInfo: MappedMethod;
 
   endpoint?: string;
+  absolute?: boolean;
+
   urlParams?: Params;
   headers?: { [key: string]: any };
   withCredentials?: boolean;
@@ -51,6 +59,9 @@ export class HttpActionMetadata extends ActionMetadata {
 
     if (this.postResponseType && (!this.post || !this.post.returns)) {
       throw new Error('"postResponseType" can only be set when using a "post" handler with "returns" set to true');
+    }
+    if (this.absolute === true && !this.endpoint) {
+      throw new Error('When setting absolute to true an endpoint is mandatory');
     }
   }
 

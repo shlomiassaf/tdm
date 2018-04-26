@@ -20,13 +20,13 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Hook, BeforeHook, AfterHook, ActiveRecord, TDMCollection, Constructor, Prop, Exclude, ExecuteResponse, Identity } from '@tdm/data';
-import { ARMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/ngx-http-client';
+import { Hook, BeforeHook, AfterHook, ARInterface, TDMCollection, Constructor, Prop, Exclude, ExecuteResponse, Identity } from '@tdm/data';
+import { ActiveRecord, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/ngx-http-client';
 
 export interface IUserInterfaceStatic extends Constructor<IUserInterface> {
   num: number;
 }
-export interface IUserInterface extends ActiveRecord<IUserInterface, HttpActionOptions> {
+export interface IUserInterface extends ARInterface<IUserInterface, HttpActionOptions> {
   id: number;
   username: string;
 }
@@ -35,7 +35,7 @@ export interface IUserInterface extends ActiveRecord<IUserInterface, HttpActionO
   endpoint: '/path'
 })
 @Injectable()
-export class UsersInterface extends ARMixin<IUserInterface, IUserInterfaceStatic>() implements  IUserInterface {
+export class UsersInterface extends ActiveRecord<IUserInterface, IUserInterfaceStatic>() implements  IUserInterface {
   @Identity()
   id: number;
   username: string;
@@ -45,10 +45,10 @@ export class UsersInterface extends ARMixin<IUserInterface, IUserInterfaceStatic
 // UsersInterface.find(2).username__;                                   // OK
 // UsersInterface.find(2).usernam23e;                                   // SHOULD ERROR
 // UsersInterface.num;                                                  // OK
-// new UsersInterface().$refresh().username__;                          // OK
+// new UsersInterface().$get().username__;                          // OK
 // const user: UsersInterface = new UsersInterface();                   // OK
-// user.$refresh().username__;                                          // OK
-// user.$refresh().abcd;                                                // SHOULD ERROR
+// user.$get().username__;                                          // OK
+// user.$get().abcd;                                                // SHOULD ERROR
 // user.$rc.next().then( u => u.id );                                   // OK
 // user.$rc.next().then( u => u.f34 );                                  // SHOULD ERROR
 // UsersInterface.query().$rc.next().then( coll => coll );   // OK

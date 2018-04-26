@@ -2,7 +2,7 @@
   "extends": "./tsconfig",
   "compilerOptions": {
     "target": "es5",
-    "module": "es2015",
+    "module": "esnext",
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -34,6 +34,7 @@
     "node_modules",
     "dist",
     "e2e",
+    "src/demo/modules/@http/service-worker/sw/**/*",
     "src/**/*.spec.ts",
     "src/**/*.type-spec.ts",
     "src/@tdm/ngx-http"

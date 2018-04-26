@@ -20,22 +20,22 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Hook, BeforeHook, AfterHook, ActiveRecord, TDMCollection, Constructor, Prop, Exclude, ExecuteResponse, Identity } from '@tdm/data';
-import { ARMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/ngx-http-client';
+import { Hook, BeforeHook, AfterHook, ARInterface, TDMCollection, Constructor, Prop, Exclude, ExecuteResponse, Identity } from '@tdm/data';
+import { ActiveRecord, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/ngx-http-client';
 
 
 export interface IUserInterfaceStatic extends Constructor<IUserInterface> {
-  bfQuery(this: TDMCollection<ARMixin<IUserInterface>>);
-  afQuery(this: TDMCollection<ARMixin<IUserInterface>>);
+  bfQuery(this: TDMCollection<ActiveRecord<IUserInterface>>);
+  afQuery(this: TDMCollection<ActiveRecord<IUserInterface>>);
 }
 
-export interface IUserInterface extends ActiveRecord<IUserInterface, HttpActionOptions> {
+export interface IUserInterface extends ARInterface<IUserInterface, HttpActionOptions> {
   id: number;
   username__: string;
   _motto_: string;
 
-  rawDeserialized: (options?: HttpActionOptions) => ARMixin<IUserInterface>;
-  raw: (options?: HttpActionOptions) => ARMixin<IUserInterface>;
+  rawDeserialized: (options?: HttpActionOptions) => ActiveRecord<IUserInterface>;
+  raw: (options?: HttpActionOptions) => ActiveRecord<IUserInterface>;
 }
 
 @HttpResource({
@@ -47,7 +47,7 @@ export interface IUserInterface extends ActiveRecord<IUserInterface, HttpActionO
   // more... setting the transformer (incoming result to object), security etc...\
 })
 @Injectable()
-export class UsersInterface extends ARMixin<IUserInterface, IUserInterfaceStatic>()
+export class UsersInterface extends ActiveRecord<IUserInterface, IUserInterfaceStatic>()
                             implements  IUserInterface,
                                         BeforeHook<'bfRef', HttpActionOptions>,
                                         AfterHook<'afRef', HttpActionOptions> {
@@ -68,12 +68,12 @@ export class UsersInterface extends ARMixin<IUserInterface, IUserInterfaceStatic
   _motto_: string;
 
 
-  @BeforeHook('$refresh')
+  @BeforeHook('$get')
   bfRef() {
     console.log('BeforeRefresh');
   }
 
-  @AfterHook('$refresh')
+  @AfterHook('$get')
   afRef() {
     console.log('AfterRefresh');
   }
@@ -82,7 +82,7 @@ export class UsersInterface extends ARMixin<IUserInterface, IUserInterfaceStatic
     method: HttpActionMethodType.Get,
     post: UsersInterface.prototype.postDeserializedHandler
   })
-  postDeserialized: (options?: HttpActionOptions) => ARMixin<UsersInterface>;
+  postDeserialized: (options?: HttpActionOptions) => ActiveRecord<UsersInterface>;
   private postDeserializedHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
   }
 
@@ -92,14 +92,14 @@ export class UsersInterface extends ARMixin<IUserInterface, IUserInterfaceStatic
       handler: UsersInterface.prototype.postHandler,
     }
   })
-  raw: (options?: HttpActionOptions) => ARMixin<UsersInterface>;
+  raw: (options?: HttpActionOptions) => ActiveRecord<UsersInterface>;
   private postHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
   }
 
   static num: number;
 
   @Hook({event: 'before', action: 'query'})
-  static bfQuery(this: TDMCollection<ARMixin<UsersInterface>>) {
+  static bfQuery(this: TDMCollection<ActiveRecord<UsersInterface>>) {
     this.$rc.next()
       .then( coll => {
         console.log(`BeforeQuery-AfterQuery: got ${coll.length}`)
@@ -108,7 +108,7 @@ export class UsersInterface extends ARMixin<IUserInterface, IUserInterfaceStatic
   }
 
   @Hook({event: 'after', action: 'query'})
-  static afQuery(this: TDMCollection<ARMixin<UsersInterface>>) {
+  static afQuery(this: TDMCollection<ActiveRecord<UsersInterface>>) {
     console.log('AfterQuery');
     console.log(`AfterQuery: got ${this.length}`)
   }
@@ -117,10 +117,10 @@ export class UsersInterface extends ARMixin<IUserInterface, IUserInterfaceStatic
 // UsersInterface.find(2).username__;                                   // OK
 // UsersInterface.find(2).usernam23e;                                   // SHOULD ERROR
 // UsersInterface.num;                                                  // OK
-// new UsersInterface().$refresh().username__;                          // OK
+// new UsersInterface().$get().username__;                          // OK
 // const user: UsersInterface = new UsersInterface();                   // OK
-// user.$refresh().username__;                                          // OK
-// user.$refresh().abcd;                                                // SHOULD ERROR
+// user.$get().username__;                                          // OK
+// user.$get().abcd;                                                // SHOULD ERROR
 // user.$rc.next().then( u => u.id );                                   // OK
 // user.$rc.next().then( u => u.f34 );                                  // SHOULD ERROR
 // UsersInterface.query().$rc.next().then( coll => coll );   // OK

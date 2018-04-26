@@ -1,6 +1,6 @@
-import { ActiveRecord, ResourceEvent } from '@tdm/data';
+import { ARInterface, ResourceEvent } from '@tdm/data';
 
-export class EventConsumer<T extends ActiveRecord<any, any>> {
+export class EventConsumer<T extends ARInterface<any, any>> {
   private _data = {
     events: [] as string[],
     timeout: 500 as number,
@@ -73,6 +73,6 @@ export class EventConsumer<T extends ActiveRecord<any, any>> {
   }
 }
 
-export function eventConsumer<T extends ActiveRecord<any, any>>(ar: T): EventConsumer<T> {
+export function eventConsumer<T extends ARInterface<any, any>>(ar: T): EventConsumer<T> {
   return new EventConsumer(ar);
 }

@@ -23,4 +23,4 @@ export { NgDAO } from './register';
 export { httpDefaultConfig, HttpDefaultConfig } from './http-default-config';
 export { HttpResourceModule } from './module';
 
-export { ARMixin, ActiveRecordCollection, HttpActiveRecord, HttpActiveRecordStatic } from './active-record';
+export { ActiveRecord, ActiveRecordCollection, HttpActiveRecord, HttpActiveRecordStatic } from './active-record';

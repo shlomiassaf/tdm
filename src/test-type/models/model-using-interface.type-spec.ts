@@ -19,16 +19,16 @@
  *     appear on the return type of STATIC methods that return "this" - CONFUSING.
  */
 
-import { Identity, ExtendAction, ExecuteContext, Constructor, ActiveRecord } from '@tdm/data';
-import { ARMixin, HttpResource, HttpActionOptions, HttpAction, HttpActionMethodType } from '@tdm/ngx-http-client';
+import { Identity, ExtendAction, ExecuteContext, Constructor, ARInterface } from '@tdm/data';
+import { ActiveRecord, HttpResource, HttpActionOptions, HttpAction, HttpActionMethodType } from '@tdm/ngx-http-client';
 import './init-tdm';
 
 export interface IUserInterfaceStatic extends Constructor<IUserInterface> {
   num: number;
-  // find: (id: 'CatA' | 'CatB', options?: HttpActionOptions) => ARMixin<IUserInterface>;
+  // find: (id: 'CatA' | 'CatB', options?: HttpActionOptions) => ActiveRecord<IUserInterface>;
 }
 
-export interface IUserInterface extends ActiveRecord<IUserInterface, HttpActionOptions> {
+export interface IUserInterface extends ARInterface<IUserInterface, HttpActionOptions> {
   id: number;
   username: string;
 
@@ -39,7 +39,7 @@ export interface IUserInterface extends ActiveRecord<IUserInterface, HttpActionO
 @HttpResource({
   endpoint: '/path'
 })
-export class UsersInterface extends ARMixin<IUserInterface, IUserInterfaceStatic>() implements IUserInterface {
+export class UsersInterface extends ActiveRecord<IUserInterface, IUserInterfaceStatic>() implements IUserInterface {
   @Identity()
   id: number;
   username: string;
@@ -70,7 +70,7 @@ export class UsersInterface extends ARMixin<IUserInterface, IUserInterfaceStatic
   //     return options;
   //   }
   // })
-  // static find: (id: 'CatA' | 'CatB', options?: HttpActionOptions) => ARMixin<UsersInterface>;
+  // static find: (id: 'CatA' | 'CatB', options?: HttpActionOptions) => ActiveRecord<UsersInterface>;
 }
 
 UsersInterface.findById(2).username;
@@ -97,18 +97,18 @@ UsersInterface.num as string;
  */
 UsersInterface.findById(2).usernam23e;
 
-new UsersInterface().$refresh().username;
+new UsersInterface().$get().username;
 
 const user: UsersInterface = new UsersInterface();
 
-user.$refresh().username;
+user.$get().username;
 
 /**
  * @tssert not cast to any
  * @tsError 2339
  * @loc 17
  */
-user.$refresh().abcd;
+user.$get().abcd;
 
 /**
  * Keep type information in promise chain - property
@@ -189,9 +189,9 @@ UsersInterface.query().erer();
 UsersInterface.findAll().findOne(null);
 UsersInterface.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method(15));
 
 /**
@@ -201,9 +201,9 @@ UsersInterface.findOne(null)
  */
 UsersInterface.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method('XX'));
 
 // UsersInterface.find('CatA');
@@ -241,7 +241,7 @@ export class UsersInterfaceExt extends UsersInterface {
 UsersInterfaceExt.findById(2).username;
 
 /**
- * This shows the limitation of not being able to reflect instance members of classes deriving from ARMixin<Base...>
+ * This shows the limitation of not being able to reflect instance members of classes deriving from ActiveRecord<Base...>
  * when the type is returned from a static member.
  *
  * @tssert keep property type information.
@@ -274,18 +274,18 @@ UsersInterfaceExt.num as string;
  */
 UsersInterfaceExt.findById(2).usernam23e;
 
-new UsersInterfaceExt().$refresh().username;
+new UsersInterfaceExt().$get().username;
 
 const userExt: UsersInterfaceExt = new UsersInterfaceExt();
 
-userExt.$refresh().username;
+userExt.$get().username;
 
 /**
  * @tssert not cast to any
  * @tsError 2339
  * @loc 20
  */
-userExt.$refresh().abcd;
+userExt.$get().abcd;
 
 /**
  * Keep type information in promise chain - property
@@ -366,9 +366,9 @@ UsersInterfaceExt.query().erer();
 UsersInterfaceExt.findAll().findOne(null);
 UsersInterfaceExt.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method(15));
 
 /**
@@ -378,9 +378,9 @@ UsersInterfaceExt.findOne(null)
  */
 UsersInterfaceExt.findOne(null)
   .$remove()
-  .$refresh()
+  .$get()
   .$rc.next()
-  .then( u => u.$remove().$refresh() )
+  .then( u => u.$remove().$get() )
   .then( u => u.method('XX'));
 
 // UsersInterfaceExt.find('CatA');

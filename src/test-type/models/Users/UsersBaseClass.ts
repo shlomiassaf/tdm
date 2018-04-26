@@ -21,7 +21,7 @@
 
 import { Injectable } from '@angular/core';
 import { Hook, BeforeHook, AfterHook, TDMCollection, Prop, Exclude, ExecuteResponse, Identity } from '@tdm/data';
-import { ARMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/ngx-http-client';
+import { ActiveRecord, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/ngx-http-client';
 
 export class User_ {
   @Identity()
@@ -33,16 +33,16 @@ export class User_ {
 @HttpResource({
   endpoint: '/path'
 })
-export class UserBaseClass extends ARMixin(User_) { }
+export class UserBaseClass extends ActiveRecord(User_) { }
 
 
 // UserBaseClass.find(2).username__;                                    // OK
 // UserBaseClass.find(2).usernam23e;                                    // SHOULD ERROR
 // UserBaseClass.num;                                                   // OK
-// new UserBaseClass().$refresh().username__;                           // OK
+// new UserBaseClass().$get().username__;                           // OK
 // const user: UserBaseClass = new UserBaseClass();                     // OK
-// user.$refresh().username__;                                          // OK
-// user.$refresh().abcd;                                                // SHOULD ERROR
+// user.$get().username__;                                          // OK
+// user.$get().abcd;                                                // SHOULD ERROR
 // user.$rc.next().then( u => u.id );                                   // OK
 // user.$rc.next().then( u => u.f34 );                                  // SHOULD ERROR
 // UserBaseClass.query().$rc.next().then(coll => coll );     // OK

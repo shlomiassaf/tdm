@@ -2,6 +2,7 @@ require('ts-node/register');
 const helpers = require('./helpers');
 const buildUtils = require('./build-utils');
 const util = require('../scripts/util.ts');
+const ServiceWorkerTsPlugin = require('../src/build/service-worker-ts-plugin').ServiceWorkerTsPlugin;
 
 /**
  * Webpack Plugins
@@ -17,8 +18,32 @@ const InlineManifestWebpackPlugin = require('inline-manifest-webpack-plugin');
 const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
 const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
 const ngcWebpack = require('ngc-webpack');
-
 const TDM_EXAMPLE_FILE_REGEXP = /__tdm-code__\.ts$/;
+const SERVICE_WORKER_HTTP_SERVER_REGEXP = /\/server/;
+
+/**
+ * This will patch angular CLI to work with decorators.
+ * SEE https://github.com/angular/angular/issues/20216
+ */
+function patchAngularCliToWorkWithDecorators() {
+  require('ngc-webpack/src/patch-angular-compiler-cli');
+}
+
+/**
+ * Will add an exclude to the TS loader with the provides regexp
+ * @param loaders
+ */
+function excludeFromTsLoader(loaders, ...regexp) {
+  const tsLoaderRule = loaders.find( l => l.test.test('someFile.ts') );
+  if (!tsLoaderRule) {
+    throw new Error('Could not find TS loader RULE and add exclude to it');
+  } else {
+    if (!tsLoaderRule.exclude) {
+      tsLoaderRule.exclude = [];
+    }
+    tsLoaderRule.exclude.push(...regexp);
+  }
+}
 
 /**
  * Webpack configuration
@@ -30,18 +55,17 @@ module.exports = function (options) {
   const isSim = !!options.sim;
 
 
-  const METADATA = Object.assign({}, buildUtils.DEFAULT_METADATA, {title: 'ngx-modialog'}, options.metadata || {});
+  const METADATA = Object.assign({}, buildUtils.DEFAULT_METADATA, {title: 'TDM'}, options.metadata || {});
+
+
   if (METADATA.AOT) {
-    require('ngc-webpack/src/patch-angular-compiler-cli');
+    patchAngularCliToWorkWithDecorators();
   }
 
   const ngcWebpackConfig = buildUtils.ngcWebpackSetup(isProd, METADATA);
   const supportES2015 = buildUtils.supportES2015(METADATA.tsConfigPath);
-  if (ngcWebpackConfig.loaders[0].exclude) {
-    ngcWebpackConfig.loaders[0].exclude.push(TDM_EXAMPLE_FILE_REGEXP);
-  } else {
-    ngcWebpackConfig.loaders[0].exclude = [TDM_EXAMPLE_FILE_REGEXP];
-  }
+
+  excludeFromTsLoader(ngcWebpackConfig.loaders, TDM_EXAMPLE_FILE_REGEXP, SERVICE_WORKER_HTTP_SERVER_REGEXP);
 
   const entry = {
     polyfills: './src/demo/polyfills.browser.ts',
@@ -105,6 +129,18 @@ module.exports = function (options) {
             },
             {
               loader: "tdm-ts-transpile"
+            }
+          ]
+        },
+        {
+          test: SERVICE_WORKER_HTTP_SERVER_REGEXP,
+          use: [
+            {
+              loader: 'ts-loader',
+              options: {
+                transpileOnly: true,
+                configFile: 'tsconfig.server.service-worker.json'
+              }
             }
           ]
         },
@@ -325,6 +361,17 @@ module.exports = function (options) {
       new LoaderOptionsPlugin({}),
 
       new ngcWebpack.NgcWebpackPlugin(ngcWebpackConfig.plugin),
+      // ServiceWorkerTsPlugin must come AFTER!!! ngc webpack plugin
+      // because ServiceWorkerTsPlugin assigns the instance of the AOT plugin set on the compilation to the child
+      // compilation created by ServiceWorkerWebpackPlugin
+      ...ServiceWorkerTsPlugin.create(
+        {
+          tsconfig: 'tsconfig.server.service-worker.json'
+        },
+        {
+          entry: helpers.root('src', 'demo', 'modules', 'server', 'index.ts')
+        }
+      ),
 
       /**
        * Plugin: InlineManifestWebpackPlugin

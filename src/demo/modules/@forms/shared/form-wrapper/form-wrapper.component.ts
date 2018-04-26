@@ -1,6 +1,8 @@
 import '!!style-loader!css-loader!sass-loader!./form-wrapper.global.scss';
 
-import { highlightAuto } from 'highlight.js';
+import * as hljs from 'highlight.js/lib/highlight';
+hljs.registerLanguage('json', require(`highlight.js/lib/languages/json.js`));
+
 import { debounceTime } from 'rxjs/operators';
 import {
   AfterContentInit,
@@ -92,8 +94,8 @@ export class FormWrapperComponent implements AfterContentInit, OnChanges {
 
   refreshJsonView(): void {
     if (this.jsonView) {
-      this.formJson = highlightAuto(JSON.stringify(this.dynForm.form.getRawValue(), null, 2), ['json']).value;
-      this.modelJson = highlightAuto(JSON.stringify(this.dynForm.tdmForm.model, null, 2), ['json']).value;
+      this.formJson = hljs.highlightAuto(JSON.stringify(this.dynForm.form.getRawValue(), null, 2), ['json']).value;
+      this.modelJson = hljs.highlightAuto(JSON.stringify(this.dynForm.tdmForm.model, null, 2), ['json']).value;
     }
   }
 }

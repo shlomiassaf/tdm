@@ -4,6 +4,7 @@ import * as Path from 'path';
 import { loader } from 'webpack';
 import { highlightAuto } from 'highlight.js';
 import * as marked from 'marked';
+import { processString } from 'typescript-formatter';
 const convertSourceMap = require('convert-source-map'); // tslint:disable-line
 
 import {
@@ -27,6 +28,10 @@ module.exports = function (this: loader.LoaderContext, content) {
   const extracted: ExtractedCode[] = [];
 
   const cache = new Map<string, ParserResult>();
+  const callback = this.async();
+
+  const promises: Array<Promise<any>> = [];
+
   for ( let i of instructions ) {
     if ( i.section && i.slice ) {
       this.emitError(`"section" and "slice" are now allowed together`);
@@ -76,7 +81,25 @@ module.exports = function (this: loader.LoaderContext, content) {
             case 'css':
             case 'scss':
             case 'ts':
-              code.code = highlightAuto(convertSourceMap.removeComments(code.code), [lang]).value;
+              if (i.reformat) {
+                const p = processString(fileName + '___', code.code, {
+                  dryRun: true,
+                  replace: false,
+                  verify: false,
+                  tsconfig: true,
+                  tsconfigFile: null,
+                  tslintFile: null,
+                  tsfmtFile: null,
+                  vscodeFile: null,
+                  tslint: true,
+                  editorconfig: true,
+                  tsfmt: true,
+                  vscode: false
+                }).then(result => code.code = highlightAuto(convertSourceMap.removeComments(result.dest), [lang]).value);
+                promises.push(p);
+              } else {
+                code.code = highlightAuto(convertSourceMap.removeComments(code.code), [lang]).value;
+              }
               break;
             case 'md':
               const markedOptions = i.rendererOptions
@@ -99,5 +122,8 @@ module.exports = function (this: loader.LoaderContext, content) {
     }
   }
   this.sourceMap = false;
-  return 'module.exports = ' + JSON.stringify(extracted);
+  Promise.all(promises)
+    .then( () => {
+      callback(null, 'module.exports = ' + JSON.stringify(extracted));
+    });
 };

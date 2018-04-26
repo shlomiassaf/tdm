@@ -1,9 +1,11 @@
 import {
   targetStore,
   isFunction,
+  isJsObject,
   errors,
   TDMCollection,
-  TargetMetadata
+  TargetMetadata,
+  TDMModelBase
 } from '@tdm/core/tdm';
 
 import { dispatchEvent, eventFactory, CancellationTokenResourceEvent, ExecuteInitResourceEvent } from '../events';
@@ -22,7 +24,11 @@ import { ExecuteContext, ExecuteParams } from './execute-context';
 
 interface ExecuteState {
   id?: any;
+  rc?: ResourceControl<any>;
+  wasBusy?: boolean;
   cancelled?: boolean;
+  request?: any;
+  postReturnsResult?: any;
 }
 
 export class ActionController<T = any, Z = any> {
@@ -38,13 +44,13 @@ export class ActionController<T = any, Z = any> {
     this.adapterMeta = targetStore.getAdapter(adapterClass);
   }
 
-  createExecFactory<T>(action: ActionMetadata, ret: 'promise'): (self: T, ...args: any[]) => Promise<T>;
-  createExecFactory<T>(action: ActionMetadata, ret?: 'instance'): (self: T, ...args: any[]) => T;
+  createExecFactory<T>(action: ActionMetadata, ret: 'promise'): (self: T, params: ExecuteParams) => Promise<T>;
+  createExecFactory<T>(action: ActionMetadata, ret?: 'instance'): (self: T, params: ExecuteParams) => T;
   createExecFactory<T>(action: ActionMetadata,
-                       ret?: 'instance' | 'promise'): (self: T, ...args: any[]) => T | Promise<T> {
+                       ret?: 'instance' | 'promise'): (self: T, params: ExecuteParams) => T | Promise<T> {
     const ac = this;
-    return function (self: T, ...args: any[]) {
-      return ac.execute(this.clone(self), {args}, <any> ret);
+    return function (self: T, params: ExecuteParams) {
+      return ac.execute(this.clone(self), params, <any> ret);
     }.bind(new ExecuteContext(this.targetMetadata, action));
   }
 
@@ -58,49 +64,54 @@ export class ActionController<T = any, Z = any> {
       args[action.paramHint - 1] = {};
     }
 
+    // we keep alive any resource that returns an instance, which is AR.
+    const keepAliveResourceControl = ret !== 'promise';
+
+    // if the user opt in to force promise response, mark it
+    if (action.post && action.post.returns && ret !== 'promise') {
+      ret = 'promise';
+      // 'instance' is ActiveRecord but post process that also controls the return value is not longer 'instance'
+      // We must clone the instance otherwise it will create strange behaviour in `ResourceControl` (busy, _next, etc..)
+      ctx = ctx.clone();
+      if (ctx.instance) {
+        // TODO: instead of clone we can do Object.create(ctx.instance), should be b
+        ctx.setInstance(TDMModelBase.clone(ctx.instance));
+      }
+    }
+
     const options = isFunction(action.pre) ? action.pre(ctx, ...args) : args[0];
 
     if (!ctx.instance) {
       ctx.setInstance();
     }
 
-    const state = ResourceControl.get(ctx.instance);
-    const isPostReturns = action.post && action.post.returns;
-    if (isPostReturns) {
-      ret = 'promise';
-    }
+    // finally set the mode after the initial setup.
+    const promiseMode = ret === 'promise';
 
-    const err = state && state.busy && !isPostReturns
-      ? eventFactory.error(ctx.instance, new Error('An action is already running'))
-      : (!!action.isCollection !== TDMCollection.instanceOf(ctx.instance))
-        ? eventFactory.error(ctx.instance, errors.modelSingleCol(ctx.instance, action.isCollection))
-        : undefined
-    ;
-    if (err) {
-      return ret === 'promise' ? Promise.reject(err) : dispatchEvent(err, 0);
-    }
-
-    state.set('busy', true);
-
-    dispatchEvent(new ExecuteInitResourceEvent(ctx.instance, {ac: this, action, args}), 0);
-    dispatchEvent(eventFactory.actionStart(ctx.instance), 0);
-
-    const eState: ExecuteState = {};
-
-    if (this.adapter.supports.cancel) {
-      dispatchEvent(new CancellationTokenResourceEvent(ctx.instance, () => this.cancel(eState, ctx)), 0);
-    }
+    let eState: ExecuteState;
 
     // TODO: move this to be part of the promise flow
     const doFinally = () => {
-      state.set('busy', false);
+      eState.rc.set('busy', false);
     };
 
-    let postReturnsResult: any;
     // TODO:  fireEvent uses member name as Hook matcher, this requires member name to be one of
     //        "ARHookableMethods", let user set the action method in ActionMetadata or something
     //        - Also applied to fireEvent "after" below.
-    const promise = new Promise( resolve => setTimeout(resolve, 5) )
+    const promise = new Promise( resolve => setTimeout(resolve, 0) )
+      .then( () => {
+        if (!!action.isCollection !== TDMCollection.instanceOf(ctx.instance)) {
+          throw errors.modelSingleCol(ctx.instance, action.isCollection);
+        } else if (eState.wasBusy) {
+          throw new Error('An action is already running');
+        }
+
+        dispatchEvent(eventFactory.actionStart(ctx.instance));
+
+        if (this.adapter.supports.cancel) {
+          dispatchEvent(new CancellationTokenResourceEvent(ctx.instance, () => this.cancel(eState, ctx)));
+        }
+      })
       .then( () => this.fireHook(action.name as any, 'before', ctx.instance, options) )
       .then( () => this.validate('outgoing', action.validation, ctx) )
       .then(() => {
@@ -109,9 +120,10 @@ export class ActionController<T = any, Z = any> {
           throw new Error('Cancelled');
         }
 
-        const adapterResponse = this.adapter.execute(ctx, options, args);
+        const adapterResponse = this.adapter.execute(ctx, options,  params);
 
         eState.id = adapterResponse.id;
+        eState.request = adapterResponse.request;
 
         // TODO: If user cancelled and the adapter does not throw an error on cancellation
         //       this means that the promise chain will continue, need to fix it.
@@ -119,25 +131,33 @@ export class ActionController<T = any, Z = any> {
         //       this also applies on the first 2 steps
         return adapterResponse.response
           .then((response: ExecuteResponse) => {
-            if (!action.post || !action.post.returns) {
-              ctx.deserialize(response.data);
+            if (isJsObject(response.data)) {
+              if (response.skipDeserialize !== true || !action.post || !action.post.returns) {
+                ctx.deserialize(response.data);
+              }
             }
             if (action.post) {
-              postReturnsResult = action.post.handler.apply(ctx.instance, [response, options]);
+              eState.postReturnsResult = action.post.handler.apply(ctx.instance, [response, options]);
             }
 
             return (action.isCollection ? Promise.resolve() : this.validate('incoming', action.validation, ctx))
-              .then( () => this.fireHook(action.name as any, 'after', ctx.instance, options, response) );
+              .then( () => this.fireHook(action.name as any, 'after', ctx.instance, options, response) )
+              .then( () => response );
           });
       })
-      .then(() => dispatchEvent(eventFactory.success(ctx.instance)))
-      .then(() => doFinally() )
-      .then(() => dispatchEvent(eventFactory.actionEnd(ctx.instance, 'success')))
-      .then(() => action.post && action.post.returns ? postReturnsResult : ctx.instance )
+      .then( (response: ExecuteResponse) => {
+        dispatchEvent(eventFactory.success(ctx.instance));
+        doFinally();
+        dispatchEvent(eventFactory.actionEnd(ctx.instance, 'success', eState.request, response.response));
+        return action.post && action.post.returns
+          ? eState.postReturnsResult
+          : promiseMode && !isJsObject(response.data) ? response.data : ctx.instance
+        ;
+      })
       .catch(error => {
         if (eState.cancelled !== true) {
-          dispatchEvent(eventFactory.error(ctx.instance, error));
-          if (ret === 'promise') { // rethrow if the user handles the promise
+          dispatchEvent(eventFactory.error(ctx.instance, error, eState.request));
+          if (promiseMode) { // rethrow if the user handles the promise
             doFinally();
             throw error;
           }
@@ -145,19 +165,40 @@ export class ActionController<T = any, Z = any> {
         doFinally();
       });
 
-    // TODO: implement timeout to protect from stale promises?
+    // fired before the promise is returned to the user (the last param, async, is not set)
+    // this is important, because we must register the instance/promise for lookup's before the user can
+    // do ResourceControl.get(...)
+    dispatchEvent(new ExecuteInitResourceEvent(
+      ctx.instance,
+      {ac: this, action, params},
+      ret,
+      promise,
+      keepAliveResourceControl
+    ));
 
-    return ret === 'promise' ? promise : ctx.instance;
+    eState = {
+      rc: ResourceControl.get(ctx.instance)
+    };
+
+    // we only care about busy mode when working on an instance to prevent race conditions.
+    if (!promiseMode) {
+      eState.wasBusy = eState.rc.busy;
+    }
+    eState.rc.set('busy', true);
+
+    // TODO: implement timeout to protect from stale promises?
+    return promiseMode ? promise : ctx.instance;
   }
 
   private cancel(eState: ExecuteState, ctx: ExecuteContext<any>): void {
     if (!eState.cancelled) {
       eState.cancelled = true;
       dispatchEvent(eventFactory.cancel(ctx.instance));
+      eState.rc.set('busy', false);
       if (eState.id) {
         this.adapter.cancel(eState.id);
       }
-      dispatchEvent(eventFactory.actionEnd(ctx.instance, 'cancel'));
+      dispatchEvent(eventFactory.actionEnd(ctx.instance, 'cancel', eState.request));
     }
   }
 

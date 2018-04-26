@@ -16,6 +16,8 @@ Object.defineProperty(window, 'getComputedStyle', {
   value: () => ['-webkit-appearance']
 });
 
+import '@tdm/core';
+import '@tdm/core/tdm';
 import { plugins } from '@tdm/data';
 import '@tdm/data/plugin/active-record';
 import '@tdm/data/plugin/rx-resource-control';

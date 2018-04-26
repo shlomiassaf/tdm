@@ -21,7 +21,7 @@ export class RenderContainerComponent {
   }
 
   /* @tdm-ignore:* */
-  code: any = System.import(/* webpackChunkName: "RenderContainerComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = System.import(/* webpackChunkName: "FormsRenderContainerComponent" */ './__tdm-code__.ts'); // tslint:disable-line
   static tutorial = {
     id: 'render-container',
     name: 'Render Container'

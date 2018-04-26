@@ -20,7 +20,13 @@ export { HttpAction, UrlParam, HttpResource } from './decorators';
 // TODO: solve this circular dependency hell
 export { NgDAO } from './register';
 
-export { httpDefaultConfig, HttpDefaultConfig } from './http-default-config';
+export { HttpDefaultConfig } from './http-default-config';
 export { HttpClientResourceModule } from './module';
 
-export { ARMixin, ActiveRecordCollection, HttpActiveRecord, HttpActiveRecordStatic } from './active-record';
+export {
+  ActiveRecord,
+  TypeOfActiveRecord,
+  ActiveRecordCollection,
+  HttpActiveRecord,
+  HttpActiveRecordStatic
+} from './active-record';

@@ -8,6 +8,7 @@ declare module '@tdm/core/tdm/src/fw/errors' {
     validation(model: any, errors: ValidationError[]): Error & { errors: ValidationError[] };
     validationConfig(validationName: string, message: string): Error;
     modelNoAdapter(model: any): Error;
+    adapterNoAction(adapterClass: AdapterStatic<any, any>, action: string): Error;
     plugin(pluginName: string, message: string): Error;
     pluginMissing(pluginName: string): Error;
     adapter(adapterClass: AdapterStatic<any, any>, message: string): Error;
@@ -18,6 +19,10 @@ declare module '@tdm/core/tdm/src/fw/errors' {
 
 pt.modelNoAdapter = function modelNoAdapterError(this: Errors, model: any): Error {
   return this.model(model, `No active adapter registered.`);
+};
+
+pt.adapterNoAction = function adapterNoActionError(this: Errors, adapterClass: AdapterStatic<any, any>, action: string): Error {
+  return this.adapter(adapterClass, `Action "${action}" is not registered.`);
 };
 
 pt.validation = function validationError(this: Errors, model: any, errors: ValidationError[]): Error & { errors: ValidationError[] } {

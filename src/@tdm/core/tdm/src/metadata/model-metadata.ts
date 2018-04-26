@@ -72,21 +72,23 @@ export interface ModelMetadataArgs {
    * If true will not build (process) the decorated class into a resource.
    * This is useful for deferring the build step.
    *
+   * > Extensions of a model might change the behaviour, setting a default value when skip is not explicitly set.
+   *
    * For example, if you are registering the mixin outside of the class declaration.
    *
    * ### Example
    * **Registering the mixin INSIDE the class declaration (skip: false, or don't declare it):**
    * ```ts
    * @HttpResource({ endpoint: '/api/users/:id?' })
-   * export class UserBaseClass extends ARMixin(User_) { }
+   * export class UserBaseClass extends ActiveRecord(User_) { }
    *
    * **Registering the mixin OUTSIDE the class declaration (skip: true):**
    * ```ts
    * @HttpResource({ endpoint: '/api/users/:id?' })
    * export class UserConst_) { }
    *
-   * export const UserConst = ARMixin(UserConst_);
-   * export type UserConst = ARMixin<UserConst_>;
+   * export const UserConst = ActiveRecord(UserConst_);
+   * export type UserConst = ActiveRecord<UserConst_>;
    * ```
    *
    * Manually processing is required to finish the model build.

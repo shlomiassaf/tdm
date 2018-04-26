@@ -1,6 +1,18 @@
 import { Component } from '@angular/core';
 import { TdmFeatureListItem } from '@shared';
 
+import { SWClient } from '@shared/client';
+
+const client = new SWClient();
+client.ready
+  .then( () => {
+    console.log('CLIENT CREATED');
+    client.restoreDB()
+      .then(data => console.log('DB RESTORED') )
+      .catch( err => console.error(err) );
+  })
+  .catch( err => console.error(err) );
+
 @Component({
   selector: 'ngx-http-app',
   styleUrls: [ './ngx-http-app.component.scss' ],

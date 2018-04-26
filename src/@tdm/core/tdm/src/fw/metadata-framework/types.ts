@@ -3,7 +3,8 @@ import { MetaClassMetadata } from './meta-class';
 
 export interface DecoratorInfo {
   type: 'class' | 'member' | 'param';
-  name?: PropertyKey,
+  name?: TdmPropertyKey;
+  paramIndex?: number;
   isStatic?: boolean;
   hasDescriptor?: boolean;
 }
@@ -14,12 +15,11 @@ export interface DecoratorInfo {
  *   - member: can decorate an instance level property or a method
  *   - staticMember: can decorate an class level property or a method
  */
-export type MetadataAllowOn = 'class' | 'member' | 'staticMember';
-
+export type MetadataAllowOn = 'class' | 'member' | 'staticMember' | 'param';
 
 export interface MetadataClassStatic<TMetaArgs = any, TMetaClass = any> {
   new (metaArgs: TMetaArgs, info: DecoratorInfo, target?: Object | Function): TMetaClass;
-  prototype: TMetaClass
+  prototype: TMetaClass;
 }
 
 export interface MetaClassInstanceDetails<TMetaArgs, TMetaClass> {
@@ -30,11 +30,20 @@ export interface MetaClassInstanceDetails<TMetaArgs, TMetaClass> {
   metaValue: TMetaClass;
 }
 
+// tslint:disable:max-line-length
 export type MetadataCurriedCreate<TMetaArgs, TMetaClass>
   = ((alternateMeta?: MetaClassInstanceDetails<TMetaArgs, TMetaClass>) => TMetaClass) & { meta: MetaClassInstanceDetails<TMetaArgs, TMetaClass> };
 
-export type RegisterFn<TMetaArgs, TMetaClass> = (this: MetaClassMetadata<TMetaArgs, TMetaClass>,
-                                                 meta: MetaClassInstanceDetails<TMetaArgs, TMetaClass>) => void;
+export type RegisterFn<TMetaArgs = any, TMetaClass = any> = (this: MetaClassMetadata<TMetaArgs, TMetaClass>,
+                                                             meta: MetaClassInstanceDetails<TMetaArgs, TMetaClass>) => void;
 
-export type ExtendFn = (from: Map<PropertyKey, any>, to: Map<PropertyKey, any> | undefined, meta?: { from: Constructor<any>, to: Constructor<any> }) => Map<PropertyKey, any> | undefined;
-export type ExtendSingleFn<TMetaClass> = (from: TMetaClass, to: TMetaClass | undefined, meta?: { from: Constructor<any>, to: Constructor<any> }) => TMetaClass | undefined
+export type ExtendFn<TMetaClass = any> = (from: Map<TdmPropertyKey, TMetaClass>,
+                                          to?: Map<TdmPropertyKey, TMetaClass> | undefined,
+                                          meta?: { from: Constructor<any>, to: Constructor<any> }) => Map<TdmPropertyKey, TMetaClass> | undefined;
+
+export type ExtendSingleFn<TMetaClass = any> = (from: TMetaClass,
+                                                to?: TMetaClass | undefined,
+                                                meta?: { from: Constructor<any>, to: Constructor<any> }) => TMetaClass | undefined;
+
+export interface MetaClassRegisterHelpers { }
+export interface MetaClassExtendHelpers { }

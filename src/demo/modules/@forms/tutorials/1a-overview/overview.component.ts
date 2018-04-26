@@ -6,7 +6,7 @@ import { Component } from '@angular/core';
   styleUrls: [ './overview.component.scss' ]
 })
 export class OverviewComponent {
-  code: any = System.import(/* webpackChunkName: "OverviewComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = System.import(/* webpackChunkName: "FormsOverviewComponent" */ './__tdm-code__.ts'); // tslint:disable-line
   static tutorial = {
     id: 'overview',
     name: 'Overview'

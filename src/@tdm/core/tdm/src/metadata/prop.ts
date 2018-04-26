@@ -12,7 +12,6 @@ import {
   MetaClassMetadata
 } from '../fw';
 
-
 import { targetStore } from './target-store';
 import { RelationMetadata } from './relation';
 import { TypeMetadata, TypeMetadataArgs } from './type';
@@ -43,7 +42,7 @@ export interface PropMetadataArgs {
 
 @MetaClass<PropMetadataArgs, PropMetadata>({
   allowOn: ['member'],
-  extend: 'prop'
+  extend: 'mergeMap'
 })
 export class PropMetadata extends BaseMetadata {
   alias: PropAliasConfig;

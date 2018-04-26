@@ -5,6 +5,7 @@ export {
   AdapterMetadata,
   AdapterMetadataArgs,
   AfterHook,
+  AutoIdentity,
   BeforeHook,
   BelongsTo,
   BelongsToMetadata,
@@ -20,6 +21,7 @@ export {
   OwnsMetadata,
   OwnsMetadataArgs,
   Prop,
+  PreActionHandler,
   PostActionHandler,
   PostActionMetadata,
   Relationship,
@@ -39,7 +41,7 @@ export * from './core/index';
 export { validators } from './core-validators';
 
 export {
-  ActiveRecord,
+  ARInterface,
   IdentityValueType,
   AdapterResponse,
   ExecuteResponse,
@@ -51,6 +53,7 @@ export {
 } from './fw/index';
 
 export {
+  isResourceEvent,
   events$,
   ResourceEventEmitter,
   ResourceEventDispatcher,
@@ -65,7 +68,7 @@ export {
 export {
   findProp,
   isSymbol,
-  isPropertyKey,
+  isTdmPropertyKey,
   promiser,
 } from './utils/index';
 
@@ -77,6 +80,6 @@ export {
   TDMCollection
 } from '@tdm/core';
 
-export { DAO, AdapterDAO, TargetDAO } from './dao';
+export { DAO, AdapterDAO, TargetDAO, DAOMethodType } from './dao/index';
 
-export { ResourceControl } from './resource-control';
+export { ResourceControl, ResourceControlToken } from './resource-control';

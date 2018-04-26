@@ -17,7 +17,7 @@ import { getSuperPowersAsync } from '../before-render-event';
 })
 export class FieldSyncRedrawComponent {
   model = new Hero();
-  code: any = System.import(/* webpackChunkName: "FieldSyncRedrawComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
+  code: any = System.import(/* webpackChunkName: "FormsFieldSyncRedrawComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
 
   stateFieldType: 'select' | 'radio' = 'select';
 

@@ -21,7 +21,7 @@
 
 import { Injectable } from '@angular/core';
 import { Hook, BeforeHook, AfterHook, TDMCollection, Prop, Exclude, ExecuteResponse, Identity } from '@tdm/data';
-import { ARMixin, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/ngx-http-client';
+import { ActiveRecord, HttpResource, HttpAction, UrlParam, HttpActionOptions, HttpActionMethodType } from '@tdm/ngx-http-client';
 
 export class User_ implements   BeforeHook<'bfRef', HttpActionOptions>,
                                 AfterHook<'afRef', HttpActionOptions> {
@@ -43,12 +43,12 @@ export class User_ implements   BeforeHook<'bfRef', HttpActionOptions>,
 
   constructor() { }
 
-  @BeforeHook('$refresh')
+  @BeforeHook('$get')
   bfRef() {
     console.log('BeforeRefresh');
   }
 
-  @AfterHook('$refresh')
+  @AfterHook('$get')
   afRef() {
     console.log('AfterRefresh');
   }
@@ -57,7 +57,7 @@ export class User_ implements   BeforeHook<'bfRef', HttpActionOptions>,
     method: HttpActionMethodType.Get,
     post: User_.prototype.postDeserializedHandler
   })
-  postDeserialized: (options?: HttpActionOptions) => ARMixin<User_>;
+  postDeserialized: (options?: HttpActionOptions) => ActiveRecord<User_>;
   private postDeserializedHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
   }
 
@@ -67,14 +67,14 @@ export class User_ implements   BeforeHook<'bfRef', HttpActionOptions>,
       handler: User_.prototype.postHandler,
     }
   })
-  raw: (options?: HttpActionOptions) => ARMixin<User_>;
+  raw: (options?: HttpActionOptions) => ActiveRecord<User_>;
   private postHandler(resp: ExecuteResponse, options?: HttpActionOptions) {
   }
 
   static num: number;
 
   @Hook({event: 'before', action: 'query'})
-  static bfQuery(this: TDMCollection<ARMixin<User_>>) {
+  static bfQuery(this: TDMCollection<ActiveRecord<User_>>) {
     this.$rc.next()
       .then( coll => {
         console.log(`BeforeQuery-AfterQuery: got ${coll.length}`)
@@ -83,7 +83,7 @@ export class User_ implements   BeforeHook<'bfRef', HttpActionOptions>,
   }
 
   @Hook({event: 'after', action: 'query'})
-  static afQuery(this: TDMCollection<ARMixin<User_>>) {
+  static afQuery(this: TDMCollection<ActiveRecord<User_>>) {
     console.log('AfterQuery');
     console.log(`AfterQuery: got ${this.length}`)
   }
@@ -97,16 +97,16 @@ export class User_ implements   BeforeHook<'bfRef', HttpActionOptions>,
   },
 })
 @Injectable()
-export class UserBaseClass extends ARMixin(User_) { }
+export class UserBaseClass extends ActiveRecord(User_) { }
 
 
 // UserBaseClass.find(2).username__;                                    // OK
 // UserBaseClass.find(2).usernam23e;                                    // SHOULD ERROR
 // UserBaseClass.num;                                                   // OK
-// new UserBaseClass().$refresh().username__;                           // OK
+// new UserBaseClass().$get().username__;                           // OK
 // const user: UserBaseClass = new UserBaseClass();                     // OK
-// user.$refresh().username__;                                          // OK
-// user.$refresh().abcd;                                                // SHOULD ERROR
+// user.$get().username__;                                          // OK
+// user.$get().abcd;                                                // SHOULD ERROR
 // user.$rc.next().then( u => u.id );                                   // OK
 // user.$rc.next().then( u => u.f34 );                                  // SHOULD ERROR
 // UserBaseClass.query().$rc.next().then(coll => coll );     // OK

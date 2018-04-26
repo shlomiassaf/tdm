@@ -1,3 +1,4 @@
+import { Identity } from '@tdm/core';
 import {
   targetStore,
   ModelMetadataArgs,
@@ -44,6 +45,20 @@ targetStore.registerAdapter(NoopAdapter, {
   resourceMetaClass: ModelMetadata
 });
 
+declare module '@tdm/core/tdm/src/add/model/model' {
+  interface ModelMetadata {
+    autoGenIdentity?: boolean;
+  }
+}
+
+export function AutoIdentity(): Function {
+  return (target: Object, key: TdmPropertyKey) => {
+    Identity()(target, key);
+    const model = targetStore.getTargetMeta(<any> target.constructor).model().autoGenIdentity = true;
+  };
+}
+
+const _Resource = MetaClass.get(ModelMetadata).createResourceDecorator(NoopAdapter); // FOR AOT
 /**
  * A Resource with a NOOP adapter.
  * @classDecorator
@@ -52,7 +67,6 @@ targetStore.registerAdapter(NoopAdapter, {
 export function Resource(metaArgs: ModelMetadataArgs) {
   return _Resource(metaArgs) as any;
 }
-const _Resource = MetaClass.get(ModelMetadata).createResourceDecorator(NoopAdapter); // FOR AOT
 
 /**
  * @propertyDecorator instance
@@ -65,7 +79,6 @@ export const ExtendAction = MetaClass.decorator(ExtendActionMetadata);
  * @param def
  */
 export const BelongsTo = MetaClass.decorator(BelongsToMetadata, true);
-
 
 /**
  * @propertyDecorator instance
@@ -83,5 +96,5 @@ export function AfterHook(action: ARHookableMethods) {
   return Hook({event: 'after', action});
 }
 
-export type BeforeHook<K extends string, Z> = { [P in K]: (options: Z) => void | Promise<void>; }
-export type AfterHook<K extends string, Z> = { [P in K]: (options: Z, rawResponse: ExecuteResponse) => void | Promise<void>; }
+export type BeforeHook<K extends string, Z> = { [P in K]: (options: Z) => void | Promise<void>; };
+export type AfterHook<K extends string, Z> = { [P in K]: (options: Z, rawResponse: ExecuteResponse) => void | Promise<void>; };

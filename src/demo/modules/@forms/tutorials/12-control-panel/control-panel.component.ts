@@ -15,7 +15,7 @@ import { Hero } from '../4-element-metadata';
 })
 export class ControlPanelComponent {
   model = new Hero();
-  code: any = System.import(/* webpackChunkName: "ControlPanelComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
+  code: any = System.import(/* webpackChunkName: "FormsControlPanelComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
   /* @tdm-ignore:* */
   static tutorial = {
     id: 'control-panel',

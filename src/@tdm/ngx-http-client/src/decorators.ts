@@ -1,4 +1,4 @@
-import { MetaClass } from '@tdm/core/tdm';
+import { MetaClass, getBaseClass, targetStore } from '@tdm/core/tdm';
 
 import { HttpAdapter } from './core';
 import {
@@ -22,10 +22,7 @@ export const HttpAction = MetaClass.decorator(HttpActionMetadata);
  */
 export const UrlParam = MetaClass.decorator(UrlParamMetadata, true);
 
-
-
 // FOR AOT
-// export const HttpResource = df.resource<HttpResourceMetadataArgs>(HttpAdapter);
 const httpResource = MetaClass.get(HttpResourceMetadata).createResourceDecorator(HttpAdapter);
 
 /**
@@ -36,5 +33,22 @@ export function HttpResource(def: HttpResourceMetadataArgs): (target) => any {
   if (!def.endpoint) {
     throw new Error('Resource endpoint is mandatory.');
   }
-  return httpResource(def) as any;
+
+  // apply logic to set a default skip when not set, if the base class has no registered HttpAdapter then defer.
+  if (def.hasOwnProperty('skip')) {
+    return httpResource(def);
+  } else {
+    return target => {
+      const baseClass = getBaseClass(target);
+      if (!baseClass || baseClass === Object) {
+        def.skip = true;
+      } else {
+        const tMeta = targetStore.getTargetMeta(baseClass);
+        if (tMeta && tMeta.hasAdapter(HttpAdapter)) {
+          def.skip = true;
+        }
+      }
+      return httpResource(def)(target);
+    };
+  }
 }

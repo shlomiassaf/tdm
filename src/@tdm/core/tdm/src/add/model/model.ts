@@ -38,7 +38,7 @@ export function extendSingle(from: ModelMetadata,
   extendSingle
 })
 export class ModelMetadata extends BaseMetadata implements ModelMetadataArgs {
-  identity: PropertyKey;
+  identity: TdmPropertyKey;
   resName: string;
   transformStrategy: TransformStrategy | undefined;
   transformNameStrategy: NamingStrategyConfig | undefined;
@@ -46,6 +46,7 @@ export class ModelMetadata extends BaseMetadata implements ModelMetadataArgs {
 
   tMeta: TargetMetadata;
   target: Constructor<any>;
+  skip?: true;
 
   get built(): boolean {
     return this._built;
@@ -73,7 +74,7 @@ export class ModelMetadata extends BaseMetadata implements ModelMetadataArgs {
           endpoint: '/api/users/:id/:param',
           urlParams: { param: '99' }
         })
-        class User extends ARMixin(UserBase) { }
+        class User extends ActiveRecord(UserBase) { }
     ```
 
     In the example, UserBase does not have a class decorator but the derived class User does.
@@ -94,7 +95,12 @@ export class ModelMetadata extends BaseMetadata implements ModelMetadataArgs {
     }
 
     const classMetadata = tMeta.hasOwnProperty(MODEL_PH) ? tMeta[MODEL_PH] : {};
-    Object.assign(this, classMetadata, metaArgs || {}, {target, tMeta}); // last obj is for clone, so we won't take previous values
+    Object.assign(
+      this,
+      classMetadata,
+      metaArgs || {},
+      {target, tMeta} // last obj is for clone, so we won't take previous values
+    );
 
     if (!this.resName) {
       this.resName = stringify(target);
@@ -104,7 +110,7 @@ export class ModelMetadata extends BaseMetadata implements ModelMetadataArgs {
   }
 
   clone(target: Constructor<any>): ModelMetadata {
-    const ctor: typeof ModelMetadata = <any>this.constructor;
+    const ctor: typeof ModelMetadata = <any> this.constructor;
     return new ctor(this, this.decoratorInfo, target);
   }
 
@@ -118,7 +124,7 @@ export class ModelMetadata extends BaseMetadata implements ModelMetadataArgs {
    * @returns true if the model was built by this call
    */
   build(safe?: true): boolean {
-    if(this.built) {
+    if (this.built) {
       if (safe === true) {
         return false;
       } else {
@@ -133,7 +139,7 @@ export class ModelMetadata extends BaseMetadata implements ModelMetadataArgs {
 }
 
 declare module '../../fw/metadata-framework/meta-class' {
-  module MetaClass {
+  namespace MetaClass {
     function get(target: typeof ModelMetadata): MetaClassMetadata<ModelMetadataArgs, ModelMetadata>;
   }
 }

@@ -31,6 +31,11 @@ export interface CodeExtractionInstructions {
   section?: string;
 
   /**
+   * When set to true, will try to format the code (if a formatter exists for the type)
+   */
+  reformat?: boolean;
+
+  /**
    * A tuple of 2 numbers, line start and line end, representing a boundary used to slice file into a section.
    *
    * The position resolution is LINE NUMBER.
