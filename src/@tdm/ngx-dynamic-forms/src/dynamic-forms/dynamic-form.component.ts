@@ -100,6 +100,11 @@ export class DynamicFormComponent<T = any>
   @ViewChild('formElRef') formElRef: ElementRef;
 
   /**
+   * The CSS class of the `form` element which is also the container of all rendered items.
+   */
+  @Input() formClass: string;
+
+  /**
    * Real time binding between the form and the model.
    *
    * When true, every value change event emitted from the from will trigger and update to the model.
@@ -113,7 +118,15 @@ export class DynamicFormComponent<T = any>
    */
   @Input() hotBind: boolean;
 
-  @Input() disabled: boolean;
+  @Input() get disabled(): boolean { return this._disabled; }
+  set disabled(value: boolean) {
+    value = coerceBooleanProperty(value);
+    if ( value !== this._disabled) {
+      this._disabled = value;
+      this.onDisableChange();
+    }
+  }
+  private _disabled = false;
 
   /**
    * Pass through for @angular/forms `ngNativeValidate` attribute that enables native browser validation
@@ -146,7 +159,14 @@ export class DynamicFormComponent<T = any>
    * `<dynamic-form [model]="[user, User]"></dynamic-form>`
    *
    */
-  @Input() model: T | TDMModelForm<T> | [ T, Type<T> ];
+  @Input() get model(): T | TDMModelForm<T> | [ T, Type<T> ] { return this._model; }
+  set model(value: T | TDMModelForm<T> | [ T, Type<T> ]) {
+    if ( value !== this._model) {
+      this._model = value;
+      this.onModelChange();
+    }
+  }
+  private _model: T | TDMModelForm<T> | [ T, Type<T> ];
 
   /**
    * Setting the dynamic form as a slave of another dynamic form.
@@ -422,19 +442,6 @@ export class DynamicFormComponent<T = any>
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if ( changes.model ) {
-      this.onModelChange();
-    }
-
-    if ( changes.hotBind ) {
-      this.hotBind = coerceBooleanProperty(this.hotBind);
-    }
-
-    if ( changes.disabled ) {
-      this.disabled = coerceBooleanProperty(this.disabled);
-      this.onDisableChange();
-    }
-
     if ( changes.filterMode ) {
       const prevIncluded = changes.filterMode.previousValue === 'include';
       const currIncluded = changes.filterMode.currentValue === 'include';
