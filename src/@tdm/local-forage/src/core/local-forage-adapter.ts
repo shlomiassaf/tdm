@@ -1,6 +1,8 @@
 import * as localForage from 'localforage';
-import * as uuid from 'uuid/v4';
+import * as uuid_ from 'uuid/v4';
 import { ModelMetadata, SetExt } from '@tdm/core/tdm';
+
+const uuid = uuid_;
 
 import {
   Adapter,

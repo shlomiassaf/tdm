@@ -5,6 +5,7 @@ import {
   LocalForageResourceMetadata,
   LocalForageResourceMetadataArgs,
   LocalForageActionMetadata,
+  LocalForageActionMetadataArgs // for AOT
 } from './metadata';
 
 export const LocalForageAction = MetaClass.decorator(LocalForageActionMetadata);

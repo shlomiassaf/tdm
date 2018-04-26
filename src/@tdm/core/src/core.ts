@@ -104,8 +104,3 @@ export function autoDeserialize<T, Z>(plainObject: any,
 TDMModelBase.clone = function(resource: any, mapperFactory: MapperFactory = directMapper) {
   return autoDeserialize(autoSerialize(resource, mapperFactory), <any> resource.constructor, null, mapperFactory);
 };
-
-// tslint:disable-next-line:no-namespace
-declare global {
-  type TdmPropertyKey = string | symbol;
-}

@@ -87,3 +87,8 @@ import './add/target-store';
 import { initMapping } from './add/mapping';
 initMapping();
 import './add/mapping'; // we need this for d.ts export, the 2 rows above are not set in d.ts)
+
+// tslint:disable-next-line:no-namespace
+declare global {
+  type TdmPropertyKey = string | symbol;
+}

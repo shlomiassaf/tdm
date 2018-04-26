@@ -1,7 +1,7 @@
 const globals = {
   'rxjs/Observable': 'Rx',
   'rxjs/BehaviorSubject': 'Rx',
-  'rxjs/operator/shareReplay': 'Rx.Observable.prototype'
+  'rxjs/operators': 'Rx'
 };
 
 

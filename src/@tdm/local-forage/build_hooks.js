@@ -1,5 +1,6 @@
 const globals = {
-  'localForage': 'localforage'
+  'localForage': 'localforage',
+  'uuid': 'uuid'
 };
 
 

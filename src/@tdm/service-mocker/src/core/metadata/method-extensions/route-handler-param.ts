@@ -2,7 +2,7 @@ import { BaseParamMetadata, DecoratorInfo, MetaClass, Constructor } from '@tdm/c
 
 export interface RouteHandleParamType { }
 
-interface RouteHandlerParamMetadataArgs<T extends keyof RouteHandleParamType = keyof RouteHandleParamType> {
+export interface RouteHandlerParamMetadataArgs<T extends keyof RouteHandleParamType = keyof RouteHandleParamType> {
   metaType: T;
   metaArgs: RouteHandleParamType[T];
 }

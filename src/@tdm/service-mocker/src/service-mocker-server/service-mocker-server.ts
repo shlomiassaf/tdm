@@ -10,7 +10,7 @@ import {
   ServerPostMessageEvent
 } from '../../shared/src/messaging';
 
-interface IncomingClientMessageEvent<T extends keyof ClientProtocol = keyof ClientProtocol> extends MessageEvent {
+export interface IncomingClientMessageEvent<T extends keyof ClientProtocol = keyof ClientProtocol> extends MessageEvent {
   data: {
     action: T;
     data: ClientRequest<T>
@@ -20,7 +20,6 @@ interface IncomingClientMessageEvent<T extends keyof ClientProtocol = keyof Clie
 /**
  * Patch the service-mocker MockerRouter to fix the bug with deep nested routes not working properly.
  * SEE https://github.com/service-mocker/service-mocker/issues/48
- * @param {MockerRouter} router
  */
 function pathServiceMockerBug48(router: MockerRouter) {
   if (router.constructor['TDM_PATCHED'] !== pathServiceMockerBug48) {

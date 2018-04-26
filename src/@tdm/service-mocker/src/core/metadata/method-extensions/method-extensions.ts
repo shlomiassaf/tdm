@@ -5,7 +5,7 @@ export interface ServiceMockMethodExtensionsHost extends BaseMetadata {
   initExtensions(tMeta: TargetMetadata, prop: PropMetadata): void;
 }
 
-type ServiceMockMethodExtensionsStore<T extends keyof ServiceMockMethodExtensions = keyof ServiceMockMethodExtensions>
+export type ServiceMockMethodExtensionsStore<T extends keyof ServiceMockMethodExtensions = keyof ServiceMockMethodExtensions>
   = Array<[T, Constructor<ServiceMockMethodExtensions[T]>]>;
 
 const methodExtensionStore: ServiceMockMethodExtensionsStore = [ ];
