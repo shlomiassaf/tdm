@@ -4,6 +4,8 @@ import { HttpDefaultConfig } from '@tdm/ngx-http-client';
 import { MODULES, ROOT_MODULES } from './modules';
 import { UiBlockService } from './services/ui-block';
 import { LocationService } from './services/location.service';
+import { TopNavService } from './services/top-nav.service';
+
 import {
   UiBlock,
   TdmCodeViewComponent,
@@ -51,6 +53,7 @@ export class DeclarationSharedModule {
   providers: [
     UiBlockService,
     LocationService,
+    TopNavService,
     { provide: HttpDefaultConfig, useValue: HttpDefaultConfig.create({baseUrl: '/api'} ) }
   ]
 })

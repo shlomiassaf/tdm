@@ -26,9 +26,9 @@
     "outDir": "./dist"
   },
   "files": [
-    "src/demo/modules/@http/server/index.ts",
-    "src/demo/modules/@http/server/service-worker.d.ts",
-    "src/demo/modules/@http/server/custom-typings.d.ts"
+    "src/demo/modules/server/index.ts",
+    "src/demo/modules/server/service-worker.d.ts",
+    "src/demo/modules/server/custom-typings.d.ts"
   ],
   "compileOnSave": false
 }

@@ -1,0 +1,1 @@
+export { NorthwindAppModule } from './module';

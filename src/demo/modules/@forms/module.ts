@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
-import { SharedModule } from '@shared';
+import { SharedModule, TopNavService } from '@shared';
 
 import { DynamicFormsModule } from '@tdm/ngx-dynamic-forms';
 import { FormsSharedModule } from './shared';
@@ -19,4 +19,14 @@ import { ROUTES } from './routes';
     RouterModule.forChild(ROUTES)
   ]
 })
-export class FormsAppModule { }
+export class FormsAppModule {
+  constructor(topNavService: TopNavService) {
+    topNavService.addNavItem({
+      title: 'Dynamic Forms',
+      imgIconSrc: 'https://material.angular.io/assets/img/homepage/angular-white-transparent.svg',
+      routerLink: {
+        routerLink: ['./forms']
+      }
+    });
+  }
+}

@@ -10,7 +10,6 @@ import { environment } from 'environments/environment';
 import { ROUTES } from './app.routes';
 // App is our top level component
 import { AppComponent } from './app.component';
-import { AppState } from './app.service';
 import { HomeComponent } from './home';
 import { NoContentComponent } from './no-content';
 
@@ -20,7 +19,7 @@ import '../../styles/material-core.scss';
 import '../../styles/styles.scss';
 
 // Application wide providers
-const APP_PROVIDERS = [ AppState ];
+const APP_PROVIDERS = [];
 
 /**
  * `AppModule` is the main entry point into Angular2's bootstraping process

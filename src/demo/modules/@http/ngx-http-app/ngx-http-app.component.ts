@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { TdmFeatureListItem } from '@shared';
 
-import { SWClient } from '@http/client';
+import { SWClient } from '@shared/client';
 
 const client = new SWClient();
 client.ready

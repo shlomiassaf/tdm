@@ -7,5 +7,6 @@ export const ROUTES: Routes = [
   { path: 'playground', loadChildren: '@playground#PlaygroundModule' },
   { path: 'ngx-http', loadChildren: '@http#NgxHttpAppModule' },
   { path: 'forms', loadChildren: '@forms#FormsAppModule' },
+  { path: 'northwind-app', loadChildren: '@northwind-app#NorthwindAppModule' },
   { path: '**',    component: NoContentComponent },
 ];

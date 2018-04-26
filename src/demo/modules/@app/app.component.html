@@ -1,15 +1,12 @@
 <div class="tdm-app mat-typography">
   <div class="tdm-navbar mat-elevation-z8">
     <mat-toolbar color="primary">
-      <span class="title">@TDM</span>
-      <a class="tdm-top-nav-link" mat-button [routerLink]=" ['.'] " routerLinkActive="active" [routerLinkActiveOptions]= "{exact: true}">Home</a>
-      <a class="tdm-top-nav-link" mat-button [routerLink]=" ['./forms'] " routerLinkActive="active">
-          <img src="https://material.angular.io/assets/img/homepage/angular-white-transparent.svg" />
-          Dynamic Forms
-      </a>
-      <a class="tdm-top-nav-link" mat-button [routerLink]=" ['./ngx-http'] " routerLinkActive="active">
-        <img src="https://material.angular.io/assets/img/homepage/angular-white-transparent.svg" />
-        HTTP Resource
+      <a class="title" [routerLink]=" ['.'] " routerLinkActive="active" [routerLinkActiveOptions]= "{exact: true}">@TDM</a>
+      <a *ngFor="let navItem of topNavService.navItems$ | async"
+         class="tdm-top-nav-link" mat-button
+         [routerLink]="navItem.routerLink.routerLink" routerLinkActive="active" [routerLinkActiveOptions]= "navItem.routerLinkActiveOptions || {}">
+        <img *ngIf="navItem.imgIconSrc" [src]="navItem.imgIconSrc" />
+        {{navItem.title}}
       </a>
     </mat-toolbar>
   </div>

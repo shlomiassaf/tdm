@@ -1,6 +1,7 @@
-import { Identity, Prop } from '@tdm/core';
+import { Identity, Prop, Relation } from '@tdm/core';
 import { ActiveRecord, HttpResource, UrlParam } from '@tdm/ngx-http-client';
-import * as modelContract from '../../server/shared-models';
+import * as modelContract from '../../../server/shared-models';
+import { Customer } from './customer';
 
 @HttpResource({
   endpoint: 'orders/:id?'
@@ -13,6 +14,10 @@ class $Order implements modelContract.Order {
 
   @Prop()
   CustomerID: string;
+
+  @Prop()
+  @Relation({ foreignKey: 'CustomerID' })
+  Customer: Customer;
 
   @Prop()
   EmployeeID: number;

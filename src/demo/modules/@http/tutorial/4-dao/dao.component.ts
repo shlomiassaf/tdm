@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NgDAO } from '@tdm/ngx-http-client';
 
-import { Customer } from '../../client';
+import { Customer } from '@shared/client';
 
 @Component({
   selector: 'ngx-http-dao',

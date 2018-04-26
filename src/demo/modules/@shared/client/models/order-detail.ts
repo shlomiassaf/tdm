@@ -1,6 +1,6 @@
 import { Identity, Prop, Constructor } from '@tdm/data';
 import { ActiveRecord, HttpResource, UrlParam } from '@tdm/ngx-http-client';
-import * as modelContract from '../../server/shared-models';
+import * as modelContract from '../../../server/shared-models';
 
 @HttpResource({
   endpoint: 'orderDetails/:id?'

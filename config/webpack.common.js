@@ -19,7 +19,7 @@ const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
 const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
 const ngcWebpack = require('ngc-webpack');
 const TDM_EXAMPLE_FILE_REGEXP = /__tdm-code__\.ts$/;
-const SERVICE_WORKER_HTTP_SERVER_REGEXP = /@http\/server/;
+const SERVICE_WORKER_HTTP_SERVER_REGEXP = /\/server/;
 
 /**
  * This will patch angular CLI to work with decorators.
@@ -369,7 +369,7 @@ module.exports = function (options) {
           tsconfig: 'tsconfig.server.service-worker.json'
         },
         {
-          entry: helpers.root('src', 'demo', 'modules', '@http', 'server', 'index.ts')
+          entry: helpers.root('src', 'demo', 'modules', 'server', 'index.ts')
         }
       ),
 

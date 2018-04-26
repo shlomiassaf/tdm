@@ -28,7 +28,7 @@ PropMetadata.prototype.setCoreRelationship = function(rel: BelongsToMetadata | O
   if (rel instanceof BelongsToMetadata) {
     this.rel = 'belongsTo';
   } else {
-    this.rel = this.type.isArray ? 'hasMany': 'hasOne';
+    this.rel = this.type.isArray ? 'hasMany' : 'hasOne';
   }
 };
 

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 import { ResourceControl } from '@tdm/data';
 import { NgDAO, ActiveRecord } from '@tdm/ngx-http-client';
-import { Customer } from '../../../client/index';
+import { Customer } from '@shared/client';
 
 @Component({
   selector: 'ngx-http-flow-control',

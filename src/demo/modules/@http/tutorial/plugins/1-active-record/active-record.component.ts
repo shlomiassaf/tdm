@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-
-import { Customer } from '../../../client/index';
+import { Customer } from '@shared/client';
 
 @Component({
   selector: 'ngx-http-active-record',

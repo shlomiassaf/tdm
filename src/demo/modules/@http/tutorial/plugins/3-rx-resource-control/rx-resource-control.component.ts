@@ -3,7 +3,7 @@ import { map, skip } from 'rxjs/operators';
 import { Component } from '@angular/core';
 
 import { ResourceControl } from '@tdm/data';
-import { Customer } from '../../../client/index';
+import { Customer } from '@shared/client';
 
 @Component({
   selector: 'ngx-http-rx-resource-control',
