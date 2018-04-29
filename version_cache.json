@@ -1,26 +1,34 @@
 {
   "tixin": {
     "commit": "f6424f4c70dc91e22fead623047da642aec16a37",
-    "version": "1.0.2-alpha.0"
+    "version": "1.1.0-alpha.1"
   },
   "core": {
-    "commit": "bb8dc26dab50031af665751728b294575a60ddd2",
-    "version": "1.0.2-alpha.2"
+    "commit": "febf11a4c46477dc7adcabf76cf02bf26c28336c",
+    "version": "1.1.0-alpha.1"
   },
   "data": {
-    "commit": "bb8dc26dab50031af665751728b294575a60ddd2",
-    "version": "1.0.2-alpha.5"
+    "commit": "febf11a4c46477dc7adcabf76cf02bf26c28336c",
+    "version": "1.1.0-alpha.1"
   },
   "ngx-http-client": {
-    "commit": "3988184d633ba96aea885d010e2d46896cb6aa0c",
-    "version": "1.0.2-alpha.3"
+    "commit": "febf11a4c46477dc7adcabf76cf02bf26c28336c",
+    "version": "1.1.0-alpha.1"
   },
   "ngx-dynamic-forms": {
-    "commit": "c763a2ddd624b3866fd1c272e7b532b213b7a0c0",
-    "version": "1.0.2-alpha.8"
+    "commit": "febf11a4c46477dc7adcabf76cf02bf26c28336c",
+    "version": "1.1.0-alpha.4"
+  },
+  "local-forage": {
+    "commit": "febf11a4c46477dc7adcabf76cf02bf26c28336c",
+    "version": "1.1.0-alpha.1"
+  },
+  "service-mocker": {
+    "commit": "febf11a4c46477dc7adcabf76cf02bf26c28336c",
+    "version": "1.1.0-alpha.1"
   },
   "json-api-mapper": {
     "commit": "e7755b53712c49f4c31c98b919ab5497c9ddf71e",
-    "version": "1.0.2-alpha.0"
+    "version": "1.1.0-alpha.1"
   }
 }
