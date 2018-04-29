@@ -640,7 +640,7 @@ export class DynamicFormComponent<T = any>
     this.update();
   }
 
-  private update(): void {
+  private update(notRoot?: boolean): void {
     if ( !this.tdmForm || !this.afterInit ) {
       return;
     }
@@ -689,7 +689,7 @@ export class DynamicFormComponent<T = any>
 
     this.renderInstructions.forEach(processInstructions);
 
-    const renderEvent = new BeforeRenderEventHandler(controlsMap, controlsPromiseSetter);
+    const renderEvent = new BeforeRenderEventHandler(controlsMap, controlsPromiseSetter, !notRoot);
     this.beforeRender.emit(renderEvent);
 
     this.pendingUpdates += 1;
@@ -702,7 +702,7 @@ export class DynamicFormComponent<T = any>
 
         if ( this.pendingUpdates > 0 ) {
           this.pendingUpdates = 0;
-          this.update();
+          this.update(true);
           return;
         } else {
           this.instructions = controlsMap;

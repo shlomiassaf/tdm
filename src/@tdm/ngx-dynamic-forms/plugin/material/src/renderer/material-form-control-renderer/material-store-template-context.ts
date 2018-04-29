@@ -1,5 +1,5 @@
 import { TemplateRef } from '@angular/core';
-import { RenderInstruction, DynamicControlRenderContext } from '@tdm/ngx-dynamic-forms';
+import { RenderInstruction, DynamicControlRenderContext, FormElementType } from '@tdm/ngx-dynamic-forms';
 
 export interface MaterialStoreInstance {
   editSingleChildForm(context: DynamicControlRenderContext): void;
@@ -20,5 +20,6 @@ export interface MaterialStoreTemplateContext {
 }
 
 export interface TemplateStore {
+  registerTemplate(name: keyof FormElementType, templateRef: TemplateRef<MaterialStoreTemplateContext>): void;
   getTemplate(item: RenderInstruction): TemplateRef<MaterialStoreTemplateContext>;
 }

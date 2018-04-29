@@ -5,7 +5,7 @@ import {
   TemplateRef
 } from '@angular/core';
 
-import { RenderInstruction } from '@tdm/ngx-dynamic-forms';
+import { FormElementType, RenderInstruction } from '@tdm/ngx-dynamic-forms';
 
 import { MaterialStoreTemplateContext, TemplateStore } from './material-store-template-context';
 
@@ -56,8 +56,16 @@ export class MaterialTemplateStoreComponent implements TemplateStore {
   @ViewChild('childForm') childForm: TemplateRef<MaterialStoreTemplateContext>;
   @ViewChild('formArray') formArray: TemplateRef<MaterialStoreTemplateContext>;
 
+  private customTemplates: { [name: string]: TemplateRef<MaterialStoreTemplateContext> } = {};
+
+  registerTemplate(name: keyof FormElementType, templateRef: TemplateRef<MaterialStoreTemplateContext>): void {
+    this.customTemplates[name] = templateRef;
+  };
+
   getTemplate(item: RenderInstruction): TemplateRef<MaterialStoreTemplateContext> {
-    if ( item.isArray ) {
+    if (this.customTemplates[item.vType]) {
+      return this.customTemplates[item.vType];
+    } else if ( item.isArray ) {
       return this.formArray;
     } else if (item.isChildForm) {
       return this.childForm;
