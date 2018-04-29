@@ -2,23 +2,29 @@ import { ComponentFactoryResolver, Injector, ModuleWithProviders, NgModule } fro
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 
-import { isFunction } from '@tdm/core/tdm';
 import { DynamicFormsModule, DefaultRenderer } from '@tdm/ngx-dynamic-forms';
 import { MaterialModule } from './material';
-import { MaterialTemplateStoreComponent, MaterialFormControlRenderer, storeContainer } from './renderer/index';
+import {
+  GlobalMaterialFormControlDirective,
+  MaterialTemplateStoreComponent,
+  MaterialFormControlRenderer,
+  storeContainer
+} from './renderer/index';
 
 @NgModule({
-  declarations: [ MaterialTemplateStoreComponent, MaterialFormControlRenderer ],
+  declarations: [ GlobalMaterialFormControlDirective, MaterialTemplateStoreComponent, MaterialFormControlRenderer ],
   imports: [ CommonModule, ReactiveFormsModule, MaterialModule, DynamicFormsModule ],
-  exports: [ MaterialFormControlRenderer, DynamicFormsModule ],
-  entryComponents: [ MaterialTemplateStoreComponent, MaterialFormControlRenderer ]
+  exports: [ GlobalMaterialFormControlDirective, MaterialFormControlRenderer, DynamicFormsModule ],
+  entryComponents: [MaterialTemplateStoreComponent, MaterialFormControlRenderer]
 })
 export class MaterialDynamicFormsModule {
   constructor(injector: Injector, cfr: ComponentFactoryResolver) {
     if (!storeContainer.store) {
       // we use a static store, there is no point of using DI if it's always the same store.
       const factory = cfr.resolveComponentFactory(MaterialTemplateStoreComponent);
-      storeContainer.store = factory.create(injector).instance;
+      const cmpRef = factory.create(injector);
+      cmpRef.changeDetectorRef.detectChanges();
+      storeContainer.store = cmpRef.instance;
     }
   }
 

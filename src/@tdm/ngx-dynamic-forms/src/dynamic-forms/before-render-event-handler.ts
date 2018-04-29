@@ -12,11 +12,20 @@ export class BeforeRenderEventHandler {
    * An object whose values are instances of [[RenderInstruction]] and keys are the full static paths of the
    * [[RenderInstruction]] instance they refer to.
    */
-  public instructions: { [path: string]: RenderInstruction };
+  readonly instructions: { [path: string]: RenderInstruction };
+
+  /**
+   * When true, this event is the root update / redraw event.
+   * When false, this event is the result of a root update event OR an update / redraw event was fired before the root
+   * completed.
+   */
+  readonly isRoot: boolean;
 
   constructor(instructions: { [path: string]: RenderInstruction },
-              private notify: (done: Promise<void>) => void) {
+              private notify: (done: Promise<void>) => void,
+              isRoot?: boolean) {
     this.instructions = instructions;
+    this.isRoot = !!isRoot;
   }
 
   /**

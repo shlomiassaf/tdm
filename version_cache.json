@@ -16,8 +16,8 @@
     "version": "1.1.0-alpha.1"
   },
   "ngx-dynamic-forms": {
-    "commit": "febf11a4c46477dc7adcabf76cf02bf26c28336c",
-    "version": "1.1.0-alpha.4"
+    "commit": "3f5f55857cf472b256db6be429942eced46b744f",
+    "version": "1.1.0-alpha.5"
   },
   "local-forage": {
     "commit": "febf11a4c46477dc7adcabf76cf02bf26c28336c",
