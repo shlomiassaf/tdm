@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { map, skip } from 'rxjs/operators';
 import { Component } from '@angular/core';
 

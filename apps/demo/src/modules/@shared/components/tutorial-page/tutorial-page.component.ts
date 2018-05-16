@@ -1,5 +1,4 @@
-import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/Observable';
+import { Subscription, Observable } from 'rxjs';
 import { debounceTime, tap } from 'rxjs/operators';
 import {
   AfterViewInit,

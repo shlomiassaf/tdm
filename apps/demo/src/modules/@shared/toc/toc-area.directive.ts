@@ -1,7 +1,4 @@
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { fromEvent } from 'rxjs/observable/fromEvent';
+import { Observable, Subscription, BehaviorSubject, fromEvent } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { AfterContentInit, Directive, ElementRef, Input, OnDestroy, Optional } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';

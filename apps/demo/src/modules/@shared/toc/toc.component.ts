@@ -1,6 +1,5 @@
-import { Subject } from 'rxjs/Subject';
+import { Subject, Subscription } from 'rxjs';
 import { debounceTime, filter } from 'rxjs/operators';
-import { Subscription } from 'rxjs/Subscription';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,

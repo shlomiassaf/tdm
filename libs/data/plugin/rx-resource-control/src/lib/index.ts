@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { PluginStore } from '@tdm/data';
 
 import { init } from './rc-ext';

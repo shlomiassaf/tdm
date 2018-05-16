@@ -1,6 +1,6 @@
 {
   "name": "@tdm/core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Typed data models (@tdm) main morph/transformation module",
   "keywords": [
     "@tdm",

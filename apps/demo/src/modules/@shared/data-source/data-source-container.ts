@@ -1,8 +1,4 @@
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Subscription } from 'rxjs/Subscription';
-import { combineLatest as CombineLatest } from 'rxjs/observable/combineLatest';
+import { Observable, Subject, BehaviorSubject, Subscription, combineLatest as CombineLatest } from 'rxjs';
 import { map, tap, combineLatest } from 'rxjs/operators';
 
 import { SelectionModel, CollectionViewer } from '@angular/cdk/collections';

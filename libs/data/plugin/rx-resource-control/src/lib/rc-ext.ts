@@ -1,5 +1,4 @@
-import { Observable } from 'rxjs/Observable';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
 import { TixinFree } from '@tdm/tixin';
 import { LazyInit, TDMModel } from '@tdm/core/tdm';

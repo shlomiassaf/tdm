@@ -1,8 +1,7 @@
 /**
  * Based on https://github.com/angular/angular/blob/master/aio/src/app/shared/location.service.ts
  */
-import { Observable } from 'rxjs/Observable';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
+import { Observable, ReplaySubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { Location, PlatformLocation } from '@angular/common';

@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { filter, map, combineLatest, distinctUntilChanged, debounceTime } from 'rxjs/operators';
 
 import { Component, ChangeDetectionStrategy } from '@angular/core';

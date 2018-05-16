@@ -1,9 +1,9 @@
+import { Subscription } from 'rxjs';
 import { Component, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { Customer, Employee, Order } from '@shared/client';
 import { TDMCollection } from '@tdm/core/tdm';
 import { DataSourceContainer } from '@shared';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs/Subscription';
 
 const listTypeMap = {
   customers: {

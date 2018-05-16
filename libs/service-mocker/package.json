@@ -1,6 +1,6 @@
 {
   "name": "@tdm/service-mocker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Express like server within a service Worker for typed data models.",
   "keywords": [
     "@tdm",

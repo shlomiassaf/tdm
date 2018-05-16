@@ -1,6 +1,6 @@
 {
   "name": "@tdm/ngx-dynamic-forms/plugin/material",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "peerDependencies": {
     "rxjs": "^6.0.0",
     "typescript": "^2.7.0",

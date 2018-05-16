@@ -1,5 +1,4 @@
-import { Observable } from 'rxjs/Observable';
-import { toPromise } from 'rxjs/operator/toPromise';
+import { Observable } from 'rxjs';
 
 import { RenderInstruction } from '../tdm-model-form/render-instruction';
 
@@ -43,7 +42,7 @@ export class BeforeRenderEventHandler {
     if (typeof done['then'] === 'function') {
       this.notify(<any>done);
     } else if (typeof done['subscribe'] === 'function') {
-      this.notify(toPromise.call(<Observable<void>>done));
+      this.notify((<Observable<void>> done).toPromise());
     } else {
       throw new Error('Invalid input');
     }

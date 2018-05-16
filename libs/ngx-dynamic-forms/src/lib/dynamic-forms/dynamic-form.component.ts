@@ -1,7 +1,5 @@
-import { Observable } from 'rxjs/Observable';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Subscription } from 'rxjs/Subscription';
-import { toPromise } from 'rxjs/operator/toPromise';
+import { Observable, BehaviorSubject, Subscription } from 'rxjs';
+
 import { filter } from 'rxjs/operators';
 
 import {
@@ -465,7 +463,7 @@ export class DynamicFormComponent<T = any>
       if (this.rendering$.getValue() === false) {
         return Promise.resolve();
       } else {
-        return toPromise.call(this.renderState.pipe(filter(state => !state)));
+        return <any> this.renderState.pipe(filter(state => !state)).toPromise();
       }
     }
   }
