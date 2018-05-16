@@ -85,6 +85,7 @@
     "karma-jasmine-html-reporter": "^0.2.2",
     "localforage": "^1.7.1",
     "marked": "^0.3.19",
+    "mkdirp": "^0.5.1",
     "ncp": "^2.0.0",
     "ng-packagr": "^3.0.0-rc.2",
     "path-to-regexp": "^2.2.1",
