@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/shlomiassaf/tdm.svg?branch=master)](https://travis-ci.org/shlomiassaf/tdm)
+
 # TDM - Typed data models
 
 A TypeScript transformation framework. Highly extensible, super typed.
@@ -8,7 +10,6 @@ Transform an object into an http request and and incoming payload into an object
 Transformation can be cosmetic or even 1:1 but can also completely change the way an object looks like.  
 
 TDM is is a collection of libraries that use Models, Meta-Programming and adapters to abstract away mundane by natively describing schematic rules that translate into operations. 
-
 
 ```ts
 @Exclude()

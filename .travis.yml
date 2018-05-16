@@ -1,0 +1,23 @@
+sudo: false
+dist: trusty
+language: node_js
+
+cache:
+  yarn: true
+  directories:
+    - node_modules
+
+addons:
+  chrome: stable
+
+node_js:
+  - "9"
+
+matrix:
+  fast_finish: true
+
+install:
+  - yarn
+
+script:
+  - npm run ci:travis
