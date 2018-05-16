@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/apps/demo",
+            "outputPath": "dist/demo-app/tdm",
             "index": "apps/demo/src/index.html",
             "main": "apps/demo/src/main.ts",
             "polyfills": "apps/demo/src/polyfills.ts",
@@ -45,7 +45,8 @@
               "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
-              "buildOptimizer": true
+              "buildOptimizer": true,
+              "statsJson": true
             }
           }
         },

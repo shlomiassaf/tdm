@@ -1,14 +1,16 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "skipLibCheck": true,
-    "noEmit": true,
     "allowSyntheticDefaultImports": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "inlineSourceMap": true,
+    "strictNullChecks": false,
     "lib": [
       "es2015",
       "dom"
@@ -18,10 +20,10 @@
       "node"
     ]
   },
-  "include": [
-    "test-type/**/*.type-spec.ts"
-  ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist",
+    "apps",
+    "libs/**/*.type-spec.ts"
   ]
 }

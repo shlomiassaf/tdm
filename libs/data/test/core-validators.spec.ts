@@ -5,7 +5,6 @@ describe('@tdm/data', () => {
   describe('Core Validators', () => {
     const bucket = bucketFactory();
     afterEach(() => bucket.clear());
-
     it('Should emit core validation errors', () => {
       class User_ {
         @Prop({

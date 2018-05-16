@@ -111,14 +111,16 @@ export function autoDeserialize<T, Z>(
   return deserialize(mapper, plainObject, type, instance);
 }
 
-TDMModelBase.clone = function(
-  resource: any,
-  mapperFactory: MapperFactory = directMapper
-) {
-  return autoDeserialize(
-    autoSerialize(resource, mapperFactory),
-    <any>resource.constructor,
-    null,
-    mapperFactory
-  );
-};
+(function (CLS: typeof TDMModelBase) {
+  CLS.clone = function(
+    resource: any,
+    mapperFactory: MapperFactory = directMapper
+  ) {
+    return autoDeserialize(
+      autoSerialize(resource, mapperFactory),
+      <any>resource.constructor,
+      null,
+      mapperFactory
+    );
+  };
+})(TDMModelBase);

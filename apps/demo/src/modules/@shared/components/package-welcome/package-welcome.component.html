@@ -5,4 +5,7 @@
   <div class="install-box mat-body-2">
     npm install --save {{installCmd}}
   </div>
+  <div class="mat-body-2" *ngIf="version && ngVersion">
+    version: {{version}} / angular: {{ngVersion}}
+  </div>
 </header>

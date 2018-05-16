@@ -63,6 +63,7 @@ FS.writeFileSync(paths.tsConfig, JSON.stringify(tsConfig, null, 2), {
 });
 
 tsConfigDist.compilerOptions.paths = createDistMappings(projects);
+tsConfigDist.compilerOptions.paths['*'] = tsConfig.compilerOptions.paths['*'];
 FS.writeFileSync(paths.tsConfigDist, JSON.stringify(tsConfigDist, null, 2), {
   encoding: 'utf-8'
 });

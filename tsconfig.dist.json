@@ -103,6 +103,10 @@
       ],
       "@tdm/service-mocker/client/lib/*": [
         "dist/@tdm/service-mocker/client/lib/*"
+      ],
+      "*": [
+        "apps/demo/src/modules/*",
+        "*"
       ]
     }
   }

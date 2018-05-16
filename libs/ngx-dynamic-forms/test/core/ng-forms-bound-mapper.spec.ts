@@ -58,4 +58,4 @@ describe('@tdm/ngx-dynamic-forms', () => {
       expect(user.email).toBe('test@test.com');
     });
   })
-};
+});

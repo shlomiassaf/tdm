@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, VERSION as NG_VERSION } from '@angular/core';
 import { TdmFeatureListItem } from '@shared';
 
 import { SWClient } from '@shared/client';
@@ -20,6 +20,8 @@ client.ready
   templateUrl: './ngx-http-app.component.html'
 })
 export class NgxHttpAppComponent {
+  readonly version = require('../../../../../../libs/ngx-http-client/package.json').version;
+  readonly ngVersion = NG_VERSION.full;
   code: any = require('./__tdm-code__.ts');
   features: TdmFeatureListItem[] = this.code
     .filter( c => c.file === 'FEATURES.md')

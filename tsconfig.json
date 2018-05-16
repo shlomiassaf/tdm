@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "baseUrl": "./",
     "sourceMap": true,
     "declaration": false,
     "moduleResolution": "node",
@@ -14,7 +15,6 @@
       "es2017",
       "dom"
     ],
-    "baseUrl": ".",
     "paths": {
       "@tdm/core": [
         "libs/core/src/index.ts"

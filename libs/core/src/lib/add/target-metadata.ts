@@ -12,14 +12,14 @@ declare module '@tdm/core/tdm/lib/metadata/target-metadata' {
   }
 }
 
-TargetMetadata.prototype.getCreateProp = function getCreateProp(
-  info: DecoratorInfo | string
-): PropMetadata {
-  const name = isString(info) ? info : info.name;
+(function (CLS: typeof TargetMetadata) {
+  CLS.prototype.getCreateProp = function getCreateProp(info: DecoratorInfo | string): PropMetadata {
+    const name = isString(info) ? info : info.name;
 
-  if (!this.config.has(PropMetadata, name)) {
-    Prop()(this.target.prototype, name);
-  }
+    if (!this.config.has(PropMetadata, name)) {
+      Prop()(this.target.prototype, name);
+    }
 
-  return this.config.get(PropMetadata, name);
-};
+    return this.config.get(PropMetadata, name);
+  };
+})(TargetMetadata);

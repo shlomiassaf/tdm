@@ -16,7 +16,7 @@ export class UIDeveloper {
 /* @tdm-example:MODEL */
 /* @tdm-ignore: DAO */
 
-@Component({ /* ... */ })
+// @Component({ /* ... */ })
 export class DaoExampleComponent {
   constructor(private ngDao: NgDAO) { }
 
@@ -29,7 +29,7 @@ export class DaoExampleComponent {
 /* @tdm-ignore: AR */
 
 /* @tdm-ignore: DAO */
-@Component({ /* ... */ })
+// @Component({ /* ... */ })
 export class ActiveRecordExampleComponent {
   async updateUiDevAr(): Promise<void> {
     const uiDev = await UIDeveloper.findById(15);

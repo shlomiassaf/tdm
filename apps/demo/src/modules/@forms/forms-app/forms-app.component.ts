@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, VERSION as NG_VERSION } from '@angular/core';
 import { TdmFeatureListItem } from '@shared';
 import { UIDeveloper } from './model';
 
@@ -8,6 +8,9 @@ import { UIDeveloper } from './model';
   templateUrl: './forms-app.component.html'
 })
 export class FormsAppComponent {
+  readonly version = require('../../../../../../libs/ngx-dynamic-forms/package.json').version;
+  readonly ngVersion = NG_VERSION.full;
+
   model = new UIDeveloper();
   code: any = require('./__tdm-code__.ts');
   features: TdmFeatureListItem[] = this.code

@@ -15,6 +15,8 @@ export class TdmPackageWelcomeComponent {
   @Input() deps: string[];
   @Input() title: string;
   @Input() description: string;
+  @Input() ngVersion: string;
+  @Input() version: string;
   @Input() buttonText: string;
   @Input() buttonLink: string;
 
