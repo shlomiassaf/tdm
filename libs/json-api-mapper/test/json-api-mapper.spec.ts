@@ -2,7 +2,7 @@ import deepEqual from 'deep-equal';
 
 import { targetStore } from '@tdm/core/tdm';
 import { TargetMetaModifier } from '@tdm/core/testing';
-import { jsonAPIMapper } from '../src/json-api-mapper';
+import { jsonAPIMapper } from '@tdm/json-api-mapper';
 
 class Article {
   id: string;

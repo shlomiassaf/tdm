@@ -1,6 +1,6 @@
-import { ActiveRecord, MockResource, bucketFactory } from '@tdm/data/testing';
 import { TDMModel, TDMModelBase, Model, Prop, Relation } from '@tdm/core';
 import { ResourceControl } from '@tdm/data';
+import { ActiveRecord, MockResource, bucketFactory } from '@tdm/data/testing';
 
 describe('@tdm/data', () => {
   describe('ResourceControl', () => {

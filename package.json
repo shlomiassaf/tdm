@@ -8,6 +8,7 @@
     "build": "./node_modules/.bin/ts-node tools/extending-ngcli-patch/index.ts build",
     "test": "./node_modules/.bin/ts-node tools/extending-ngcli-patch/index.ts test",
     "lint": "./node_modules/.bin/nx lint && ng lint",
+    "typeTest": "./node_modules/tssert/src/test-runner.js -p tsconfig.tssert.json",
     "e2e": "./node_modules/.bin/ts-node tools/extending-ngcli-patch/index.ts e2e",
     "affected:apps": "./node_modules/.bin/nx affected:apps",
     "affected:build": "./node_modules/.bin/nx affected:build",
@@ -94,8 +95,10 @@
     "tsickle": ">=0.25.5",
     "tslib": "^1.7.1",
     "tslint": "~5.9.1",
+    "tssert": "^0.0.5",
     "typescript": "2.7.2",
     "typescript-formatter": "^7.2.0",
-    "value-loader": "^0.1.4"
+    "value-loader": "^0.1.4",
+    "voca": "^1.4.0"
   }
 }
