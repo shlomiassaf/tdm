@@ -1,0 +1,10 @@
+{
+  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+  "dest": "../../dist/@tdm/tixin",
+  "deleteDestPath": true,
+  "lib": {
+    "entryFile": "src/index.ts",
+    "amdId": "tdm.tixin",
+    "umdId": "tdm.tixin"
+  }
+}

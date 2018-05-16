@@ -1,0 +1,70 @@
+{
+  "npmScope": "tdm",
+  "projects": {
+    "demo": {
+      "tags": []
+    },
+    "demo-e2e": {
+      "tags": []
+    },
+    "core": {
+      "tags": [
+        "core"
+      ]
+    },
+    "tixin": {
+      "tags": [
+        "core"
+      ]
+    },
+    "data": {
+      "tags": [
+        "data"
+      ]
+    },
+    "ngx-dynamic-forms": {
+      "tags": []
+    },
+    "core-tdm": {
+      "tags": [
+        "core"
+      ]
+    },
+    "core-testing": {
+      "tags": []
+    },
+    "data-plugin-active-record": {
+      "tags": []
+    },
+    "data-plugin-control-flow": {
+      "tags": []
+    },
+    "data-plugin-rx-resource-control": {
+      "tags": []
+    },
+    "data-testing": {
+      "tags": []
+    },
+    "ngx-dynamic-forms-plugin-material": {
+      "tags": []
+    },
+    "json-api-mapper": {
+      "tags": []
+    },
+    "ngx-http-client": {
+      "tags": []
+    },
+    "local-forage": {
+      "tags": []
+    },
+    "service-mocker": {
+      "tags": []
+    },
+    "service-mocker-shared": {
+      "tags": []
+    },
+    "service-mocker-client": {
+      "tags": []
+    }
+  }
+}

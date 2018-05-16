@@ -1,64 +1,106 @@
 {
-  "extends": [
-    "tslint:recommended"
-  ],
   "rulesDirectory": [
-    "node_modules/codelyzer"
+    "node_modules/codelyzer",
+    "node_modules/@nrwl/schematics/src/tslint"
   ],
   "rules": {
-    "only-arrow-functions": false,
-    "no-trailing-whitespace": [true, "ignore-comments", "ignore-jsdoc"],
+    "arrow-return-shorthand": true,
+    "callable-types": true,
+    "class-name": true,
+    "deprecation": {
+      "severity": "warn"
+    },
+    "forin": true,
+    "import-blacklist": [
+      true,
+      "rxjs/Rx"
+    ],
+    "interface-over-type-literal": true,
     "member-access": false,
-    "member-ordering": false,
-    "arrow-parens": false,
-    "no-bitwise": false,
-    // Custom
-    "trailing-comma": [false, {"multiline": "always", "singleline": "never"}],
-    "interface-name": [false, "always-prefix"],
-    // Angular 2
-    "component-class-suffix": true,
-    // "component-selector": [true, "element", "my", "kebab-case"],
-    "directive-class-suffix": true,
-    // "directive-selector": [true, "attribute", "my", "camelCase"],
-    "import-destructuring-spacing": true,
-    "invoke-injectable": true,
-    "no-access-missing-member": true,
-    "no-attribute-parameter-decorator": true,
-    "no-forward-ref": true,
-    "no-input-rename": true,
-    "no-output-rename": true,
-    "pipe-naming": [true, "camelCase", "my"],
-    "templates-use-public": true,
-    "use-host-property-decorator": true,
-    "use-input-property-decorator": true,
-    "use-life-cycle-interface": true,
-    "use-output-property-decorator": true,
-    "use-pipe-transform-interface": true,
-    // General
-    "no-console": [true,
+    "member-ordering": [
+      true,
+      {
+        "order": [
+          "static-field",
+          "instance-field",
+          "static-method",
+          "instance-method"
+        ]
+      }
+    ],
+    "no-arg": true,
+    "no-bitwise": true,
+    "no-console": [
+      true,
+      "debug",
+      "info",
       "time",
       "timeEnd",
       "trace"
     ],
-    "max-line-length": [
+    "no-construct": true,
+    "no-debugger": true,
+    "no-duplicate-super": true,
+    "no-empty": false,
+    "no-empty-interface": true,
+    "no-eval": true,
+    "no-inferrable-types": [
       true,
-      120
+      "ignore-params"
     ],
+    "no-misused-new": true,
+    "no-non-null-assertion": true,
+    "no-shadowed-variable": true,
     "no-string-literal": false,
+    "no-string-throw": true,
+    "no-switch-case-fall-through": true,
+    "no-trailing-whitespace": true,
+    "no-unnecessary-initializer": true,
+    "no-unused-expression": true,
     "no-use-before-declare": true,
+    "no-var-keyword": true,
     "object-literal-sort-keys": false,
-    "ordered-imports": false,
-    "quotemark": [
+    "prefer-const": true,
+    "radix": true,
+    "triple-equals": [
       true,
-      "single",
-      "avoid-escape"
+      "allow-null-check"
     ],
-    "variable-name": [
+    "unified-signatures": true,
+    "variable-name": false,
+    "directive-selector": [
       true,
-      "allow-leading-underscore",
-      "allow-pascal-case",
-      "ban-keywords",
-      "check-format"
+      "attribute",
+      "app",
+      "camelCase"
+    ],
+    "component-selector": [
+      true,
+      "element",
+      "app",
+      "kebab-case"
+    ],
+    "no-output-on-prefix": true,
+    "use-input-property-decorator": true,
+    "use-output-property-decorator": true,
+    "use-host-property-decorator": true,
+    "no-input-rename": true,
+    "no-output-rename": true,
+    "use-life-cycle-interface": true,
+    "use-pipe-transform-interface": true,
+    "component-class-suffix": true,
+    "directive-class-suffix": true,
+
+    "nx-enforce-module-boundaries": [
+      true,
+      {
+        "allow": [],
+        "depConstraints": [
+          { "sourceTag": "*", "onlyDependOnLibsWithTags": ["*"] },
+          { "sourceTag": "core", "onlyDependOnLibsWithTags": ["core"] },
+          { "sourceTag": "data", "onlyDependOnLibsWithTags": ["core", "data"] }
+        ]
+      }
     ]
   }
 }

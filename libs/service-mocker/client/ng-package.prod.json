@@ -1,0 +1,17 @@
+{
+  "$schema": "../../../node_modules/ng-packagr/ng-package.schema.json",
+  "dest": "../../../dist/@tdm/service-mocker/client",
+  "deleteDestPath": true,
+  "lib": {
+    "entryFile": "src/index.ts",
+    "amdId": "tdm.serviceMocker.client",
+    "umdId": "tdm.serviceMocker.client",
+    "umdModuleIds": {
+      "@tdm/tixin": "tdm.tixin",
+      "@tdm/core/tdm": "tdm.core.tdm",
+      "@tdm/core": "tdm.core",
+      "@tdm/core/testing": "tdm.core.testing",
+      "@tdm/service-mocker/shared": "tdm.serviceMocker.shared"
+    }
+  }
+}

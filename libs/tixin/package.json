@@ -1,0 +1,14 @@
+{
+  "name": "@tdm/tixin",
+  "version": "1.0.0",
+  "description": "TypeScript mixins library with support for staic & instance member relfection",
+  "keywords": [
+    "@tdm",
+    "mixin",
+    "typescript"
+  ],
+  "peerDependencies": {
+    "typescript": "^2.7.0",
+    "tslib": "^1.9.0"
+  }
+}

@@ -1,147 +1,131 @@
 {
+  "compileOnSave": false,
   "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs",
+    "sourceMap": true,
+    "declaration": false,
     "moduleResolution": "node",
-    "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "allowSyntheticDefaultImports": true,
-    "lib": [
-      "es2015",
-      "dom"
-    ],
+    "experimentalDecorators": true,
+    "target": "es5",
     "typeRoots": [
       "node_modules/@types"
     ],
-    "types": [
-      "jest",
-      "jasmine",
-      "hammerjs",
-      "node",
-      "source-map",
-      "uglify-js",
-      "webpack"
+    "lib": [
+      "es2017",
+      "dom"
     ],
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
-      "@tdm/tixin": [
-        "@tdm/tixin/src/tixin.ts"
-      ],
-      "@tdm/tixin/src/*": [
-        "@tdm/tixin/src/*"
-      ],
       "@tdm/core": [
-        "@tdm/core/src/core.ts"
+        "libs/core/src/index.ts"
+      ],
+      "@tdm/core/lib/*": [
+        "libs/core/src/lib/*"
       ],
       "@tdm/core/tdm": [
-        "@tdm/core/tdm/src/tdm.ts"
+        "libs/core/tdm/src/index.ts"
       ],
-      "@tdm/core/tdm/src/*": [
-        "@tdm/core/tdm/src/*"
+      "@tdm/core/tdm/lib/*": [
+        "libs/core/tdm/src/lib/*"
       ],
       "@tdm/core/testing": [
-        "@tdm/core/testing/src/index.ts"
+        "libs/core/testing/src/index.ts"
       ],
-      "@tdm/core/testing/src/*": [
-        "@tdm/core/testing/src/*"
+      "@tdm/core/testing/lib/*": [
+        "libs/core/testing/src/lib/*"
       ],
-      "@tdm/core/src/*": [
-        "@tdm/core/src/*"
+      "@tdm/tixin": [
+        "libs/tixin/src/index.ts"
+      ],
+      "@tdm/tixin/lib/*": [
+        "libs/tixin/src/lib/*"
       ],
       "@tdm/data": [
-        "@tdm/data/src/data.ts"
+        "libs/data/src/index.ts"
       ],
-      "@tdm/data/testing": [
-        "@tdm/data/testing/src/index.ts"
-      ],
-      "@tdm/data/testing/src/*": [
-        "@tdm/data/testing/src/*"
+      "@tdm/data/lib/*": [
+        "libs/data/src/lib/*"
       ],
       "@tdm/data/plugin/active-record": [
-        "@tdm/data/plugin/active-record/src/index.ts"
+        "libs/data/plugin/active-record/src/index.ts"
       ],
-      "@tdm/data/plugin/active-record/src/*": [
-        "@tdm/data/plugin/active-record/src/*"
+      "@tdm/data/plugin/active-record/lib/*": [
+        "libs/data/plugin/active-record/src/lib/*"
       ],
       "@tdm/data/plugin/control-flow": [
-        "@tdm/data/plugin/control-flow/src/index.ts"
+        "libs/data/plugin/control-flow/src/index.ts"
       ],
-      "@tdm/data/plugin/control-flow/src/*": [
-        "@tdm/data/plugin/control-flow/src/*"
+      "@tdm/data/plugin/control-flow/lib/*": [
+        "libs/data/plugin/control-flow/src/lib/*"
       ],
       "@tdm/data/plugin/rx-resource-control": [
-        "@tdm/data/plugin/rx-resource-control/src/index.ts"
+        "libs/data/plugin/rx-resource-control/src/index.ts"
       ],
-      "@tdm/data/plugin/rx-resource-control/src/*": [
-        "@tdm/data/plugin/rx-resource-control/src/*"
+      "@tdm/data/plugin/rx-resource-control/lib/*": [
+        "libs/data/plugin/rx-resource-control/src/lib/*"
       ],
-      "@tdm/data/src/*": [
-        "@tdm/data/src/*"
+      "@tdm/data/testing": [
+        "libs/data/testing/src/index.ts"
       ],
-      "@tdm/ngx-http-client": [
-        "@tdm/ngx-http-client/src/index.ts"
-      ],
-      "@tdm/ngx-http-client/src/*": [
-        "@tdm/ngx-http-client/src/*"
+      "@tdm/data/testing/lib/*": [
+        "libs/data/testing/src/lib/*"
       ],
       "@tdm/ngx-dynamic-forms": [
-        "@tdm/ngx-dynamic-forms/src/ngx-dynamic-forms.ts"
+        "libs/ngx-dynamic-forms/src/index.ts"
+      ],
+      "@tdm/ngx-dynamic-forms/lib/*": [
+        "libs/ngx-dynamic-forms/src/lib/*"
       ],
       "@tdm/ngx-dynamic-forms/plugin/material": [
-        "@tdm/ngx-dynamic-forms/plugin/material/src/index.ts"
+        "libs/ngx-dynamic-forms/plugin/material/src/index.ts"
       ],
-      "@tdm/ngx-dynamic-forms/plugin/material/src/*": [
-        "@tdm/ngx-dynamic-forms/plugin/material/src/*"
-      ],
-      "@tdm/ngx-dynamic-forms/src/*": [
-        "@tdm/ngx-dynamic-forms/src/*"
-      ],
-      "@tdm/local-forage": [
-        "@tdm/local-forage/src/localForage.ts"
-      ],
-      "@tdm/local-forage/src/*": [
-        "@tdm/local-forage/src/*"
-      ],
-      "@tdm/service-mocker": [
-        "@tdm/service-mocker/src/service-mocker.ts"
-      ],
-      "@tdm/service-mocker/shared": [
-        "@tdm/service-mocker/shared/src/index.ts"
-      ],
-      "@tdm/service-mocker/shared/src/*": [
-        "@tdm/service-mocker/shared/src/*"
-      ],
-      "@tdm/service-mocker/client": [
-        "@tdm/service-mocker/client/src/index.ts"
-      ],
-      "@tdm/service-mocker/client/src/*": [
-        "@tdm/service-mocker/client/src/*"
-      ],
-      "@tdm/service-mocker/src/*": [
-        "@tdm/service-mocker/src/*"
+      "@tdm/ngx-dynamic-forms/plugin/material/lib/*": [
+        "libs/ngx-dynamic-forms/plugin/material/src/lib/*"
       ],
       "@tdm/json-api-mapper": [
-        "@tdm/json-api-mapper/src/index.ts"
+        "libs/json-api-mapper/src/index.ts"
       ],
-      "@tdm/json-api-mapper/src/*": [
-        "@tdm/json-api-mapper/src/*"
+      "@tdm/json-api-mapper/lib/*": [
+        "libs/json-api-mapper/src/lib/*"
       ],
-      "@*": [
-        "demo/modules/@*"
+      "@tdm/ngx-http-client": [
+        "libs/ngx-http-client/src/index.ts"
+      ],
+      "@tdm/ngx-http-client/lib/*": [
+        "libs/ngx-http-client/src/lib/*"
+      ],
+      "@tdm/local-forage": [
+        "libs/local-forage/src/index.ts"
+      ],
+      "@tdm/local-forage/lib/*": [
+        "libs/local-forage/src/lib/*"
+      ],
+      "@tdm/service-mocker": [
+        "libs/service-mocker/src/index.ts"
+      ],
+      "@tdm/service-mocker/lib/*": [
+        "libs/service-mocker/src/lib/*"
+      ],
+      "@tdm/service-mocker/shared": [
+        "libs/service-mocker/shared/src/index.ts"
+      ],
+      "@tdm/service-mocker/shared/lib/*": [
+        "libs/service-mocker/shared/src/lib/*"
+      ],
+      "@tdm/service-mocker/client": [
+        "libs/service-mocker/client/src/index.ts"
+      ],
+      "@tdm/service-mocker/client/lib/*": [
+        "libs/service-mocker/client/src/lib/*"
+      ],
+      "*": [
+        "apps/demo/src/modules/*",
+        "*"
       ]
     }
   },
   "exclude": [
-    "examples/**/*.ts",
-    "scripts/**/*.ts",
     "node_modules",
-    "dist",
-    "dist_package",
-    "e2e",
-    "src/**/*.spec.ts",
-    "src/**/*.type-spec.ts",
-    "src/@tdm/ngx-http"
-  ],
-  "compileOnSave": false,
-  "buildOnSave": false
+    "tmp"
+  ]
 }

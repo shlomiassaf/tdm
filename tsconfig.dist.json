@@ -1,0 +1,109 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@tdm/core": [
+        "dist/@tdm/core"
+      ],
+      "@tdm/core/lib/*": [
+        "dist/@tdm/core/lib/*"
+      ],
+      "@tdm/core/tdm": [
+        "dist/@tdm/core/tdm"
+      ],
+      "@tdm/core/tdm/lib/*": [
+        "dist/@tdm/core/tdm/lib/*"
+      ],
+      "@tdm/core/testing": [
+        "dist/@tdm/core/testing"
+      ],
+      "@tdm/core/testing/lib/*": [
+        "dist/@tdm/core/testing/lib/*"
+      ],
+      "@tdm/tixin": [
+        "dist/@tdm/tixin"
+      ],
+      "@tdm/tixin/lib/*": [
+        "dist/@tdm/tixin/lib/*"
+      ],
+      "@tdm/data": [
+        "dist/@tdm/data"
+      ],
+      "@tdm/data/lib/*": [
+        "dist/@tdm/data/lib/*"
+      ],
+      "@tdm/data/plugin/active-record": [
+        "dist/@tdm/data/plugin/active-record"
+      ],
+      "@tdm/data/plugin/active-record/lib/*": [
+        "dist/@tdm/data/plugin/active-record/lib/*"
+      ],
+      "@tdm/data/plugin/control-flow": [
+        "dist/@tdm/data/plugin/control-flow"
+      ],
+      "@tdm/data/plugin/control-flow/lib/*": [
+        "dist/@tdm/data/plugin/control-flow/lib/*"
+      ],
+      "@tdm/data/plugin/rx-resource-control": [
+        "dist/@tdm/data/plugin/rx-resource-control"
+      ],
+      "@tdm/data/plugin/rx-resource-control/lib/*": [
+        "dist/@tdm/data/plugin/rx-resource-control/lib/*"
+      ],
+      "@tdm/data/testing": [
+        "dist/@tdm/data/testing"
+      ],
+      "@tdm/data/testing/lib/*": [
+        "dist/@tdm/data/testing/lib/*"
+      ],
+      "@tdm/ngx-dynamic-forms": [
+        "dist/@tdm/ngx-dynamic-forms"
+      ],
+      "@tdm/ngx-dynamic-forms/lib/*": [
+        "dist/@tdm/ngx-dynamic-forms/lib/*"
+      ],
+      "@tdm/ngx-dynamic-forms/plugin/material": [
+        "dist/@tdm/ngx-dynamic-forms/plugin/material"
+      ],
+      "@tdm/ngx-dynamic-forms/plugin/material/lib/*": [
+        "dist/@tdm/ngx-dynamic-forms/plugin/material/lib/*"
+      ],
+      "@tdm/json-api-mapper": [
+        "dist/@tdm/json-api-mapper"
+      ],
+      "@tdm/json-api-mapper/lib/*": [
+        "dist/@tdm/json-api-mapper/lib/*"
+      ],
+      "@tdm/ngx-http-client": [
+        "dist/@tdm/ngx-http-client"
+      ],
+      "@tdm/ngx-http-client/lib/*": [
+        "dist/@tdm/ngx-http-client/lib/*"
+      ],
+      "@tdm/local-forage": [
+        "dist/@tdm/local-forage"
+      ],
+      "@tdm/local-forage/lib/*": [
+        "dist/@tdm/local-forage/lib/*"
+      ],
+      "@tdm/service-mocker": [
+        "dist/@tdm/service-mocker"
+      ],
+      "@tdm/service-mocker/lib/*": [
+        "dist/@tdm/service-mocker/lib/*"
+      ],
+      "@tdm/service-mocker/shared": [
+        "dist/@tdm/service-mocker/shared"
+      ],
+      "@tdm/service-mocker/shared/lib/*": [
+        "dist/@tdm/service-mocker/shared/lib/*"
+      ],
+      "@tdm/service-mocker/client": [
+        "dist/@tdm/service-mocker/client"
+      ],
+      "@tdm/service-mocker/client/lib/*": [
+        "dist/@tdm/service-mocker/client/lib/*"
+      ]
+    }
+  }
+}

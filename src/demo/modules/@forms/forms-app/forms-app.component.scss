@@ -1,8 +1,0 @@
-@import 'src/demo/styles/variables';
-
-.tldr-header {
-  @include mat-typography-level-to-styles($typography-config, subheading-2);
-  margin: 16px 0;
-  color: mat-color($theme-foreground, secondary-text);
-}
-

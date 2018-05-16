@@ -1,0 +1,65 @@
+<tdm-package-welcome title="Dynamic Forms"
+                     description="A metadata driven, dynamic forms library for angular. Powerful, typed, robust."
+                     buttonText="TUTORIAL >>"
+                     buttonLink="./tutorial/introduction"
+                     name="ngx-dynamic-forms"
+                     [deps]="['tixin', 'core']">
+</tdm-package-welcome>
+<div class="tdm-page">
+  <div class="tdm-page-content">
+    <div>
+      <div fxLayout="row wrap" fxLayoutAlign="center center">
+        <div fxFlex="100%" class="center-text">
+          <div class="tldr-header">
+            From <b>static class instance</b> to <b>dynamic form</b> and back
+          </div>
+        </div>
+        <tdm-markdown-view fxFlex="45%" [code]="(code | tdmCode:[{file: 'model.ts', section: 'DEMO-1'}])[0]"></tdm-markdown-view>
+
+        <div fxFlex="10%" class="center-text">
+          <mat-icon style="font-size: 48px">compare_arrows</mat-icon>
+        </div>
+        <div fxFlex="45%">
+          <!--@tdm-example:TDM-DEMO-->
+          <dynamic-form [model]="model"></dynamic-form>
+          <!--@tdm-example:TDM-DEMO-->
+        </div>
+      </div>
+
+      <tdm-markdown-view><h1 class="center-text">Features</h1></tdm-markdown-view>
+      <tdm-feature-list [features]="features"></tdm-feature-list>
+
+      <tdm-markdown-view>
+        <h1 class="center-text">Why</h1>
+        <h4>Quoting from the angular documentation:</h4>
+        <blockquote>
+          <p>Building handcrafted forms can be costly and time-consuming, especially if you need a great number of them, they're similar to each other, and they change frequently to meet rapidly changing business and regulatory requirements.</p>
+          <p><b>It may be more economical to create the forms dynamically, based on metadata that describes the business object model.</b></p>
+        </blockquote>
+      </tdm-markdown-view>
+
+      <div fxLayout="row wrap" fxLayoutAlign="center center">
+        <div fxFlex="100%" class="center-text">
+          <div class="tldr-header">
+            Simplify component code & templates
+          </div>
+        </div>
+        <div fxFlex="45%" style="height: 200px">
+          <tdm-markdown-view overflowContainer
+                             [code]="(code | tdmCode:[{file: 'FORMS_SAMPLE.html', section: 'templateDriven'}])[0]">
+          </tdm-markdown-view>
+        </div>
+        <div fxFlex="10%" class="center-text">
+          <mat-icon style="font-size: 48px">keyboard_arrow_right</mat-icon>
+        </div>
+        <tdm-markdown-view fxFlex="45%" [code]="(code | tdmCode:[{file: 'FORMS_SAMPLE.html', section: 'dynamic'}])[0]"></tdm-markdown-view>
+
+        <div fxFlex="100%" class="center-text">
+          <div class="tldr-header">
+            Unify forms, remove clutter and inconsistency, refactor from a single source
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
