@@ -1,0 +1,16 @@
+{
+  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+  "dest": "../../dist/@tdm/ngx-http-client",
+  "lib": {
+    "entryFile": "src/index.ts",
+    "amdId": "tdm.ngxHttpClient",
+    "umdId": "tdm.ngxHttpClient",
+    "umdModuleIds": {
+      "@tdm/tixin": "tdm.tixin",
+      "@tdm/core/tdm": "tdm.core.tdm",
+      "@tdm/core": "tdm.core",
+      "@tdm/core/testing": "tdm.core.testing",
+      "@tdm/data": "tdm.data"
+    }
+  }
+}

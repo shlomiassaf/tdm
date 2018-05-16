@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.dist",
+  "compilerOptions": {
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "../../dist/@tdm/service-mocker/shared/service-worker.d.ts"
+  ],
+  "exclude": [
+    "src/test.ts",
+    "**/*.spec.ts"
+  ]
+}

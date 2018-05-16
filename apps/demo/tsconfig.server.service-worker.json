@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig",
+  "compilerOptions": {
+    "types": [
+      "node"
+    ]
+  },
+  "files": [
+    "apps/demo/src/modules/server/index.ts",
+    "apps/demo/src/modules/server/custom-typings.d.ts",
+    "libs/service-mocker/shared/src/lib/service-worker.d.ts"
+  ]
+}
