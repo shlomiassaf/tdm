@@ -1,6 +1,6 @@
 {
   "name": "@tdm/core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Typed data models (@tdm) main morph/transformation module",
   "keywords": [
     "@tdm",
@@ -14,5 +14,6 @@
     "typescript": "^2.7.0",
     "tslib": "^1.9.0",
     "@tdm/tixin": "*"
-  }
+  },
+  "sideEffects": true
 }

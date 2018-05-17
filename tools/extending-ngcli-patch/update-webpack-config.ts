@@ -113,5 +113,7 @@ function applyPlugins(webpackConfig: Configuration) {
 export function updateWebpackConfig(webpackConfig: Configuration): Configuration {
   applyLoaders(webpackConfig);
   applyPlugins(webpackConfig);
+  webpackConfig.resolve.modules.push('/Users/shlomiassaf/Desktop/Code/shlomi/__LIB__/tdm/dist')
+
   return webpackConfig;
 }

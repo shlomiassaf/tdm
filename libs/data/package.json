@@ -1,6 +1,6 @@
 {
   "name": "@tdm/data",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Typed data models (@tdm) core data library",
   "keywords": [
     "@tdm"
@@ -10,5 +10,6 @@
     "tslib": "^1.9.0",
     "@tdm/tixin": "*",
     "@tdm/core": "*"
-  }
+  },
+  "sideEffects": true
 }
