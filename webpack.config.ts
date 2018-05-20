@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { Configuration } from 'webpack';
-import { ServiceWorkerTsPlugin } from '../../apps/demo/src/modules/@webpack-ext/service-worker-ts-plugin';
+import { ServiceWorkerTsPlugin } from './tools/@webpack-ext/service-worker-ts-plugin';
 
 const TDM_EXAMPLE_FILE_REGEXP = /__tdm-code__\.ts$/;
 const SERVICE_WORKER_HTTP_SERVER_REGEXP = /\/server/;
@@ -39,7 +39,7 @@ function applyLoaders(webpackConfig: Configuration) {
   excludeFromTsLoader(webpackConfig.module.rules, TDM_EXAMPLE_FILE_REGEXP, SERVICE_WORKER_HTTP_SERVER_REGEXP);
 
   // In (1) we have custom loaders, for webpack to be aware of them we tell it the directory the are in.
-  webpackConfig.resolveLoader.modules.push('apps/demo/src/modules/@webpack-ext');
+  webpackConfig.resolveLoader.modules.push('tools/@webpack-ext');
 
   // We push new loader rules to handle the scenarios, (1) and (2).
   // we also add a loader to handle markdown files.
@@ -110,10 +110,28 @@ function applyPlugins(webpackConfig: Configuration) {
   webpackConfig.plugins.splice(idx + 1, 0, ...plugins);
 }
 
-export function updateWebpackConfig(webpackConfig: Configuration): Configuration {
+function uglifyMode(webpackConfig: Configuration, mode: 'devUglify' | 'noUglify') {
+  const uglifyPlugin = webpackConfig.optimization.minimizer[3];
+  switch (mode) {
+    case 'devUglify':
+      uglifyPlugin.options.uglifyOptions.mangle = false;
+      uglifyPlugin.options.uglifyOptions.output.beautify = true;
+      break;
+    case 'noUglify':
+      webpackConfig.optimization.minimizer.pop();
+      break;
+    default:
+      break;
+  }
+}
+
+function updateWebpackConfig(webpackConfig: Configuration): Configuration {
   applyLoaders(webpackConfig);
-  applyPlugins(webpackConfig);
-  webpackConfig.resolve.modules.push('/Users/shlomiassaf/Desktop/Code/shlomi/__LIB__/tdm/dist')
+  // applyPlugins(webpackConfig);
+
+  uglifyMode(webpackConfig, 'devUglify');
+  // uglifyMode(webpackConfig, 'noUglify');
 
   return webpackConfig;
 }
+module.exports = updateWebpackConfig;

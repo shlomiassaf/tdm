@@ -9,7 +9,7 @@ import { Customer } from './customer';
   styleUrls: [ './static-options.component.scss' ],
 })
 export class StaticOptionsComponent {
-  code: any = import(/* webpackChunkName: "NgxHttpStaticOptionsComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = import(/* webpackChunkName: "NgxHttpStaticOptionsComponent" */ './__tdm-code__'); // tslint:disable-line
   run: () => any;
 
   /* @tdm-example: code */

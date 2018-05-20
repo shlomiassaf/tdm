@@ -32,7 +32,7 @@ export class EventsComponent {
   /* @tdm-example: code */
 
   /* @tdm-ignore:* */
-  code: any = import(/* webpackChunkName: "NgxHttpEventsComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = import(/* webpackChunkName: "NgxHttpEventsComponent" */ './__tdm-code__'); // tslint:disable-line
   static tutorial = {
     id: 'resource-events',
     name: 'Resource Events'

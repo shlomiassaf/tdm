@@ -15,7 +15,7 @@ import { Hero } from '../4-element-metadata';
 })
 export class ControlOutletComponent {
   model = new Hero();
-  code: any = import(/* webpackChunkName: "FormsControlOutletComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
+  code: any = import(/* webpackChunkName: "FormsControlOutletComponent" */ './__tdm-code__'); /* @tdm-ignore-line */ // tslint:disable-line
   /* @tdm-ignore:* */
   static tutorial = {
     id: 'control-outlet',

@@ -32,21 +32,12 @@
           "args": ["${relativeFile}"],
           "console": "integratedTerminal",
           "internalConsoleOptions": "neverOpen"
-        }
-        {
-          "name": "[Node] Current JS File",
-          "type": "node",
-          "request": "launch",
-          "args": ["./node_modules/tssert/src/test-runner.js", "-p", "tsconfig.tssert.json"],
-          "sourceMaps": true,
-          "cwd": "${workspaceRoot}",
-          "protocol": "inspector",
         },
         {
           "name": "[Node] Current TS File",
           "type": "node",
           "request": "launch",
-          "args": ["${relativeFile}"],
+          "args": ["${relativeFile}", "build", "--prod", "--ts-config=apps/demo/tsconfig.using-dist-lib.json"],
           "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
           "sourceMaps": true,
           "cwd": "${workspaceRoot}",

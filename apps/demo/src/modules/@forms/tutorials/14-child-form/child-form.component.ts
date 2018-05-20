@@ -15,7 +15,7 @@ import { Hero } from './model';
   /* @tdm-ignore:* */
 })
 export class ChildFormComponent {
-  code: any = import(/* webpackChunkName: "FormsChildFormComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
+  code: any = import(/* webpackChunkName: "FormsChildFormComponent" */ './__tdm-code__'); /* @tdm-ignore-line */ // tslint:disable-line
   model = new Hero();
   childForm: TDMModelForm<any>;
   rightDrawerOpened: boolean;

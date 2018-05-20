@@ -15,7 +15,7 @@ import { Hero } from './model';
 })
 export class ChildFormRendererComponent {
   model = new Hero();
-  code: any = import(/* webpackChunkName: "FormsChildFormRendererComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
+  code: any = import(/* webpackChunkName: "FormsChildFormRendererComponent" */ './__tdm-code__'); /* @tdm-ignore-line */ // tslint:disable-line
   /* @tdm-ignore:* */
   static tutorial = {
     id: 'child-form-renderer',

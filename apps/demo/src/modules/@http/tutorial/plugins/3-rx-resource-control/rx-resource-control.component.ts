@@ -11,7 +11,7 @@ import { Customer } from '@shared/client';
   styleUrls: [ './rx-resource-control.component.scss' ],
 })
 export class RxResourceControlComponent {
-  code: any = import(/* webpackChunkName: "NgxHttpRxResourceControlComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = import(/* webpackChunkName: "NgxHttpRxResourceControlComponent" */ './__tdm-code__'); // tslint:disable-line
   run: () => any;
 
   /* @tdm-example: code */

@@ -12,7 +12,7 @@ export class FormsAppComponent {
   readonly ngVersion = NG_VERSION.full;
 
   model = new UIDeveloper();
-  code: any = require('./__tdm-code__.ts');
+  code: any = require('./__tdm-code__');
   features: TdmFeatureListItem[] = this.code
     .filter( c => c.file === 'FEATURES.md')
     .map( c => {

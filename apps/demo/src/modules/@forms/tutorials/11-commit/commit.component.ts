@@ -15,7 +15,7 @@ import { Hero } from '../4-element-metadata';
 })
 export class CommitComponent {
   model = new Hero();
-  code: any = import(/* webpackChunkName: "FormsCommitComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
+  code: any = import(/* webpackChunkName: "FormsCommitComponent" */ './__tdm-code__'); /* @tdm-ignore-line */ // tslint:disable-line
   /* @tdm-ignore:* */
   static tutorial = {
     id: 'commit',

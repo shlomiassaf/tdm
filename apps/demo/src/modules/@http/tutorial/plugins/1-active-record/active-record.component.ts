@@ -7,7 +7,7 @@ import { Customer } from '@shared/client';
   styleUrls: [ './active-record.component.scss' ],
 })
 export class ActiveRecordComponent {
-  code: any = import(/* webpackChunkName: "NgxHttpActiveRecordComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = import(/* webpackChunkName: "NgxHttpActiveRecordComponent" */ './__tdm-code__'); // tslint:disable-line
   run: () => any;
 
   /* @tdm-example: code */

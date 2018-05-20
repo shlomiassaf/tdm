@@ -22,7 +22,7 @@ client.ready
 export class NgxHttpAppComponent {
   readonly version = require('../../../../../../libs/ngx-http-client/package.json').version;
   readonly ngVersion = NG_VERSION.full;
-  code: any = require('./__tdm-code__.ts');
+  code: any = require('./__tdm-code__');
   features: TdmFeatureListItem[] = this.code
     .filter( c => c.file === 'FEATURES.md')
     .map( c => {

@@ -1,5 +1,5 @@
 import { HttpResource } from '@tdm/ngx-http-client';
-import { Customer as BaseCustomer } from '@shared/client/models';
+import { Customer as BaseCustomer } from '@shared/client';
 
 @HttpResource({
   endpoint: 'customers/:id?',

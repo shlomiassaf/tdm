@@ -7,7 +7,7 @@ import { Component } from '@angular/core';
 })
 export class ResourceControlComponent {
   /* @tdm-ignore:* */
-  code: any = import(/* webpackChunkName: "NgxHttpResourceControlComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = import(/* webpackChunkName: "NgxHttpResourceControlComponent" */ './__tdm-code__'); // tslint:disable-line
   static tutorial = {
     id: 'resource-control',
     name: 'Resource Control',

@@ -18,7 +18,7 @@ export class DisableFormComponent {
   disabled: boolean = true;
   model = new Hero();
   /* @tdm-ignore:* */
-  code: any = import(/* webpackChunkName: "FormsDisableFormComponent" */ './__tdm-code__.ts');
+  code: any = import(/* webpackChunkName: "FormsDisableFormComponent" */ './__tdm-code__');
   @ViewChild(FormWrapperComponent) formWrapper: FormWrapperComponent;
 
   constructor() {

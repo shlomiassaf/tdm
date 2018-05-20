@@ -15,7 +15,7 @@ import { Hero } from './model';
 })
 export class FlatteningComponent {
   model = new Hero();
-  code: any = import(/* webpackChunkName: "FormsFlatteningComponent" */ './__tdm-code__.ts'); /* @tdm-ignore-line */ // tslint:disable-line
+  code: any = import(/* webpackChunkName: "FormsFlatteningComponent" */ './__tdm-code__'); /* @tdm-ignore-line */ // tslint:disable-line
   /* @tdm-ignore:* */
   static tutorial = {
     id: 'flattening',

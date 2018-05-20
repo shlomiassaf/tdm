@@ -9,7 +9,7 @@ import { Customer } from '@shared/client';
   styleUrls: [ './dao.component.scss' ],
 })
 export class DaoComponent {
-  code: any = import(/* webpackChunkName: "NgxHttpDaoComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = import(/* webpackChunkName: "NgxHttpDaoComponent" */ './__tdm-code__'); // tslint:disable-line
   run: () => any;
 
   /* @tdm-example: code */

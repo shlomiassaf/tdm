@@ -9,7 +9,7 @@ import { Customer } from '@shared/client';
   styleUrls: [ './introduction.component.scss' ]
 })
 export class IntroductionComponent {
-  code: any = import(/* webpackChunkName: "NgxHttpIntroductionComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = import(/* webpackChunkName: "NgxHttpIntroductionComponent" */ './__tdm-code__'); // tslint:disable-line
   run = () =>
     /* @tdm-example: code */
     /* Dependency Injection - ngDao: NgDAO */

@@ -10,7 +10,7 @@ import { Customer } from '@shared/client';
   styleUrls: [ './flow-control.component.scss' ],
 })
 export class FlowControlComponent {
-  code: any = import(/* webpackChunkName: "NgxHttpFlowControlComponentComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = import(/* webpackChunkName: "NgxHttpFlowControlComponentComponent" */ './__tdm-code__'); // tslint:disable-line
   run: () => any;
 
   /* @tdm-example: code */

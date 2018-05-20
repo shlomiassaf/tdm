@@ -104,9 +104,35 @@
       "@tdm/service-mocker/client/lib/*": [
         "dist/@tdm/service-mocker/client/lib/*"
       ],
-      "*": [
-        "apps/demo/src/modules/*",
-        "*"
+      "@app": [
+        "apps/demo/src/modules/@app"
+      ],
+      "@forms": [
+        "apps/demo/src/modules/@forms"
+      ],
+      "@forms/shared": [
+        "apps/demo/src/modules/@forms/shared"
+      ],
+      "@http": [
+        "apps/demo/src/modules/@http"
+      ],
+      "@http/shared": [
+        "apps/demo/src/modules/@http/shared"
+      ],
+      "@northwind-app": [
+        "apps/demo/src/modules/@northwind-app"
+      ],
+      "@shared": [
+        "apps/demo/src/modules/@shared"
+      ],
+      "@shared/client": [
+        "apps/demo/src/modules/@shared/client"
+      ],
+      "server": [
+        "apps/demo/src/modules/server"
+      ],
+      "@webpack-ext/*": [
+        "tools/@webpack-ext/*"
       ]
     }
   }

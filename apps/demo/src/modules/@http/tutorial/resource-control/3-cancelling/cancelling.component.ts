@@ -24,7 +24,7 @@ export class CancellingComponent {
   /* @tdm-example: code */
 
   /* @tdm-ignore:* */
-  code: any = import(/* webpackChunkName: "NgxHttpCancellingComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = import(/* webpackChunkName: "NgxHttpCancellingComponent" */ './__tdm-code__'); // tslint:disable-line
   static tutorial = {
     id: 'resource-cancelling',
     name: 'Request Cancelling'

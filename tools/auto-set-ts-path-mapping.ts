@@ -43,27 +43,24 @@ const paths = {
   tsConfig: Path.join(cwd, './tsconfig.json'),
   tsConfigDist: Path.join(cwd, './tsconfig.dist.json'),
   angular: Path.join(cwd, './angular.json'),
+  prePostMappings: Path.join(__dirname, './auto-set-ts-path-mapping.json'),
   nx: Path.join(cwd, './nx.json')
 };
 
 const tsConfig = require(paths.tsConfig);
 const tsConfigDist = require(paths.tsConfigDist);
 const config = require(paths.angular);
+const prePostMappings = require(paths.prePostMappings);
 
 const projects = config.projects;
 
-tsConfig.compilerOptions.paths = createDevMappings(projects);
-tsConfig.compilerOptions.paths['*'] = [
-  "apps/demo/src/modules/*",
-  "*"
-];
+tsConfig.compilerOptions.paths = Object.assign(prePostMappings.pre, createDevMappings(projects), prePostMappings.post);
 
 FS.writeFileSync(paths.tsConfig, JSON.stringify(tsConfig, null, 2), {
   encoding: 'utf-8'
 });
 
-tsConfigDist.compilerOptions.paths = createDistMappings(projects);
-tsConfigDist.compilerOptions.paths['*'] = tsConfig.compilerOptions.paths['*'];
+tsConfigDist.compilerOptions.paths = Object.assign(prePostMappings.pre, createDistMappings(projects), prePostMappings.post);
 FS.writeFileSync(paths.tsConfigDist, JSON.stringify(tsConfigDist, null, 2), {
   encoding: 'utf-8'
 });

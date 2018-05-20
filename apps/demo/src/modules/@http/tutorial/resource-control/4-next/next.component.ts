@@ -31,7 +31,7 @@ export class NextComponent {
   /* @tdm-example: code */
 
   /* @tdm-ignore:* */
-  code: any = import(/* webpackChunkName: "NgxHttpNextComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = import(/* webpackChunkName: "NgxHttpNextComponent" */ './__tdm-code__'); // tslint:disable-line
   static tutorial = {
     id: 'next',
     name: 'Next()'

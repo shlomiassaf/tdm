@@ -23,7 +23,7 @@ export class ValidationComponent {
   }
 
   /* @tdm-ignore:* */
-  code: any = import(/* webpackChunkName: "FormsValidationComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = import(/* webpackChunkName: "FormsValidationComponent" */ './__tdm-code__'); // tslint:disable-line
   static tutorial = {
     id: 'validation',
     name: 'Validation'

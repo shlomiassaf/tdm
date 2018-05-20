@@ -18,7 +18,7 @@ export class TheRendererComponent {
   model = new Hero();
 
   /* @tdm-ignore:* */
-  code: any = import(/* webpackChunkName: "FormsTheRendererComponent" */ './__tdm-code__.ts'); // tslint:disable-line
+  code: any = import(/* webpackChunkName: "FormsTheRendererComponent" */ './__tdm-code__'); // tslint:disable-line
   static tutorial = {
     id: 'the-renderer',
     name: 'The Renderer',
