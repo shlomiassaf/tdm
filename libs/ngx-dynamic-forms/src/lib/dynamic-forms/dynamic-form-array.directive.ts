@@ -87,6 +87,7 @@ export class ForFormArrayDirective extends NgForOf<DynamicControlRenderContext>
   private ready: boolean = false;
   private formArrayDiffer: IterableDiffer<AbstractControl> | null = null;
   private grouped: DynamicControlRenderContext[][] = [];
+  private ngForOfRef: DynamicControlRenderContext[];
 
   constructor(
     tRef: TemplateRef<NgForOfContext<DynamicControlRenderContext>>,
@@ -113,15 +114,7 @@ export class ForFormArrayDirective extends NgForOf<DynamicControlRenderContext>
       if (changes.fArray) {
         const controls = this.fArray && this.fArray.controls;
         this.trySetDiffer(controls);
-        changes.ngForOf = new SimpleChange(
-          this.ngForOf,
-          [],
-          changes.fArray.isFirstChange()
-        );
-        this.ngForOf = changes.ngForOf.currentValue;
-        if (super.ngOnChanges) { // for angular 6.1 https://github.com/angular/angular/commit/08a18b82de003c379aa76323e65e8230e5b42a56#diff-e63254bca5a65cfdc11f078011bddf98
-          super.ngOnChanges(changes);
-        }
+        this.ngForOf = this.ngForOfRef = [];
       }
     }
   }
@@ -139,7 +132,7 @@ export class ForFormArrayDirective extends NgForOf<DynamicControlRenderContext>
   }
 
   private applyFormArrayChanges(changes: IterableChanges<AbstractControl>) {
-    const renderers: DynamicControlRenderContext[] = <any>this.ngForOf;
+    const renderers: DynamicControlRenderContext[] = <any>this.ngForOfRef;
     changes.forEachOperation(
       (
         item: IterableChangeRecord<any>,
