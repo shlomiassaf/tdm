@@ -119,7 +119,9 @@ export class ForFormArrayDirective extends NgForOf<DynamicControlRenderContext>
           changes.fArray.isFirstChange()
         );
         this.ngForOf = changes.ngForOf.currentValue;
-        super.ngOnChanges(changes);
+        if (super.ngOnChanges) { // for angular 6.1 https://github.com/angular/angular/commit/08a18b82de003c379aa76323e65e8230e5b42a56#diff-e63254bca5a65cfdc11f078011bddf98
+          super.ngOnChanges(changes);
+        }
       }
     }
   }
