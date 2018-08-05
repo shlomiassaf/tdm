@@ -1,4 +1,4 @@
-import { stringify, MetaClass, targetStore, Constructor } from '@tdm/core/tdm';
+import { stringify, runFunction, MetaClass, targetStore, Constructor } from '@tdm/core/tdm';
 
 import { LocalForageAdapter } from './core';
 import {
@@ -8,17 +8,8 @@ import {
   LocalForageActionMetadataArgs // for AOT
 } from './metadata';
 
-export const LocalForageAction = MetaClass.decorator(LocalForageActionMetadata);
-
-// FOR AOT
-const localForageResource = MetaClass.get(LocalForageResourceMetadata).createResourceDecorator(LocalForageAdapter);
-
-export function LocalForageResource(def?: LocalForageResourceMetadataArgs): (target) => any {
-  const t: any = localForageResource(def) as any;
-  return t;
-}
-
-targetStore.on
+export const LocalForageAction = runFunction(MetaClass.decorator(LocalForageActionMetadata), () => {
+  targetStore.on
   .processType((target: Constructor<any>) => {
     const resource = targetStore.getMetaFor(target, LocalForageResourceMetadata, true);
     if (resource && !resource.identity ) {
@@ -27,3 +18,12 @@ targetStore.on
       );
     }
   });
+});
+
+// FOR AOT
+const localForageResource = MetaClass.get(LocalForageResourceMetadata).createResourceDecorator(LocalForageAdapter);
+
+export function LocalForageResource(def?: LocalForageResourceMetadataArgs): (target) => any {
+  const t: any = localForageResource(def) as any;
+  return t;
+}

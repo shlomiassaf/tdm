@@ -65,7 +65,7 @@ function applyLoaders(webpackConfig: Configuration) {
           loader: 'ts-loader',
           options: {
             transpileOnly: true,
-            configFile: 'tsconfig.server.service-worker.json'
+            configFile: 'tsconfig.sw.json'
           }
         }
       ]
@@ -96,17 +96,28 @@ function applyPlugins(webpackConfig: Configuration) {
     In additiona, the `serviceworker-webpack-plugin` implementation is not perfect so we wrap it where needed to make it work.
   */
 
+  // push the new plugin AFTER the angular compiler plugin
+  const AngularCompilerPlugin = require('@ngtools/webpack').AngularCompilerPlugin;
+  const idx = webpackConfig.plugins.findIndex( p => p instanceof AngularCompilerPlugin );
+  let tsconfig = 'tsconfig.sw.json';
+
+  // we check for dist build which is an app built with the dist artifacts (simulating npm package)
+  if (webpackConfig.mode === 'production') {
+    const angularCompilerPlugin: any = webpackConfig.plugins[idx];
+    if (angularCompilerPlugin._tsConfigPath.endsWith('dist.json')) {
+      tsconfig = 'tsconfig.sw-dist.json';
+    }
+  }
+
   const plugins = ServiceWorkerTsPlugin.create(
     {
-      tsconfig: 'tsconfig.server.service-worker.json'
+      tsconfig
     },
     {
       entry: path.join(process.cwd(), 'apps/demo/src/modules/server/index.ts')
     }
   );
   // push the new plugin AFTER the angular compiler plugin
-  const AngularCompilerPlugin = require('@ngtools/webpack').AngularCompilerPlugin;
-  const idx = webpackConfig.plugins.findIndex( p => p instanceof AngularCompilerPlugin );
   webpackConfig.plugins.splice(idx + 1, 0, ...plugins);
 }
 
@@ -127,10 +138,10 @@ function uglifyMode(webpackConfig: Configuration, mode: 'devUglify' | 'noUglify'
 
 function updateWebpackConfig(webpackConfig: Configuration): Configuration {
   applyLoaders(webpackConfig);
-  // applyPlugins(webpackConfig);
+  applyPlugins(webpackConfig);
 
-  uglifyMode(webpackConfig, 'devUglify');
-  // uglifyMode(webpackConfig, 'noUglify');
+  // uglifyMode(webpackConfig, 'devUglify');
+  uglifyMode(webpackConfig, 'noUglify');
 
   return webpackConfig;
 }

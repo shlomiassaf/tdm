@@ -89,14 +89,16 @@ export function resource<TMetaArgs extends ModelMetadataArgs>(
   };
 }
 
-MetaClassMetadata.prototype.createResourceDecorator = resource;
+export function initMetaClass(): void {
+  MetaClassMetadata.prototype.createResourceDecorator = resource;
 
-targetStore.on.beforeProcessType(target => {
-  const tMeta = targetStore.getTargetMeta(target);
-  // default behaviour, register the first adapter, if multiple...
-  if (target[ADAPTER_REF]) {
-    if (!tMeta.activeAdapter) {
-      tMeta.setActiveAdapter(target[ADAPTER_REF]);
+  targetStore.on.beforeProcessType(target => {
+    const tMeta = targetStore.getTargetMeta(target);
+    // default behaviour, register the first adapter, if multiple...
+    if (target[ADAPTER_REF]) {
+      if (!tMeta.activeAdapter) {
+        tMeta.setActiveAdapter(target[ADAPTER_REF]);
+      }
     }
-  }
-});
+  });
+}

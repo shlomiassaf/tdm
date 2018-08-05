@@ -1,7 +1,8 @@
 import {
+  targetStore,
+  runFunction,
   Constructor,
   MetaClass,
-  targetStore,
   TypeMetadata,
   ExcludeMetadata,
   ExcludeMetadataArgs,
@@ -12,25 +13,27 @@ import {
   RelationMetadataArgs // leave for angular AOT compiler.
 } from '@tdm/core/tdm';
 
-targetStore.on.processType((target: Constructor<any>) => {
-  const meta = targetStore.getTargetMeta(target);
-  meta.getValues(RelationMetadata).forEach(relation => {
-    // Its possible to set @Relation() without @Prop(), so make sure to create one if not set by the user.
-    const prop = meta.getCreateProp(relation.decoratorInfo);
-    prop.setRelationship(relation);
 
-    // if the fk is a different key, attach a reference to the foreign key PropMetadata (and create 1 if not there)
-    if (relation.name !== relation.foreignKey) {
-      meta.getCreateProp(relation.foreignKey).foreignKeyOf = prop;
-    }
-  });
-});
-
+// we use runFunction to avoid tree shaking of event registration.
 /**
  * @propertyDecorator instance
  * @param def
  */
-export const Prop = MetaClass.decorator(PropMetadata, true);
+export const Prop = runFunction(MetaClass.decorator(PropMetadata, true), () => {
+  targetStore.on.processType((target: Constructor<any>) => {
+    const meta = targetStore.getTargetMeta(target);
+    meta.getValues(RelationMetadata).forEach(relation => {
+      // Its possible to set @Relation() without @Prop(), so make sure to create one if not set by the user.
+      const prop = meta.getCreateProp(relation.decoratorInfo);
+      prop.setRelationship(relation);
+
+      // if the fk is a different key, attach a reference to the foreign key PropMetadata (and create 1 if not there)
+      if (relation.name !== relation.foreignKey) {
+        meta.getCreateProp(relation.foreignKey).foreignKeyOf = prop;
+      }
+    });
+  });
+});
 
 /** @internal */
 export let exclude: any = {};

@@ -1,6 +1,6 @@
 {
   "name": "@tdm/ngx-http-client",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "peerDependencies": {
     "@angular/core": "^6.0.0",
     "@angular/common": "^6.0.0",

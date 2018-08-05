@@ -20,6 +20,49 @@ import {
 import { ActionController } from '../core/action-controller';
 import { TargetValidator } from '../core/target-validator';
 
+declare module '@tdm/core/tdm/lib/metadata/target-metadata' {
+  interface TargetMetadata {
+    collectionClass: typeof TDMCollection & Constructor<TDMCollection<any>>;
+
+    validate(instance: any): Promise<ValidationError[]>;
+
+    findHook(
+      action: ARHookableMethods
+    ): { before: HookMetadata; after: HookMetadata } | undefined;
+    findHookEvent(
+      action: ARHookableMethods,
+      event: 'before' | 'after'
+    ): HookMetadata | undefined;
+
+    hasAdapter(adapterClass: AdapterStatic<any, any>): boolean;
+
+    /**
+     * Checks if the adapter is the current adapter for this target
+     * @param adapterClass
+     */
+    isActive(adapterClass: AdapterStatic<any, any>): boolean;
+
+    /**
+     * Returns the action controller of the current (active) adapter on this target.
+     */
+    getAC(): ActionController | undefined;
+    /**
+     * Returns the  action controller of an adapter on this target.
+     */
+    getAC(
+      adapterClass: AdapterStatic<any, any>,
+      create?: boolean
+    ): ActionController | undefined;
+
+    getExtendingAction(info: DecoratorInfo): ExtendActionMetadata | undefined;
+
+    readonly activeAdapter: AdapterStatic<any, any>;
+    setActiveAdapter(adapter: AdapterStatic<any, any>): void;
+
+    extendFrom(store: this): void;
+  }
+}
+
 class CoreTargetMetadata<T = any, Z = any> extends TargetMetadata<T, Z> {
   collectionClass: typeof TDMCollection & Constructor<TDMCollection<T>>;
 
@@ -132,54 +175,13 @@ class CoreTargetMetadata<T = any, Z = any> extends TargetMetadata<T, Z> {
   }
 }
 
-declare module '@tdm/core/tdm/lib/metadata/target-metadata' {
-  interface TargetMetadata {
-    collectionClass: typeof TDMCollection & Constructor<TDMCollection<any>>;
+export function initTargetMetadata(): void {
+  Tixin(TargetMetadata, CoreTargetMetadata);
 
-    validate(instance: any): Promise<ValidationError[]>;
-
-    findHook(
-      action: ARHookableMethods
-    ): { before: HookMetadata; after: HookMetadata } | undefined;
-    findHookEvent(
-      action: ARHookableMethods,
-      event: 'before' | 'after'
-    ): HookMetadata | undefined;
-
-    hasAdapter(adapterClass: AdapterStatic<any, any>): boolean;
-
-    /**
-     * Checks if the adapter is the current adapter for this target
-     * @param adapterClass
-     */
-    isActive(adapterClass: AdapterStatic<any, any>): boolean;
-
-    /**
-     * Returns the action controller of the current (active) adapter on this target.
-     */
-    getAC(): ActionController | undefined;
-    /**
-     * Returns the  action controller of an adapter on this target.
-     */
-    getAC(
-      adapterClass: AdapterStatic<any, any>,
-      create?: boolean
-    ): ActionController | undefined;
-
-    getExtendingAction(info: DecoratorInfo): ExtendActionMetadata | undefined;
-
-    readonly activeAdapter: AdapterStatic<any, any>;
-    setActiveAdapter(adapter: AdapterStatic<any, any>): void;
-
-    extendFrom(store: this): void;
-  }
+  // override core implementation to support type specific collection class
+  TargetMetadata.prototype.createCollection = function(): TDMCollection<any> {
+    return this.collectionClass
+      ? new this.collectionClass()
+      : new TDMCollection();
+  };
 }
-
-Tixin(TargetMetadata, CoreTargetMetadata);
-
-// override core implementation to support type specific collection class
-TargetMetadata.prototype.createCollection = function(): TDMCollection<any> {
-  return this.collectionClass
-    ? new this.collectionClass()
-    : new TDMCollection();
-};

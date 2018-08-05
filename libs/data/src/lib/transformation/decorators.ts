@@ -1,5 +1,6 @@
 import { Identity } from '@tdm/core';
 import {
+  runFunction,
   targetStore,
   ModelMetadataArgs,
   RelationMetadataArgs, // RelationMetadataArgs - leave to satisfy angular compiler
@@ -28,6 +29,28 @@ import './prop';
 import './relations';
 import './mixins';
 
+/* duplicate imports required or else import is omitted in d.ts */
+import { initMetaClass } from './meta-class';
+import { initTargetStore } from './target-store';
+import { initTargetMetadata } from './target-metadata';
+import { initProps } from './prop';
+import { initRelations } from './relations';
+import { initMixins } from './mixins';
+
+declare module '@tdm/core/tdm/lib/add/model/model' {
+  interface ModelMetadata {
+    autoGenIdentity?: boolean;
+  }
+}
+
+function initDecorators() {
+  targetStore.registerAdapter(NoopAdapter, {
+    actionMetaClass: <any>class {},
+    DAOClass: class {},
+    resourceMetaClass: ModelMetadata
+  });
+}
+
 // TODO: this is a workaround to allow registering Models with no adapter so `onProcessType` event
 // fires, need to fire the build event even if no adapter is set, this requires refactoring.
 export class NoopAdapter implements Adapter<any, any> {
@@ -36,18 +59,6 @@ export class NoopAdapter implements Adapter<any, any> {
     return { id: 1, response: Promise.resolve(undefined) };
   }
   cancel(id: number): void {}
-}
-
-targetStore.registerAdapter(NoopAdapter, {
-  actionMetaClass: <any>class {},
-  DAOClass: class {},
-  resourceMetaClass: ModelMetadata
-});
-
-declare module '@tdm/core/tdm/lib/add/model/model' {
-  interface ModelMetadata {
-    autoGenIdentity?: boolean;
-  }
 }
 
 export function AutoIdentity(): Function {
@@ -59,9 +70,18 @@ export function AutoIdentity(): Function {
   };
 }
 
-const _Resource = MetaClass.get(ModelMetadata).createResourceDecorator(
-  NoopAdapter
-); // FOR AOT
+/* FOR AOT */
+const _Resource = runFunction(() => {
+  initMetaClass();
+  initTargetStore();
+  initTargetMetadata();
+  initProps();
+  initRelations();
+  initMixins();
+  initDecorators();
+  return MetaClass.get(ModelMetadata).createResourceDecorator(NoopAdapter);
+});
+
 /**
  * A Resource with a NOOP adapter.
  * @classDecorator

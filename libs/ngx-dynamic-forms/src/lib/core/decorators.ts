@@ -1,5 +1,6 @@
 import {
   targetStore,
+  runFunction,
   MapExt,
   Constructor,
   MetaClass,
@@ -15,15 +16,30 @@ import { FormElementType } from '../interfaces';
 
 /** @internal */
 export let formModel: any = {};
-formModel = MetaClass.decorator(FormModelMetadata, true);
+
+// we use runFunction to avoid tree shaking of event registration.
+formModel = runFunction(MetaClass.decorator(FormModelMetadata, true), () => {
+  targetStore.on.processType((target: Constructor<any>) => {
+    const tMeta = targetStore.getTargetMeta(target);
+    const modelProps = tMeta.getMetaFor(FormPropMetadata);
+    if (modelProps) {
+      let formModelMeta = tMeta.getMetaFor(FormModelMetadata, true);
+      if (!formModelMeta) {
+        FormModel()(target);
+        formModelMeta = tMeta.getMetaFor(FormModelMetadata, true);
+      }
+      MapExt.asKeyValArray(modelProps).forEach(([k, v]) =>
+        formModelMeta.addProp(tMeta.getCreateProp(k as any), v)
+      );
+    }
+  });
+})
 
 /**
  * @propertyDecorator static
  * @param metaArgs
  */
-export function FormModel(
-  metaArgs?: FormModelMetadataArgs
-): (target: Function) => any {
+export function FormModel(metaArgs?: FormModelMetadataArgs): (target: Function) => any {
   return formModel(metaArgs) as any;
 }
 
@@ -32,24 +48,6 @@ export function FormModel(
 export let formProp: any = {};
 formProp = MetaClass.decorator(FormPropMetadata);
 
-export function FormProp(
-  def: FormPropMetadataArgs
-): (target: Object, key: TdmPropertyKey) => any {
+export function FormProp(def: FormPropMetadataArgs): (target: Object, key: TdmPropertyKey) => any {
   return formProp(def) as any;
 }
-
-targetStore.on.processType((target: Constructor<any>) => {
-  const tMeta = targetStore.getTargetMeta(target);
-  const modelProps = tMeta.getMetaFor(FormPropMetadata);
-  if (modelProps) {
-    let formModelMeta = tMeta.getMetaFor(FormModelMetadata, true);
-    if (!formModelMeta) {
-      FormModel()(target);
-      formModelMeta = tMeta.getMetaFor(FormModelMetadata, true);
-    }
-
-    MapExt.asKeyValArray(modelProps).forEach(([k, v]) =>
-      formModelMeta.addProp(tMeta.getCreateProp(k as any), v)
-    );
-  }
-});

@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.dist.json",
   "compilerOptions": {
     "outDir": "../../out-tsc/app",
     "module": "esnext",
@@ -11,6 +11,7 @@
     "node_modules",
     "src/test.ts",
     "**/*.spec.ts",
-    "tmp"
+    "tmp",
+    "src/modules/@playground/**/*.ts"
   ]
 }

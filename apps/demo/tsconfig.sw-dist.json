@@ -1,0 +1,8 @@
+// TS Config for the service worker application (dist libs), built using a separate compilation via plugin
+{
+  "extends": "./tsconfig.app-dist",
+  "files": [
+    "apps/demo/src/modules/server/index.ts",
+    "apps/demo/src/modules/server/custom-typings.d.ts"
+  ]
+}

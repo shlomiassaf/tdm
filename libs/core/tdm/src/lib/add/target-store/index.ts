@@ -53,84 +53,86 @@ declare module '../../metadata/target-store' {
   }
 }
 
-// set the name for name lookup
-targetStore.on.processType(target => {
-  const model = targetStore.getTargetMeta(target).model();
-  if (model) {
-    // TODO: make this type safe
-    targetStore['namedTargets'].set(model.resName, target);
-  }
-});
-
-TargetMetadata.prototype.getIdentityKey = function getIdentityKey(
-  this: TargetMetadata,
-  direction?: TransformDir
-): string | undefined {
-  return targetStore.getIdentityKey(this.target, direction);
-};
-
-TargetStore.prototype.getTargetName = function getTargetName(
-  this: TargetStore,
-  target: Constructor<any>
-): string | undefined {
-  return targetStore.getMetaFor(target, ModelMetadata, true, 'resName');
-};
-
-TargetStore.prototype.getTargetMeta = function getTargetMeta(
-  target: Constructor<any>
-): TargetMetadata | undefined {
-  let meta = this.builtTargets.get(target);
-  if (!meta) {
-    const metaArgs = this.targets.get(target);
-
-    if (!metaArgs) {
-      this.registerTarget(target);
-      return this.getTargetMeta(target);
+export function initTargetStore(): void {
+  // set the name for name lookup
+  targetStore.on.processType(target => {
+    const model = targetStore.getTargetMeta(target).model();
+    if (model) {
+      // TODO: make this type safe
+      targetStore['namedTargets'].set(model.resName, target);
     }
+  });
 
-    meta = new TargetMetadata(target, metaArgs);
-    this.builtTargets.set(target, meta);
-    targetEvents.FIRE.createMetadata(target);
-  }
-  return meta;
-};
+  TargetMetadata.prototype.getIdentityKey = function getIdentityKey(
+    this: TargetMetadata,
+    direction?: TransformDir
+  ): string | undefined {
+    return targetStore.getIdentityKey(this.target, direction);
+  };
 
-TargetStore.prototype.getIdentityKey = function getIdentityKey(
-  this: TargetStore,
-  target: Constructor<any>,
-  direction?: TransformDir
-): string | undefined {
-  const meta = this.getTargetMeta(target);
-  const model = meta.model();
-  const identity = <any>model.identity;
+  TargetStore.prototype.getTargetName = function getTargetName(
+    this: TargetStore,
+    target: Constructor<any>
+  ): string | undefined {
+    return targetStore.getMetaFor(target, ModelMetadata, true, 'resName');
+  };
 
-  if (identity) {
-    if (!direction) {
-      return identity;
-    }
+  TargetStore.prototype.getTargetMeta = function getTargetMeta(
+    target: Constructor<any>
+  ): TargetMetadata | undefined {
+    let meta = this.builtTargets.get(target);
+    if (!meta) {
+      const metaArgs = this.targets.get(target);
 
-    const propMeta = meta.getMetaFor(PropMetadata, identity);
-
-    // apply naming strategy when DONT HAVE ALIAS!
-    if (propMeta.name === propMeta.alias[direction]) {
-      const transformNameStrategy = model.transformNameStrategy;
-
-      if (
-        transformNameStrategy &&
-        isFunction(transformNameStrategy[direction])
-      ) {
-        // in exclusive mode there is no point in have 2 transformation strategies.
-        // incoming is never there since incoming keys are not calculated, only defined Props.
-        if (model.transformStrategy === 'exclusive') {
-          direction = 'outgoing';
-        }
-
-        return transformNameStrategy[direction](propMeta.name);
+      if (!metaArgs) {
+        this.registerTarget(target);
+        return this.getTargetMeta(target);
       }
-    }
 
-    return direction === 'outgoing'
-      ? propMeta.alias.outgoing
-      : propMeta.alias.incoming;
-  }
-};
+      meta = new TargetMetadata(target, metaArgs);
+      this.builtTargets.set(target, meta);
+      targetEvents.FIRE.createMetadata(target);
+    }
+    return meta;
+  };
+
+  TargetStore.prototype.getIdentityKey = function getIdentityKey(
+    this: TargetStore,
+    target: Constructor<any>,
+    direction?: TransformDir
+  ): string | undefined {
+    const meta = this.getTargetMeta(target);
+    const model = meta.model();
+    const identity = <any>model.identity;
+
+    if (identity) {
+      if (!direction) {
+        return identity;
+      }
+
+      const propMeta = meta.getMetaFor(PropMetadata, identity);
+
+      // apply naming strategy when DONT HAVE ALIAS!
+      if (propMeta.name === propMeta.alias[direction]) {
+        const transformNameStrategy = model.transformNameStrategy;
+
+        if (
+          transformNameStrategy &&
+          isFunction(transformNameStrategy[direction])
+        ) {
+          // in exclusive mode there is no point in have 2 transformation strategies.
+          // incoming is never there since incoming keys are not calculated, only defined Props.
+          if (model.transformStrategy === 'exclusive') {
+            direction = 'outgoing';
+          }
+
+          return transformNameStrategy[direction](propMeta.name);
+        }
+      }
+
+      return direction === 'outgoing'
+        ? propMeta.alias.outgoing
+        : propMeta.alias.incoming;
+    }
+  };
+}

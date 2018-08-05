@@ -88,6 +88,25 @@ export function LazyInit(getter: Function): PropertyDecorator {
 }
 
 /**
+ * Invokes the provided functions and return the value it retuns.
+ * @internal
+ */
+export function runFunction<T>(fn: () => T): T;
+/**
+ * Invokes the provided functions and return the value provided.
+ * @internal
+ */
+export function runFunction<T>(value:T, fn: () => void): T;
+export function runFunction<T>(value:T | ( () => T ), fn?: () => void): T {
+  if (fn) {
+    fn();
+    return <T> value;
+  } else {
+    return (<() => T> value)();
+  }
+}
+
+/**
  * @pluginApi
  */
 export const array = (function() {

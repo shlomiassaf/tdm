@@ -20,10 +20,15 @@ ng build ngx-dynamic-forms --prod
 
 ng build ngx-http-client --prod
 
-# ng build local-forage --prod
+ng build local-forage --prod
 
 # ng build service-mocker-shared --prod
-# ng build service-mocker --prod
+ng build service-mocker --prod
 # ng build service-mocker-client --prod
+
+# service-worker.d.ts is copied to root.
+# A user will import it but we can't because it exists in non dist, we only need in dest build.
+# so we add it.
+echo "import './service-worker';" | cat - dist/@tdm/service-mocker/shared/index.d.ts > temp && mv temp dist/@tdm/service-mocker/shared/index.d.ts
 
 # npm publish ./dist/@tdm/tixin && npm publish ./dist/@tdm/core && npm publish ./dist/@tdm/data && npm publish ./dist/@tdm/json-api-mapper && npm publish ./dist/@tdm/ngx-dynamic-forms && npm publish ./dist/@tdm/ngx-http-client

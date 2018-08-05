@@ -1,6 +1,6 @@
 {
   "name": "@tdm/tixin",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "TypeScript mixins library with support for staic & instance member relfection",
   "keywords": [
     "@tdm",

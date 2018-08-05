@@ -33,6 +33,7 @@ export {
   getBaseClass,
   getProtoChain,
   reflection,
+  runFunction,
   ProxyHostMetadataArgs,
   MetaClassMetadataArgs,
   MetaClassMetadata,
@@ -76,10 +77,12 @@ export { TDMCollection, TDMModel, TDMModelBase } from './model/index';
 
 export { Model, ModelMetadata, processModel } from './add/model/index';
 
-import './add/target-store';
+import { initTargetStore } from './add/target-store';
 import { initMapping } from './add/mapping';
+initTargetStore();
 initMapping();
-import './add/mapping'; // we need this for d.ts export, the 2 rows above are not set in d.ts)
+import './add/target-store'; // we need this for d.ts export, if not then the import are not set in d.ts)
+import './add/mapping'; // we need this for d.ts export, if not then the import are not set in d.ts)
 
 // tslint:disable-next-line:no-namespace
 declare global {
