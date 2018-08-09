@@ -282,15 +282,11 @@ export class NgFormsSerializeMapper extends SerializeMapper {
       if (!meta) {
         return;
       }
-      const formProp =
-        this.formModel.getProp(meta.name as string) || FormPropMetadata.EMPTY;
+      const formProp = this.formModel.getProp(meta.name as string) || FormPropMetadata.EMPTY;
       if (!formProp.rtType) {
         formProp.rtType = meta.type;
       }
-      const ctrl = this.createControl(
-        formProp,
-        obj ? obj[prop.cls] : undefined
-      );
+      const ctrl = this.createControl(formProp, obj ? obj[prop.cls] : undefined);
       if (ctrl) {
         data.addControl(prop.obj, ctrl);
       }
@@ -320,11 +316,7 @@ export class NgFormsSerializeMapper extends SerializeMapper {
    * recursively, first time for the array value and then n times (array length) for the items in the array. The actual
    * type for each item is that [[FormPropMetadata]].
    */
-  protected createControl(
-    formProp: FormPropMetadata,
-    value: any,
-    ignoreArray?: boolean
-  ): AbstractControl | undefined {
+  protected createControl(formProp: FormPropMetadata, value: any, ignoreArray?: boolean): AbstractControl | undefined {
     if (formProp.exclude) {
       return;
     }
@@ -343,8 +335,14 @@ export class NgFormsSerializeMapper extends SerializeMapper {
     }
 
     const { rtType } = formProp;
-    const isArray =
-      Array.isArray(value) || (ignoreArray ? false : rtType && rtType.isArray);
+    // deciding if it's an array or not.
+    // if it's explicitly marked as not, set false
+    // otherwise, check value type then check settings type.
+    const isArray = rtType && rtType.isArray === false
+      ? false
+      : Array.isArray(value) || (ignoreArray ? false : rtType && rtType.isArray)
+    ;
+
     let ctrl: AbstractControl;
     const [syncValidator, asyncValidator] = getValidators(formProp, {
       required: formProp.required
@@ -354,7 +352,7 @@ export class NgFormsSerializeMapper extends SerializeMapper {
       value = value ? this.plainMapper.serialize(value) : isArray ? [] : {};
       if (isArray) {
         ctrl = new FormArray([]);
-        for (let item of value) {
+        for (const item of value) {
           (ctrl as FormArray).push(this.createControl(formProp, item, true));
         }
       } else {
@@ -405,10 +403,7 @@ export class NgFormsSerializeMapper extends SerializeMapper {
     return ctrl;
   }
 
-  protected createFlatten(
-    flatten: { [key: string]: FormPropMetadata },
-    value: any
-  ): FormGroup {
+  protected createFlatten(flatten: { [key: string]: FormPropMetadata }, value: any): FormGroup {
     const ctrl = new FormGroup({});
     const keys = Object.keys(flatten);
     for (let key of keys) {
@@ -420,20 +415,14 @@ export class NgFormsSerializeMapper extends SerializeMapper {
     return ctrl;
   }
 
-  protected serializeChild(
-    type: TypeMetadata,
-    obj: any
-  ): FormGroup | FormArray {
+  protected serializeChild(type: TypeMetadata, obj: any): FormGroup | FormArray {
     return targetStore.serialize(
       type.ref as any,
       new NgFormsChildSerializeMapper(obj, this.cache, this.plainMapper)
     );
   }
 
-  protected serializeCollection(
-    arr: any[],
-    container: PropertyContainer
-  ): FormArray {
+  protected serializeCollection(arr: any[], container: PropertyContainer): FormArray {
     return new FormArray(arr.map(s => this.serializeObject(s, container)));
   }
 

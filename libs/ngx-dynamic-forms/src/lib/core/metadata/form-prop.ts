@@ -84,6 +84,26 @@ export interface FormPropMetadataArgs<
   childForm?: boolean;
 
   /**
+   * When set true will force the mapper to treat this property as a generic `Object`.
+   * This means that when the model will serilalize to a `Form` this property will serialize to a `FormControl` regardless
+   * of it's actual type.
+   *
+   * > Note: Setting this will override any `type` or `rtType` set.
+   *
+   * This is syntax sugar for
+   * ```
+   * @FormProp({
+   *   reType: { isArray: false },
+   *   render: {
+   *     vType: 'text',
+   *     label: 'Developer Name'
+   *   }
+   * })
+   * name: string[];
+   */
+  forceObjectType?: true;
+
+  /**
    * Type definition declaration to be used by the form builder.
    * Setting type definition overrides any existing type definition, explicit or implicit.
    *
@@ -199,7 +219,9 @@ export class FormPropMetadata extends BaseMetadata {
         this.childForm = true;
       }
 
-      if (metaArgs.rtType) {
+      if (metaArgs.forceObjectType === true) {
+        this.rtType = new TypeMetadata({ isArray: false }, info, target);
+      } else if (metaArgs.rtType) {
         this.rtType = new TypeMetadata(metaArgs.rtType, info, target);
       }
 

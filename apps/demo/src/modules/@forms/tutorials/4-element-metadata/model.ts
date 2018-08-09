@@ -72,6 +72,7 @@ export class Hero {
         vType: 'select',
         label: 'Super Power',
         data: {
+          multiple: true,
           options: [
             { value: 'selfHealing', label: 'Self Healing' },
             { value: 'flying', label: 'Flying' },
@@ -84,6 +85,47 @@ export class Hero {
     }
   })
   superPower: 'selfHealing' | 'flying' | 'cloaking' | 'cloning' | 'invisibility';
+
+  @Prop({
+    form: {
+      forceObjectType: true,
+      render: {
+        vType: 'select',
+        label: 'Hobbies',
+        data: {
+          multiple: true,
+          options: [
+            'Baseball',
+            'Basketball',
+            'Buildi',
+            'Cosplay',
+            'Soccer',
+            'Spelunkering',
+            'Storm Chasing',
+            'Wrestling',
+            'Writing',
+            'Yoga'
+          ].map( value => ({value})),
+        }
+      }
+    }
+  })
+  hobbies: Array<'selfHealing' | 'flying' | 'cloaking' | 'cloning' | 'invisibility'>;
+
+  @Prop({
+    form: {
+      forceObjectType: true,
+      render: {
+        vType: 'chips',
+        label: 'Chips',
+        data: {
+          removable: true,
+          addOnBlur: true,
+        }
+      }
+    }
+  })
+  chips: string[];
 
   @Prop({
     form: {

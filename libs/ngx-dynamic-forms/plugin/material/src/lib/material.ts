@@ -13,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
 
 const MATERIAL_MODULES = [
   MatCommonModule,
@@ -27,7 +28,8 @@ const MATERIAL_MODULES = [
   MatSliderModule,
   MatSlideToggleModule,
   MatFormFieldModule,
-  MatTooltipModule
+  MatTooltipModule,
+  MatChipsModule,
 ];
 
 @NgModule({

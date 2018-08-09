@@ -41,10 +41,28 @@
 <ng-template #select let-ctx let-showLabels="showLabels" let-self="self">
   <mat-form-field>
     <mat-select [formControl]="ctx.fControl"
-                [placeholder]="showLabels && ctx.item.label">
+                [placeholder]="showLabels && ctx.item.label"
+                [multiple]="ctx.item.data.multiple">
       <mat-option *ngFor="let sel of ctx.item.data.options" [value]="sel.value">{{sel.label || sel.value}}</mat-option>
     </mat-select>
     <mat-error *ngIf="self.hasError('required', ctx)">Required</mat-error>
+  </mat-form-field>
+</ng-template>
+
+<ng-template #chips let-ctx let-showLabels="showLabels" let-self="self">
+  <mat-form-field>
+    <mat-chip-list #chipList>
+      <mat-chip *ngFor="let item of ctx.fControl.value" [selectable]="ctx.item.data.selectable"
+                [removable]="ctx.item.data.removable" (removed)="self.matChipRemove(item, ctx.fControl.value)">
+        {{ item }}
+        <mat-icon matChipRemove *ngIf="ctx.item.data.removable">cancel</mat-icon>
+      </mat-chip>
+      <input [placeholder]="showLabels && ctx.item.label"
+             [matChipInputFor]="chipList"
+             [matChipInputSeparatorKeyCodes]="ctx.item.data.separatorKeysCodes"
+             [matChipInputAddOnBlur]="ctx.item.data.addOnBlur"
+             (matChipInputTokenEnd)="self.matChipAdd($event, ctx.fControl.value)">
+    </mat-chip-list>
   </mat-form-field>
 </ng-template>
 

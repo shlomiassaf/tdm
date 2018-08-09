@@ -55,6 +55,7 @@ export class MaterialTemplateStoreComponent implements TemplateStore {
   @ViewChild('radio') radio: TemplateRef<MaterialStoreTemplateContext>;
   @ViewChild('textarea') textarea: TemplateRef<MaterialStoreTemplateContext>;
   @ViewChild('select') select: TemplateRef<MaterialStoreTemplateContext>;
+  @ViewChild('chips') chips: TemplateRef<MaterialStoreTemplateContext>;
   @ViewChild('date') date: TemplateRef<MaterialStoreTemplateContext>;
   @ViewChild('input') input: TemplateRef<MaterialStoreTemplateContext>;
   @ViewChild('childForm') childForm: TemplateRef<MaterialStoreTemplateContext>;

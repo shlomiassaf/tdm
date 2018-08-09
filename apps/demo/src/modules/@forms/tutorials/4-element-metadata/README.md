@@ -80,7 +80,7 @@ by the library, it comes from the renderer.
 
 The following code is a made up example of how a renderer defines the
 type definition of `data`:
- 
+
 ```ts
 interface FormElementType {
   text: never;
@@ -88,7 +88,7 @@ interface FormElementType {
   boolean: never;
 
   radio: { options: Array<{ value: any; label?: string; }> };
-  select: { options: Array<{ value: any; label?: string; }> };
+  select: { options: Array<{ value: any; label?: string }>; multiple?: true };
   password: never;
   slider: { min?: number, max?: number};
   slideToggle: never;
@@ -107,6 +107,45 @@ proper documentation.
 A renderer might not implement strict types for the data property and
 it might also choose not to implement a strict type for `vType`
 </div>
+
+## The special case of `FormControl` array's
+While it's best if our models are simple containing only primitive properties, in the real world
+we might face copmlex models with propeties that point to other models or arrays.
+
+They are called **Complex Data Structures** and they require special handling.  
+**Complex Data Structures** is an advanced topic, discussed in a section by the same name.
+
+For now, we will cover a specific complex structure, an array of primitive types (e.g. `string[]`)  
+
+In `@angular/forms` an array is represented using `FormArray`, for example, when we define the following property:
+
+```ts
+@FormProp({ /* CONFIG... */ })
+values: string[];
+```
+
+The libaray will create a matching `FormArray` to represent the property in the "forms" world.  
+However, some form control components are built to handle an array of items through a `FormControl`.  
+The form control's value is an array (`FormControl` can hold any object) and the component will handle the logic internally.
+
+This is a problem, the library will output a `FormArray` isntance but we need a `FormControl` instance.
+
+The solution: `forceObjectType`.
+
+```ts
+@FormProp({
+  forceObjectType: true,
+  /* CONFIG... */
+})
+values: string[];
+```
+
+When we set `forceObjectType` the library will ignore all type information and use the `Object` type instead.
+This will result in a `FormControl` instance.
+
+In the exapmle below you can see a real exapmle, we use a **multi-select** form control that holds an array of items.
+If we don't use `forceObjectType` the library will throw an exception because the form control component will get
+an isntance of `FormArray` which it doesn't know how to handle.
 
 ## Extending `Hero`
 Before we move on we need to add some properties to the `Hero` model

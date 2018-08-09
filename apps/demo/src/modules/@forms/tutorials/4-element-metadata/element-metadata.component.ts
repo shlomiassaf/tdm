@@ -16,5 +16,9 @@ export class ElementMetadataComponent {
     id: 'element-metadata',
     name: 'Element Metadata'
   };
+
+  constructor() {
+    this.model.hobbies = ['Baseball', 'Soccer'] as any;
+  }
   /* @tdm-ignore:* */
 }

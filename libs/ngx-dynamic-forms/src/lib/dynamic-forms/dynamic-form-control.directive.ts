@@ -61,13 +61,9 @@ export class DynamicFormControlDirective {
         const resolver = injector.get(ComponentFactoryResolver);
         const component = this.dynForm.getComponentRenderer(value);
         const componentFactory = resolver.resolveComponentFactory(component);
-        this.cmpRef = this.defaultVCRef.createComponent<
-          DynamicControlRenderContext
-        >(componentFactory, this.defaultVCRef.length, injector);
+        this.cmpRef = this.defaultVCRef.createComponent<DynamicControlRenderContext>(componentFactory, this.defaultVCRef.length, injector);
         this.dynForm.tdmForm.bindRenderingData(this.cmpRef.instance, value);
-        if (
-          typeof this.cmpRef.instance.tdmOnControlContextInit === 'function'
-        ) {
+        if (typeof this.cmpRef.instance.tdmOnControlContextInit === 'function') {
           this.cmpRef.instance.tdmOnControlContextInit();
         }
         if (outlet) {
@@ -82,11 +78,8 @@ export class DynamicFormControlDirective {
   private cmpRef: ComponentRef<DynamicControlRenderContext>;
   private vcRef: ViewContainerRef;
 
-  constructor(
-    private defaultVCRef: ViewContainerRef,
-    @Inject(forwardRef(() => DynamicFormComponent))
-    public dynForm: DynamicFormComponent<any>
-  ) {
+  constructor(private defaultVCRef: ViewContainerRef,
+              @Inject(forwardRef(() => DynamicFormComponent)) public dynForm: DynamicFormComponent<any>) {
     // tslint:disable-line
     this.vcRef = defaultVCRef;
   }

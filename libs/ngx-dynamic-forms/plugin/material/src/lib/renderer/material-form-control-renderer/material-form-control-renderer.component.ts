@@ -9,6 +9,8 @@ import {
   ChangeDetectorRef,
   Optional
 } from '@angular/core';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { MatChipInputEvent } from '@angular/material/chips';
 
 import {
   RenderInstruction,
@@ -75,10 +77,7 @@ export class MaterialFormControlRenderer
 
   private _dynForm: DynamicFormComponent;
 
-  constructor(
-    @Optional() dynForm: DynamicFormComponent,
-    private cdr: ChangeDetectorRef
-  ) {
+  constructor(@Optional() dynForm: DynamicFormComponent, private cdr: ChangeDetectorRef) {
     if (dynForm) {
       this.dynForm = dynForm;
     }
@@ -104,6 +103,18 @@ export class MaterialFormControlRenderer
           model,
           this.fControl
         );
+      }
+      switch (this.item.vType) {
+        case 'chips':
+          if (!this.fControl.value) {
+            this.fControl.setValue([], { onlySelf: true });
+          }
+          const data: RenderInstruction<'chips'>['data'] = (this.item.data || {}) as any;
+          if (!data.separatorKeysCodes) {
+            data.separatorKeysCodes = [ENTER, COMMA];
+          }
+          this.item.data = data;
+         break;
       }
     }
   }
@@ -171,5 +182,26 @@ export class MaterialFormControlRenderer
       return ctx.fGroup.hasError(errorName);
     }
     return false;
+  }
+
+  matChipAdd(event: MatChipInputEvent, arr: any[]): void {
+    const input = event.input;
+    const value = (event.value || '').trim();
+
+    if (value) {
+      arr.push(value);
+    }
+
+    // Reset the input value
+    if (input) {
+      input.value = '';
+    }
+  }
+
+  matChipRemove(item: any, arr: any[]): void {
+    const index = arr.indexOf(item);
+    if (index >= 0) {
+      arr.splice(index, 1);
+    }
   }
 }
