@@ -1,6 +1,6 @@
 {
   "name": "@tdm/ngx-dynamic-forms",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Dynamic forms using Typed data models (@tdm).",
   "keywords": [
     "@tdm",
