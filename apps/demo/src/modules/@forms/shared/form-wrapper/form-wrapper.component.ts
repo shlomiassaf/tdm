@@ -16,7 +16,7 @@ import { AbstractControl } from '@angular/forms';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 
 import { DynamicFormComponent } from '@tdm/ngx-dynamic-forms';
-import { ExtractedCode } from '@webpack-ext/tdm-code-sample/client';
+import { ExtractedCode } from '@webpack-ext/tdm-code-sample';
 
 @Component({
   selector: 'form-wrapper',

@@ -1,6 +1,5 @@
 // This is a core class with lot's of type crazy stuff, enforcing max-line-length will create an unreadable mess
 // tslint:disable:max-line-length
-
 import {
   Constructor,
   isString,
@@ -19,10 +18,7 @@ import {
   ExtendSingleFn
 } from './types';
 import { decoratorInfo, extendHelpers, registerHelpers } from './utils';
-import {
-  ProxyHostMetadataArgs,
-  MetaClassMetadataArgs
-} from './meta-class-args';
+import { ProxyHostMetadataArgs, MetaClassMetadataArgs } from './meta-class-args';
 
 const store = new Map<Constructor<any>, MetaClassMetadata>();
 
@@ -37,14 +33,10 @@ export class GLOBAL_KEY {} // tslint:disable-line:class-name
  */
 // tslint:disable-next-line:max-classes-per-file
 export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
-  private proxyTo: Array<
-    ProxyHostMetadataArgs & { metaClass: MetaClassMetadata }
-  > = [];
+  private proxyTo: Array<ProxyHostMetadataArgs & { metaClass: MetaClassMetadata }> = [];
 
-  private constructor(
-    public target: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
-    public metaArgs?: MetaClassMetadataArgs<TMetaArgs, TMetaClass>
-  ) {
+  private constructor(public target: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
+                      public metaArgs?: MetaClassMetadataArgs<TMetaArgs, TMetaClass>) {
     if (!this.metaArgs) {
       this.metaArgs = {};
     } else {
@@ -108,21 +100,14 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
    * @param desc
    * @returns
    */
-  create(
-    metaArgs: TMetaArgs,
-    target: Object | Function,
-    key?: TdmPropertyKey,
-    desc?: PropertyDescriptor | number
-  ): TMetaClass {
+  create(metaArgs: TMetaArgs, target: Object | Function, key?: TdmPropertyKey, desc?: PropertyDescriptor | number): TMetaClass {
     return this.createCurry(metaArgs, target, key, desc)();
   }
 
-  createCurry(
-    metaArgs: TMetaArgs,
-    target: Object | Function,
-    key?: TdmPropertyKey,
-    desc?: PropertyDescriptor | number
-  ): MetadataCurriedCreate<TMetaArgs, TMetaClass> {
+  createCurry(metaArgs: TMetaArgs,
+              target: Object | Function,
+              key?: TdmPropertyKey,
+              desc?: PropertyDescriptor | number): MetadataCurriedCreate<TMetaArgs, TMetaClass> {
     const info = decoratorInfo(target, key, desc);
     const allowOn = this.metaArgs.allowOn;
 
@@ -140,7 +125,7 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
           throw new Error(
             `Metadata class ${stringify(
               this.target
-            )} can not decorate a static member (${stringify(target)}#${key})`
+            )} can not decorate a static member (${stringify(target)}#${key.toString()})`
           );
         }
       } else if (info.type === 'param') {
@@ -148,7 +133,7 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
           throw new Error(
             `Metadata class ${stringify(
               this.target
-            )} can not decorate a param (${stringify(target)}#${key})`
+            )} can not decorate a param (${stringify(target)}#${key.toString()})`
           );
         }
       } else {
@@ -157,7 +142,7 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
             `Metadata class ${stringify(
               this.target
             )} can not decorate an instance member ` +
-              `(${stringify(target.constructor)}.${key})`
+              `(${stringify(target.constructor)}.${key.toString()})`
           );
         }
       }
@@ -165,9 +150,7 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
 
     const meta = this.factory(metaArgs, target, info, key, desc);
 
-    const curry: MetadataCurriedCreate<TMetaArgs, TMetaClass> = <any>((
-      _meta?: MetaClassInstanceDetails<TMetaArgs, TMetaClass>
-    ): TMetaClass => {
+    const curry: MetadataCurriedCreate<TMetaArgs, TMetaClass> = <any>((_meta?: MetaClassInstanceDetails<TMetaArgs, TMetaClass>): TMetaClass => {
       if (!_meta) {
         _meta = meta;
       }
@@ -214,40 +197,16 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
   createDecorator(type: 'param'): (def: TMetaArgs) => ParameterDecorator;
   createDecorator(type: 'prop'): (def: TMetaArgs) => PropertyDecorator;
   createDecorator(type: 'method'): (def: TMetaArgs) => MethodDecorator;
-  createDecorator(
-    type: 'propMethod'
-  ): (def: TMetaArgs) => PropertyDecorator | MethodDecorator;
-  createDecorator(
-    type: 'classPropMethod'
-  ): (def: TMetaArgs) => ClassDecorator | PropertyDecorator | MethodDecorator;
+  createDecorator(type: 'propMethod'): (def: TMetaArgs) => PropertyDecorator | MethodDecorator;
+  createDecorator(type: 'classPropMethod'): (def: TMetaArgs) => ClassDecorator | PropertyDecorator | MethodDecorator;
   createDecorator(): (def: TMetaArgs) => PropertyDecorator | MethodDecorator;
-  createDecorator(
-    optional: true,
-    type: 'class'
-  ): (def?: TMetaArgs) => ClassDecorator;
-  createDecorator(
-    optional: true,
-    type: 'param'
-  ): (def?: TMetaArgs) => ParameterDecorator;
-  createDecorator(
-    optional: true,
-    type: 'prop'
-  ): (def?: TMetaArgs) => PropertyDecorator;
-  createDecorator(
-    optional: true,
-    type: 'method'
-  ): (def?: TMetaArgs) => MethodDecorator;
-  createDecorator(
-    optional: true,
-    type: 'propMethod'
-  ): (def?: TMetaArgs) => PropertyDecorator | MethodDecorator;
-  createDecorator(
-    optional: true,
-    type: 'classPropMethod'
-  ): (def?: TMetaArgs) => ClassDecorator | PropertyDecorator | MethodDecorator;
-  createDecorator(
-    optional: true
-  ): (def?: TMetaArgs) => PropertyDecorator | MethodDecorator;
+  createDecorator(optional: true, type: 'class'): (def?: TMetaArgs) => ClassDecorator;
+  createDecorator(optional: true, type: 'param'): (def?: TMetaArgs) => ParameterDecorator;
+  createDecorator(optional: true, type: 'prop'): (def?: TMetaArgs) => PropertyDecorator;
+  createDecorator(optional: true, type: 'method'): (def?: TMetaArgs) => MethodDecorator;
+  createDecorator(optional: true, type: 'propMethod'): (def?: TMetaArgs) => PropertyDecorator | MethodDecorator;
+  createDecorator(optional: true, type: 'classPropMethod'): (def?: TMetaArgs) => ClassDecorator | PropertyDecorator | MethodDecorator;
+  createDecorator(optional: true): (def?: TMetaArgs) => PropertyDecorator | MethodDecorator;
   createDecorator(...args: any[]): any {
     return <any>((def: TMetaArgs) => {
       return (
@@ -275,13 +234,11 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
   /**
    * @internal
    */
-  public factory(
-    metaArgs: TMetaArgs,
-    target: Object | Function,
-    info: DecoratorInfo,
-    key?: TdmPropertyKey,
-    desc?: PropertyDescriptor | number
-  ): MetaClassInstanceDetails<TMetaArgs, TMetaClass> {
+  public factory(metaArgs: TMetaArgs,
+                 target: Object | Function,
+                 info: DecoratorInfo,
+                 key?: TdmPropertyKey,
+                 desc?: PropertyDescriptor | number): MetaClassInstanceDetails<TMetaArgs, TMetaClass> {
     const type = ensureTargetIsType(target);
     const meta = {
       info,
@@ -306,9 +263,7 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
    * @param meta
    * @returns
    */
-  private singleChain(
-    meta: MetaClassInstanceDetails<TMetaArgs, TMetaClass>
-  ): Array<MetaClassInstanceDetails<TMetaArgs, TMetaClass>> | undefined {
+  private singleChain(meta: MetaClassInstanceDetails<TMetaArgs, TMetaClass>): Array<MetaClassInstanceDetails<TMetaArgs, TMetaClass>> | undefined {
     if (this.metaArgs.single === true && this.metaArgs.inherit) {
       const parentMeta = Object.create(meta);
       parentMeta.metaClassKey = this.metaArgs.inherit;
@@ -318,9 +273,7 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
     }
   }
 
-  private findProxies(
-    metaArgs: TMetaArgs | undefined
-  ): Array<{ meta: MetaClassMetadata; args: any[] }> {
+  private findProxies(metaArgs: TMetaArgs | undefined): Array<{ meta: MetaClassMetadata; args: any[] }> {
     const results: Array<{ meta: MetaClassMetadata; args: any[] }> = [];
 
     if (metaArgs) {
@@ -364,8 +317,7 @@ export class MetaClassMetadata<TMetaArgs = any, TMetaClass = any, Z = any> {
    * @param metaArgs
    * @returns
    */
-  static create<TMetaArgs = any, TMetaClass = any>(
-    target: MetadataClassStatic<TMetaArgs, TMetaClass>,
+  static create<TMetaArgs = any, TMetaClass = any>(target: MetadataClassStatic<TMetaArgs, TMetaClass>,
     metaArgs?: MetaClassMetadataArgs<TMetaArgs, TMetaClass>
   ): MetaClassMetadata<TMetaArgs, TMetaClass> {
     return new MetaClassMetadata<TMetaArgs, TMetaClass>(target, metaArgs);
@@ -399,54 +351,32 @@ export namespace MetaClass {
    * @param key
    * @param desc
    */
-  export function create<TMetaArgs, TMetaClass, Z>(
-    metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
-    metaArgs: TMetaArgs,
-    target: Object | Function,
-    key?: TdmPropertyKey,
-    desc?: PropertyDescriptor | number
-  ): TMetaClass {
+  export function create<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
+                                                   metaArgs: TMetaArgs,
+                                                   target: Object | Function,
+                                                   key?: TdmPropertyKey,
+                                                   desc?: PropertyDescriptor | number): TMetaClass {
     return store.get(metaClass).create(metaArgs, target, key, desc);
   }
 
-  export function decorator<TMetaArgs, TMetaClass, Z>(
-    metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
-    type: 'class'
-  ): (def: TMetaArgs) => ClassDecorator;
-  export function decorator<TMetaArgs, TMetaClass, Z>(
-    metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
-    type: 'param'
-  ): (def: TMetaArgs) => ParameterDecorator;
-  export function decorator<TMetaArgs, TMetaClass, Z>(
-    metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
-    type: 'prop'
-  ): (def: TMetaArgs) => PropertyDecorator;
-  export function decorator<TMetaArgs, TMetaClass, Z>(
-    metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
-    type: 'method'
-  ): (def: TMetaArgs) => MethodDecorator;
-  export function decorator<TMetaArgs, TMetaClass, Z>(
-    metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
-    type: 'propMethod'
-  ): (def: TMetaArgs) => PropertyDecorator | MethodDecorator;
-  export function decorator<TMetaArgs, TMetaClass, Z>(
-    metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
-    type: 'classPropMethod'
-  ): (def: TMetaArgs) => ClassDecorator | PropertyDecorator | MethodDecorator;
-  export function decorator<TMetaArgs, TMetaClass, Z>(
-    metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>
-  ): (
-    def: TMetaArgs
-  ) => (
-    target: Object,
-    propertyKey: string | symbol,
-    descOrIndex?: PropertyDescriptor | number
-  ) => any;
-  export function decorator<TMetaArgs, TMetaClass, Z>(
-    metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
-    optional: true,
-    type: 'class'
-  ): (def?: TMetaArgs) => ClassDecorator;
+  export function decorator<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
+                                                      type: 'class'): (def: TMetaArgs) => ClassDecorator;
+  export function decorator<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
+                                                      type: 'param'): (def: TMetaArgs) => ParameterDecorator;
+  export function decorator<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
+                                                      type: 'prop'): (def: TMetaArgs) => PropertyDecorator;
+  export function decorator<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
+                                                      type: 'method'): (def: TMetaArgs) => MethodDecorator;
+  export function decorator<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
+                                                      type: 'propMethod'): (def: TMetaArgs) => PropertyDecorator | MethodDecorator;
+  export function decorator<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
+                                                      type: 'classPropMethod'): (def: TMetaArgs) => ClassDecorator | PropertyDecorator | MethodDecorator;
+  export function decorator<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>)
+    : (def: TMetaArgs) => (target: Object, propertyKey: string | symbol, descOrIndex?: PropertyDescriptor | number) => any;
+
+  export function decorator<TMetaArgs, TMetaClass, Z>(metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>, optional: true, type: 'class')
+    : (def?: TMetaArgs) => ClassDecorator;
+
   export function decorator<TMetaArgs, TMetaClass, Z>(
     metaClass: Z & MetadataClassStatic<TMetaArgs, TMetaClass>,
     optional: true,
@@ -479,7 +409,7 @@ export namespace MetaClass {
     def?: TMetaArgs
   ) => (
     target: Object,
-    propertyKey: string | symbol,
+    propertyKey: string | number | symbol,
     descOrIndex?: PropertyDescriptor | number
   ) => any;
   export function decorator<TMetaArgs, TMetaClass, Z>(

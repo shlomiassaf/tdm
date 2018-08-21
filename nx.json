@@ -66,5 +66,12 @@
     "service-mocker-client": {
       "tags": []
     }
+  },
+  "implicitDependencies": {
+    "angular.json": "*",
+    "package.json": "*",
+    "tsconfig.json": "*",
+    "tslint.json": "*",
+    "nx.json": "*"
   }
 }

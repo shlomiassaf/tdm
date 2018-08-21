@@ -10,7 +10,7 @@ const convertSourceMap = require('convert-source-map'); // tslint:disable-line
 import {
   ExtractedCode,
   CodeExtractionInstructions
-} from '@webpack-ext/tdm-code-sample/code-extraction-instructions';
+} from './index';
 import { parse, ParserResult } from './parser';
 import { DEFAULT_MARKED_OPTIONS } from './marked-integration';
 

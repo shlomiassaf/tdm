@@ -202,9 +202,7 @@ export class FormPropMetadata extends BaseMetadata {
       if (!this.exclude && metaArgs.render) {
         if (!metaArgs.render.vType) {
           throw new Error(
-            `Invalid property type or type not set in ${stringify(target)}.${
-              info.name
-            }`
+            `Invalid property type or type not set in ${stringify(target)}.${info.name.toString()}`
           );
         }
         Object.assign(this.render, metaArgs.render);

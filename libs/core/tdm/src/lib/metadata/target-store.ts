@@ -226,20 +226,12 @@ export class TargetStore {
     });
   }
 
-  protected set<T, Z, P extends keyof T>(
-    target: Constructor<any>,
-    k: Z & Constructor<T>,
-    k1: P,
-    v: T[P]
-  ): T[P] {
+  protected set<T, Z, P extends keyof T>(target: Constructor<any>, k: Z & Constructor<T>, k1: P, v: T[P]): T[P] {
     // TODO: implement LRU since most values are set sequentially on the same target.
     let dkm = this.targets.get(target);
 
     if (!dkm) {
-      this.targets.set(
-        target,
-        (dkm = new DualKeyMap<MetadataClassStatic, TdmPropertyKey, any>())
-      );
+      this.targets.set(target, (dkm = new DualKeyMap<MetadataClassStatic, TdmPropertyKey, any>()));
     }
 
     dkm.set(k as any, k1, v as any);

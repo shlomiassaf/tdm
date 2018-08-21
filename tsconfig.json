@@ -145,6 +145,12 @@
       "server": [
         "apps/demo/src/modules/server"
       ],
+      "@webpack-ext/tdm-code-sample": [
+        "tools/@webpack-ext/tdm-code-sample/src/index.ts"
+      ],
+      "@webpack-ext/tdm-ts-transpile": [
+        "tools/@webpack-ext/tdm-ts-transpile/src/index.ts"
+      ],
       "@webpack-ext/*": [
         "tools/@webpack-ext/*"
       ]

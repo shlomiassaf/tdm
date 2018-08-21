@@ -83,5 +83,5 @@ import './add/mapping'; // we need this for d.ts export, the 2 rows above are no
 
 // tslint:disable-next-line:no-namespace
 declare global {
-  type TdmPropertyKey = string | symbol;
+  type TdmPropertyKey = string | number | symbol;
 }

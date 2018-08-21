@@ -97,9 +97,7 @@ export class PropMetadata extends BaseMetadata {
         this.type.ref === Array
       ) {
         throw new Error(
-          `Property ${
-            this.decoratorInfo.name
-          } with relation but without a type, please set a type.`
+          `Property ${this.decoratorInfo.name.toString()} with relation but without a type, please set a type.`
         );
       }
     }

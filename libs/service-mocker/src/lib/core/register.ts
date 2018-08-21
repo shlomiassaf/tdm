@@ -65,5 +65,5 @@ export function registerMethods(ctrl: ServiceMockControllerMetadata , server: Se
 }
 
 function methodNotAllowed(req: MockerRequest, res: MockerResponse) {
-  return res.status(405).json(HttpError.createKnown('405'));
+  return res.status(405).json(HttpError.createKnown(405));
 }

@@ -12,7 +12,7 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 
 import { autoSerialize } from '@tdm/core';
 import { TDMModel } from '@tdm/core/tdm';
-import { ExtractedCode } from '@webpack-ext/tdm-code-sample/client';
+import { ExtractedCode } from '@webpack-ext/tdm-code-sample';
 import {
   ResourceControl,
   isResourceEvent,

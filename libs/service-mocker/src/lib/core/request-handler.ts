@@ -52,7 +52,7 @@ function emitInstanceMethod(ctx: RequestContext, instance: any, name: string): a
 function emitError(res: MockerResponse, error: Error, extendError?: any): void {
   const httpError: HttpError = error instanceof HttpError
     ? error
-    : HttpError.createKnown('500', error.message || 'Unknown Error')
+    : HttpError.createKnown(500, error.message || 'Unknown Error')
   ;
 
   const sendData: any = {

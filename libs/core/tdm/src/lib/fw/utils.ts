@@ -59,10 +59,10 @@ export function stringify(token: any): string {
 }
 
 export const reflection = {
-  designType(target: any, key: string | symbol): any {
+  designType(target: any, key: string | symbol | number): any {
     return (Reflect as any).getMetadata('design:type', target, key);
   },
-  paramTypes(target: any, key: string | symbol) {
+  paramTypes(target: any, key: string | symbol | number) {
     return (Reflect as any).getMetadata('design:paramtypes', target, key);
   }
 };

@@ -4,7 +4,7 @@
  *
  * @see https://github.com/Microsoft/TypeScript/issues/12215#issuecomment-307871458
  */
-export type Diff<T extends string, U extends string> = ({ [P in T]: P } &
+export type Diff<T extends string | number | symbol, U extends string | number | symbol> = ({ [P in T]: P } &
   { [P in U]: never } & { [x: string]: never })[T];
 
 /**

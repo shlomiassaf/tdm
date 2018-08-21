@@ -58,7 +58,7 @@ class MyServer extends ServerBase {
 
   @FallbackRoute()
   handle404(@Response() res: MockerResponse): Promise<any> | any {
-    return res.status(404).json(HttpError.createKnown('404'));
+    return res.status(404).json(HttpError.createKnown(404));
   }
 
   @OnMessage()

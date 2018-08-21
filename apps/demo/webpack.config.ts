@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { Configuration } from 'webpack';
-import { ServiceWorkerTsPlugin } from './tools/@webpack-ext/service-worker-ts-plugin';
+import { ServiceWorkerTsPlugin } from '../../tools/@webpack-ext/service-worker-ts-plugin';
 
 const TDM_EXAMPLE_FILE_REGEXP = /__tdm-code__\.ts$/;
 const SERVICE_WORKER_HTTP_SERVER_REGEXP = /\/server/;
@@ -111,7 +111,7 @@ function applyPlugins(webpackConfig: Configuration) {
 }
 
 function uglifyMode(webpackConfig: Configuration, mode: 'devUglify' | 'noUglify') {
-  const uglifyPlugin = webpackConfig.optimization.minimizer[3];
+  const uglifyPlugin: any = webpackConfig.optimization.minimizer[3];
   switch (mode) {
     case 'devUglify':
       uglifyPlugin.options.uglifyOptions.mangle = false;
@@ -127,9 +127,9 @@ function uglifyMode(webpackConfig: Configuration, mode: 'devUglify' | 'noUglify'
 
 function updateWebpackConfig(webpackConfig: Configuration): Configuration {
   applyLoaders(webpackConfig);
-  // applyPlugins(webpackConfig);
+  applyPlugins(webpackConfig);
 
-  uglifyMode(webpackConfig, 'devUglify');
+  // uglifyMode(webpackConfig, 'devUglify');
   // uglifyMode(webpackConfig, 'noUglify');
 
   return webpackConfig;

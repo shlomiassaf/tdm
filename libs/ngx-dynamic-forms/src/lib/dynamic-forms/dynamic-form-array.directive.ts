@@ -118,6 +118,7 @@ export class ForFormArrayDirective extends NgForOf<DynamicControlRenderContext>
         // Backward compat for angular < 6.1
         // https://github.com/angular/angular/commit/08a18b82de003c379aa76323e65e8230e5b42a56#diff-e63254bca5a65cfdc11f078011bddf98
         // TODO: remove when not supporting 6.0.0
+        // @ts-ignore
         if (super.ngOnChanges) {
           changes.ngForOf = new SimpleChange(
             this.ngForOf,
@@ -125,6 +126,7 @@ export class ForFormArrayDirective extends NgForOf<DynamicControlRenderContext>
             changes.fArray.isFirstChange()
           );
           this.ngForOf = this.ngForOfRef = changes.ngForOf.currentValue;
+          // @ts-ignore
           super.ngOnChanges(changes);
         } else {
           this.ngForOf = this.ngForOfRef = [];

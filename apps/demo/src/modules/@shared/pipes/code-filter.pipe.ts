@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform, Type } from '@angular/core';
 import { stringify, Omit } from '@tdm/core/tdm';
-import { ExtractedCode } from '@webpack-ext/tdm-code-sample/client';
+import { ExtractedCode } from '@webpack-ext/tdm-code-sample';
 
 export interface CodeExtractSectionQuery extends Partial<Omit<ExtractedCode, 'code'>> { }
 

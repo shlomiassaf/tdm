@@ -27,7 +27,7 @@ export const declared = {
     return ctx.target.hasOwnProperty(ctx.member);
   },
   errorMessage(ctx: ValidationContext) {
-    return `Property ${ctx.member} is not declared`;
+    return `Property ${ctx.member.toString()} is not declared`;
   }
 };
 
@@ -40,7 +40,7 @@ export const required = {
     return ctx.value !== undef && ctx.value !== null;
   },
   errorMessage(ctx: ValidationContext) {
-    return `Property ${ctx.member} is required`;
+    return `Property ${ctx.member.toString()} is required`;
   }
 };
 
@@ -55,7 +55,7 @@ export const instanceOf = {
     return ctx.value instanceof ctx.type || isTypeof(ctx.value, ctx.type);
   },
   errorMessage(ctx: ValidationContext) {
-    return `Property ${ctx.member} is not an instance of ${ctx.type.name}`;
+    return `Property ${ctx.member.toString()} is not an instance of ${ctx.type.name}`;
   }
 };
 
@@ -77,7 +77,7 @@ export class Min {
   }
 
   errorMessage(ctx: ValidationContext) {
-    return `Property ${ctx.member} must be greater than or equal to ${
+    return `Property ${ctx.member.toString()} must be greater than or equal to ${
       this.min
     }`;
   }
@@ -101,7 +101,7 @@ export class Max {
   }
 
   errorMessage(ctx: ValidationContext) {
-    return `Property ${ctx.member} must be less than or equal to ${this.max}`;
+    return `Property ${ctx.member.toString()} must be less than or equal to ${this.max}`;
   }
 }
 
@@ -126,7 +126,7 @@ export class Between {
   }
 
   errorMessage(ctx: ValidationContext) {
-    return `Property ${ctx.member} must be between ${this.min} and ${this.max}`;
+    return `Property ${ctx.member.toString()} must be between ${this.min} and ${this.max}`;
   }
 }
 

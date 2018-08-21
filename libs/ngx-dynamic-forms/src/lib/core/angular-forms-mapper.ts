@@ -502,35 +502,23 @@ export class NgFormsSerializeMapper extends SerializeMapper {
     );
   }
 
-  static getFormProp: <T, Z>(
-    type: Z & Constructor<T>,
-    prop: keyof T | [keyof T, string]
-  ) => FormPropMetadata = deepGetFormProp;
+  static getFormProp: <T, Z>(type: Z & Constructor<T>, prop: keyof T | [keyof T, string]) => FormPropMetadata = deepGetFormProp;
 }
 
-export function deepGetFormProp<T, Z>(
-  type: Z & Constructor<T>,
-  prop: keyof T | [keyof T, string]
-): FormPropMetadata {
-  const path: string[] = Array.isArray(prop)
+export function deepGetFormProp<T, Z>(type: Z & Constructor<T>, prop: keyof T | [keyof T, string]): FormPropMetadata {
+  const path = Array.isArray(prop)
     ? [prop[0], ...prop[1].split('.')].filter(s => !!s)
     : [prop];
 
   const formModel = targetStore.getMetaFor(type, FormModelMetadata, true);
   if (!formModel) {
-    throw new Error(
-      `Target '${stringify(type)}' is not a registered FormModel`
-    );
+    throw new Error(`Target '${stringify(type)}' is not a registered FormModel`);
   }
 
   const key = path.shift();
-  let formProp = formModel.getProp(key);
+  let formProp = formModel.getProp(key as any);
   if (!formProp) {
-    throw new Error(
-      `Target '${stringify(
-        type
-      )}' does not have a PropForm decorator for property ${key}`
-    );
+    throw new Error(`Target '${stringify(type)}' does not have a PropForm decorator for property ${key}`);
   }
 
   /*  At this point there are several scenarios:
@@ -559,7 +547,7 @@ export function deepGetFormProp<T, Z>(
 
   if (formProp.flatten) {
     while (formProp.flatten && path.length > 0) {
-      formProp = formProp.flatten[path.shift()];
+      formProp = formProp.flatten[path.shift() as any];
     }
     if (path.length > 0) {
       throw new Error(
@@ -599,27 +587,16 @@ export function deepGetFormProp<T, Z>(
 
 // tslint:disable-next-line
 export class NgFormsChildSerializeMapper extends NgFormsSerializeMapper {
-  constructor(
-    source: any,
-    protected cache: any /*Map<string, Map<any, any>> */,
-    plainMapper: PlainObjectMapper
-  ) {
+  constructor(source: any, protected cache: any /*Map<string, Map<any, any>> */, plainMapper: PlainObjectMapper) {
     super(source, plainMapper);
   }
 }
 
 export const ngFormsMapper: MapperFactory = {
-  serializer(
-    source: any,
-    plainMapper?: PlainObjectMapper
-  ): NgFormsSerializeMapper {
+  serializer(source: any, plainMapper?: PlainObjectMapper): NgFormsSerializeMapper {
     return new NgFormsSerializeMapper(source, plainMapper);
   },
-  deserializer(
-    source: DeserializableForm,
-    sourceType: any,
-    plainMapper?: PlainObjectMapper
-  ): DeserializeMapper {
+  deserializer(source: DeserializableForm, sourceType: any, plainMapper?: PlainObjectMapper): DeserializeMapper {
     return new NgFormsDeserializeMapper(source, sourceType, plainMapper);
   }
 };

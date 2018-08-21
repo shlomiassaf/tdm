@@ -1,5 +1,5 @@
 {
   "name": "tdm-code-sample",
   "version": "0.0.1",
-  "main": "src/lib/loader.ts"
+  "main": "index.ts"
 }

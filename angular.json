@@ -11,8 +11,9 @@
       "schematics": {},
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "ng-cli-ext:build",
           "options": {
+            "extraWebpackConfig": "webpack.config.ts",
             "outputPath": "dist/demo-app/tdm",
             "index": "apps/demo/src/index.html",
             "main": "apps/demo/src/main.ts",
@@ -51,9 +52,10 @@
           }
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "ng-cli-ext:dev-server",
           "options": {
-            "browserTarget": "demo:build"
+            "browserTarget": "demo:build",
+            "extraWebpackConfig": "webpack.config.ts"
           },
           "configurations": {
             "production": {
