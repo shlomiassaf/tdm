@@ -1,9 +1,27 @@
 <tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part1'}]:true"></tdm-markdown-view>
 
+<form-wrapper #formWrapper1
+              title="Child Form"
+              [code]="code | async | tdmCode:[{title: 'Component', section: 'tdmDemoInline'}, {title: 'Template', section: 'tdmDemoInline'}, {title: 'Model'}]">
+  <!--@tdm-example:tdmDemoInline-->
+  <dynamic-form #dynFormSimple [model]="model">
+    <div *dynamicFormOverride="'address'; let ctx" [formGroup]="ctx.fControl">
+      <ng-container *ngFor="let childCtx of ctx | explodeChildForm:false">
+          <dynamic-form-row [tdmForm]="childCtx.tdmForm"
+                            [fControl]="childCtx.fControl"
+                            [fGroup]="childCtx.fControl"
+                            [item]="childCtx.item"></dynamic-form-row>
+        </ng-container>
+    </div>
+  </dynamic-form>
+  <!--@tdm-example:tdmDemoInline-->
+</form-wrapper>
+
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part2'}]:true"></tdm-markdown-view>
 <form-wrapper #formWrapper
               [rightDrawerOpened]="rightDrawerOpened"
               title="Child Form"
-              [code]="code | async | tdmCode:[{title: 'Component'}, {title: 'Template', section: 'tdmDemo'}, {title: 'Model'}]">
+              [code]="code | async | tdmCode:[{title: 'Component', section: 'tdmDemo'}, {title: 'Template', section: 'tdmDemo'}, {title: 'Model'}]">
   <!--@tdm-example:tdmDemo-->
   <div class="form-wrapper-right-drawer">
 
@@ -32,4 +50,4 @@
   <!--@tdm-example:tdmDemo-->
 </form-wrapper>
 
-<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part2'}]:true"></tdm-markdown-view>
+<tdm-markdown-view [markdown]="code | async | tdmCode:[{file: 'README.md', section: 'part3'}]:true"></tdm-markdown-view>

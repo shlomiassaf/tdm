@@ -1,16 +1,9 @@
-import {
-  ANALYZE_FOR_ENTRY_COMPONENTS,
-  NgModule,
-  ModuleWithProviders
-} from '@angular/core';
+import { ANALYZE_FOR_ENTRY_COMPONENTS, NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { Constructor } from '@tdm/core/tdm';
-import {
-  TDMModelFormService,
-  TDMModelFormDirective
-} from './tdm-model-form/index';
+import { TDMModelFormService, TDMModelFormDirective } from './tdm-model-form/index';
 import {
   DynamicFormOverrideDirective,
   DynamicFormControlDirective,
@@ -18,7 +11,8 @@ import {
   DynamicFormArrayComponent,
   DynamicFormArrayDirective,
   ForFormArrayDirective,
-  DynamicFormComponent
+  DynamicFormComponent,
+  ExplodeChildFormPipe,
 } from './dynamic-forms/index';
 
 import { FORM_CONTROL_COMPONENT, DefaultRenderer } from './default-renderer';
@@ -31,7 +25,8 @@ import { FORM_CONTROL_COMPONENT, DefaultRenderer } from './default-renderer';
     DynamicFormArrayComponent,
     DynamicFormArrayDirective,
     ForFormArrayDirective,
-    DynamicFormComponent
+    DynamicFormComponent,
+    ExplodeChildFormPipe
   ],
   imports: [CommonModule, ReactiveFormsModule],
   exports: [
@@ -42,7 +37,8 @@ import { FORM_CONTROL_COMPONENT, DefaultRenderer } from './default-renderer';
     DynamicFormArrayComponent,
     DynamicFormArrayDirective,
     ForFormArrayDirective,
-    DynamicFormComponent
+    DynamicFormComponent,
+    ExplodeChildFormPipe
   ]
 })
 export class DynamicFormsModule {

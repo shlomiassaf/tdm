@@ -74,7 +74,7 @@ need to know is that a **known model** always transform into a
 `FormGroup` weather it is a child form or not. 
 
 <div class="info">
-Known models that are not a child form are handled but other complex
+Known models that are not a child form are handled by other complex
 data structures, we will cover these scenarios in the relevant chapters.
 </div>
 
@@ -133,7 +133,7 @@ Adding the property to `Hero`:
     childForm: true
   }
 })
-address: HeroAddress; 
+address: HeroAddress;
 ```
 
 <div class="info">
@@ -165,14 +165,27 @@ Common visual styles are inline and external. External options are
 dialog window, tabs, pages etc... 
 </div>
 
-The library provide tools that help achieve this freedom but at the end
-it is up to the **renderer**. The renderer can choose a strict "my way"
-implementation, An implementation that pass the responsibility to the
-user or something in between a configuration driven (metadata) approach.
+The library provide tools that help achieve this freedom, either through inline
+control override or through a concrete renderer implementation.
+The renderer can choose a strict "my way" implementation, An implementation that
+pass the responsibility to the user or something in between a configuration driven (metadata) approach.
 
 There is always a trade-off, strict is simple to use but not flexible
 and as we offer more flexibility we also add more complexity for the
 user. 
+
+### Child from using inline control override
+
+The magic happens in the template, we use the `ExplodeChildFormPipe` pipe to create
+a list of controls for our child form and iterate over them.
+For each control we render a new row.
+
+<!--@tdm-example:part1-->
+<!--@tdm-example:part2-->
+
+We apply a lot of re-use here which leads to minimal work.
+
+### Child from using the renderer
 
 In this tutorial we use the material renderer. The material renderer
 does not render child forms, instead it renders an edit button which
@@ -227,9 +240,9 @@ replace the original renderer. This is a good example how we leverage the
 container to keep the layout, show the label but use our control, in
 this case the **edit** button, instead.
 </div>
-<!--@tdm-example:part1-->
-
 <!--@tdm-example:part2-->
+
+<!--@tdm-example:part3-->
 Notice how the **required** error appears next to the edit button and
 disappear after clicking the edit button, why is that?
 
@@ -295,4 +308,4 @@ That said, it might be that the same visual style is applied repeatedly
 in many forms and the same behaviour using the same outlet configuration
 is done over and over. This is where adding some logic might help and
 creating a preset might simplify the process.
-<!--@tdm-example:part2-->
+<!--@tdm-example:part3-->

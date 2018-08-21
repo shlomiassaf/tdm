@@ -246,11 +246,7 @@ export class TDMModelForm<T = any> implements PropNotifyHandler {
     }
   }
 
-  createChildForm<Z = any>(
-    path: Array<string | number> | string,
-    model?: Z,
-    formGroup?: FormGroup
-  ): TDMModelForm<Z> {
+  createChildForm<Z = any>(path: Array<string | number> | string,  model?: Z, formGroup?: FormGroup): TDMModelForm<Z> {
     const pathArr = normalizeFormPath<T>(path);
     const formProp = this.getFormProp(pathArr);
     if (!formProp.childForm) {
@@ -284,17 +280,8 @@ export class TDMModelForm<T = any> implements PropNotifyHandler {
    * @param tryCreateNew When true and value is undefined or null, will try to create new value with the new keyword
    * using the type at the path.
    */
-  createControl(
-    path: string[] | string,
-    value?: any,
-    tryCreateNew?: boolean
-  ): FormGroup | FormControl {
-    return createControl(
-      this.type,
-      normalizeFormPath<T>(path),
-      value,
-      tryCreateNew
-    );
+  createControl(path: string[] | string, value?: any, tryCreateNew?: boolean): FormGroup | FormControl {
+    return createControl(this.type, normalizeFormPath<T>(path), value, tryCreateNew);
   }
 
   /**

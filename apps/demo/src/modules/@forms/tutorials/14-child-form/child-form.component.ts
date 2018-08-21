@@ -4,6 +4,8 @@ import { DynamicFormRowComponent } from '../5-renderer-container'; /* @tdm-ignor
 import { DynamicControlRenderContext, createChildFormEvent, TDMModelForm } from '@tdm/ngx-dynamic-forms';
 import { Hero } from './model';
 
+/* @tdm-example:tdmDemoInline */
+/* @tdm-example:tdmDemo */
 @Component({
   selector: 'form-child-form',
   templateUrl: './child-form.component.html',
@@ -17,6 +19,7 @@ import { Hero } from './model';
 export class ChildFormComponent {
   code: any = import(/* webpackChunkName: "FormsChildFormComponent" */ './__tdm-code__'); /* @tdm-ignore-line */ // tslint:disable-line
   model = new Hero();
+  /* @tdm-ignore:tdmDemoInline */
   childForm: TDMModelForm<any>;
   rightDrawerOpened: boolean;
   showChildForm: boolean;
@@ -48,6 +51,8 @@ export class ChildFormComponent {
     }
     return false;
   }
+  /* @tdm-ignore:tdmDemoInline */
+
   /* @tdm-ignore:* */
   static tutorial = {
     id: 'child-form',
@@ -55,3 +60,5 @@ export class ChildFormComponent {
   };
   /* @tdm-ignore:* */
 }
+/* @tdm-example:tdmDemo */
+/* @tdm-example:tdmDemoInline */

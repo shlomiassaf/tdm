@@ -1,10 +1,7 @@
 import { DynamicControlRenderContext, TDMModelForm } from './tdm-model-form';
 import { ChildFormEditRendererEvent } from './dynamic-forms';
 
-function cloneContext(
-  baseCtx: DynamicControlRenderContext,
-  mergeCtx?: Partial<DynamicControlRenderContext>
-): DynamicControlRenderContext {
+function cloneContext(baseCtx: DynamicControlRenderContext, mergeCtx?: Partial<DynamicControlRenderContext>): DynamicControlRenderContext {
   return Object.assign(
     {
       item: baseCtx.item,
@@ -17,10 +14,7 @@ function cloneContext(
   );
 }
 
-export function createChildFormEvent(
-  ctx: DynamicControlRenderContext,
-  mergeCtx?: Partial<DynamicControlRenderContext>
-): ChildFormEditRendererEvent {
+export function createChildFormEvent(ctx: DynamicControlRenderContext, mergeCtx?: Partial<DynamicControlRenderContext>): ChildFormEditRendererEvent {
   ctx = cloneContext(ctx, mergeCtx);
   let createdTDMModelForm: TDMModelForm<any>;
   const rootTdmForm = ctx.tdmForm;

@@ -88,3 +88,17 @@ export function objectToForm(
 export function coerceBooleanProperty(value: any): boolean {
   return value != null && `${value}` !== 'false';
 }
+
+/**
+ * Ensures that the next call to `ctrl.updateValueAndValidity()` will run with the options provided, ignoring any other input.
+ *
+ * > This is a one-time enforcment, only for the next call. After `ctrl.updateValueAndValidity()` is invoked the enforcment is
+ * removed, returning to native behaviour.
+ */
+export function forceNextUpdateValueAndValidityWith(ctrl: FormArray | FormGroup,
+                                                    options: {onlySelf?: boolean, emitEvent?: boolean} = {}): void {
+  ctrl.updateValueAndValidity = function(): void {
+    Object.getPrototypeOf(this).updateValueAndValidity.call(this, options);
+    delete this.updateValueAndValidity;
+  };
+}

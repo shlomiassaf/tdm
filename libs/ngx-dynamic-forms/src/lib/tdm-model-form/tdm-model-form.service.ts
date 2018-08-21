@@ -53,11 +53,7 @@ export class TDMModelFormService {
   create<T>(instance: T, type: Type<T>): TDMModelForm<T>;
   create<T>(instance: T, formGroup: FormGroup): TDMModelForm<T>;
   create<T>(instance: T, type: Type<T>, formGroup: FormGroup): TDMModelForm<T>;
-  create<T>(
-    instance: T,
-    type?: Type<T> | FormGroup,
-    formGroup?: FormGroup
-  ): TDMModelForm<T> {
+  create<T>(instance: T, type?: Type<T> | FormGroup, formGroup?: FormGroup): TDMModelForm<T> {
     const tdmModelForm = new TDMModelForm<T>(this);
     tdmModelForm.setContext(instance, <any>type, formGroup);
     return tdmModelForm;
